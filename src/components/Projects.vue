@@ -24,7 +24,7 @@ export default {
     props: {
         authorid: {
             type: String,
-            default: "0",
+            default: "",
         },
         title: {
             type: String,
