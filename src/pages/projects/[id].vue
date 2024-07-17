@@ -25,7 +25,7 @@
             <v-chip pill prepend-icon="mdi-application">{{project.type}}</v-chip>
           </div>
           <div class="px-4">
-            <v-card hover href="#" variant="tonal">
+            <v-card hover href="#" variant="tonal" :to="'/user/'+project.authorid">
               <v-card-item>
                 <template v-slot:prepend>
                   <v-avatar>
@@ -66,7 +66,7 @@ export default {
   data() {
     return {
       project: {},
-      embedurl: 'http://localhost:8601/embed.html#' + this.$route.query.id,
+      embedurl: 'http://localhost:8601/embed.html#' + this.$route.params.id,
 
     }
   },
@@ -77,7 +77,7 @@ export default {
     init({
       el: '#waline',
       serverURL: 'https://zerocat-waline.190823.xyz',
-      path: 'scratchproject-' + this.$route.query.id,
+      path: 'scratchproject-' + this.$route.params.id,
       copyright: false,
       reaction: true,
       pageview: true,
@@ -94,7 +94,7 @@ export default {
   methods: {
     async getproject() {
       this.project = await request({
-        url: '/api/projectinfo?id=' + this.$route.query.id,
+        url: '/api/projectinfo?id=' + this.$route.params.id,
         method: 'get',
       })
 console.log(this.project)

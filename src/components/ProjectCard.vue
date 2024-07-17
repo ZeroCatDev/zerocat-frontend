@@ -1,5 +1,5 @@
 <template>
-    <v-card :href="'/projects/play?id=' + info.id">
+    <v-card :to="'/projects/' + info.id">
 
 
 
