@@ -53,12 +53,12 @@ export default {
     props:
     {
         info: {
-            type: String,
+            type: Object,
             default: ''
         },
 
         user: {
-            type: String,
+            type: Object,
             default: '{ "id": 1, "username": "yxhyh", "display_name": "已销号用户", "motto": "已销号用户", "images": "0ec4beb623e3bcdbe0f207c9804f0bc2" }'
         }
     }

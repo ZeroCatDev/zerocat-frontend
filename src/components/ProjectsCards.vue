@@ -13,7 +13,7 @@
 
     props: {
         projects: {
-            type: String,
+            type: Object,
             default: 'text',
         },
 

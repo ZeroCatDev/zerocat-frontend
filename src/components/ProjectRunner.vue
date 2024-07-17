@@ -1,5 +1,4 @@
-<template><iframe :src="embedurl" scrolling="no" frameborder="0" style="width: 100%; height: 100%;"
-        id="project_iframe"></iframe></template>
+<template><div style="width: 100%; height: 100%;aspect-ratio: 4 / 3;"><iframe :src="embedurl" scrolling="no" frameborder="0" style="width: 100%; height: 100%;"></iframe></div></template>
 <script>
 export default {
     data() {
