@@ -24,7 +24,7 @@ export default {
     props: {
         authorid: {
             type: String,
-            default: "",
+            default: "0",
         },
         title: {
             type: String,
@@ -65,7 +65,9 @@ export default {
         };
     },
     async created() {
-        await this.getprojects();
+            await this.getprojects();
+
+
     },
     methods: {
         async getprojects() {

@@ -15,8 +15,7 @@
                     <span class="font-weight-black">{{ userinfo.info.user.display_name }}</span>
                 </template>
                 <template v-slot:loader="{ isActive }">
-                    <v-progress-linear :active="isActive" height="4"
-                        indeterminate></v-progress-linear>
+                    <v-progress-linear :active="isActive" height="4" indeterminate></v-progress-linear>
                 </template>
                 <template v-slot:subtitle>
                     <v-chip> <v-icon icon="mdi-account-circle" start></v-icon>
@@ -36,11 +35,10 @@
                     {{ userinfo.info.user.motto }} </v-card-text>
             </v-card>
         </div>
-        <Projects :authorid='this.$route.query.id' ref="Projects" showinfo='true'></Projects>
+        <Projects :authorid='userid' ref="Projects" showinfo='true'></Projects>
 
 
         <div id="waline"></div>
-
 
     </v-container>
 </template>
@@ -57,36 +55,15 @@ export default {
     data() {
         return {
             UserCardLoading: true,
-
-            userinfo: { "status": "ok", "info": { "user": { "id": 0, "display_name": "加载中", "motto": "加载中", "images": "0ec4beb623e3bcdbe0f207c9804f0bc2", "regTime": "2020-08-30T00:35:37.000Z", "sex": 1, "username": "loading" }, "count": { "pythoncount": 0, "scratchcount": 0 } } }
+            userid: this.$route.params.id,
+            userinfo: { "status": "ok", "info": { "user": { "id": 0, "display_name": "加载中", "motto": "加载中", "images": "0ec4beb623e3bcdbe0f207c9804f0bc2", "regTime": "0000-00-00T00:00:00.000Z", "sex": 0, "username": "loading" }, "count": { "pythoncount": 0, "scratchcount": 0 } } }
             ,
             projects: [],
-      scratchcount: 0,
-      curPage: 1,
-      totalPage: 1,
-      limit: 8,
-      search: {
-        title: "",
-        type: "",
-        description: "",
-        src: "",
-        order: { name: "观看量升序", type: "view_up" },
-        authorid: this.$route.query.id,
-        type: { name: "所有", type: "" },
-        typeitems: [
-          { name: "所有", type: "" },
-          { name: "Scratch", type: "scratch" },
-          { name: "Python", type: "python" },
-        ],
-        orderitems: [
-          { name: "观看量升序", type: "view_up" },
-          { name: "观看量降序", type: "view_down" },
-          { name: "时间升序", type: "time_up" },
-          { name: "时间降序", type: "time_down" },
-          { name: "序号升序", type: "id_up" },
-          { name: "序号降序", type: "id_down" },
-        ],
-      },
+            scratchcount: 0,
+            curPage: 1,
+            totalPage: 1,
+            limit: 8,
+
 
         }
     },
@@ -94,11 +71,10 @@ export default {
     async created() {
 
         await this.getuserinfo()
-
         init({
             el: '#waline',
             serverURL: 'https://zerocat-waline.190823.xyz',
-            path: 'scratchproject-' + this.$route.query.id,
+            path: 'user-' + this.$route.params.id || 'undefined',
             copyright: false,
             reaction: true,
             pageview: true,
@@ -116,14 +92,17 @@ export default {
 
 
         async getuserinfo() {
-            this.userinfo = await request({
-                url: '/api/getuserinfo?id=' + this.$route.query.id,
-                method: 'get',
-            })
-            this.$refs.Projects.onPageChange(1);
 
-            this.UserCardLoading = false
-            console.log(this.userinfo)
+            if (Number(this.$route.params.id) && Number(this.$route.params.id) !== 0) {
+                this.userinfo = await request({
+                    url: '/api/getuserinfo?id=' + this.$route.params.id,
+                    method: 'get',
+                })
+                this.$refs.Projects.onPageChange(1);
+
+                this.UserCardLoading = false
+                console.log(this.userinfo)
+            }
         },
     }
 }

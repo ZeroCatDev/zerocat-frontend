@@ -4,7 +4,7 @@ import axios from 'axios';
 // 基本配置
 const instance = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API, // 根据实际情况修改API地址
-  timeout: 5000 // 设置超时时间，单位为ms
+//  timeout: 5000 // 设置超时时间，单位为ms
 });
 
 // 请求拦截器

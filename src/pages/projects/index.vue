@@ -28,13 +28,10 @@
 </template>
 
 <script>
-import request from "../../axios/axios";
-import ProjectCard from "../../components/ProjectCard.vue";
-import ProjectsCards from "../../components/ProjectsCards.vue";
 import Projects from "../../components/Projects.vue";
 
 export default {
-  components: { ProjectCard, ProjectsCards,Projects},
+  components: {Projects},
 
   data() {
     return {
@@ -62,7 +59,6 @@ export default {
       },
     };
   },
-
   methods: {
      onPageChange(page) {
       this.$refs.Projects.onPageChange(1);
