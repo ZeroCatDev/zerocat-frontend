@@ -2,7 +2,7 @@
   "name": "ZeroCatNext",
   "version": "0.0.0",
   "scripts": {
-    "dev": "vite --port 3003",
+    "dev": "vite --port 3003 --host",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --fix --ignore-path .gitignore"
@@ -15,7 +15,8 @@
     "jwt-decode": "^4.0.0",
     "roboto-fontface": "*",
     "vue": "^3.4.31",
-    "vuetify": "^3.6.11"
+    "vuetify": "^3.6.11",
+    "vuetify-dialog": "^2.0.17"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.5",

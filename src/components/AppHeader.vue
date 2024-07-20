@@ -1,10 +1,17 @@
 <template>
  <v-navigation-drawer expand-on-hover rail v-model="drawer">
     <v-list>
-      <v-list-item :prepend-avatar="'https://s4-1.wuyuan.1r.ink/user/'+userinfo.avatar" :subtitle="userinfo.username"  :to="'/user/'+userinfo.userid"
+      <v-list-item v-if="islogin==true" :prepend-avatar="'https://s4-1.wuyuan.1r.ink/user/'+userinfo.avatar" :subtitle="userinfo.username"  :to="'/user/'+userinfo.userid"
         :title="userinfo.display_name"></v-list-item>
-    </v-list>
+        <v-list-item v-else prepend-icon="mdi-account" subtitle="登录" to="/account/login"
+        title="登录 ZeroCat 账户"></v-list-item>
 
+    </v-list>    <v-divider></v-divider>
+      <v-list>
+    <v-list-item prepend-icon="mdi-cog" title="账户设置" value="account" to="/account"></v-list-item>
+    <v-list-item v-if="islogin==true"  prepend-icon="mdi-xml" title="退出" value="logout" to="/account/logout"></v-list-item>
+
+</v-list>
     <v-divider></v-divider>
 
     <v-list density="compact" nav>
@@ -31,11 +38,12 @@
 </template>
 
 <script>
-import userinfo from '@/stores/user';
+import user from '@/stores/user';
 export default {
   data: () => ({
-    userinfo: userinfo.user,
+    userinfo: user.user,
     drawer: true,
+    islogin: user.islogin,
   }),
 }
 </script>
