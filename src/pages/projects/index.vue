@@ -22,7 +22,7 @@
 
 
 
-<Projects :authorid='search.authorid' :title="search.title" :description="search.description" :src='search.src' :order="search.order.type" :type="search.type.type"  ref="Projects" showinfo='true'></Projects>
+<Projects :authorid='search.authorid' :title="search.title" :description="search.description" :src='search.src' :order="search.order.type" :type="search.type.type"  ref="Projects" showinfo='true' :actions="[{ name:'信息',function: alert(a)},{ name:'信息1',function: alert(a)}]"></Projects>
 
         </v-container>
 </template>
@@ -60,8 +60,14 @@ export default {
     };
   },
   methods: {
-     onPageChange(page) {
+     onPageChange() {
       this.$refs.Projects.onPageChange(1);
+
+    },
+    getdate(a) {
+
+        alert(a)
+
 
     },
   },

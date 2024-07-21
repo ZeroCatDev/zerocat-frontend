@@ -10,7 +10,7 @@
             }}秒
         </v-chip>
     </div>
-    <ProjectsCards :projects="projects"></ProjectsCards>
+    <ProjectsCards :projects="projects" :actions='actions'></ProjectsCards>
 
     <v-pagination v-model="curPage" :length="totalPage" rounded="circle" :v-model="curPage"
         @update:model-value="onPageChange(curPage)" @input="onPageChange(curPage)"></v-pagination>
@@ -50,6 +50,10 @@ export default {
             type: String,
             default: false,
         },
+        actions: {
+            type: Array,
+            required:false
+                }
     },
 
     data() {
