@@ -11,7 +11,7 @@
                 <template v-slot:title>
                     <span class="font-weight-black">{{
                         localuserinfo.display_name
-                        }}</span>
+                    }}</span>
                 </template>
                 <template v-slot:loader="{ isActive }">
                     <v-progress-linear :active="isActive" height="4" indeterminate></v-progress-linear>
@@ -38,7 +38,7 @@
             <v-tabs v-model="tab" bg-color="primary">
                 <v-tab value="userinfo">用户信息</v-tab>
                 <v-tab value="username">用户名</v-tab>
-                <v-tab value="three">Item Three</v-tab>
+                <v-tab value="password">密码</v-tab>
             </v-tabs>
 
             <v-card-text>
@@ -48,15 +48,15 @@
                             <v-container>
                                 <v-row>
                                     <v-col cols="12" md="4">
-                                        <v-text-field v-model="UserInfo.display_name" :counter="10" :rules="nameRules"
-                                            label="显示名称" hide-details required></v-text-field>
+                                        <v-text-field v-model="UserInfo.display_name" :counter="10" label="显示名称"
+                                            required></v-text-field>
                                     </v-col>
 
                                     <v-col cols="12" md="12">
-                                        <v-textarea label="显示简介" v-model="UserInfo.motto"></v-textarea> </v-col><v-col
+                                        <v-textarea label="显示简介" v-model="UserInfo.motto" :counter="500"></v-textarea> </v-col><v-col
                                         cols="12" md="4">
                                         <v-select v-model="select" :items="items" item-title="state" item-value="abbr"
-                                            label="性别" persistent-hint return-object ></v-select></v-col>
+                                            label="性别" persistent-hint return-object></v-select></v-col>
                                 </v-row><v-btn @click="submit" :disabled="!valid"> 提交 </v-btn>
                             </v-container>
                         </v-form>
@@ -67,15 +67,29 @@
                                 <v-row>
                                     <v-col cols="12" md="4">
                                         <v-text-field v-model="UserInfo.username" :counter="10" :rules="nameRules"
-                                            label="用户名" hide-details required></v-text-field>
+                                            label="用户名" required></v-text-field>
                                     </v-col>
 
 
-                                </v-row><v-btn @click="changeusername" :disabled="!valid"> 提交 </v-btn>
+                                </v-row><v-btn @click="changeusername" :disabled="!usernamevalid"> 提交 </v-btn>
                             </v-container>
                         </v-form></v-tabs-window-item>
 
-                    <v-tabs-window-item value="three"> Three </v-tabs-window-item>
+                    <v-tabs-window-item value="password"> <v-form v-model="passwordvalid">
+                            <v-container>
+                                <v-row>
+                                    <v-col cols="12" md="8">
+                                        <v-text-field v-model="oldpassword" hint="此框不验证输入值" label="原密码"
+                                            required></v-text-field>
+                                    </v-col>
+                                    <v-col cols="12" md="8">
+                                        <v-text-field v-model="newpassword" :rules="passwordRules" label="新密码"
+                                            required></v-text-field>
+                                    </v-col>
+
+                                </v-row><v-btn @click="changepassword" :disabled="!passwordvalid"> 提交 </v-btn>
+                            </v-container>
+                        </v-form></v-tabs-window-item>
                 </v-tabs-window>
             </v-card-text>
         </v-card>
@@ -85,6 +99,7 @@
 <script>
 import request from "../../axios/axios";
 import ThisAccount from "@/stores/user";
+
 
 import "@waline/client/style";
 export default {
@@ -114,7 +129,35 @@ export default {
 
                     return "Name must be less than 10 characters.";
                 },
+                (value) => {
+                    const regex = /^[a-z]+$/
+                    if (regex.test(value)) return true
+
+                    return '仅小写字母'
+                },
             ],
+            passwordRules: [
+                (value) => {
+                    if (value) return true;
+
+                    return "password is required.";
+                },
+                (value) => {
+                    if (value?.length <= 10) return true;
+
+                    return "Name must be less than 10 characters.";
+                },
+                (value) => {
+                    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&\.])[A-Za-z\d$@$!%*?&\.]{8,}/
+                    if (regex.test(value)) return true
+
+                    return '密码必须由数字、大小写字母和特殊字符组成，且长度至少为8位';
+                },
+            ],
+            oldpassword: '',
+            newpassword: '',
+            passwordvalid: false,
+            usernamevalid: false,
         };
     },
 
@@ -144,9 +187,11 @@ export default {
                 },
             });
             console.log(response.status);
+            this.$toast.add({ severity: 'info', summary: '修改个人信息', detail: response.status, life: 3000 });
 
             await this.getuserinfo();
             this.UserCardLoading = false;
+
         },
         async changeusername() {
             this.UserCardLoading = true;
@@ -157,7 +202,24 @@ export default {
                     username: this.UserInfo.username,
                 },
             });
+            this.$toast.add({ severity: 'info', summary: '修改用户名', detail: response.status, life: 3000 });
+
             console.log(response.status);
+
+            await this.getuserinfo();
+            this.UserCardLoading = false;
+        },
+        async changepassword() {
+            this.UserCardLoading = true;
+            const response = await request({
+                url: "/my/set/pw",
+                method: "post",
+                data: {
+                    oldpw: this.oldpassword, newpw: this.newpassword
+                },
+            });
+            console.log(response.status);
+            this.$toast.add({ severity: 'info', summary: '修改密码', detail: response.message, life: 3000 });
 
             await this.getuserinfo();
             this.UserCardLoading = false;

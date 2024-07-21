@@ -14,7 +14,7 @@
 </v-list>
     <v-divider></v-divider>
 
-    <v-list density="compact" nav>
+    <v-list >
       <v-list-item prepend-icon="mdi-home" title="首页" value="home" to="/"></v-list-item>
       <v-list-item prepend-icon="mdi-xml" title="项目" value="projects" to="/projects"></v-list-item>
 

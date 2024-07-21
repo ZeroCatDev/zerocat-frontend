@@ -1,6 +1,6 @@
 <template>
   <v-container> <v-row><v-col cols="8" md="8" lg="8" xl="8" sm="8" xs="8">
-      <ProjectRunner :type="project.type" :id="project.id"/>
+        <ProjectRunner :type="project.type" :id="project.id" />
       </v-col>
 
       <v-col cols="4">
@@ -22,10 +22,10 @@
           </div>
           <div class="px-4 d-flex  ga-2 mb-2">
             <v-chip pill prepend-icon="mdi-xml" v-if="project.state == 1 || project.state == 2">开源作品</v-chip>
-            <v-chip pill prepend-icon="mdi-application">{{project.type}}</v-chip>
+            <v-chip pill prepend-icon="mdi-application">{{ project.type }}</v-chip>
           </div>
           <div class="px-4">
-            <v-card hover href="#" variant="tonal" :to="'/user/'+project.authorid">
+            <v-card hover href="#" variant="tonal" :to="'/user/' + project.authorid">
               <v-card-item>
                 <template v-slot:prepend>
                   <v-avatar>
@@ -36,7 +36,7 @@
                 <v-card-title class="text-white">
                   {{ project.author_display_name }} </v-card-title>
                 <v-card-subtitle class="text-white">
-                  {{ project.description }} </v-card-subtitle>
+                  {{ project.author_motto }} </v-card-subtitle>
 
               </v-card-item></v-card>
           </div>
@@ -66,7 +66,6 @@ export default {
   data() {
     return {
       project: {},
-      embedurl: 'http://localhost:8601/embed.html#' + this.$route.params.id,
 
     }
   },
@@ -97,7 +96,7 @@ export default {
         url: '/api/projectinfo?id=' + this.$route.params.id,
         method: 'get',
       })
-console.log(this.project)
+      console.log(this.project)
     },
   }
 }

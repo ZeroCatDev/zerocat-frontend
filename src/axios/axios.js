@@ -1,6 +1,5 @@
 
 import axios from 'axios';
-
 // 基本配置
 const instance = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API, // 根据实际情况修改API地址

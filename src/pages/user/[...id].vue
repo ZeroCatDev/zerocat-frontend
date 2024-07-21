@@ -87,6 +87,10 @@ export default {
             ],
             dark: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches,
         });
+        this.$message({
+	message: 'Hello',
+	color: 'success',
+})
     },
     methods: {
 

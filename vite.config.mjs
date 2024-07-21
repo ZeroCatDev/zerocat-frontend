@@ -6,6 +6,7 @@ import Layouts from 'vite-plugin-vue-layouts'
 import Vue from '@vitejs/plugin-vue'
 import VueRouter from 'unplugin-vue-router/vite'
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+import {PrimeVueResolver} from '@primevue/auto-import-resolver';
 
 // Utilities
 import { defineConfig,loadEnv  } from 'vite'
@@ -45,6 +46,8 @@ export default defineConfig({
       },
       vueTemplate: true,
     }),
+    PrimeVueResolver()
+
   ],
   define: { 'process.env': {} },
   resolve: {

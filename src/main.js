@@ -5,16 +5,24 @@
  */
 
 // Plugins
-import { registerPlugins } from '@/plugins'
+import { registerPlugins } from "@/plugins";
+import ToastService from "primevue/toastservice";
+import PrimeVue from "primevue/config";
+import Aura from "@primevue/themes/aura";
 
 // Components
-import App from './App.vue'
+import App from "./App.vue";
 
 // Composables
-import { createApp } from 'vue'
+import { createApp } from "vue";
 
-const app = createApp(App)
+const app = createApp(App);
+app.use(PrimeVue, {
+  theme: {
+    preset: Aura,
+  },
+});
+app.use(ToastService);
 
-registerPlugins(app)
-
-app.mount('#app')
+registerPlugins(app);
+app.mount("#app");
