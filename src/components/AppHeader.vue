@@ -9,7 +9,9 @@
     </v-list>    <v-divider></v-divider>
       <v-list>
     <v-list-item prepend-icon="mdi-cog" title="账户设置" value="account" to="/account"></v-list-item>
-    <v-list-item v-if="islogin==true"  prepend-icon="mdi-xml" title="退出" value="logout" to="/account/logout"></v-list-item>
+    <v-list-item prepend-icon="mdi-xml" title="我的项目" value="myprojects" to="/projects/my"></v-list-item>
+
+    <v-list-item v-if="islogin==true"  prepend-icon="mdi-export" title="退出" value="logout" to="/account/logout"></v-list-item>
 
 </v-list>
     <v-divider></v-divider>
