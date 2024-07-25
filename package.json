@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite --port 3003 --host",
-    "build": "npm run build:scratch-gui && vite build",
+    "build": "vite build",
     "build:scratch-gui": "cd scratch-gui && npm install && npm run build && cd ..",
     "preview": "vite preview",
     "lint": "eslint . --fix --ignore-path .gitignore",
