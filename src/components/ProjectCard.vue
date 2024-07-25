@@ -45,7 +45,7 @@
 
         <v-card-actions v-if="actions">
             <div v-for="action in actions" :key="action.name">
-                <v-btn @click="action.function(info.id)">{{ action.name }}</v-btn>
+                <v-btn @click="action.function(info.id,info)">{{ action.name }}</v-btn>
             </div>
         </v-card-actions>
     </v-card>
@@ -77,7 +77,7 @@ export default {
     },
     methods: {
         callFunction(action) {
-            action(this.info.id);
+            action(this.info.id,this.info);
         }
     }
 

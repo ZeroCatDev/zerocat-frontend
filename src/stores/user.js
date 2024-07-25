@@ -1,25 +1,25 @@
-import { jwtDecode } from "jwt-decode";
-var token = "";
-var user = {};
-var islogin = false; // 用户登录状态
+import { jwtDecode } from "jwt-decode"
+import { ref } from "vue"
 
-if (localStorage.getItem("token")) {
-  token = localStorage.getItem("token"); // 获取本地存储的JWT令牌
-  user = jwtDecode(token);
-  console.log(user);
-  islogin = true; // 用户登录状态
-} else {
-  islogin = false; // 用户登录状态
-  user = {}; // 用户登录状态
+var token = ref(null)
+var user = ref({})
+var islogin = ref(false)
+
+const loaduser = () => {
+  if (localStorage.getItem("token")) {
+    token.value = localStorage.getItem("token")
+    user.value = jwtDecode(token.value)
+    islogin.value = true
+  } else {
+    islogin.value = false
+    user.value = {}
+  }
+  console.log("用户登录信息----------")
+  console.log("token:" + token.value)
+  console.log(user.value)
+  console.log("是否登录:" + islogin.value)
 }
-console.log('用户登录信息----------');
-console.log('token:'+token);
 
-console.log(user);
-console.log('是否登录:'+islogin);
+loaduser()
 
-export default {
-  token, // 用户token身份
-  user, // 用户登录状态
-  islogin,
-};
+export const localuser = { token, user, islogin, loaduser }

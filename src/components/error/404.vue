@@ -11,7 +11,7 @@
       />
 
       <div class="text-center">
-        <div class="text-body-2 font-weight-light mb-n1">出现了错误：</div>
+        <div class="text-body-2 font-weight-light mb-n1">出现了错误</div>
 
         <h1 class="text-h2 font-weight-bold">404</h1>
       </div>
@@ -23,8 +23,7 @@
           <v-card
             class="py-4"
             color="surface-variant"
-            image="https://cdn.vuetifyjs.com/docs/images/one/create/feature.png"
-            prepend-icon="mdi-rocket-launch-outline"
+            prepend-icon="mdi-help"
             rounded="lg"
             variant="outlined"
           >
@@ -54,16 +53,12 @@
 
         <v-col cols="6">
           <v-card
-            append-icon="mdi-open-in-new"
             class="py-4"
             color="surface-variant"
-            href="https://vuetifyjs.com/"
-            prepend-icon="mdi-text-box-outline"
-            rel="noopener noreferrer"
+            to="/"
+            prepend-icon="mdi-home"
             rounded="lg"
-            subtitle="Learn about all things Vuetify in our documentation."
-            target="_blank"
-            title="Documentation"
+            title="返回首页"
             variant="text"
           >
             <v-overlay
@@ -78,16 +73,12 @@
 
         <v-col cols="6">
           <v-card
-            append-icon="mdi-open-in-new"
             class="py-4"
             color="surface-variant"
-            href="https://vuetifyjs.com/introduction/why-vuetify/#feature-guides"
-            prepend-icon="mdi-star-circle-outline"
-            rel="noopener noreferrer"
+          @click="this.$router.back()"
+            prepend-icon="mdi-arrow-left-drop-circle"
             rounded="lg"
-            subtitle="Explore available framework Features."
-            target="_blank"
-            title="Features"
+            title="返回上一页"
             variant="text"
           >
             <v-overlay
@@ -100,53 +91,7 @@
           </v-card>
         </v-col>
 
-        <v-col cols="6">
-          <v-card
-            append-icon="mdi-open-in-new"
-            class="py-4"
-            color="surface-variant"
-            href="https://vuetifyjs.com/components/all"
-            prepend-icon="mdi-widgets-outline"
-            rel="noopener noreferrer"
-            rounded="lg"
-            subtitle="Discover components in the API Explorer."
-            target="_blank"
-            title="Components"
-            variant="text"
-          >
-            <v-overlay
-              opacity=".06"
-              scrim="primary"
-              contained
-              model-value
-              persistent
-            />
-          </v-card>
-        </v-col>
 
-        <v-col cols="6">
-          <v-card
-            append-icon="mdi-open-in-new"
-            class="py-4"
-            color="surface-variant"
-            href="https://discord.vuetifyjs.com"
-            prepend-icon="mdi-account-group-outline"
-            rel="noopener noreferrer"
-            rounded="lg"
-            subtitle="Connect with Vuetify developers."
-            target="_blank"
-            title="Community"
-            variant="text"
-          >
-            <v-overlay
-              opacity=".06"
-              scrim="primary"
-              contained
-              model-value
-              persistent
-            />
-          </v-card>
-        </v-col>
       </v-row>
     </v-responsive>
   </v-container>

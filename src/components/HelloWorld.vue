@@ -23,22 +23,24 @@
           <v-card
             class="py-4"
             color="surface-variant"
-            image="https://cdn.vuetifyjs.com/docs/images/one/create/feature.png"
             prepend-icon="mdi-rocket-launch-outline"
+            append-icon="mdi-arrow-right"
+
             rounded="lg"
             variant="outlined"
+            to="/projects"
           >
             <template #image>
               <v-img position="top right" />
             </template>
 
             <template #title>
-              <h2 class="text-h5 font-weight-bold">Get started</h2>
+              <h2 class="text-h5 font-weight-bold">浏览作品</h2>
             </template>
 
             <template #subtitle>
               <div class="text-subtitle-1">
-                Replace this page by removing <v-kbd>{{ `<HelloWorld />` }}</v-kbd> in <v-kbd>pages/index.vue</v-kbd>.
+                立刻浏览zerocat上的<v-kbd> Scratch </v-kbd>和<v-kbd> Python </v-kbd>作品！
               </div>
             </template>
 
@@ -51,7 +53,7 @@
             />
           </v-card>
         </v-col>
-
+<!--
         <v-col cols="6">
           <v-card
             append-icon="mdi-open-in-new"
@@ -98,20 +100,20 @@
               persistent
             />
           </v-card>
-        </v-col>
+        </v-col>-->
 
         <v-col cols="6">
           <v-card
             append-icon="mdi-open-in-new"
             class="py-4"
             color="surface-variant"
-            href="https://vuetifyjs.com/components/all"
-            prepend-icon="mdi-widgets-outline"
+            href="https://github.com/zerocatdev"
+            prepend-icon="mdi-github"
             rel="noopener noreferrer"
             rounded="lg"
-            subtitle="Discover components in the API Explorer."
+            subtitle="ZeroCat开放所有项目代码，欢迎star支持"
             target="_blank"
-            title="Components"
+            title="开源"
             variant="text"
           >
             <v-overlay
@@ -129,13 +131,13 @@
             append-icon="mdi-open-in-new"
             class="py-4"
             color="surface-variant"
-            href="https://discord.vuetifyjs.com"
-            prepend-icon="mdi-account-group-outline"
+            href="https://wuyuan.dev"
+            prepend-icon="mdi-account-outline"
             rel="noopener noreferrer"
             rounded="lg"
-            subtitle="Connect with Vuetify developers."
+            subtitle="社区开发者"
             target="_blank"
-            title="Community"
+            title="孙悟元"
             variant="text"
           >
             <v-overlay

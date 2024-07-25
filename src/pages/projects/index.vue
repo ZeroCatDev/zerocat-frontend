@@ -11,7 +11,8 @@
 
     <v-select v-model="search.type" :items="search.typeitems" item-title="name" item-value="type" label="项目类型"
       return-object></v-select>
-
+      <v-select v-model="search.state" :items="searchstates"
+      item-title="state" item-value="abbr" label="项目状态"></v-select>
     <v-btn @click="onPageChange(1);"> 搜索 </v-btn>
     <v-btn @click="
       search.order = { name: '观看量升序', type: 'view_up' }; search.type={ name: '所有' , type: '' }; search.authorid='' ;
@@ -22,7 +23,7 @@
 
 
 
-<Projects :authorid='search.authorid' :title="search.title" :description="search.description" :src='search.src' :order="search.order.type" :type="search.type.type"  ref="Projects" showinfo='true'></Projects>
+<Projects :authorid='search.authorid' :title="search.title" :description="search.description" :src='search.src' :order="search.order.type" :type="search.type.type" :state="search.state" ref="Projects" showinfo='true'></Projects>
 
         </v-container>
 </template>
@@ -35,6 +36,12 @@ export default {
 
   data() {
     return {
+
+      searchstates: [
+        {state: '所有', abbr: '' },
+        { state: '开源', abbr: 1 },
+        { state: '被精选', abbr: 2 },
+      ],
       search: {
         title: "",
         type: "",
@@ -56,6 +63,7 @@ export default {
           { name: "序号升序", type: "id_up" },
           { name: "序号降序", type: "id_down" },
         ],
+        state:''
       },
     };
   },

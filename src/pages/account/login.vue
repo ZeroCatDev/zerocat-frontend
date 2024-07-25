@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import user from "@/stores/user";
+import {localuser} from '@/stores/user';
 export default {
     data() {
         return {
@@ -26,7 +26,7 @@ export default {
     },
 
     created() {
-        if (user.islogin == true) {
+        if (localuser.islogin == true) {
             this.$router.push("/");
         }
     },

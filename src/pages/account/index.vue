@@ -98,7 +98,7 @@
 
 <script>
 import request from "../../axios/axios";
-import ThisAccount from "@/stores/user";
+import {localuser} from '@/stores/user';
 
 
 import "@waline/client/style";
@@ -106,7 +106,7 @@ export default {
     data() {
         return {
             UserCardLoading: false,
-            localuserinfo: ThisAccount.user,
+            localuserinfo: localuser.user,
             UserInfo: {},
             tab: null,
             select: { state: "未知", abbr: "3" },

@@ -13,6 +13,8 @@
 </template>
 
 <script>
+import {localuser} from '@/stores/user';
+
 export default {
     data() {
         return {
@@ -32,7 +34,7 @@ export default {
             }
             this.log('已成功退出您的账户，请关闭此标签页并刷新其他标签页')
 
-
+            localuser.loaduser()
         } catch (error) {
             this.log(error)
         }

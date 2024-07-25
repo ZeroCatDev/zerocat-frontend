@@ -1,51 +1,87 @@
 <template>
- <v-navigation-drawer expand-on-hover rail v-model="drawer">
-    <v-list>
-      <v-list-item v-if="islogin==true" :prepend-avatar="'https://s4-1.wuyuan.1r.ink/user/'+userinfo.avatar" :subtitle="userinfo.username"  :to="'/user/'+userinfo.userid"
-        :title="userinfo.display_name"></v-list-item>
-        <v-list-item v-else prepend-icon="mdi-account" subtitle="登录" to="/account/login"
-        title="登录 ZeroCat 账户"></v-list-item>
 
-    </v-list>    <v-divider></v-divider>
-      <v-list>
-    <v-list-item prepend-icon="mdi-cog" title="账户设置" value="account" to="/account"></v-list-item>
-    <v-list-item prepend-icon="mdi-xml" title="我的项目" value="myprojects" to="/projects/my"></v-list-item>
-
-    <v-list-item v-if="islogin==true"  prepend-icon="mdi-export" title="退出" value="logout" to="/account/logout"></v-list-item>
-
-</v-list>
-    <v-divider></v-divider>
-
-    <v-list >
-      <v-list-item prepend-icon="mdi-home" title="首页" value="home" to="/"></v-list-item>
-      <v-list-item prepend-icon="mdi-xml" title="项目" value="projects" to="/projects"></v-list-item>
-
-    </v-list>
-  </v-navigation-drawer>
   <v-app-bar :elevation="2">
     <template v-slot:prepend>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
     </template>
     <v-app-bar-title>ZeroCatNext</v-app-bar-title>
     <template v-slot:append>
-      <v-btn icon="mdi-heart"></v-btn>
+      <v-menu>
+            <template v-slot:activator="{ props }">
+              <v-btn icon="mdi-dots-vertical" v-bind="props"></v-btn>
+            </template>
 
-      <v-btn icon="mdi-magnify"></v-btn>
-
-      <v-btn icon="mdi-dots-vertical"></v-btn>
+            <v-list>
+              <v-list-item to="/" prepend-icon="mdi-home" title="首页" rounded="xl">
+              </v-list-item>
+              <v-list-item href="https://zerocat.houlangs.com" prepend-icon="mdi-web" title="原站点" rounded="xl">
+              </v-list-item>
+            </v-list>
+          </v-menu>
     </template>
   </v-app-bar>
+  <v-navigation-drawer v-model="drawer">
+    <v-list>
+      <v-list-item v-if="islogin == true" :prepend-avatar="'https://s4-1.wuyuan.1r.ink/user/' + userinfo.avatar"
+        rounded="xl" :subtitle="userinfo.username" :to="'/user/' + userinfo.userid"
+        :title="userinfo.display_name"></v-list-item>
+      <v-list-item v-else prepend-icon="mdi-account" subtitle="登录" to="/account/login" rounded="xl"
+        title="登录 ZeroCat 账户"></v-list-item>
 
+    </v-list>
+    <v-divider></v-divider>
+    <v-list>
+      <div v-if="islogin == true">
+        <v-list-subheader>账户</v-list-subheader>
+
+        <v-list-item rounded="xl" prepend-icon="mdi-cog" title="账户设置" value="account" to="/account"></v-list-item>
+        <v-list-item rounded="xl" prepend-icon="mdi-xml" title="我的项目" value="myprojects"
+          to="/projects/my"></v-list-item>
+
+        <v-list-item rounded="xl" prepend-icon="mdi-export" :title="logoutbutton" value="logout"
+          @click="trylogout"></v-list-item>
+
+      </div>
+
+      <v-list-subheader>导航</v-list-subheader>
+
+      <v-list-item rounded="xl" prepend-icon="mdi-home" title="首页" value="home" to="/"></v-list-item>
+      <v-list-item rounded="xl" prepend-icon="mdi-xml" title="项目" value="projects" to="/projects"></v-list-item>
+
+    </v-list>
+  </v-navigation-drawer>
 
 </template>
 
 <script>
-import user from '@/stores/user';
+import {localuser} from '@/stores/user';
 export default {
   data: () => ({
-    userinfo: user.user,
+    localuser:localuser,
+    userinfo: localuser.user,
     drawer: true,
-    islogin: user.islogin,
+    islogin: localuser.islogin,
+    clicklogout: 0,
+    logoutbutton: '退出'
   }),
+  watch: {
+    userinfo(newName, oldName) {
+      this.$forceUpdate()      }
+  },
+  methods: {
+    trylogout() {
+
+      console.log(111)
+      if (this.clicklogout == 1) {
+        this.$router.push('/account/logout')
+
+      } else {
+        this.clicklogout = this.clicklogout + 1
+
+        this.logoutbutton = '再点一次退出'
+      }
+
+    }
+  }
 }
 </script>
