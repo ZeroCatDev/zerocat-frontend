@@ -39,10 +39,7 @@ jobs:
     - name: Build
       run: |
         npm install
-        cd scratch-gui
-        npm install
-        npm run build
-        cd ..
+        npm run build:scratch-gui
         npm run build
     - name: Setup Pages
       uses: actions/configure-pages@v5
