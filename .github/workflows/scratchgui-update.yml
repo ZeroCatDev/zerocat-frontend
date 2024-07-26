@@ -38,7 +38,7 @@ jobs:
             APIHOST: ${{ vars.APIHOST }}
             ASSETSHOST: ${{ vars.ASSETSHOST }}
       run: |
-        git submodule update --remote --recursive
+        git submodule update --init --recursive
         git pull
 
     - name: Commit files
