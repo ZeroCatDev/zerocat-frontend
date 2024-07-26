@@ -38,6 +38,7 @@ jobs:
 
     - name: Build
       run: |
+        git submodule update
         npm install
         npm run build:scratch-gui
         npm run build
