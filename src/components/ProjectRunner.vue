@@ -33,20 +33,20 @@ export default {
     },
     created() {
         if (this.type === 'scratch') {
-                this.embedurl = import.meta.env.VITE_APP_SCRATCH_EDITOR + '#' + this.id
+                this.embedurl = '/scratch/embed.html#' + this.id
             }
             if (this.type === 'python') {
-                this.pythonplayer = import.meta.env.VITE_APP_PYTHON_PLAYER + '?id=' + this.id
+                this.pythonplayer = import.meta.env.VITE_APP_BASE_API + '/python/next?id=' + this.id
             }
     },
     watch
         : {
         type: function (newType) {
             if (newType === 'scratch') {
-                this.embedurl = import.meta.env.VITE_APP_SCRATCH_EDITOR + '#' + this.id
+                this.embedurl = '/scratch/embed.html#' + this.id
             }
             if (newType === 'python') {
-                this.pythonplayer = import.meta.env.VITE_APP_PYTHON_PLAYER + '?id=' + this.id
+                this.pythonplayer = import.meta.env.VITE_APP_BASE_API + '/python/next?id=' + this.id
             }
         },
         id: function (newType) {
