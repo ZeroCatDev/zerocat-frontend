@@ -1,0 +1,4 @@
+[submodule "public/scratch"]
+	path = public/scratch
+	url = https://github.com/zerocatdev/scratch-gui
+	branch = build
