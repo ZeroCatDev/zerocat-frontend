@@ -7,7 +7,7 @@ import Vue from "@vitejs/plugin-vue";
 import VueRouter from "unplugin-vue-router/vite";
 import Vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
-import copyPlugin from "rollup-plugin-copy";
+//import copyPlugin from "rollup-plugin-copy";
 
 // Utilities
 import { defineConfig, loadEnv } from "vite";
@@ -47,7 +47,7 @@ export default defineConfig({
       vueTemplate: true,
     }),
     PrimeVueResolver(),
-    copyPlugin(
+    /*copyPlugin(
       {
         targets: [{ src: "scratch-gui/build", dest: "dist" }],
         verbose: true,
@@ -58,7 +58,7 @@ export default defineConfig({
         verbose: true,
         hook: "buildEnd",
       }
-    ),
+    ),*/
   ],
   define: { "process.env": {} },
   resolve: {
