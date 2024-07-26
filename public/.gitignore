@@ -1,6 +1,0 @@
-scratch/
-scratch/*
-/scratch
-scratch/.*
-
-# Ignore all files in the scratch directory and its subdirectories
