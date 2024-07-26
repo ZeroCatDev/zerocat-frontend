@@ -39,9 +39,6 @@ jobs:
     - name: Build
       run: |
         git submodule update --init --recursive
-        cd ./public/scratch
-        git pull origin
-        cd ../../
         npm install
         npm run build
     - name: Setup Pages
