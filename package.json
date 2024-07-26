@@ -4,10 +4,10 @@
   "scripts": {
     "dev": "vite --port 3003 --host",
     "build": "vite build",
-    "build:scratch-gui": "eval cd scratch-gui && npm install && npm run build && cd ..",
+    "build-scratch-gui": "eval cd scratch-gui && npm install && npm run build && cd ..",
     "preview": "vite preview",
     "lint": "eslint . --fix --ignore-path .gitignore",
-    "deploy":"npm run build:scratch-gui && npm run build"
+    "deploy":"npm run build-scratch-gui && npm run build"
   },
   "dependencies": {
     "@mdi/font": "7.4.47",
