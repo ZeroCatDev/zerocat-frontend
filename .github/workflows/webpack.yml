@@ -34,11 +34,15 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '20.x'
+# 《神奇的action构建喵与令人无语的npm酱相爱相杀の一天》
 
     - name: Build
       run: |
         npm install
-        npm run build:scratch-gui
+        cd scratch-gui
+        npm install
+        npm run build
+        cd ..
         npm run build
     - name: Setup Pages
       uses: actions/configure-pages@v5
