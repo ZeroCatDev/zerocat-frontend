@@ -40,6 +40,9 @@ jobs:
       run: |
         git submodule update
         npm install
+        cd ./scratch-gui
+        npm install
+        cd ../
         npm run build:scratch-gui
         npm run build
     - name: Setup Pages
