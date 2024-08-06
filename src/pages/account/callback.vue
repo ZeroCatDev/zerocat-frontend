@@ -50,15 +50,6 @@ export default {
             console.log('无token')
         }
     },
-    methods: {
-        async getproject() {
-            this.project = await request({
-                url: '/api/projectinfo?id=' + this.$route.params.id,
-                method: 'get',
-            })
-            console.log(this.project)
-        },
-    }
 }
 
 

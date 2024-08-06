@@ -1,26 +1,25 @@
-import { ref } from 'vue';
+export function initRecaptcha(id) {
+  const script = document.createElement("script");
+  script.src =
+  import.meta.env.VITE_APP_REURL;
+  script.async = true;
+  script.defer = true;
 
-export default function useRecaptcha() {
-  const recaptcha = ref(null);
-
-  const initRecaptcha = () => {
-    window.recaptcha = {
-      siteKey: '1x00000000000000000000AA',
+  document.head.appendChild(script);
+  window.onloadCallback = function () {
+    window.grecaptcha.render(`#${id}`, {
+      sitekey: import.meta.env.VITE_APP_REKEY,
       callback: function (token) {
         console.log(`Challenge Success ${token}`);
       },
-    };
-
-    const script = document.createElement('script');
-    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?compat=recaptcha&onload=onloadCallback';
-    script.async = true;
-    script.defer = true;
-
-    document.head.appendChild(script);
+    });
   };
+}
 
-  return {
-    recaptcha,
-    initRecaptcha,
-  };
+export function getResponse() {
+  return window.grecaptcha.getResponse();
+}
+
+export function resetCaptcha() {
+  window.grecaptcha.reset();
 }
