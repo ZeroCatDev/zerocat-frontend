@@ -7,15 +7,33 @@
     <div style="width: 100%; height: 100%;aspect-ratio: 4 / 3;"><iframe :src="pythonplayer" scrolling="no"
         frameborder="0" style="width: 100%; height: 100%;"></iframe></div>
   </div>
+  <v-expansion-panels>
+    <v-expansion-panel>
+    <v-expansion-panel-title>原始数据</v-expansion-panel-title>
+      <v-expansion-panel-text>
+        <highlightjs autodetect :code="code" />
+      </v-expansion-panel-text>
+    </v-expansion-panel>
+  </v-expansion-panels>
+
 </template>
 <script>
+import 'highlight.js/styles/github-dark.css';
+import hljs from 'highlight.js/lib/common';
+import hljsVuePlugin from "@highlightjs/vue-plugin";
+import request from "../axios/axios";
+import { ref } from 'vue';
 export default {
+  components: {
+    highlightjs: hljsVuePlugin.component
+  },
   data() {
     return {
-      embedurl: `/`,
+      embedurl: '/',
       watchedtype: '',
       watchedid: '',
       pythonplayer: '',
+      code: ''
     }
   },
 
@@ -33,18 +51,23 @@ export default {
   },
 
   watch: {
-    type: function (newType) {
-      this.watchedtype = newType
-      if (newType === 'scratch') {
+    type: async function (newVal, oldVal) {
+      this.watchedtype = newVal
+      this.watchedid = newVal
+
+      this.code = await request({
+        url: '/project/getproject/src/' + this.id,
+        method: "get",
+      })
+      console.log(this.code)
+      if (this.type === 'scratch') {
         this.embedurl = import.meta.env.VITE_APP_SCARATCH + '/embed.html#' + this.id
       }
-      if (newType === 'python') {
+      if (this.type === 'python') {
         this.pythonplayer = import.meta.env.VITE_APP_PYTHON + '/nextplay.html?id=' + this.id
       }
-    },
-    id: function (newType) {
-      this.watchedid = newType
-    },
+
+    }
   }
 }
 </script>

@@ -10,11 +10,13 @@
     "deploy": "npm run build"
   },
   "dependencies": {
+    "@highlightjs/vue-plugin": "^2.1.0",
     "@mdi/font": "7.4.47",
     "@primevue/themes": "^4.0.0",
     "@waline/client": "^3.3.0",
     "axios": "^1.7.2",
     "core-js": "^3.37.1",
+    "highlight.js": "^11.10.0",
     "jwt-decode": "^4.0.0",
     "primevue": "^4.0.0",
     "roboto-fontface": "*",
@@ -22,7 +24,6 @@
     "vuetify": "^3.6.11",
     "vuetify-dialog": "^2.0.17"
   },
-
   "devDependencies": {
     "@primevue/auto-import-resolver": "^4.0.0",
     "@vitejs/plugin-vue": "^5.0.5",

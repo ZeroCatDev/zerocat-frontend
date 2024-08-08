@@ -7,17 +7,17 @@
     <v-app-bar-title>ZeroCatNext</v-app-bar-title>
     <template v-slot:append>
       <v-menu>
-            <template v-slot:activator="{ props }">
-              <v-btn icon="mdi-dots-vertical" v-bind="props"></v-btn>
-            </template>
+        <template v-slot:activator="{ props }">
+          <v-btn icon="mdi-dots-vertical" v-bind="props"></v-btn>
+        </template>
 
-            <v-list>
-              <v-list-item to="/" prepend-icon="mdi-home" title="首页" rounded="xl">
-              </v-list-item>
-              <v-list-item href="https://zerocat.houlangs.com" prepend-icon="mdi-web" title="原站点" rounded="xl">
-              </v-list-item>
-            </v-list>
-          </v-menu>
+        <v-list>
+          <v-list-item to="/" prepend-icon="mdi-home" title="首页" rounded="xl">
+          </v-list-item>
+          <v-list-item href="https://zerocat.houlangs.com" prepend-icon="mdi-web" title="原站点" rounded="xl">
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </template>
   </v-app-bar>
   <v-navigation-drawer v-model="drawer">
@@ -47,26 +47,33 @@
 
       <v-list-item rounded="xl" prepend-icon="mdi-home" title="首页" value="home" to="/"></v-list-item>
       <v-list-item rounded="xl" prepend-icon="mdi-xml" title="项目" value="projects" to="/projects"></v-list-item>
+      <v-list-item rounded="xl" prepend-icon="mdi-plus" title="新作品" value="projects"
+        @click="$refs.NewProjectDialog.show()"></v-list-item>
+
 
     </v-list>
   </v-navigation-drawer>
-
+  <NewProjectDialog ref="NewProjectDialog"/>
 </template>
 
 <script>
-import {localuser} from '@/stores/user';
+import NewProjectDialog from '@/components/NewProjectDialog.vue'
+import { localuser } from '@/stores/user';
 export default {
+  components: { NewProjectDialog },
   data: () => ({
-    localuser:localuser,
+    localuser: localuser,
     userinfo: localuser.user,
     drawer: true,
     islogin: localuser.islogin,
     clicklogout: 0,
-    logoutbutton: '退出'
+    logoutbutton: '退出',
+    urltoken: '',
   }),
   watch: {
     userinfo(newName, oldName) {
-      this.$forceUpdate()      }
+      this.$forceUpdate()
+    }
   },
   methods: {
     trylogout() {
