@@ -91,6 +91,8 @@
 </template>
 
 <script>
+import openEditor from "../../stores/openEdit";
+
 import request from "../../axios/axios";
 import Projects from "../../components/Projects.vue";
 import { localuser } from '@/stores/user';
@@ -165,8 +167,8 @@ export default {
     },
 
     openedit(id, info) {
-      this.$toast.add({ severity: 'info', summary: 'info', detail: `尝试打开${info.state}编辑器并编辑${id}号作品，但失败了`, life: 3000 });
-
+      this.$toast.add({ severity: 'info', summary: 'info', detail: `尝试打开${info.type}编辑器并编辑${id}号作品`, life: 3000 });
+      openEditor(id, info.type)
     },
     SaveProjectsInfo
       () {
