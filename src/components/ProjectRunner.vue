@@ -7,7 +7,7 @@
     <div style="width: 100%; height: 100%;aspect-ratio: 4 / 3;"><iframe :src="pythonplayer" scrolling="no"
         frameborder="0" style="width: 100%; height: 100%;"></iframe></div>
   </div>
-  <v-expansion-panels>
+  <v-expansion-panels v-if='type != "scratch"'>
     <v-expansion-panel>
     <v-expansion-panel-title>原始数据</v-expansion-panel-title>
       <v-expansion-panel-text>

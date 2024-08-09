@@ -75,7 +75,8 @@
         </v-card-text>
         <v-divider></v-divider>
 
-        <v-card-actions>
+        <v-card-actions> <v-btn color="error" text="删除" variant="tonal" @click="deleteProject"></v-btn>
+
           <v-spacer></v-spacer>
 
           <v-btn text="取消" variant="plain" @click="dialog = false"></v-btn>
@@ -169,6 +170,21 @@ export default {
     openedit(id, info) {
       this.$toast.add({ severity: 'info', summary: 'info', detail: `尝试打开${info.type}编辑器并编辑${id}号作品`, life: 3000 });
       openEditor(id, info.type)
+    },
+    deleteProject() {
+      this.$toast.add({ severity: 'error', summary: 'info', detail: `尝试删除${this.nowProjectID}号作品`, life: 3000 });
+      request({
+        url: "/project/deleteProject/" + this.nowProjectID,
+        method: "delete",
+      }).then((res) => {
+        console.log(res)
+        this.addtoast('删除成功')
+        this.onPageChange()
+        this.dialog=false
+      }).catch((err) => {
+        console.log(err)
+        this.addtoast('删除失败')
+      })
     },
     SaveProjectsInfo
       () {
