@@ -1,25 +1,28 @@
 export function initRecaptcha(id) {
-  const script = document.createElement("script");
-  script.src =
-  import.meta.env.VITE_APP_REURL;
-  script.async = true;
-  script.defer = true;
-
-  document.head.appendChild(script);
-  window.onloadCallback = function () {
-    window.grecaptcha.render(`#${id}`, {
-      sitekey: import.meta.env.VITE_APP_REKEY,
-      callback: function (token) {
-        console.log(`Challenge Success ${token}`);
-      },
-    });
-  };
+  console.log(import.meta.env.VITE_APP_GEEID)
+  initGeetest4({
+    captchaId: import.meta.env.VITE_APP_GEEID,
+    product: 'float'
+  }, function (captchaObj) {
+    window.gt4 = captchaObj
+    captchaObj.appendTo(`#${id}`);
+    captchaObj.onReady(function () {
+      console.log(`Challenge Ready`);
+    }).onSuccess(function () {
+      console.log(`Challenge Success`);
+    }).onError(function () {
+      console.log(`Challenge Error`);
+    })
+  });
 }
 
 export function getResponse() {
-  return window.grecaptcha.getResponse();
+  return window.gt4.getValidate();
 }
 
 export function resetCaptcha() {
-  window.grecaptcha.reset();
+  window.gt4.reset();
 }
+
+
+

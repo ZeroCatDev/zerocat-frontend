@@ -61,10 +61,10 @@ export default {
       })
       console.log(this.code)
       if (this.type === 'scratch') {
-        this.embedurl = import.meta.env.VITE_APP_SCARATCH + '/embed.html#' + this.id
+        this.embedurl = '/scratch/embed.html#' + this.id
       }
       if (this.type === 'python') {
-        this.pythonplayer = import.meta.env.VITE_APP_PYTHON + '/nextplay.html?id=' + this.id
+        this.pythonplayer = '/python/nextplay.html?id=' + this.id
       }
 
     }

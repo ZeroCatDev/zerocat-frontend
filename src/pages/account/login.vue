@@ -63,6 +63,7 @@
           <v-icon icon="mdi-arrow-right-circle"></v-icon>
         </template>
         <template v-slot:title>
+
           <span>在 ZeroCat 完成登录</span> </template><template v-slot:subtitle>
           <span>您将在 {{ BASE_API }} 完成登录</span> </template>
       </v-card>
@@ -76,11 +77,11 @@
 import { localuser } from '@/stores/user';
 import request from "../../axios/axios";
 import LoadingDialog from '@/components/LoadingDialog.vue';
+import 'https://static.geetest.com/v4/gt4.js'
 import { initRecaptcha, getResponse, resetCaptcha } from '../../stores/useRecaptcha';
 
 export default {
   components: { LoadingDialog },
-
   data() {
     return {
       BASE_API: import.meta.env.VITE_APP_BASE_API,
@@ -103,13 +104,14 @@ export default {
     initRecaptcha('recaptcha-div');
   },
   methods: {
+
     async login() {
       this.loading = true
       this.tryinguser = await request({
         url: '/user/login',
         method: 'post',
         data: {
-          "re": getResponse(),
+          "captcha": getResponse(),
           "un": this.username,
           "pw": this.password
         }
@@ -119,10 +121,11 @@ export default {
         this.$toast.add({ severity: 'info', summary: 'info', detail: this.tryinguser.msg || this.tryinguser.message, life: 3000 });
         return
       }
+      this.loading = false
+
       //this.$toast.add({ severity: 'info', summary: 'info', detail: this.tryinguser.msg||this.tryinguser.message, life: 3000 });
       localuser.setuser(this.tryinguser.token)
       console.log(this.tryinguser)
-      this.loading = false
       if (this.tryinguser.msg || this.tryinguser.message == 'OK') {
         this.$router.push("/");
       }
