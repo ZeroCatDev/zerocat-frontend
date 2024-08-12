@@ -2,3 +2,6 @@
 	path = public/scratch
 	url = https://github.com/zerocatdev/scratch-gui
 	branch = build
+[submodule "public/python"]
+	path = public/python
+	url = https://github.com/ZeroCatDev/python-editor.git
