@@ -111,7 +111,7 @@
                       </v-checkbox>
                       <v-btn class="text-none" color="primary" rounded="xl" text="注册" variant="flat" size="large"
                         @click="register" append-icon="mdi-arrow-right"></v-btn> <br /> <br /> 对于技术手段绕过此页面的行为视为对 ZeroCat
-                      的基础设施进行攻击，涉嫌非法入侵计算机系统，我们将保留追究法律责任的权利，且违规获得的账号不受保护，如果您同意以上内容，请点击“复选框”以完成注册流程.
+                      的基础设施进行攻击，涉嫌非法入侵计算机系统，我们将保留追究法律责任的权利，违规获得的账户不被授权访问网站，账户将不受保护，如果您同意以上内容，请点击“复选框”以完成注册流程.
 
                     </v-card-text>
 
