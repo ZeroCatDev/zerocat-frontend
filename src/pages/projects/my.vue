@@ -35,7 +35,7 @@
 
     <Projects :authorid='userinfo.userid' :title="search.title" :description="search.description"
       :source='search.source' :order="search.order.type" :type="search.type.type" ref="Projects" showinfo='true'
-      :state="search.state" :actions="[{ name: '信息', function: openinfo }, { name: '编辑', function: openedit }]">
+      :state="search.state" :actions="[{ name: '信息', function: openinfo }, { name: '编辑', function: openedit },{ name: '推送', function: pushproject }]">
     </Projects>
     <v-dialog v-model="dialog" max-width="70vw" persistent origin='center center'>
 
@@ -172,7 +172,19 @@ export default {
 
       this.dialog = true
     },
-
+    pushproject(id, info) {
+      request({
+        url: "/project/" + id+"/push",
+        method: "post",
+      }).then((res) => {
+        console.log(res)
+        this.addtoast(res.message)
+        this.onPageChange()
+      }).catch((err) => {
+        console.log(err)
+        this.addtoast('失败')
+      })
+    },
     openedit(id, info) {
       this.$toast.add({ severity: 'info', summary: 'info', detail: `尝试打开${info.type}编辑器并编辑${id}号作品`, life: 3000 });
       openEditor(id, info.type)
