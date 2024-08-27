@@ -41,7 +41,7 @@ export default {
             type: String,
             default: "view_down",
         },
-        src: {
+        source: {
             type: String,
             default: "",
         },
@@ -73,7 +73,7 @@ export default {
                 title: "",
                 type: "",
                 description: "",
-                src: "",
+                source: "",
                 order: { name: "观看量升序", type: "view_up" },
                 authorid: "",
                 type: { name: "所有", type: "" },
@@ -109,7 +109,7 @@ export default {
 
             this.projects = await request({
                 url: `/searchapi?search_userid=${this.authorid}&search_type=${this.type == "all" ? "" : this.type
-                    }&search_title=${this.title}&search_src=${this.src
+                    }&search_title=${this.title}&search_source=${this.source
                     }&search_description=${this.description}&search_orderby=${this.order
                     }&search_state=${this.state}&curr=${page}&limit=${this.limit}`,
                 method: "get",

@@ -5,7 +5,7 @@
       <v-col cols="6"><v-text-field :label="'作品描述 包含：' + search.description"
           v-model="search.description"></v-text-field></v-col>
       <v-col cols="6">
-        <v-text-field :label="'作品内容 包含：' + search.src" v-model="search.src"></v-text-field></v-col>
+        <v-text-field :label="'作品内容 包含：' + search.source" v-model="search.source"></v-text-field></v-col>
       <v-col cols="6">
         <v-number-input control-variant="用户ID" :label="'用户ID 为：' + search.authorid"
           v-model="search.authorid"></v-number-input></v-col>
@@ -23,7 +23,7 @@
           search.order = 'view_up' ;
         search.type = '' ;
         search.authorid = '';
-        search.src = '';
+        search.source = '';
         search.description = '';
         search.title = '';
         search.state = '';
@@ -33,7 +33,7 @@
     <br />
     <br />
 
-    <Projects :authorid="search.authorid" :title="search.title" :description="search.description" :src="search.src"
+    <Projects :authorid="search.authorid" :title="search.title" :description="search.description" :source="search.source"
       :order="search.order" :type="search.type" :state="search.state" ref="Projects" showinfo="true">
     </Projects>
   </v-container>
@@ -67,7 +67,7 @@ export default {
         title: "",
         type: "",
         description: "",
-        src: "",
+        source: "",
         order: "view_up",
         authorid: "",
         type: "",
