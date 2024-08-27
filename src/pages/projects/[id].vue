@@ -21,7 +21,9 @@
             <v-chip pill prepend-icon="mdi-clock">{{ project.time }}</v-chip>
           </div>
           <div class="px-4 d-flex  ga-2 mb-2">
-            <v-chip pill prepend-icon="mdi-xml" v-if="project.state == 1 || project.state == 2">开源作品</v-chip>
+            <v-chip pill prepend-icon="mdi-xml" v-if="project.state == 'public'">开源作品</v-chip>
+            <v-chip pill prepend-icon="mdi-xml" v-if="project.state == 'private'">私密作品</v-chip>
+
             <v-chip pill prepend-icon="mdi-application">{{ project.type }}</v-chip>
           </div>
           <div class="px-4">

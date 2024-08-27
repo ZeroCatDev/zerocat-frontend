@@ -48,9 +48,7 @@ export default {
   data() {
     return {
       searchstates: [
-        { state: "所有", abbr: "" },
-        { state: "开源", abbr: 1 },
-        { state: "被精选", abbr: 2 },
+        { state: "所有", abbr: "public" },
       ],
       typeitems: [
         { name: "所有", type: "" },
@@ -73,7 +71,7 @@ export default {
         order: "view_up",
         authorid: "",
         type: "",
-        state: "",
+        state: "public",
       },
     };
   },

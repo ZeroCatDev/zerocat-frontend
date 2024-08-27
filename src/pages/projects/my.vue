@@ -103,16 +103,15 @@ export default {
   data() {
     return {
       projectstates: [
-        { state: '私密', abbr: 0 },
-        { state: '开源', abbr: 1 },
-        { state: '被精选', abbr: 2 },
+
+        { state: '私密', abbr: 'private' },
+        { state: '开源', abbr: 'public' },
       ],
 
       searchstates: [
         { state: '所有', abbr: '' },
-        { state: '私密', abbr: 0 },
-        { state: '开源', abbr: 1 },
-        { state: '被精选', abbr: 2 },
+        { state: '私密', abbr: 'private' },
+        { state: '开源', abbr: 'public' },
       ],
       typeitems: [
         { name: "所有", type: "" },
@@ -140,7 +139,7 @@ export default {
         authorid: "",
         type: "",
 
-        state: ''
+        state: 'private'
       },
       userinfo: localuser.user,
     };
@@ -262,7 +261,7 @@ export default {
       }
 
       if (this.nowProject.state !== this.oldProject.state) {
-        if (this.nowProject.state == 1) {
+        if (this.nowProject.state == 'public') {
           console.log('修改作品状态为公开')
 
           request({
@@ -279,8 +278,8 @@ export default {
             this.addtoast('修改失败')
           })
         }
-        if (this.nowProject.state == 0) {
-          console.log('修改作品状态为公开')
+        if (this.nowProject.state == 'private') {
+          console.log('修改作品状态为私密')
 
           request({
             url: "/project/noshare",
@@ -297,15 +296,6 @@ export default {
           })
         }
 
-        if (this.nowProject.state == 2) {
-          this.$toast.add
-            ({
-              severity: "error",
-              summary: "错误",
-              detail: "好好好自己精选作品是吧",
-              life: 3000,
-            });
-        }
       }
 
     },
