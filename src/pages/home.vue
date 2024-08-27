@@ -371,3 +371,34 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.v-bg {
+  filter: blur(128px);
+  pointer-events: none;
+}
+
+.v-bg>div {
+  background: linear-gradient(to bottom right,
+      rgb(var(--v-theme-surface-variant)),
+      rgb(var(--v-theme-primary)));
+  z-index: -10;
+  clip-path: polygon(5% 20%,
+      15% 10%,
+      30% 15%,
+      40% 5%,
+      50% 25%,
+      60% 15%,
+      75% 30%,
+      85% 20%,
+      90% 40%,
+      70% 50%,
+      85% 70%,
+      65% 60%,
+      50% 85%,
+      35% 70%,
+      20% 80%,
+      10% 60%,
+      5% 40%);
+}
+</style>
