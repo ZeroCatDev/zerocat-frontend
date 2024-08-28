@@ -17,6 +17,9 @@
           label="项目类型"></v-select></v-col>
       <v-col cols="3"><v-select v-model="search.state" :items="searchstates" item-title="state" item-value="abbr"
           label="项目状态"></v-select></v-col>
+
+          <v-col cols="3"><v-text-field :label="'标签 为：' + search.tag"
+            v-model="search.tag"></v-text-field></v-col>
       <v-col cols="3">
         <v-btn @click="onPageChange()"> 搜索 </v-btn>
         <v-btn @click="
@@ -34,7 +37,7 @@
     <br />
 
     <Projects :authorid="search.authorid" :title="search.title" :description="search.description" :source="search.source"
-      :order="search.order" :type="search.type" :state="search.state" ref="Projects" showinfo="true">
+      :order="search.order" :type="search.type" :state="search.state" :tag="search.tag" ref="Projects" showinfo="true">
     </Projects>
   </v-container>
 </template>
@@ -72,6 +75,7 @@ export default {
         authorid: "",
         type: "",
         state: "public",
+        tag:'',
       },
     };
   },

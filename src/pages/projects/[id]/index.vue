@@ -26,6 +26,11 @@
 
             <v-chip pill prepend-icon="mdi-application">{{ project.type }}</v-chip>
 
+          </div>    <div class="px-4 d-flex  ga-2 mb-2">
+           <div v-for="tag in project.tags.split(',')">
+            <v-chip>{{ tag }}</v-chip>
+           </div>
+
           </div>
           <div class="px-4 d-flex  ga-2 mb-2">
             <v-btn @click="openEditor(project.id, project.type)" variant="text">打开创造页</v-btn>

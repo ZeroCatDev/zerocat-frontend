@@ -23,6 +23,7 @@
         <v-card-title class="text-white">
           {{ info.title }} </v-card-title>
         <v-card-subtitle class="text-white">
+          {{ info.tags }}
           {{ info.description }} </v-card-subtitle>
 
       </v-card-item> <v-card-item v-if="info.type == 'text'">
@@ -30,10 +31,12 @@
         <v-card-title class="text-white">
           {{ info.title }} </v-card-title>
         <v-card-subtitle class="text-white">
+          {{ info.tags }}
           {{ info.description }} </v-card-subtitle>
 
       </v-card-item>
     </v-card>
+
     <v-card flat :to="'/user/' + info.authorid">
 
 
@@ -61,7 +64,7 @@
 export default {
   data() {
     return {
-
+      tags: [],
     }
   },
 
@@ -80,6 +83,18 @@ export default {
     actions: {
       type: Array,
       required: false,
+    }
+  },
+  watch: {
+    info: {
+      immediate: true,
+      handler(newVal) {
+        if (newVal.tags) {
+          this.tags = newVal.tags.split(',')
+        } else {
+          this.tags = []
+        }
+      }
     }
   },
   methods: {

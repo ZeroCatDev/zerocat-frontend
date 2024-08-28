@@ -49,6 +49,10 @@ export default {
             type: String,
             default: "",
         },
+        tag: {
+            type: String,
+            default: '',
+        },
         showinfo: {
             type: String,
             default: false,
@@ -111,7 +115,7 @@ export default {
                 url: `/searchapi?search_userid=${this.authorid}&search_type=${this.type == "all" ? "" : this.type
                     }&search_title=${this.title}&search_source=${this.source
                     }&search_description=${this.description}&search_orderby=${this.order
-                    }&search_state=${this.state}&curr=${page}&limit=${this.limit}`,
+                    }&search_state=${this.state}&search_tag=${this.tag}&curr=${page}&limit=${this.limit}`,
                 method: "get",
             });
             this.totalPage = Math.ceil(

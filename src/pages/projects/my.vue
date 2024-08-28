@@ -16,6 +16,10 @@
           label="项目类型"></v-select></v-col>
       <v-col cols="3"><v-select v-model="search.state" :items="searchstates" item-title="state" item-value="abbr"
           label="项目状态"></v-select></v-col>
+
+
+          <v-col cols="3"><v-text-field :label="'标签 为：' + search.tag"
+            v-model="search.tag"></v-text-field></v-col>
       <v-col cols="3">
         <v-btn @click="onPageChange()"> 搜索 </v-btn>
         <v-btn @click="
@@ -34,8 +38,9 @@
 
 
     <Projects :authorid='userinfo.userid' :title="search.title" :description="search.description"
-      :source='search.source' :order="search.order.type" :type="search.type.type" ref="Projects" showinfo='true'
-      :state="search.state" :actions="[{ name: '信息', function: openinfo }, { name: '编辑', function: openedit },{ name: '推送页', function: openpushpage }]">
+      :source='search.source' :order="search.order" :type="search.type" ref="Projects" showinfo='true'
+      :state="search.state" :tag="search.tag"
+      :actions="[{ name: '信息', function: openinfo }, { name: '编辑', function: openedit }, { name: '推送页', function: openpushpage }]">
     </Projects>
     <v-dialog v-model="dialog" max-width="70vw" persistent origin='center center'>
 
@@ -67,6 +72,17 @@
                 :items="['Skiing', 'Ice hockey', 'Soccer', 'Basketball', 'Hockey', 'Reading', 'Writing', 'Coding', 'Basejump']"
                 label="Interests" auto-select-first multiple v-model="nowProject.tags"></v-autocomplete>
             </v-col>-->
+            <v-col cols="12">
+              <v-combobox v-model="abouttags.chips" :items="abouttags.items" label="标签"
+                prepend-icon="mdi-tag" variant="solo" chips  multiple>
+                <template v-slot:selection="{ attrs, item, select, selected }">
+                  <v-chip v-bind="attrs" :model-value="selected" closable @click="select"
+                    @click:close="removetag(item)">
+                    <strong>{{ item }}</strong>&nbsp;
+                    <span>(interest)</span>
+                  </v-chip>
+                </template>
+              </v-combobox></v-col>
             <v-expansion-panels> <v-expansion-panel> <v-expansion-panel-title>详细数据</v-expansion-panel-title>
                 <v-expansion-panel-text>
                   {{ nowProject }} </v-expansion-panel-text>
@@ -146,13 +162,22 @@ export default {
         order: "view_up",
         authorid: "",
         type: "",
-
-        state: 'private'
+        state: 'private',
+        tag:''
       },
       userinfo: localuser.user,
+      abouttags: {
+        items: ['动画', '故事','音乐','硬核','艺术','水'],
+        chips: ref([])
+        ,
+        selected: [],
+      }
     };
   },
   methods: {
+    removetag(item) {
+      chips.value.splice(chips.value.indexOf(item), 1)
+    },
     projecttypeProps(item) {
       return {
         title: item.name,
@@ -170,15 +195,15 @@ export default {
       this.nowProjectID = id
       this.nowProject = info
       this.oldProject = { ...info }
-
+      this.abouttags.chips=this.nowProject.tags.split(',')
       this.dialog = true
     },
     openpushpage(id) {
-      this.$router.push('/projects/' + id+'/push')
+      this.$router.push('/projects/' + id + '/push')
     },
     pushproject(id, info) {
       request({
-        url: "/project/" + id+"/push",
+        url: "/project/" + id + "/push",
         method: "post",
       }).then((res) => {
         console.log(res)
@@ -209,6 +234,7 @@ export default {
       })
     },
     SaveProjectsInfo() {
+      this.nowProject.tags=this.abouttags.chips.join(',')
       request({
         url: "/project/" + this.nowProjectID,
         method: "put",

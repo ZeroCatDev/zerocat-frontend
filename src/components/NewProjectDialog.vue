@@ -62,10 +62,10 @@ export default {
       this.showdialog = true
     },
     async newProject() {
-      await request.post('/project/newProjcet', this.projectinfo).then((res) => {
+      await request.post('/project/', this.projectinfo).then((res) => {
         console.log(res)
         this.$toast.add({ severity: 'info', summary: 'info', detail: res, life: 3000 });
-        if (res.status == 'ok') {
+        if (res.status == '1') {
           this.created = true
           this.newid = res.id
 
