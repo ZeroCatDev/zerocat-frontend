@@ -25,7 +25,15 @@
             <v-chip pill prepend-icon="mdi-xml" v-if="project.state == 'private'">私密作品</v-chip>
 
             <v-chip pill prepend-icon="mdi-application">{{ project.type }}</v-chip>
+
           </div>
+          <div class="px-4 d-flex  ga-2 mb-2">
+            <v-btn @click="openEditor(project.id, project.type)" variant="text">打开创造页</v-btn>
+            <v-btn v-if="project.authorid != localuser.user.id" :to="'/projects/' + project.id + '/fork'"
+              variant="text">改编</v-btn>
+
+          </div>
+
           <div class="px-4">
             <v-card hover href="#" variant="tonal" :to="'/user/' + project.authorid">
               <v-card-item>
@@ -59,16 +67,20 @@
 </template>
 
 <script>
-import request from '../../axios/axios'
+import openEditor from "../../../stores/openEdit";
+
+import request from '../../../axios/axios'
 import { init } from '@waline/client';
-import ProjectRunner from '../../components/ProjectRunner.vue';
+import ProjectRunner from '../../../components/ProjectRunner.vue';
 import '@waline/client/style';
+import { localuser } from "@/stores/user";
 export default {
   components: { ProjectRunner },
   data() {
     return {
       project: {},
-
+      openEditor: openEditor,
+      localuser: localuser
     }
   },
 
@@ -100,7 +112,7 @@ export default {
       })
       console.log(this.project)
     },
-  }
+  },
 }
 
 
