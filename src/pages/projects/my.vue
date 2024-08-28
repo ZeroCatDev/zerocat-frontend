@@ -18,8 +18,8 @@
           label="项目状态"></v-select></v-col>
 
 
-          <v-col cols="3"><v-text-field :label="'标签 为：' + search.tag"
-            v-model="search.tag"></v-text-field></v-col>
+          <v-col cols="3"> <v-autocomplete :label="'标签 为：' + search.tag" :items="['','动画', '故事', '音乐', '硬核', '艺术', '水']"
+            v-model="search.tag"></v-autocomplete></v-col>
       <v-col cols="3">
         <v-btn @click="onPageChange()"> 搜索 </v-btn>
         <v-btn @click="

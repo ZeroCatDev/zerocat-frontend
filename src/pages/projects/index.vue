@@ -18,13 +18,13 @@
       <v-col cols="3"><v-select v-model="search.state" :items="searchstates" item-title="state" item-value="abbr"
           label="项目状态"></v-select></v-col>
 
-          <v-col cols="3"><v-text-field :label="'标签 为：' + search.tag"
-            v-model="search.tag"></v-text-field></v-col>
+      <v-col cols="3"> <v-autocomplete :label="'标签 为：' + search.tag" :items="['','动画', '故事', '音乐', '硬核', '艺术', '水']"
+          v-model="search.tag"></v-autocomplete></v-col>
       <v-col cols="3">
         <v-btn @click="onPageChange()"> 搜索 </v-btn>
         <v-btn @click="
-          search.order = 'view_up' ;
-        search.type = '' ;
+          search.order = 'view_up';
+        search.type = '';
         search.authorid = '';
         search.source = '';
         search.description = '';
@@ -36,8 +36,9 @@
     <br />
     <br />
 
-    <Projects :authorid="search.authorid" :title="search.title" :description="search.description" :source="search.source"
-      :order="search.order" :type="search.type" :state="search.state" :tag="search.tag" ref="Projects" showinfo="true">
+    <Projects :authorid="search.authorid" :title="search.title" :description="search.description"
+      :source="search.source" :order="search.order" :type="search.type" :state="search.state" :tag="search.tag"
+      ref="Projects" showinfo="true">
     </Projects>
   </v-container>
 </template>
@@ -75,7 +76,7 @@ export default {
         authorid: "",
         type: "",
         state: "public",
-        tag:'',
+        tag: '',
       },
     };
   },
