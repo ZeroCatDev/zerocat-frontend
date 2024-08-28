@@ -120,7 +120,7 @@ export default {
     }
   },
   setup() {
-    initRecaptcha('recaptcha-div');
+    initRecaptcha('recaptcha-div','float');
   },
   methods: {
 

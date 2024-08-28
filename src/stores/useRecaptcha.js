@@ -1,8 +1,8 @@
-export function initRecaptcha(id) {
+export function initRecaptcha(id,product) {
   console.log(import.meta.env.VITE_APP_GEEID)
   initGeetest4({
     captchaId: import.meta.env.VITE_APP_GEEID,
-    product: 'float'
+    product: product||'float'
   }, function (captchaObj) {
     window.gt4 = captchaObj
     captchaObj.appendTo(`#${id}`);

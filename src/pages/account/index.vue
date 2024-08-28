@@ -59,7 +59,7 @@
 
                     <v-col cols="12">
                       <div id="recaptcha-div1"></div>
-                      <v-btn @click="initRecaptcha('recaptcha-div1');" variant="text">加载验证码</v-btn>
+                      <v-btn @click="initRecaptcha('recaptcha-div1','popup');" variant="text">加载验证码</v-btn>
 
                       <v-btn @click="resetCaptcha()" variant="text">刷新</v-btn>
                     </v-col><v-col cols="12">
@@ -80,7 +80,7 @@
 
                   <v-col cols="12">
                       <div id="recaptcha-div2"></div>
-                      <v-btn @click="initRecaptcha('recaptcha-div2');" variant="text">加载验证码</v-btn>
+                      <v-btn @click="initRecaptcha('recaptcha-div2','popup');" variant="text">加载验证码</v-btn>
 
                       <v-btn @click="resetCaptcha()" variant="text">刷新</v-btn>
                     </v-col><v-col cols="12">
@@ -101,7 +101,7 @@
                   </v-col>
                   <v-col cols="12">
                       <div id="recaptcha-div3"></div>
-                      <v-btn @click="initRecaptcha('recaptcha-div3');" variant="text">加载验证码</v-btn>
+                      <v-btn @click="initRecaptcha('recaptcha-div3','popup');" variant="text">加载验证码</v-btn>
 
                       <v-btn @click="resetCaptcha()" variant="text">刷新</v-btn>
                     </v-col>    <v-col cols="12">
@@ -209,6 +209,8 @@ export default {
         url: "/my/set/userinfo",
         method: "post",
         data: {
+          "captcha": getResponse(),
+
           display_name: this.UserInfo.display_name,
           aboutme: this.UserInfo.motto,
           sex: this.select.abbr,
@@ -227,6 +229,8 @@ export default {
         url: "/my/set/username",
         method: "post",
         data: {
+          "captcha": getResponse(),
+
           username: this.UserInfo.username,
         },
       });
@@ -243,6 +247,8 @@ export default {
         url: "/my/set/pw",
         method: "post",
         data: {
+          "captcha": getResponse(),
+
           oldpw: this.oldpassword, newpw: this.newpassword
         },
       });
