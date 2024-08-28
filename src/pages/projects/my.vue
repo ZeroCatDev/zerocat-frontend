@@ -35,7 +35,7 @@
 
     <Projects :authorid='userinfo.userid' :title="search.title" :description="search.description"
       :source='search.source' :order="search.order.type" :type="search.type.type" ref="Projects" showinfo='true'
-      :state="search.state" :actions="[{ name: '信息', function: openinfo }, { name: '编辑', function: openedit },{ name: '推送', function: pushproject }]">
+      :state="search.state" :actions="[{ name: '信息', function: openinfo }, { name: '编辑', function: openedit },{ name: '推送页', function: openpushpage }]">
     </Projects>
     <v-dialog v-model="dialog" max-width="70vw" persistent origin='center center'>
 
@@ -79,6 +79,7 @@
 
         <v-card-actions> <v-btn color="error" text="删除" variant="tonal" @click="deleteProject"></v-btn>
           <v-btn color="primary" text="保存(旧版)" variant="tonal" @click="SaveProjectsInfoOld"></v-btn>
+          <v-btn color="text" text="一键推送" variant="tonal" @click="pushproject(nowProject.id)"></v-btn>
 
           <v-spacer></v-spacer>
 
@@ -171,6 +172,9 @@ export default {
       this.oldProject = { ...info }
 
       this.dialog = true
+    },
+    openpushpage(id) {
+      this.$router.push('/projects/' + id+'/push')
     },
     pushproject(id, info) {
       request({
