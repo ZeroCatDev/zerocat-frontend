@@ -1,8 +1,8 @@
 <template>
-  <v-container
-    ><v-card subtitle="这是Scratch上的内容" title="ScratchMirror">
+  <v-container>
+    <v-card subtitle="这是Scratch上的内容" title="ScratchMirror">
       <v-card-text class="bg-surface-light pt-4">
-        处理rrorrrorrror这些内容以促进Scratch及其社区的发展，这些内容是按照<a
+        我们使用这种方式促进Scratch及其社区的发展，这些内容是按照<a
           >署名-相同方式共享 2.0 通用</a
         >协议传播的，您可以在<a>https://creativecommons.org/licenses/by-sa/2.0/</a>查看协议全文。
       </v-card-text>
@@ -16,13 +16,6 @@
       </template> </v-card
     ><br />
     <v-row>
-      <v-col cols="12"
-        ><v-text-field
-          :label="'搜索 为：' + search.text"
-          v-model="search.text"
-        ></v-text-field>
-      </v-col>
-
       <v-col cols="3"
         ><v-select
           v-model="search.order"
@@ -33,8 +26,18 @@
         ></v-select
       ></v-col>
 
+      <v-col cols="3"
+        ><v-select
+          v-model="search.tag"
+          :items="tagitems"
+          item-title="name"
+          item-value="type"
+          :label="'标签 为：' + search.tag"
+        ></v-select
+      ></v-col>
+
       <v-col cols="3">
-        <v-btn @click="onPageChange(1, true)"> 搜索 </v-btn>
+        <v-btn @click="onPageChange(1, true)"> 加载 </v-btn>
       </v-col></v-row
     >
     <br />
@@ -53,7 +56,7 @@
       </v-chip>
     </div>
     <v-row>
-      <v-col cols="4" md="2" v-for="info in projects" :key="info">
+      <v-col cols=" 12" md="3" v-for="info in projects" :key="info">
         <v-card :to="'/proxy/' + info.id">
           <v-img :src="`${scratch_proxy}/thumbnails/${info.id}`" cover></v-img
           ><v-card-item>
@@ -94,9 +97,18 @@ export default {
         { name: "最受欢迎的", type: "popular" },
         { name: "新建的", type: "recent" },
       ],
+      tagitems: [
+        { name: "全部", type: "*" },
+        { name: "动画", type: "animations" },
+        { name: "艺术", type: "art" },
+        { name: "游戏", type: "games" },
+        { name: "音乐", type: "music" },
+        { name: "故事", type: "stories" },
+        { name: "教程", type: "tutorials" },
+      ],
       search: {
-        text: "",
         order: "trending",
+        tag: "*",
         limit: 18,
       },
       usetime: 0,
@@ -112,7 +124,7 @@ export default {
   },
   methods: {
     async getprojects() {
-      //this.onPageChange(1);
+      this.onPageChange(1);
     },
     async onPageChange(page, clean) {
       if (clean == true) {
@@ -125,8 +137,8 @@ export default {
         await request({
           url:
             this.scratch_proxy +
-            `/projects/search/projects?mode=${this.search.order}&q=${
-              this.search.text
+            `/projects/explore/projects?mode=${this.search.order}&q=${
+              this.search.tag
             }&offset=${page * 16 - 16}&limit=${
               this.search.limit
             }&language=zh-cn`,

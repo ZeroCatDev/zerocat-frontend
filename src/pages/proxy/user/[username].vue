@@ -1,20 +1,28 @@
 <template>
   <v-container>
     <div class="mb-2">
-      <v-card class="mx-auto" :disabled="UserCardLoading" :loading="UserCardLoading">
+      <v-card
+        class="mx-auto mb-4"
+        :disabled="UserCardLoading"
+        :loading="UserCardLoading"
+      >
         <template v-slot:prepend>
           <v-avatar class="mb-2">
-            <v-img :alt="userinfo.username" :src="this.scratch_proxy +'/avatars/'+ userinfo.id
-              "></v-img>
+            <v-img
+              :alt="userinfo.username"
+              :src="this.scratch_proxy + '/avatars/' + userinfo.id"
+            ></v-img>
           </v-avatar>
         </template>
         <template v-slot:title>
-          <span class="font-weight-black">{{
-           userinfo.username
-          }}</span>
+          <span class="font-weight-black">{{ userinfo.username }}</span>
         </template>
         <template v-slot:loader="{ isActive }">
-          <v-progress-linear :active="isActive" height="4" indeterminate></v-progress-linear>
+          <v-progress-linear
+            :active="isActive"
+            height="4"
+            indeterminate
+          ></v-progress-linear>
         </template>
         <template v-slot:subtitle>
           <v-chip>
@@ -30,10 +38,13 @@
           <v-chip>
             <v-icon icon="mdi-tag" start></v-icon>
 
-            {{scratchteam ? "Scratch Team" : "普通用户"}}</v-chip>  <v-chip>
+            {{ scratchteam ? "Scratch Team" : "普通用户" }}</v-chip
+          >
+          <v-chip>
             <v-icon icon="mdi-earth" start></v-icon>
 
-            {{userinfo.profile.country}}</v-chip>
+            {{ userinfo.profile.country }}</v-chip
+          >
           <span class=""></span>
         </template>
 
@@ -43,6 +54,26 @@
         <v-card-text class="bg-surface-light pt-4">
           {{ userinfo.profile.bio }}
         </v-card-text>
+      </v-card>
+      <v-card
+        subtitle="这是Scratch上的内容"
+        title="ScratchMirror"
+      >
+        <v-card-text class="bg-surface-light pt-4">
+          我们使用这种方式促进Scratch及其社区的发展，这些内容是按照<a
+            >署名-相同方式共享 2.0 通用</a
+          >协议传播的，您可以在<a>https://creativecommons.org/licenses/by-sa/2.0/</a>查看协议全文。
+        </v-card-text>
+        <template v-slot:actions>
+          <v-btn
+            :href="'https://scratch.mit.edu/users/' + userinfo.username"
+            target="_blank"
+            >Scratch上的用户主页</v-btn
+          >
+          <v-btn href="https://scratch.mit.edu/terms_of_use" target="_blank"
+            >Scratch使用条款</v-btn
+          >
+        </template>
       </v-card>
     </div>
     <!--<Projects :authorid="userid" ref="Projects" showinfo="true"></Projects>-->
@@ -72,7 +103,7 @@ export default {
           joined: "2021-06-20T01:01:52.000Z",
         },
         profile: {
-          id: 77777952,
+          id: 1,
           images: {
             "90x90":
               "https://cdn2.scratch.mit.edu/get_image/user/78738602_90x90.png?v=",
