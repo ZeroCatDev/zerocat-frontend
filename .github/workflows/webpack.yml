@@ -39,7 +39,10 @@ jobs:
 
     - name: Build
       env:
-        VITE_APP_BASE_API: 'https://zerocat.houlangs.com'
+          VITE_APP_BASE_API: https://zerocat.houlangs.com
+          VITE_APP_GEEID: 1cf35895f55079736b4140971e20d367
+          VITE_APP_SCRATCH_PROXY: http://scratch.192325.xyz
+          VITE_APP_SCRATCH_PROXY_GUI: https://scratch.192325.xyz/editor
       run: |
         git submodule update --init --recursive
         npm install
