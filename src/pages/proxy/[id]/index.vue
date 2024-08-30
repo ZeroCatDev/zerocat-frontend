@@ -23,7 +23,7 @@
             <v-card-item>
               <v-chip pill>
                 <v-avatar start>
-                  <v-img :src="project.author.profile.images['90x90']"></v-img> </v-avatar>{{ project.author.username ||
+                  <v-img :src="`${this.scratch_proxy}/avatars/${project.author.id}`"></v-img> </v-avatar>{{ project.author.username ||
                     "加载中" }}</v-chip>
             </v-card-item>
             <v-card-item>
