@@ -56,7 +56,13 @@
           @click="trylogout"></v-list-item>
 
       </div>
+      <div>
+        <v-list-subheader>工具</v-list-subheader>
 
+        <v-list-item rounded="xl" prepend-icon="mdi-download" title="桌面版镜像" value="asdm" to="/asdm"></v-list-item>
+
+
+      </div>
     </v-list>
   </v-navigation-drawer>
   <NewProjectDialog ref="NewProjectDialog" />

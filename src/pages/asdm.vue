@@ -137,7 +137,9 @@ export default {
         { state: '自定义', abbr: '' },
 
       ],
-      loading: false
+      loading: false,
+      scratch_proxy: import.meta.env.VITE_APP_SCRATCH_PROXY,
+
     };
 
   },
@@ -145,7 +147,7 @@ export default {
   created() {
     this.loading = true
     this.release.stat = 0
-    request.get('https://scratch.192325.xyz/asdm')
+    request.get(scratch_proxy+'/asdm')
       .then(res => {
         this.release.stat = 1
         this.release.url.windows = res.assets.
