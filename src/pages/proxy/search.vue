@@ -2,7 +2,7 @@
   <v-container
     ><v-card subtitle="这是Scratch上的内容" title="ScratchMirror">
       <v-card-text class="bg-surface-light pt-4">
-        处理rrorrrorrror这些内容以促进Scratch及其社区的发展，这些内容是按照<a
+        我们使用这种方式促进Scratch及其社区的发展，这些内容是按照<a
           >署名-相同方式共享 2.0 通用</a
         >协议传播的，您可以在<a>https://creativecommons.org/licenses/by-sa/2.0/</a>查看协议全文。
       </v-card-text>
