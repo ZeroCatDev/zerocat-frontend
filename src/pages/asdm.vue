@@ -147,7 +147,7 @@ export default {
   created() {
     this.loading = true
     this.release.stat = 0
-    request.get(scratch_proxy+'/asdm')
+    request.get(this.scratch_proxy+'/asdm')
       .then(res => {
         this.release.stat = 1
         this.release.url.windows = res.assets.
