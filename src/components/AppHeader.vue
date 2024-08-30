@@ -37,7 +37,13 @@
 
       <v-list-item rounded="xl" prepend-icon="mdi-home" title="首页" value="home" to="/"></v-list-item>
       <v-list-item rounded="xl" prepend-icon="mdi-xml" title="项目" value="projects" to="/projects"></v-list-item>
-      <v-list-item rounded="xl" prepend-icon="mdi-plus" title="新作品" value="projects" @click="$refs.NewProjectDialog.show()" v-if="islogin == true"></v-list-item>
+      <v-list-item rounded="xl" prepend-icon="mdi-plus" title="新作品" value="projects"
+        @click="$refs.NewProjectDialog.show()" v-if="islogin == true"></v-list-item>
+      <div v-if="islogin == true"> <v-list-subheader>镜像！</v-list-subheader>
+
+        <v-list-item rounded="xl" prepend-icon="mdi-home" title="探索" value="home" to="/proxy"></v-list-item>
+        <v-list-item rounded="xl" prepend-icon="mdi-xml" title="搜索" value="projects" to="/proxy/search"></v-list-item>
+      </div>
       <div v-if="islogin == true">
         <v-list-subheader>账户</v-list-subheader>
 
@@ -52,7 +58,7 @@
 
     </v-list>
   </v-navigation-drawer>
-  <NewProjectDialog ref="NewProjectDialog"/>
+  <NewProjectDialog ref="NewProjectDialog" />
 </template>
 
 <script>
@@ -80,7 +86,7 @@ export default {
       console.log(111)
       if (this.clicklogout == 1) {
         this.$router.push('/account/logout')
-        this.clicklogout =0
+        this.clicklogout = 0
         this.logoutbutton = '退出'
 
       } else {
