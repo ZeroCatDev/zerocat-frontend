@@ -114,7 +114,7 @@
 </template>
 <!-- ZeroCatNext中request会直接返回body的内容，所以代码不通用 -->
 <script>
-import request from '../axios/axios'
+import request from '../../axios/axios'
 
 export default {
   data() {

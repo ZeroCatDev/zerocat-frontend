@@ -59,7 +59,8 @@
       <div>
         <v-list-subheader>工具</v-list-subheader>
 
-        <v-list-item rounded="xl" prepend-icon="mdi-download" title="桌面版镜像" value="asdm" to="/asdm"></v-list-item>
+        <v-list-item rounded="xl" prepend-icon="mdi-download" title="桌面版镜像" value="asdm" to="/tools/asdm"></v-list-item>
+        <v-list-item rounded="xl" prepend-icon="mdi-xml" title="项目比较器" value="comparer" to="/tools/comparer"></v-list-item>
 
 
       </div>
