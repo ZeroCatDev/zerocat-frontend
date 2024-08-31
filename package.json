@@ -13,6 +13,7 @@
     "@highlightjs/vue-plugin": "^2.1.0",
     "@mdi/font": "7.4.47",
     "@primevue/themes": "^4.0.0",
+    "@vercel/speed-insights": "^1.0.12",
     "@waline/client": "^3.3.0",
     "axios": "^1.7.2",
     "core-js": "^3.37.1",

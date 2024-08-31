@@ -24,5 +24,9 @@ app.use(PrimeVue, {
 });
 app.use(ToastService);
 
+// 使用 Vercel Speed Insights 观测网站性能
+import { injectSpeedInsights } from '@vercel/speed-insights';
+injectSpeedInsights();
+
 registerPlugins(app);
 app.mount("#app");
