@@ -85,6 +85,40 @@
               <v-icon right icon="mdi-apple"></v-icon>
               MacOS 下载
             </v-btn></v-card-actions>
+        </v-card> <v-card hover :loading="loading" class="mt-7">
+          <v-card-item>
+            <template v-slot:prepend>
+              <v-icon icon="mdi-download"></v-icon>
+            </template>
+            <v-card-title class="font-weight-black">下载 Scratch Link</v-card-title>
+            <v-card-subtitle>公益ScratchLink镜像</v-card-subtitle>
+          </v-card-item>
+
+
+          <v-card-text class="bg-surface-light pt-4">
+            未正确加载下载地址？您可以尝试在应用商店中下载 <a href="https://itunes.apple.com/us/app/scratch-link/id1408863490"
+              class="on-surface">Mac
+              OS 版本</a> 和 <a href="https://www.microsoft.com/store/productId/9N48XLLCZH0X" class="on-surface">Windows
+              10
+              以上版本</a> 的
+            Scratch 桌面版。
+
+            <p class="mt-2 font-weight-bold">
+              该版本镜像于 {{ release.date }}，ScratchLink版本为 {{ release.scratch_link_version }}。
+            </p>
+
+          </v-card-text>
+          <v-card-actions>
+            <v-btn v-bind:disabled="release.stat == 0"
+              v-bind:href="`https://${download_source.abbr}${release.url.windows_link}`" variant="tonal">
+              <v-icon right icon="mdi-microsoft-windows"></v-icon>
+              Windows 下载
+            </v-btn>
+            <v-btn v-bind:disabled="release.stat == 0"
+              v-bind:href="`https://${download_source.abbr}${release.url.macos_link}`" variant="tonal">
+              <v-icon right icon="mdi-apple"></v-icon>
+              MacOS 下载
+            </v-btn></v-card-actions>
         </v-card>
         <v-card class="mt-7" hover>
           <v-card-item>
@@ -123,10 +157,13 @@ export default {
         stat: 0, // 0 => 加载中，1 => 加载成功，其他 => 加载失败:错误信息
         url: {
           windows: '',
-          macos: ''
+          macos: '',
+          windows_link: '',
+          macos_link: '',
         },
         date: '一周以内',
-        scratch_version: '未知'
+        scratch_version: '未知',
+        scratch_link_version: '未知',
       },
       download_source: { state: 'ghproxy', abbr: 'mirror.ghproxy.com/https://github.com' },
 
@@ -147,7 +184,7 @@ export default {
   created() {
     this.loading = true
     this.release.stat = 0
-    request.get(this.scratch_proxy+'/asdm')
+    request.get(this.scratch_proxy + '/asdm')
       .then(res => {
         this.release.stat = 1
         this.release.url.windows = res.assets.
@@ -158,8 +195,17 @@ export default {
           filter((element) => { return (element['name'] == "scratch-mac.dmg") })[0]
           .browser_download_url
           .replace('https://github.com', '')
+        this.release.url.windows_link = res.assets.
+          filter((element) => { return (element['name'] == "scratch-link-win.zip") })[0]
+          .browser_download_url
+          .replace('https://github.com', '')
+        this.release.url.macos_link = res.assets.
+          filter((element) => { return (element['name'] == "scratch-link-mac.zip") })[0]
+          .browser_download_url
+          .replace('https://github.com', '')
         this.release.date = new Date(res.published_at).toLocaleString()
-        this.release.scratch_version = JSON.parse(res.body).scratch_version
+        this.release.scratch_version = JSON.parse(res.body).scratch_version.split('-')[0]
+        this.release.scratch_link_version = JSON.parse(res.body).scratch_version.split('-')[1]
         this.loading = false
       })
       .catch(err => {
@@ -175,8 +221,18 @@ export default {
               filter((element) => { return (element['name'] == "scratch-mac.dmg") })[0]
               .browser_download_url
               .replace('https://github.com', '')
+            this.release.url.windows_link = res.assets.
+              filter((element) => { return (element['name'] == "scratch-link-win.zip") })[0]
+              .browser_download_url
+              .replace('https://github.com', '')
+            this.release.url.macos_link = res.assets.
+              filter((element) => { return (element['name'] == "scratch-link-mac.zip") })[0]
+              .browser_download_url
+              .replace('https://github.com', '')
             this.release.date = new Date(res.published_at).toLocaleString()
-            this.release.scratch_version = JSON.parse(res.body).scratch_version
+            this.release.scratch_version = JSON.parse(res.body).scratch_version.split('-')[0]
+            this.release.scratch_link_version = JSON.parse(res.body).scratch_version.split('-')[1]
+
             this.loading = false
           })
           .catch(err => {
