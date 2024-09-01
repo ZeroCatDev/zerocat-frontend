@@ -126,7 +126,7 @@
       <v-row>
         <v-col cols="4" md="2" v-for="info in projects" :key="info">
           <v-card :to="'/proxy/' + info.id">
-            <v-img :src="`${scratch_proxy}/thumbnails/${info.id}`" cover></v-img><v-card-item>
+            <v-img :src="`${scratch_proxy}/thumbnails/${info.id}`" cover   lazy-src="../../../assets/43-lazyload.png"></v-img><v-card-item>
               <template v-slot:prepend>
                 <v-avatar :image="`${this.scratch_proxy}/avatars/${info.actor_id}`"></v-avatar>
               </template><v-card-title>{{ info.title }}</v-card-title>

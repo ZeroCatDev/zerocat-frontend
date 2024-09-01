@@ -9,7 +9,6 @@
         <v-btn href="https://scratch.mit.edu/explore/projects/all">Scratch上的发现页</v-btn>
         <v-btn href="https://scratch.mit.edu/terms_of_use" target="_blank">Scratch使用条款</v-btn>
       </template> </v-card><br />
-
     <v-progress-linear :active="ProjectsLoading" height="4" indeterminate></v-progress-linear>
     <div class="mb-2">
       <v-chip><v-icon icon="mdi-clock" start></v-icon>本页加载用时{{
@@ -22,13 +21,15 @@
       <v-row>
         <v-col cols="4" md="2" v-for="info in name" :key="info">
           <v-card :to="'/proxy/' + info.id" v-if="info.type == 'project'">
-            <v-img :src="`${scratch_proxy}/thumbnails/${info.id}`" cover></v-img><v-card-item>
+
+            <v-img :src="`${scratch_proxy}/thumbnails/${info.id}`" cover  lazy-src="../../assets/43-lazyload.png"></v-img><v-card-item>
               <v-card-title>{{ info.title }}</v-card-title>
               <v-card-subtitle>{{ info.creator }}</v-card-subtitle>
             </v-card-item>
+
           </v-card>
           <v-card :to="'/proxy/studios/' + info.id" v-if="info.type == 'gallery'">
-            <v-img :src="`${scratch_proxy}/thumbnails/${info.id}`" cover></v-img><v-card-item>
+<v-card-item>
               <v-card-title>{{ info.title }}</v-card-title>
 
               <v-card-subtitle>{{ info.id }}</v-card-subtitle>
