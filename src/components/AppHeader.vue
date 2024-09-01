@@ -39,7 +39,7 @@
       <v-list-item rounded="xl" prepend-icon="mdi-xml" title="项目" value="projects" to="/projects"></v-list-item>
       <v-list-item rounded="xl" prepend-icon="mdi-plus" title="新作品" value="projects"
         @click="$refs.NewProjectDialog.show()" v-if="islogin == true"></v-list-item>
-      <div v-if="islogin == true"> <v-list-subheader>Mirror！</v-list-subheader>
+      <div> <v-list-subheader>Mirror！</v-list-subheader>
         <v-list-item rounded="xl" prepend-icon="mdi-home" title="首页" value="home" to="/proxy/"></v-list-item>
 
         <v-list-item rounded="xl" prepend-icon="mdi-earth" title="探索" value="home" to="/proxy/explore"></v-list-item>
