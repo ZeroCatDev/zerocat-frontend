@@ -44,6 +44,8 @@
 
         <v-list-item rounded="xl" prepend-icon="mdi-earth" title="探索" value="home" to="/proxy/explore"></v-list-item>
         <v-list-item rounded="xl" prepend-icon="mdi-xml" title="搜索" value="projects" to="/proxy/search"></v-list-item>
+           <v-list-item rounded="xl" prepend-icon="mdi-link" title="打开" value="open" to="/proxy/open"></v-list-item>
+
       </div>
       <div v-if="islogin == true">
         <v-list-subheader>账户</v-list-subheader>
