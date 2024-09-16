@@ -1,43 +1,26 @@
 <template>
-  <v-card>
+  <v-card rounded="lg">
+    <v-card :to="'/projects/' + info.id" style="aspect-ratio: 4/3;" rounded="lg">
+      <v-img
+                  :src="'https://s4-1.wuyuan.1r.ink/scratch_slt/' + info.id" class="align-end"
+                  lazy-src="../assets/43-lazyload.png" height="100%"
+                  gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)" cover>
 
-    <v-card flat :to="'/projects/' + info.id">
+                  <v-card-item>
+                    <v-card-title>{{ info.title }} </v-card-title>
+                    <v-card-subtitle>{{ info.description }}    </v-card-subtitle>
+                  </v-card-item>
+                  <!--<v-card-text>
+                    <v-chip size="small">{{ item.type }}</v-chip>
+                  </v-card-text>--> </v-img>
+                <!-- v-img 高度与 v-card-item 一致 -->
 
-      <v-img v-if="info.type == 'scratch'" gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)" class="align-end"
-        color="surface-variant" :src="'https://s4-1.wuyuan.1r.ink/scratch_slt/' + info.id"
-        lazy-src="../assets/scratchdefault.png">
-        <template v-slot:placeholder>
-          <div class="d-flex align-center justify-center fill-height">
-            <v-progress-circular color="grey-lighten-4" indeterminate></v-progress-circular>
-          </div>
-        </template>
-        <v-card-title class="text-white">
-          {{ info.title }}</v-card-title>
-      </v-img>
 
-    </v-card>
-    <v-card flat :to="'/projects/' + info.id">
 
-      <v-card-item v-if="info.type == 'python'">
+              </v-card>
 
-        <v-card-title class="text-white">
-          {{ info.title }} </v-card-title>
-        <v-card-subtitle class="text-white">
-          {{ info.tags }}
-          {{ info.description }} </v-card-subtitle>
 
-      </v-card-item> <v-card-item v-if="info.type == 'text'">
-
-        <v-card-title class="text-white">
-          {{ info.title }} </v-card-title>
-        <v-card-subtitle class="text-white">
-          {{ info.tags }}
-          {{ info.description }} </v-card-subtitle>
-
-      </v-card-item>
-    </v-card>
-
-    <v-card flat :to="'/user/' + info.authorid">
+    <!--<v-card flat :to="'/user/' + info.authorid">
 
 
       <v-card-item>
@@ -51,9 +34,9 @@
         <v-card-subtitle class="text-white">
           {{ user.motto }} </v-card-subtitle>
 
-      </v-card-item></v-card>
+      </v-card-item></v-card>-->
 
-    <v-card-actions v-if="actions">
+    <v-card-actions v-if="actions" >
       <div v-for="action in actions" :key="action.name">
         <v-btn @click="action.function(info.id, info)">{{ action.name }}</v-btn>
       </div>

@@ -43,6 +43,9 @@ jobs:
           VITE_APP_GEEID: 1cf35895f55079736b4140971e20d367
           VITE_APP_SCRATCH_PROXY: https://scratch.192325.xyz
           VITE_APP_SCRATCH_PROXY_GUI: https://scratch-editor.192325.xyz
+          VITE_APP_ALGOLIA_APP_ID: EC82GCN8JL
+          VITE_APP_ALGOLIA_API_KEY: bb7a110561bf44209973e461d82987b9
+          VITE_APP_ALGOLIA_INDEX_NAME: zerocat
       run: |
         git submodule update --init --recursive
         npm install

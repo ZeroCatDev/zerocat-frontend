@@ -37,6 +37,9 @@
 
       <v-list-item rounded="xl" prepend-icon="mdi-home" title="首页" value="home" to="/"></v-list-item>
       <v-list-item rounded="xl" prepend-icon="mdi-xml" title="项目" value="projects" to="/projects"></v-list-item>
+      <v-list-item rounded="xl" prepend-icon="mdi-earth" title="搜索" value="projects" to="/algolia" v-if="algolia_AppId != ''"></v-list-item>
+
+
       <v-list-item rounded="xl" prepend-icon="mdi-plus" title="新作品" value="projects"
         @click="$refs.NewProjectDialog.show()" v-if="islogin == true"></v-list-item>
       <div> <v-list-subheader>Mirror！</v-list-subheader>
@@ -73,6 +76,7 @@
 
 <script>
 import NewProjectDialog from '@/components/NewProjectDialog.vue'
+import Algolia from '@/pages/algolia.vue';
 import { localuser } from '@/stores/user';
 export default {
   components: { NewProjectDialog },
@@ -84,6 +88,7 @@ export default {
     clicklogout: 0,
     logoutbutton: '退出',
     urltoken: '',
+    algolia_AppId: import.meta.env.VITE_APP_ALGOLIA_APP_ID,
   }),
   watch: {
     userinfo(newName, oldName) {
