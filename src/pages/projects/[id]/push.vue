@@ -90,7 +90,7 @@ export default {
   methods: {
     async getproject() {
       this.project = await request({
-        url: '/api/projectinfo?id=' + this.$route.params.id,
+        url: "/project/" + this.$route.params.id,
         method: 'get',
       })
       console.log(this.project)

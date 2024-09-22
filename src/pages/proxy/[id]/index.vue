@@ -94,6 +94,20 @@
           </div>
 
           <br />
+        </v-card> <br />
+        <v-card
+          subtitle="此项目可以被存储到ZeroCat服务器"
+          title="存储此项目"
+        >
+          <v-card-text class="bg-surface-light pt-4">
+            此项目可以被存储到ZeroCat服务器
+          </v-card-text>
+          <template v-slot:actions>
+
+            <v-btn :to="'/proxy/' + project.id + '/fork'" variant="text"
+              >保存到ZeroCat</v-btn
+            >
+          </template>
         </v-card>
         <br />
         <v-card
@@ -103,7 +117,7 @@
           <v-card-text class="bg-surface-light pt-4">
             我们使用这种方式促进Scratch及其社区的发展，这些内容是按照<a
               >署名-相同方式共享 2.0 通用</a
-            >协议传播的，您可以在<a>https://creativecommons.org/licenses/by-sa/2.0/</a>查看协议全文。
+            >协议传播的，您可以在<a href="https://creativecommons.org/licenses/by-sa/2.0/">creativecommons.org</a>查看协议全文。
           </v-card-text>
           <template v-slot:actions>
             <v-btn

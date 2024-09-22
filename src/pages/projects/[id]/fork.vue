@@ -11,7 +11,7 @@
       </template>
 
       <template v-slot:subtitle>
-      作者{{ project.author_display_name }}，发布于：{{ project.time }}，{{ project.view_count }}次浏览
+      作者{{ project.author.display_name }}，发布于：{{ project.time }}，{{ project.view_count }}次浏览
       </template>
 
       <template v-slot:text>
@@ -104,7 +104,7 @@ export default {
   methods: {
     async getproject() {
       this.project = await request({
-        url: '/api/projectinfo?id=' + this.$route.params.id,
+        url: "/project/" + this.$route.params.id,
         method: 'get',
       })
       console.log(this.project)
