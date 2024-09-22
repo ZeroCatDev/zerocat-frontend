@@ -29,7 +29,7 @@
         search.source = '';
         search.description = '';
         search.title = '';
-        search.state = '';
+        search.state = 'public';
 
         onPageChange();
         ">重置</v-btn></v-col></v-row>
