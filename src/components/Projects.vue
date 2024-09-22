@@ -69,7 +69,7 @@ export default {
             projects: [],
             curPage: 1,
             totalPage: 1,
-            limit: 8,
+            limit: 20,
             typeitems: { all: "", scratch: "scratch", python: "python" },
             usetime: 0,
             projectscount: 0,

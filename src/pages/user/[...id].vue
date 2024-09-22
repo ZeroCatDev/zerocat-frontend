@@ -62,7 +62,7 @@ export default {
             scratchcount: 0,
             curPage: 1,
             totalPage: 1,
-            limit: 8,
+            limit: 20,
 
 
         }

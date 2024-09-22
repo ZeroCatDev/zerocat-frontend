@@ -162,7 +162,7 @@ export default {
         order: "view_up",
         authorid: "",
         type: "",
-        state: 'private',
+        state: '',
         tag:''
       },
       userinfo: localuser.user,

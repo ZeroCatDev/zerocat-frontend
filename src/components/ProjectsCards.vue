@@ -1,6 +1,6 @@
 <template>
           <v-row>
-        <v-col cols=" 12" md="3" v-for="info in projects.data" :key="info">
+        <v-col cols="12" xs="12" sm="6" md="4" lg="3" xl="2" xxl="2" v-for="info in projects.data" :key="info">
         <ProjectCard :info="info" :user="projects.user.find((u) => u.id === info.authorid)" :actions="actions"></ProjectCard>
         </v-col></v-row>
   </template>

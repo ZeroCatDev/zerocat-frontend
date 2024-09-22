@@ -2,7 +2,7 @@
   <v-dialog v-model="this.showdialog" persistent max-width="500px">
 
 
-    <v-card prepend-icon="mdi-xml" title="作品信息">
+    <v-card prepend-icon="mdi-xml" title="新建作品">
       <v-card-text>
         <v-row dense>
           <v-col cols="12" md="12" sm="12">
@@ -66,7 +66,7 @@ export default {
         console.log(res)
         this.$toast.add({ severity: 'info', summary: 'info', detail: res, life: 3000 });
         if (res.status == '1') {
-          this.created = true
+          //this.created = true
           this.newid = res.id
 
         }
