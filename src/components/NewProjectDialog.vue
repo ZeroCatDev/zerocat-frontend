@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="this.showdialog" persistent max-width="500px">
+  <v-dialog v-model="this.isVisible" persistent max-width="500px">
 
 
     <v-card prepend-icon="mdi-xml" title="新建作品">
@@ -26,7 +26,7 @@
 
         <v-spacer></v-spacer>
 
-        <v-btn text="取消" variant="plain" @click="showdialog = false"></v-btn>
+        <v-btn text="取消" variant="plain" @click="isVisible = false"></v-btn>
 
         <v-btn color="primary" text="创建" variant="tonal" @click="newProject()" :disabled="created"></v-btn>
       </v-card-actions>
@@ -47,7 +47,7 @@ export default {
       },
       created: false,
       newid: 0,
-      showdialog: false,
+      isVisible: false,
       openEdit
     };
   },
@@ -59,7 +59,7 @@ export default {
       },
         this.created = false
       this.newid = 0
-      this.showdialog = true
+      this.isVisible = true
     },
     async newProject() {
       await request.post('/project/', this.projectinfo).then((res) => {

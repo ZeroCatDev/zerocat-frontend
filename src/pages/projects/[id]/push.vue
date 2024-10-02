@@ -32,7 +32,7 @@
       </template>
 
     </v-card>
-    <br /><v-card>
+<!--<v-card>
       <template v-slot:title>
         您可以执行推送
       </template>
@@ -47,8 +47,7 @@
         <v-checkbox label="我已了解并确认" v-model="checkprotect"></v-checkbox>
 
       </v-card-actions>
-    </v-card><br />
-    <br /><br />
+    </v-card>-->
 
     <br />
     <v-btn class="text-none" color="primary" rounded="xl" text="Push" variant="flat" size="large"

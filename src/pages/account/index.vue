@@ -57,14 +57,14 @@
                     <v-select v-model="select" :items="items" item-title="state" item-value="abbr" label="性别"
                       persistent-hint return-object></v-select></v-col>
 
-                    <v-col cols="12">
-                      <div id="recaptcha-div1"></div>
-                      <v-btn @click="initRecaptcha('recaptcha-div1','popup');" variant="text">加载验证码</v-btn>
+                  <v-col cols="12">
+                    <div id="recaptcha-div1"></div>
+                    <v-btn @click="initRecaptcha('recaptcha-div1', 'popup');" variant="text">加载验证码</v-btn>
 
-                      <v-btn @click="resetCaptcha()" variant="text">刷新</v-btn>
-                    </v-col><v-col cols="12">
-                      <v-btn @click="submit" :disabled="!valid"> 提交 </v-btn>
-                    </v-col>
+                    <v-btn @click="resetCaptcha()" variant="text">刷新</v-btn>
+                  </v-col><v-col cols="12">
+                    <v-btn @click="submit" :disabled="!valid"> 提交 </v-btn>
+                  </v-col>
                 </v-row>
               </v-container>
             </v-form>
@@ -79,13 +79,13 @@
                   </v-col>
 
                   <v-col cols="12">
-                      <div id="recaptcha-div2"></div>
-                      <v-btn @click="initRecaptcha('recaptcha-div2','popup');" variant="text">加载验证码</v-btn>
+                    <div id="recaptcha-div2"></div>
+                    <v-btn @click="initRecaptcha('recaptcha-div2', 'popup');" variant="text">加载验证码</v-btn>
 
-                      <v-btn @click="resetCaptcha()" variant="text">刷新</v-btn>
-                    </v-col><v-col cols="12">
-                      <v-btn @click="changeusername" :disabled="!usernamevalid"> 提交 </v-btn>
-                    </v-col>
+                    <v-btn @click="resetCaptcha()" variant="text">刷新</v-btn>
+                  </v-col><v-col cols="12">
+                    <v-btn @click="changeusername" :disabled="!usernamevalid"> 提交 </v-btn>
+                  </v-col>
                 </v-row>
               </v-container>
             </v-form></v-tabs-window-item>
@@ -100,14 +100,14 @@
                     <v-text-field v-model="newpassword" :rules="passwordRules" label="新密码" required></v-text-field>
                   </v-col>
                   <v-col cols="12">
-                      <div id="recaptcha-div3"></div>
-                      <v-btn @click="initRecaptcha('recaptcha-div3','popup');" variant="text">加载验证码</v-btn>
+                    <div id="recaptcha-div3"></div>
+                    <v-btn @click="initRecaptcha('recaptcha-div3', 'popup');" variant="text">加载验证码</v-btn>
 
-                      <v-btn @click="resetCaptcha()" variant="text">刷新</v-btn>
-                    </v-col>    <v-col cols="12">
-                      <v-btn @click="changepassword" :disabled="!passwordvalid"> 提交 </v-btn>
+                    <v-btn @click="resetCaptcha()" variant="text">刷新</v-btn>
+                  </v-col> <v-col cols="12">
+                    <v-btn @click="changepassword" :disabled="!passwordvalid"> 提交 </v-btn>
 
-                    </v-col>
+                  </v-col>
                 </v-row>
               </v-container>
             </v-form></v-tabs-window-item>
@@ -209,13 +209,18 @@ export default {
         url: "/my/set/userinfo",
         method: "post",
         data: {
-          "captcha": getResponse(),
+          "captcha": getResponse()||'',
 
           display_name: this.UserInfo.display_name,
           aboutme: this.UserInfo.motto,
           sex: this.select.abbr,
         },
-      });
+      }).catch((error) => {
+        console.log(error);
+        this.$toast.add({ severity: 'error', summary: '错误', detail: error, life: 3000 });
+
+      })
+        ;
       console.log(response.status);
       this.$toast.add({ severity: 'info', summary: '修改个人信息', detail: response.status, life: 3000 });
 
@@ -229,10 +234,14 @@ export default {
         url: "/my/set/username",
         method: "post",
         data: {
-          "captcha": getResponse(),
+          "captcha": getResponse()||'',
 
           username: this.UserInfo.username,
         },
+      }).catch((error) => {
+        console.log(error);
+        this.$toast.add({ severity: 'error', summary: '错误', detail: error, life: 3000 });
+
       });
       this.$toast.add({ severity: 'info', summary: '修改用户名', detail: response.status, life: 3000 });
 
@@ -247,10 +256,14 @@ export default {
         url: "/my/set/pw",
         method: "post",
         data: {
-          "captcha": getResponse(),
+          "captcha": getResponse()||'',
 
           oldpw: this.oldpassword, newpw: this.newpassword
         },
+      }).catch((error) => {
+        console.log(error);
+        this.$toast.add({ severity: 'error', summary: '错误', detail: error, life: 3000 });
+
       });
       console.log(response.status);
       this.$toast.add({ severity: 'info', summary: '修改密码', detail: response.message, life: 3000 });

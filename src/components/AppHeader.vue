@@ -56,7 +56,8 @@
         <v-list-item rounded="xl" prepend-icon="mdi-cog" title="账户设置" value="account" to="/account"></v-list-item>
         <v-list-item rounded="xl" prepend-icon="mdi-xml" title="我的项目" value="myprojects"
           to="/projects/my"></v-list-item>
-
+          <v-list-item rounded="xl" prepend-icon="mdi-xml" title="我的列表" value="myprojectlist"
+          to="/projectlist"></v-list-item>
         <v-list-item rounded="xl" prepend-icon="mdi-export" :title="logoutbutton" value="logout"
           @click="trylogout"></v-list-item>
 

@@ -58,7 +58,8 @@
           </div>
 
           <br />
-        </v-card>
+        </v-card> <br/>    <v-card hover><AddTolist></AddTolist></v-card>
+
       </v-col>
     </v-row>
 
@@ -74,6 +75,7 @@ import { init } from "@waline/client";
 import ProjectRunner from "../../../components/ProjectRunner.vue";
 import "@waline/client/style";
 import { localuser } from "@/stores/user";
+import AddTolist from "../../../components/AddTolist.vue";
 export default {
   components: { ProjectRunner },
   data() {
