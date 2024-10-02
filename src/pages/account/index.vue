@@ -4,13 +4,13 @@
       <v-card class="mx-auto" :disabled="UserCardLoading" :loading="UserCardLoading">
         <template v-slot:prepend>
           <v-avatar class="mb-2">
-            <v-img :alt="localuserinfo.display_name"
-              :src="'https://s4-1.wuyuan.1r.ink/user/' + localuserinfo.avatar"></v-img>
+            <v-img :alt="UserInfo.display_name"
+              :src="'https://s4-1.wuyuan.1r.ink/user/' + UserInfo.images"></v-img>
           </v-avatar>
         </template>
         <template v-slot:title>
           <span class="font-weight-black">{{
-            localuserinfo.display_name
+            UserInfo.display_name
           }}</span>
         </template>
         <template v-slot:loader="{ isActive }">
@@ -20,7 +20,7 @@
           <v-chip>
             <v-icon icon="mdi-account-circle" start></v-icon>
 
-            ID:{{ localuserinfo.userid }}
+            ID:{{ UserInfo.id }}
           </v-chip>
           <v-chip>
             <v-icon icon="mdi-tag" start></v-icon>
@@ -35,13 +35,13 @@
       </v-card>
     </div>
     <v-card>
-      <v-tabs v-model="tab" bg-color="primary">
+      <v-tabs v-model="tab" >
         <v-tab value="userinfo">用户信息</v-tab>
         <v-tab value="username">用户名</v-tab>
         <v-tab value="password">密码</v-tab>
       </v-tabs>
 
-      <v-card-text>
+      <v-card-text >
         <v-tabs-window v-model="tab">
           <v-tabs-window-item value="userinfo">
             <v-form v-model="valid">

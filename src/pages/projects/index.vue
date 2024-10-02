@@ -74,7 +74,7 @@ export default {
         source: "",
         order: "view_up",
         authorid: "",
-        type: "",
+        type: "scratch",
         state: "public",
         tag: '',
       },
