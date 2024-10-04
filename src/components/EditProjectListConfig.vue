@@ -39,14 +39,14 @@ export default {
   props: {
     listid: {
       type: String,
-      required: true, // 可以根据需要设置为 true
+      required: true,
     },
     callback: {
       type: Function,
-      required: false, // 可以根据需要设置为 true
+      required: false,
     }, close: {
       type: Function,
-      required: false, // 可以根据需要设置为 true
+      required: false,
     },
   },
   methods: {

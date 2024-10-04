@@ -27,7 +27,7 @@ import request from '../axios/axios'
 export default {
   components: { NewProjectList },
 
-  name: "projectlist",
+  name: "addtolist",
   data() {
     return {
       localuser: localuser,

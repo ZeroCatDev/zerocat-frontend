@@ -2,6 +2,7 @@
   <v-container>
     <v-row><v-col cols="8" md="8" lg="8" xl="8" sm="8" xs="8">
         <ProjectRunner :type="project.type" :id="project.id" />
+        <br/><Comment :url="'project-'+$route.params.id"></Comment>
       </v-col>
 
       <v-col cols="4">
@@ -76,6 +77,7 @@ import ProjectRunner from "../../../components/ProjectRunner.vue";
 import "@waline/client/style";
 import { localuser } from "@/stores/user";
 import AddTolist from "../../../components/AddTolist.vue";
+import Comment from "../../../components/Comment.vue";
 export default {
   components: { ProjectRunner },
   data() {
