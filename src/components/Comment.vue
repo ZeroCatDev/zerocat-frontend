@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-card class="mb-4" v-for="comment in comments" :key="comment.id">
+    <v-card class="mb-2" elevation hover v-for="comment in comments" :key="comment.id" @click="showMore(comment)">
       <v-card-item>
         <template v-slot:prepend>
           <v-avatar color="blue-darken-2">
@@ -8,7 +8,9 @@
           </v-avatar>
         </template>
         <template v-slot:append>
-          <v-btn icon="mdi-reply" @click="$refs.commentComponent.openAddComment({ pid: comment.id, rid: comment.id })">
+          <v-btn icon="mdi-reply">
+          </v-btn><v-btn icon="mdi-delete" @click="deleteCommnet({ id: comment.id })"
+            v-if="comment.user_id == localuser.user.id">
           </v-btn>
         </template>
         <v-card-title :to="'/user/' + comment.user_id">{{
@@ -22,8 +24,8 @@
       <v-card-text>{{ comment.comment }}</v-card-text>
       <v-card class="pb-3 pl-10 pr-3" v-if="comment.children && comment.children.length">
         <v-list density="default">
-          <!-- Loop over only the first 3 child comments -->
-          <v-list-item v-for="children in comment.children.slice(0, 3)" :key="children.id" link>
+          <v-list-item v-for="children in comment.children.slice(0, 2)" :key="children.id" link
+            @click="showMore(comment)">
             <template v-slot:prepend>
               <v-img :src="comment.avatar"></v-img>
             </template>
@@ -32,48 +34,99 @@
             <v-list-item-subtitle>{{ children.comment }}</v-list-item-subtitle>
           </v-list-item>
 
-          <!-- Conditionally render "View All" if there are more than 3 comments -->
-          <v-list-item v-if="comment.children.length > 3" link @click="viewAllComments">
-            <v-list-item-title class="text-blue">查看全部</v-list-item-title>
+          <v-list-item v-if="comment.children.length > 2" link @click="viewAllComments">
+            <v-list-item-title class="text-blue" @click="showMore(comment)">查看全部</v-list-item-title>
           </v-list-item>
         </v-list>
-      </v-card> </v-card><v-btn @click="getComments" :disabled="loadbuttondisabled">继续加载</v-btn> <v-btn
-      @click="changesort">{{
-        sort }}</v-btn>
-    <!--<v-pagination :length="totalPages" rounded="circle" v-model="page" @update:model-value="getComments(page)" @input="getComments(page)"></v-pagination>-->
+      </v-card>
+    </v-card>
 
-    <!--<v-card class="mb-4 ml-10">
-      <v-card-item>
-        <template v-slot:prepend>
-          <v-avatar color="blue-darken-2">
-            <v-img
-              src="https://s4-1.wuyuan.1r.ink/user/0d4f67a46d95d99c440e063f9c1e66c9"
-            ></v-img>
-          </v-avatar>
-        </template>
-        <template v-slot:append>
-          <v-btn icon="mdi-reply"> </v-btn>
-        </template>
-        <v-card-title>孙悟元</v-card-title>
+    <v-btn @click="getComments" :disabled="loadbuttondisabled">继续加载</v-btn>
+    <v-btn @click="changesort">{{ sort }}</v-btn>
 
-        <v-card-subtitle>昨天 20:29[湖南]</v-card-subtitle>
-      </v-card-item>
-      <v-card-text
-        >Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi,
-        ratione debitis quis est labore voluptatibus! Eaque cupiditate minima,
-        at placeat totam, magni doloremque veniam neque porro libero rerum unde
-        voluptatem!</v-card-text
-      >
-    </v-card>-->
+    <v-card class="mt-8 mb-8" elevation hover>
+      <v-card-title class="headline">为项目评论</v-card-title>
+      <v-card-text>
+        <v-form @submit.prevent>
+          <v-textarea v-model="comment" label="评论" dense auto-grow :rules="commentrules" required></v-textarea>
+          <v-btn color="primary" @click="addComment({ pid: null, rid: null })">
+            评论 </v-btn><v-btn variant="text">{{ info }}</v-btn></v-form>
+      </v-card-text>
+    </v-card>
 
-    <!-- 添加新评论 -->
-    <AddComment :url="url" :callback="() => getComments({ retry: true })" ref="commentComponent" />
+
+
+    <v-dialog v-model="moredialog" width="auto"><v-card><v-container>
+          <v-card variant="tonal" class="mb-2" elevation hover>
+            <v-card-item>
+              <template v-slot:prepend>
+                <v-avatar color="blue-darken-2">
+                  <v-img :src="morecommnets.avatar"></v-img>
+                </v-avatar>
+              </template>
+              <template v-slot:append>
+                <v-btn icon="mdi-delete" @click="deleteCommnet({ id: morecommnets.id })"
+                  v-if="morecommnets.user_id == localuser.user.id">
+                </v-btn>
+              </template>
+              <v-card-title :to="'/user/' + morecommnets.user_id">{{
+                morecommnets.nick
+              }}</v-card-title>
+
+              <v-card-subtitle>{{ morecommnets.time }} - {{ morecommnets.browser }} ({{
+                morecommnets.os
+              }})</v-card-subtitle>
+            </v-card-item>
+            <v-card-text>{{ morecommnets.comment }}</v-card-text>
+          </v-card>
+          <v-card class="mb-2" v-for="comment in morecommnets.children" :key="comment.id" elevation hover>
+            <v-card-item>
+              <template v-slot:prepend>
+                <v-avatar color="blue-darken-2">
+                  <v-img :src="comment.avatar"></v-img>
+                </v-avatar>
+              </template>
+              <template v-slot:append>
+                <v-btn icon="mdi-reply" @click="
+                  replyid = comment.id
+                  ">
+                </v-btn><v-btn icon="mdi-delete" @click="deleteCommnet({ id: comment.id })"
+                  v-if="comment.user_id == localuser.user.id">
+                </v-btn>
+              </template>
+              <v-card-title :to="'/user/' + comment.user_id">{{
+                comment.nick
+              }}</v-card-title>
+
+              <v-card-subtitle>{{ comment.time }} - {{ comment.browser }} ({{
+                comment.os
+              }})</v-card-subtitle>
+            </v-card-item>
+            <v-card-text>{{ comment.comment }}</v-card-text>
+          </v-card>
+
+          <v-card class="mt-4" elevation hover>
+            <v-card-title class="headline">回复评论{{ replyid }}<v-btn @click="replyid = null">取消</v-btn></v-card-title>
+            <v-card-text>
+              <v-form @submit.prevent>
+                <v-textarea v-model="comment" label="评论" dense auto-grow :rules="commentrules" required></v-textarea>
+                <v-btn color="primary" @click="
+                  addComment({
+                    pid: replyid,
+                    rid: morecommnets.id,
+                    commnet: comment,
+                  })
+                  ">
+                  评论 </v-btn><v-btn variant="text">{{ info }}</v-btn></v-form>
+            </v-card-text>
+          </v-card></v-container></v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
-import AddComment from "../components/AddComment.vue";
 import request from "../axios/axios";
+import { localuser } from "@/stores/user";
 export default {
   props: {
     url: {
@@ -81,35 +134,29 @@ export default {
       required: true,
     },
   },
-  components: {
-    AddComment,
-  },
   data() {
     return {
       // 评论列表
       url: this.url,
       sort: "时间倒序",
       sorttext: "insertedAt_desc",
-      openAddComment: AddComment.openAddComment,
       comments: [],
-      newComment: "",
       page: 0,
       totalPages: 0,
       pageSize: 10,
       count: 0,
       loadbuttondisabled: false,
-      // Edit Dialogs
-      editDialog: {
-        visible: false,
-        commentIndex: null,
-        text: "",
-      },
-      editReplyDialog: {
-        visible: false,
-        commentIndex: null,
-        replyIndex: null,
-        text: "",
-      },
+      moredialog: false,
+      morecommnets: [],
+      localuser: localuser,
+      commentrules: [
+        (value) => {
+          if (value) return true;
+          return "不可为空";
+        },
+      ],
+      comment: "",
+      replyid: "",
     };
   },
   mounted() {
@@ -137,6 +184,7 @@ export default {
         this.totalPages = Number(res.data.totalPages);
         this.pageSize = Number(res.data.pageSize);
         this.count = Number(res.data.count);
+        this.moredialog = false;
       });
     },
     changesort() {
@@ -148,36 +196,49 @@ export default {
         this.sort = "时间倒序";
         this.sorttext = "insertedAt_desc";
         this.getComments({ retry: true });
-
       }
+    },
+    addComment(info) {
+      request({
+        url: `/comment/api/comment?path=${this.url}`,
+        method: "post",
+        data: {
+          url: this.url,
+          comment: this.comment,
+          pid: info.pid || null,
+          rid: info.rid || null,
+        },
+      }).then((res) => {
+        if (res.errno == 0) {
+          this.info = "评论成功";
+          this.comment = "";
+          this.replyid = null;
+          this.getComments({ retry: true });
+        } else {
+          this.info = "评论失败";
+          this.getComments({ retry: true });
+        }
+      });
+    },
+    deleteCommnet(info) {
+      console.log(info);
+      request({
+        url: `/comment/api/comment/${info.id}`,
+        method: "delete",
+      }).then((res) => {
+        if (res.errno == 0) {
+          this.info = "删除成功";
+          this.getComments({ retry: true });
+        } else {
+          this.info = "删除失败";
+          this.getComments({ retry: true });
+        }
+      });
+    },
+    showMore(info) {
+      this.morecommnets = info;
+      this.moredialog = true;
     },
   },
 };
 </script>
-
-<style scoped>
-.headline {
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.v-list-item {
-  padding: 0;
-}
-
-.v-card {
-  border-radius: 8px;
-}
-
-.v-avatar {
-  background-color: #f0f0f0;
-}
-
-.v-btn {
-  text-transform: none;
-}
-
-.v-btn:hover {
-  background-color: rgba(0, 0, 0, 0.04);
-}
-</style>
