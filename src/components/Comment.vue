@@ -106,7 +106,7 @@
           </v-card>
 
           <v-card class="mt-4" elevation hover>
-            <v-card-title class="headline">回复评论{{ replyid }}<v-btn @click="replyid = null">取消</v-btn></v-card-title>
+            <v-card-title class="headline">回复评论{{ replyid }}<v-btn @click="replyid = null" v-if="replyid != null">取消</v-btn></v-card-title>
             <v-card-text>
               <v-form @submit.prevent>
                 <v-textarea v-model="comment" label="评论" dense auto-grow :rules="commentrules" required></v-textarea>
