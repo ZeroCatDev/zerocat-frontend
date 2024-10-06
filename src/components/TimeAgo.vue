@@ -1,7 +1,6 @@
 <template>
-
-    <!-- 显示格式化的相对时间 -->
-    {{ timeAgo }}
+  <!-- 显示格式化的相对时间 -->
+  {{ timeAgo }}
 </template>
 
 <script>

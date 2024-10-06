@@ -1,28 +1,44 @@
 <template>
   <v-container>
-    <v-row><v-col cols="8" md="8" lg="8" xl="8" sm="8" xs="8">
+    <v-row
+      ><v-col cols="8" md="8" lg="8" xl="8" sm="8" xs="8">
         <ProjectRunner :type="project.type" :id="project.id" />
-        <br/><Comment :url="'project-'+$route.params.id"></Comment>
+        <br /><Comment :url="'project-' + $route.params.id"></Comment>
       </v-col>
 
       <v-col cols="4">
-        <v-card hover><v-card-item>
+        <v-card hover
+          ><v-card-item>
             <v-card-title>{{ project.title }}</v-card-title>
             <v-card-subtitle>{{ project.description }}</v-card-subtitle>
           </v-card-item>
           <div class="px-4 d-flex ga-2 mb-2">
             <v-chip pill>
               <v-avatar start>
-                <v-img :src="'https://s4-1.wuyuan.1r.ink/user/' + project.author.images
-                  "></v-img> </v-avatar>{{ project.author.display_name }}</v-chip>
+                <v-img
+                  :src="
+                    'https://s4-1.wuyuan.1r.ink/user/' + project.author.images
+                  "
+                ></v-img> </v-avatar
+              >{{ project.author.display_name }}</v-chip
+            >
           </div>
           <div class="px-4 d-flex ga-2 mb-2">
-            <v-chip pill prepend-icon="mdi-eye">{{ project.view_count }}浏览</v-chip>
+            <v-chip pill prepend-icon="mdi-eye"
+              >{{ project.view_count }}浏览</v-chip
+            >
             <v-chip pill prepend-icon="mdi-clock">{{ project.time }}</v-chip>
           </div>
           <div class="px-4 d-flex ga-2 mb-2">
-            <v-chip pill prepend-icon="mdi-xml" v-if="project.state == 'public'">开源作品</v-chip>
-            <v-chip pill prepend-icon="mdi-xml" v-if="project.state == 'private'">私密作品</v-chip>
+            <v-chip pill prepend-icon="mdi-xml" v-if="project.state == 'public'"
+              >开源作品</v-chip
+            >
+            <v-chip
+              pill
+              prepend-icon="mdi-xml"
+              v-if="project.state == 'private'"
+              >私密作品</v-chip
+            >
 
             <v-chip pill prepend-icon="mdi-application">{{
               project.type
@@ -34,9 +50,15 @@
             </div>
           </div>
           <div class="px-4 d-flex ga-2 mb-2">
-            <v-btn @click="openEditor(project.id, project.type)" variant="text">打开创造页</v-btn>
-            <v-btn v-if="project.authorid != localuser.user.id" :to="'/projects/' + project.id + '/fork'"
-              variant="text">改编</v-btn>
+            <v-btn @click="openEditor(project.id, project.type)" variant="text"
+              >打开创造页</v-btn
+            >
+            <v-btn
+              v-if="project.authorid != localuser.user.id"
+              :to="'/projects/' + project.id + '/fork'"
+              variant="text"
+              >改编</v-btn
+            >
           </div>
 
           <div class="px-4">
@@ -44,9 +66,13 @@
               <v-card-item>
                 <template v-slot:prepend>
                   <v-avatar>
-                    <v-img :alt="project.author.display_name" :src="'https://s4-1.wuyuan.1r.ink/user/' +
-                      project.author.images
-                      "></v-img>
+                    <v-img
+                      :alt="project.author.display_name"
+                      :src="
+                        'https://s4-1.wuyuan.1r.ink/user/' +
+                        project.author.images
+                      "
+                    ></v-img>
                   </v-avatar>
                 </template>
                 <v-card-title class="text-white">
@@ -55,16 +81,16 @@
                 <v-card-subtitle class="text-white">
                   {{ project.author.motto }}
                 </v-card-subtitle>
-              </v-card-item></v-card>
+              </v-card-item></v-card
+            >
           </div>
 
           <br />
-        </v-card> <br/>    <v-card hover><AddTolist></AddTolist></v-card>
-
+        </v-card>
+        <br />
+        <v-card hover><AddTolist></AddTolist></v-card>
       </v-col>
     </v-row>
-
-    <div id="waline"></div>
   </v-container>
 </template>
 
@@ -72,9 +98,7 @@
 import openEditor from "../../../stores/openEdit";
 
 import request from "../../../axios/axios";
-import { init } from "@waline/client";
 import ProjectRunner from "../../../components/ProjectRunner.vue";
-import "@waline/client/style";
 import { localuser } from "@/stores/user";
 import AddTolist from "../../../components/AddTolist.vue";
 import Comment from "../../../components/Comment.vue";
@@ -101,8 +125,7 @@ export default {
           id: 1,
           display_name: "加载中",
           images: "加载中",
-        }
-
+        },
       },
       openEditor: openEditor,
       localuser: localuser,
