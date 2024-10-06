@@ -132,14 +132,14 @@
 
     <Comment
       :url="'scratchmiteduproject-' + this.$route.params.id"
-      name="项目"
+      name="Scratch官网项目"
     ></Comment>
   </v-container>
 </template>
 
 <script>
 import openEditor from "../../../stores/openEdit";
-import { Comment } from "../../components/Comment.vue";
+import Comment from "../../../components/Comment.vue";
 
 import request from "../../../axios/axios";
 import ProjectRunner from "../../../components/ProjectRunner.vue";

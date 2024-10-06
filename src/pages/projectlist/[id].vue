@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { Comment } from "../../components/Comment.vue";
+import Comment from "../../components/Comment.vue";
 import request from "../../axios/axios";
 import { localuser } from "@/stores/user";
 import ProjectsCards from "../../components/ProjectsCards.vue";

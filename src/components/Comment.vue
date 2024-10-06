@@ -1,5 +1,4 @@
 <template>
-  <v-container>
     <v-card
       class="mb-2"
       elevation
@@ -225,7 +224,6 @@
         ></v-card
       >
     </v-dialog>
-  </v-container>
 </template>
 
 <script>
@@ -247,6 +245,11 @@ export default {
     name: {
       type: String,
       required: true,
+    },
+  },
+  watch: {
+    url: function (newUrl, oldUrl) {
+      this.getComments({ retry: true });
     },
   },
   data() {

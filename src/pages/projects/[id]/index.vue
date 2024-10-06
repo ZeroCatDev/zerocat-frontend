@@ -3,7 +3,10 @@
     <v-row
       ><v-col cols="8" md="8" lg="8" xl="8" sm="8" xs="8">
         <ProjectRunner :type="project.type" :id="project.id" />
-        <br /><Comment :url="'project-' + $route.params.id"></Comment>
+        <br /><Comment
+          :url="'project-' + $route.params.id"
+          name="项目"
+        ></Comment>
       </v-col>
 
       <v-col cols="4">

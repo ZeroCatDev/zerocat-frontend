@@ -75,8 +75,8 @@
     </div>
     <!--<Projects :authorid="userid" ref="Projects" showinfo="true"></Projects>-->
     <Comment
-      :url="'scratchmiteduuser-' + this.$route.params.id"
-      name="用户"
+      :url="'scratchmiteduuser-' + userinfo.id"
+      name="Scratch官网用户"
     ></Comment>
   </v-container>
 </template>
@@ -84,7 +84,7 @@
 <script>
 import request from "../../../axios/axios";
 import Projects from "../../../components/Projects.vue";
-import { Comment } from "../../components/Comment.vue";
+import Comment from "../../../components/Comment.vue";
 
 export default {
   components: { Projects, Comment },

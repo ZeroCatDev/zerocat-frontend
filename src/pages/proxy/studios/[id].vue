@@ -196,7 +196,7 @@
 
     <Comment
       :url="'scratchmitedustudio-' + this.$route.params.id"
-      name="工作室"
+      name="Scratch官网工作室"
     ></Comment>
   </v-container>
 </template>
@@ -204,7 +204,7 @@
 <script>
 import request from "../../../axios/axios";
 import Projects from "../../../components/Projects.vue";
-import { Comment } from "../../components/Comment.vue";
+import Comment from "../../../components/Comment.vue";
 
 import { ref } from "vue";
 export default {
