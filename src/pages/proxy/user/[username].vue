@@ -55,10 +55,7 @@
           {{ userinfo.profile.bio }}
         </v-card-text>
       </v-card>
-      <v-card
-        subtitle="这是Scratch上的内容"
-        title="ScratchMirror"
-      >
+      <v-card subtitle="这是Scratch上的内容" title="ScratchMirror">
         <v-card-text class="bg-surface-light pt-4">
           我们使用这种方式促进Scratch及其社区的发展，这些内容是按照<a
             >署名-相同方式共享 2.0 通用</a
@@ -77,19 +74,20 @@
       </v-card>
     </div>
     <!--<Projects :authorid="userid" ref="Projects" showinfo="true"></Projects>-->
-
-    <div id="waline"></div>
+    <Comment
+      :url="'scratchmiteduuser-' + this.$route.params.id"
+      name="用户"
+    ></Comment>
   </v-container>
 </template>
 
 <script>
 import request from "../../../axios/axios";
-import { init } from "@waline/client";
 import Projects from "../../../components/Projects.vue";
+import { Comment } from "../../components/Comment.vue";
 
-import "@waline/client/style";
 export default {
-  components: { Projects },
+  components: { Projects, Comment },
 
   data() {
     return {
@@ -133,28 +131,6 @@ export default {
 
   async created() {
     await this.getuserinfo();
-    init({
-      el: "#waline",
-      serverURL: "https://zerocat-waline.190823.xyz",
-      path: "scratchmiuedu-user-" + this.$route.params.id || "undefined",
-      copyright: false,
-      reaction: true,
-      pageview: true,
-      locale: {
-        reactionTitle: "这个用户怎么样？",
-      },
-      emoji: [
-        "//unpkg.com/@waline/emojis@1.1.0/weibo",
-        "//unpkg.com/@waline/emojis@1.1.0/bilibili",
-      ],
-      dark:
-        window.matchMedia &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches,
-    });
-    this.$message({
-      message: "Hello",
-      color: "success",
-    });
   },
   methods: {
     async getuserinfo() {

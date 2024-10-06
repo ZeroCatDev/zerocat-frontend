@@ -10,9 +10,7 @@ import ToastService from "primevue/toastservice";
 import PrimeVue from "primevue/config";
 import Aura from "@primevue/themes/aura";
 
-
-import InstantSearch from 'vue-instantsearch/vue3/es';
-
+import InstantSearch from "vue-instantsearch/vue3/es";
 
 // Components
 import App from "./App.vue";
@@ -30,12 +28,11 @@ app.use(ToastService);
 
 app.use(InstantSearch);
 
-
 // 使用 Vercel Speed Insights 观测网站性能
-import { injectSpeedInsights } from '@vercel/speed-insights';
+import { injectSpeedInsights } from "@vercel/speed-insights";
 injectSpeedInsights();
 // 使用 Vercel Analytics 收集数据
-import { inject } from '@vercel/analytics';
+import { inject } from "@vercel/analytics";
 inject();
 
 registerPlugins(app);

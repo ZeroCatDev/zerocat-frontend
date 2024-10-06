@@ -10,5 +10,5 @@
 </template>
 
 <script setup>
-import Toast from 'primevue/toast';
+import Toast from "primevue/toast";
 </script>

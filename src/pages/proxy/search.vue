@@ -55,7 +55,11 @@
     <v-row>
       <v-col cols="4" md="2" v-for="info in projects" :key="info">
         <v-card :to="'/proxy/' + info.id">
-          <v-img :src="`${scratch_proxy}/thumbnails/${info.id}`" cover   lazy-src="../../assets/43-lazyload.png"></v-img
+          <v-img
+            :src="`${scratch_proxy}/thumbnails/${info.id}`"
+            cover
+            lazy-src="../../assets/43-lazyload.png"
+          ></v-img
           ><v-card-item>
             <v-card-title>{{ info.title }}</v-card-title>
 

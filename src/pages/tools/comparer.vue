@@ -1,37 +1,86 @@
 <template>
   <v-container>
-    <v-file-input id="file1" truncate-length="22" label="scratch项目1" :disabled="progresstext=='完成！'"></v-file-input>
-    <v-file-input id="file2" truncate-length="22" label="scratch项目2" :disabled="progresstext=='完成！'"></v-file-input>
-    <v-btn color="primary" elevation="2" class="mx-5" @click="convertFiles()" v-text="progresstext" :disabled="progresstext=='完成！'"></v-btn><br />
+    <v-file-input
+      id="file1"
+      truncate-length="22"
+      label="scratch项目1"
+      :disabled="progresstext == '完成！'"
+    ></v-file-input>
+    <v-file-input
+      id="file2"
+      truncate-length="22"
+      label="scratch项目2"
+      :disabled="progresstext == '完成！'"
+    ></v-file-input>
+    <v-btn
+      color="primary"
+      elevation="2"
+      class="mx-5"
+      @click="convertFiles()"
+      v-text="progresstext"
+      :disabled="progresstext == '完成！'"
+    ></v-btn
+    ><br />
     <!--   <div class="h6" id="show"></div>-->
     <br /><br />
-    <v-card :title="`${(final * 100).toFixed(0)}%的概率为抄袭`" subtitle="推测数据，请以实际为准">
+    <v-card
+      :title="`${(final * 100).toFixed(0)}%的概率为抄袭`"
+      subtitle="推测数据，请以实际为准"
+    >
       <v-row>
         <v-col cols="6">
-          <v-card :title="name1" :subtitle="'素材总数' + resultjson.assets.objectAmount0">
+          <v-card
+            :title="name1"
+            :subtitle="'素材总数' + resultjson.assets.objectAmount0"
+          >
             <v-card-text>
-              {{ (resultjson.assets.objectSameAmount0 / resultjson.assets.objectAmount0 * 100).toFixed(4) }}%（{{
-                resultjson.assets.objectSameAmount0 }}/{{ resultjson.assets.objectAmount0 }}）的素材与右侧相同
+              {{
+                (
+                  (resultjson.assets.objectSameAmount0 /
+                    resultjson.assets.objectAmount0) *
+                  100
+                ).toFixed(4)
+              }}%（{{ resultjson.assets.objectSameAmount0 }}/{{
+                resultjson.assets.objectAmount0
+              }}）的素材与右侧相同
 
-
-
-              <br /> {{ (proj0samularty / resultjson.code.code0length * 100).toFixed(4) }}%（{{
-                proj0samularty }}/{{ resultjson.code.code0length }}）的项目树与右侧相同
+              <br />
+              {{
+                ((proj0samularty / resultjson.code.code0length) * 100).toFixed(
+                  4
+                )
+              }}%（{{ proj0samularty }}/{{
+                resultjson.code.code0length
+              }}）的项目树与右侧相同
             </v-card-text>
           </v-card>
         </v-col>
         <v-col cols="6">
-          <v-card :title="name2" :subtitle="'素材总数' + resultjson.assets.objectAmount1">
+          <v-card
+            :title="name2"
+            :subtitle="'素材总数' + resultjson.assets.objectAmount1"
+          >
             <v-card-text>
-              {{ (resultjson.assets.objectSameAmount1 / resultjson.assets.objectAmount1 * 100).toFixed(4) }}（{{
-                resultjson.assets.objectSameAmount1 }}/{{ resultjson.assets.objectAmount1 }}）的素材与左侧相同
+              {{
+                (
+                  (resultjson.assets.objectSameAmount1 /
+                    resultjson.assets.objectAmount1) *
+                  100
+                ).toFixed(4)
+              }}（{{ resultjson.assets.objectSameAmount1 }}/{{
+                resultjson.assets.objectAmount1
+              }}）的素材与左侧相同
 
-
-
-
-              <br /> {{ (proj1samularty / resultjson.code.code1length * 100).toFixed(4) }}%（{{
-                proj1samularty }}/{{ resultjson.code.code1length }}）的项目树与左侧相同
-            </v-card-text></v-card>
+              <br />
+              {{
+                ((proj1samularty / resultjson.code.code1length) * 100).toFixed(
+                  4
+                )
+              }}%（{{ proj1samularty }}/{{
+                resultjson.code.code1length
+              }}）的项目树与左侧相同
+            </v-card-text></v-card
+          >
         </v-col>
       </v-row>
       <v-card-text>
@@ -41,27 +90,32 @@
         <div v-for="item in resultjson.assets.objectSame0" :key="item">
           {{ item }}
         </div>
-
       </v-card-text>
 
       <v-card-actions>
         <v-btn @click="printpage()">打印</v-btn>
-      </v-card-actions>
-    </v-card><br />
+      </v-card-actions> </v-card
+    ><br />
     <v-card>
       <v-card-title>关于</v-card-title>
       <v-card-subtitle>致谢~</v-card-subtitle>
       <v-card-text>
         本工具使用由<a href="https://github.com/Steve-xmh">Steve-xmh</a>开发的<a
-          href="https://github.com/Steve-xmh/scratch-source-comparer">scratch-source-comparer</a>进行比对，网页版本由<a
-          href="https://github.com/52black">52black</a>制作，开源于<a
-          href="https://github.com/52black/scratch-source-comparer-web">Github</a>
-          <br />在此感谢 Steve-xmh , 52black 以及这些项目的贡献者们
-        <br />此版本由孙悟元制作，同ZeroCatNext一同开源于<a href="https://github.com/sunwuyuan/zerocatnext">Github</a>
-        <br/>本项目目前使用GPLv3许可证，本项目与AGPLv3的特殊限制无关。
-          </v-card-text>
+          href="https://github.com/Steve-xmh/scratch-source-comparer"
+          >scratch-source-comparer</a
+        >进行比对，网页版本由<a href="https://github.com/52black">52black</a
+        >制作，开源于<a
+          href="https://github.com/52black/scratch-source-comparer-web"
+          >Github</a
+        >
+        <br />在此感谢 Steve-xmh , 52black 以及这些项目的贡献者们
+        <br />此版本由孙悟元制作，同ZeroCatNext一同开源于<a
+          href="https://github.com/sunwuyuan/zerocatnext"
+          >Github</a
+        >
+        <br />本项目目前使用GPLv3许可证，本项目与AGPLv3的特殊限制无关。
+      </v-card-text>
     </v-card>
-
   </v-container>
 </template>
 
@@ -71,9 +125,9 @@ import { ref } from "vue";
 var blob1;
 var blob2;
 var name1 = "项目1";
-var name2 = "项目2"
+var name2 = "项目2";
 var name2;
-var final=ref(0);
+var final = ref(0);
 var resultjson = ref({
   assets: {
     objectSameAmount0: 0,
@@ -94,9 +148,9 @@ var resultjson = ref({
 });
 var proj0samularty = 0;
 var proj1samularty = 0;
-var progresstext = ref('开始比对');
+var progresstext = ref("开始比对");
 function printpage() {
-  window.print()
+  window.print();
 }
 async function c() {
   if (blob1 && blob2) {
@@ -122,22 +176,26 @@ async function c() {
     var s = `
     <br><span class="s">项目1:  </span>                                   <span class="j"> ${name1}</span>
     <br><span class="s">项目2:  </span>                                   <span class="j"> ${name2}</span>
-    <br><span class="s">项目1 的相同素材总数:  </span>                   <span class="j"> ${result.assets.objectSameAmount0
-      }</span>
-    <br><span class="s">项目2 的相同素材总数:  </span>                   <span class="j"> ${result.assets.objectSameAmount1
-      }</span>
-    <br><span class="s">项目1 的素材总数:  </span>              <span class="j"> ${result.assets.objectAmount0
-      }</span>
-    <br><span class="s">项目2 的素材总数:  </span>              <span class="j"> ${result.assets.objectAmount1
-      }</span>
+    <br><span class="s">项目1 的相同素材总数:  </span>                   <span class="j"> ${
+      result.assets.objectSameAmount0
+    }</span>
+    <br><span class="s">项目2 的相同素材总数:  </span>                   <span class="j"> ${
+      result.assets.objectSameAmount1
+    }</span>
+    <br><span class="s">项目1 的素材总数:  </span>              <span class="j"> ${
+      result.assets.objectAmount0
+    }</span>
+    <br><span class="s">项目2 的素材总数:  </span>              <span class="j"> ${
+      result.assets.objectAmount1
+    }</span>
     <br><span class="s">项目1 相同素材占比:  </span>            <span class="j"> ${+(
-        (result.assets.objectSameAmount0 / result.assets.objectAmount0) *
-        100
-      ).toFixed(4)}%</span>
+      (result.assets.objectSameAmount0 / result.assets.objectAmount0) *
+      100
+    ).toFixed(4)}%</span>
     <br><span class="s">项目2 相同素材占比:  </span>            <span class="j"> ${+(
-        (result.assets.objectSameAmount1 / result.assets.objectAmount1) *
-        100
-      ).toFixed(4)}%</span>
+      (result.assets.objectSameAmount1 / result.assets.objectAmount1) *
+      100
+    ).toFixed(4)}%</span>
     `;
     // for (const key in result.assets.objectSameKey0) {
     //     s += `  - <span class="j"> ${result.assets.objectSameKey0[key]}</span>`
@@ -148,24 +206,29 @@ async function c() {
       s += `  - <span class="j"> ${result.assets.objectSameKey0[key]}</span>`;
     }
     s += `
-    <br><span class="s">项目1 的项目树总数:  </span>            <span class="j"> ${result.code.code0length
-      }</span>
-    <br><span class="s">项目2 的项目树总数:  </span>            <span class="j"> ${result.code.code1length
-      }</span>
-    <br><span class="s">项目1 的项目树相同总数:  </span>       <span class="j"> ${result.code.code0.length
-      }</span>
-    <br><span class="s">项目2 的项目树相同总数:  </span>       <span class="j"> ${result.code.code1.length
-      }</span>
+    <br><span class="s">项目1 的项目树总数:  </span>            <span class="j"> ${
+      result.code.code0length
+    }</span>
+    <br><span class="s">项目2 的项目树总数:  </span>            <span class="j"> ${
+      result.code.code1length
+    }</span>
+    <br><span class="s">项目1 的项目树相同总数:  </span>       <span class="j"> ${
+      result.code.code0.length
+    }</span>
+    <br><span class="s">项目2 的项目树相同总数:  </span>       <span class="j"> ${
+      result.code.code1.length
+    }</span>
     <br><span class="s">项目1 的项目树相同占比:  </span>    <span class="j"> ${+(
-        (proj0samularty / result.code.code0length) *
-        100
-      ).toFixed(4)}%</span>
+      (proj0samularty / result.code.code0length) *
+      100
+    ).toFixed(4)}%</span>
     <br><span class="s">项目2 的项目树相同占比:  </span>    <span class="j"> ${+(
-        (proj1samularty / result.code.code1length) *
-        100
-      ).toFixed(4)}%</span>
-    <br><span class="s">项目 抄袭可能性:  </span>                           <span class="j"> ${final * 100
-      }%</span>`;
+      (proj1samularty / result.code.code1length) *
+      100
+    ).toFixed(4)}%</span>
+    <br><span class="s">项目 抄袭可能性:  </span>                           <span class="j"> ${
+      final * 100
+    }%</span>`;
   }
   //document.getElementById("show").innerHTML = s;
 }
@@ -261,8 +324,9 @@ class Block {
   }
   // 转换成字符串
   toFormatedString(indent = 0) {
-    let ret = `${this.topLevel ? "function " : ""}${this.opcode}()${this.topLevel ? "" : ";"
-      }`;
+    let ret = `${this.topLevel ? "function " : ""}${this.opcode}()${
+      this.topLevel ? "" : ";"
+    }`;
     if (this.opcode === "control_if" || this.opcode === "control_if_else") {
       ret = "if(true){";
     } else if (
@@ -294,7 +358,7 @@ class Block {
   }
 }
 
-async function compareCode(project0, project1, progress = () => { }) {
+async function compareCode(project0, project1, progress = () => {}) {
   let total = 0;
   let cur = 0;
   async function makeCodeTree(project) {
@@ -323,7 +387,7 @@ async function compareCode(project0, project1, progress = () => { }) {
             });
           } else if (block.opcode) {
             switch (
-            block.opcode // Some special hat blocks.
+              block.opcode // Some special hat blocks.
             ) {
               case "procedures_definition":
               case "control_start_as_clone":
@@ -439,7 +503,7 @@ async function compareCode(project0, project1, progress = () => { }) {
  * @param {Object<string,Hash>} h1 Second object
  * @returns {Promise<{o0:number,o1:number,o0l:number,o1l:number}>} The result
  */
-async function compareAssets({ o0, o1, h0, h1, progress = () => { } }) {
+async function compareAssets({ o0, o1, h0, h1, progress = () => {} }) {
   console.log(o0, o1);
   const result = {
     objectSameAmount0: 0,
@@ -504,7 +568,7 @@ async function transferSb2IfNeed(proj) {
  * @param {Function} progress A function which will be invoked while comparing, taking a progress message as an argument.
  * @returns {Promise<Object>} The result.
  */
-async function compare(project0, project1, progress = () => { }) {
+async function compare(project0, project1, progress = () => {}) {
   progress({ text: "正在转换工程版本", progress: 0 });
   // minilog.disable()
   const [zip0, zip1] = await Promise.all([

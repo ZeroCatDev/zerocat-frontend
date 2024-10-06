@@ -94,30 +94,27 @@
           </div>
 
           <br />
-        </v-card> <br />
-        <v-card
-          subtitle="此项目可以被存储到ZeroCat服务器"
-          title="存储此项目"
-        >
+        </v-card>
+        <br />
+        <v-card subtitle="此项目可以被存储到ZeroCat服务器" title="存储此项目">
           <v-card-text class="bg-surface-light pt-4">
             此项目可以被存储到ZeroCat服务器
           </v-card-text>
           <template v-slot:actions>
-
             <v-btn :to="'/proxy/' + project.id + '/fork'" variant="text"
               >保存到ZeroCat</v-btn
             >
           </template>
         </v-card>
         <br />
-        <v-card
-          subtitle="这是Scratch上的内容"
-          title="ScratchMirror"
-        >
+        <v-card subtitle="这是Scratch上的内容" title="ScratchMirror">
           <v-card-text class="bg-surface-light pt-4">
             我们使用这种方式促进Scratch及其社区的发展，这些内容是按照<a
               >署名-相同方式共享 2.0 通用</a
-            >协议传播的，您可以在<a href="https://creativecommons.org/licenses/by-sa/2.0/">creativecommons.org</a>查看协议全文。
+            >协议传播的，您可以在<a
+              href="https://creativecommons.org/licenses/by-sa/2.0/"
+              >creativecommons.org</a
+            >查看协议全文。
           </v-card-text>
           <template v-slot:actions>
             <v-btn
@@ -133,20 +130,22 @@
       </v-col>
     </v-row>
 
-    <div id="waline"></div>
+    <Comment
+      :url="'scratchmiteduproject-' + this.$route.params.id"
+      name="项目"
+    ></Comment>
   </v-container>
 </template>
 
 <script>
 import openEditor from "../../../stores/openEdit";
+import { Comment } from "../../components/Comment.vue";
 
 import request from "../../../axios/axios";
-import { init } from "@waline/client";
 import ProjectRunner from "../../../components/ProjectRunner.vue";
-import "@waline/client/style";
 import { localuser } from "@/stores/user";
 export default {
-  components: { ProjectRunner },
+  components: { ProjectRunner, Comment },
   data() {
     return {
       project: {
@@ -212,24 +211,6 @@ export default {
 
   async created() {
     await this.getproject();
-    init({
-      el: "#waline",
-      serverURL: "https://zerocat-waline.190823.xyz",
-      path: "scratchmitedu-project-" + this.$route.params.id,
-      copyright: false,
-      reaction: true,
-      pageview: true,
-      locale: {
-        reactionTitle: "这个作品怎么样？",
-      },
-      emoji: [
-        "//unpkg.com/@waline/emojis@1.1.0/weibo",
-        "//unpkg.com/@waline/emojis@1.1.0/bilibili",
-      ],
-      dark:
-        window.matchMedia &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches,
-    });
   },
   methods: {
     async getproject() {

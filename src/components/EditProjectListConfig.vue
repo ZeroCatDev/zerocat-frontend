@@ -1,21 +1,51 @@
 <template>
   <v-card :title="`${listinfo.title}(#${listinfo.id})`">
     <v-card-text>
-      <v-text-field v-model="newlistinfo.title" label="名称" required></v-text-field>
-      <v-text-field v-model="newlistinfo.description" label="简介" required></v-text-field>
+      <v-text-field
+        v-model="newlistinfo.title"
+        label="名称"
+        required
+      ></v-text-field>
+      <v-text-field
+        v-model="newlistinfo.description"
+        label="简介"
+        required
+      ></v-text-field>
 
-      <v-select v-model="newlistinfo.state" :items="liststates" item-title="state" item-value="abbr"
-        label="项目状态"></v-select>
+      <v-select
+        v-model="newlistinfo.state"
+        :items="liststates"
+        item-title="state"
+        item-value="abbr"
+        label="项目状态"
+      ></v-select>
     </v-card-text>
     <v-card-actions>
-      <v-btn text="删除" variant="plain" @click="deleteProjectList(listid);close()" color="red"></v-btn>
+      <v-btn
+        text="删除"
+        variant="plain"
+        @click="
+          deleteProjectList(listid);
+          close();
+        "
+        color="red"
+      ></v-btn>
 
       <v-spacer></v-spacer>
-      <v-btn text="回退" variant="plain" @click="newlistinfo = Object.assign({}, listinfo)"></v-btn>
+      <v-btn
+        text="回退"
+        variant="plain"
+        @click="newlistinfo = Object.assign({}, listinfo)"
+      ></v-btn>
 
       <v-btn text="关闭" variant="plain" @click="close()"></v-btn>
 
-      <v-btn color="primary" text="保存" variant="tonal" @click="updateProjectList(listid)"></v-btn>
+      <v-btn
+        color="primary"
+        text="保存"
+        variant="tonal"
+        @click="updateProjectList(listid)"
+      ></v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -44,7 +74,8 @@ export default {
     callback: {
       type: Function,
       required: false,
-    }, close: {
+    },
+    close: {
       type: Function,
       required: false,
     },
@@ -102,7 +133,6 @@ export default {
           detail: res,
           life: 3000,
         });
-
       });
       this.callback();
     },

@@ -1,24 +1,28 @@
 <template>
   <v-dialog v-model="this.show" max-width="320" persistent>
-      <v-list class="py-2" color="primary" elevation="12" rounded="lg">
-        <v-list-item prepend-icon="mdi-plus-circle" :title="text">
-          <template v-slot:prepend>
-            <div class="pe-4">
-              <v-icon color="primary" size="x-large"></v-icon>
-            </div>
-          </template>
+    <v-list class="py-2" color="primary" elevation="12" rounded="lg">
+      <v-list-item prepend-icon="mdi-plus-circle" :title="text">
+        <template v-slot:prepend>
+          <div class="pe-4">
+            <v-icon color="primary" size="x-large"></v-icon>
+          </div>
+        </template>
 
-          <template v-slot:append>
-            <v-progress-circular color="primary" indeterminate="disable-shrink" size="16"
-              width="2"></v-progress-circular>
-          </template>
-        </v-list-item>
-      </v-list>
-    </v-dialog></template>
+        <template v-slot:append>
+          <v-progress-circular
+            color="primary"
+            indeterminate="disable-shrink"
+            size="16"
+            width="2"
+          ></v-progress-circular>
+        </template>
+      </v-list-item>
+    </v-list>
+  </v-dialog>
+</template>
 
 <script>
 export default {
-
   props: {
     show: {
       type: Boolean,
@@ -26,7 +30,7 @@ export default {
     },
     text: {
       type: String,
-      default: '加载中',
+      default: "加载中",
     },
   },
   watch: {
@@ -40,5 +44,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

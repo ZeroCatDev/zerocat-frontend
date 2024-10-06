@@ -1,14 +1,7 @@
 <template>
   <v-container class="fill-height">
-    <v-responsive
-      class="align-centerfill-height mx-auto"
-      max-width="900"
-    >
-      <v-img
-        class="mb-4"
-        height="150"
-        src="@/assets/logo.png"
-      />
+    <v-responsive class="align-centerfill-height mx-auto" max-width="900">
+      <v-img class="mb-4" height="150" src="@/assets/logo.png" />
 
       <div class="text-center">
         <div class="text-body-2 font-weight-light mb-n1">出现了错误</div>
@@ -36,9 +29,7 @@
             </template>
 
             <template #subtitle>
-              <div class="text-subtitle-1">
-                大概是页面未找到
-              </div>
+              <div class="text-subtitle-1">大概是页面未找到</div>
             </template>
 
             <v-overlay
@@ -75,7 +66,7 @@
           <v-card
             class="py-4"
             color="surface-variant"
-          @click="this.$router.back()"
+            @click="this.$router.back()"
             prepend-icon="mdi-arrow-left-drop-circle"
             rounded="lg"
             title="返回上一页"
@@ -90,13 +81,11 @@
             />
           </v-card>
         </v-col>
-
-
       </v-row>
     </v-responsive>
   </v-container>
 </template>
 
 <script setup>
-  //
+//
 </script>

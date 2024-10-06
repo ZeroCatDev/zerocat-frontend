@@ -5,7 +5,11 @@
         <span class="font-weight-black">{{ projectlist.title }}</span>
       </template>
       <template v-slot:loader="{ isActive }">
-        <v-progress-linear :active="isActive" height="4" indeterminate></v-progress-linear>
+        <v-progress-linear
+          :active="isActive"
+          height="4"
+          indeterminate
+        ></v-progress-linear>
       </template>
       <template v-slot:subtitle>
         <v-chip>
@@ -27,22 +31,25 @@
 
       <v-card-text class="bg-surface-light pt-4">
         {{ projectlist.description }}
-      </v-card-text> </v-card><v-container>
+      </v-card-text> </v-card
+    ><v-container>
       <ProjectsCards :projects="projectlist.data"></ProjectsCards>
     </v-container>
-    <div id="waline"></div>
+    <Comment
+      :url="'projectlist-' + this.$route.params.id"
+      name="列表"
+    ></Comment>
   </v-container>
 </template>
 
 <script>
+import { Comment } from "../../components/Comment.vue";
 import request from "../../axios/axios";
-import { init } from "@waline/client";
-import "@waline/client/style";
 import { localuser } from "@/stores/user";
 import ProjectsCards from "../../components/ProjectsCards.vue";
 
 export default {
-  components: { ProjectsCards },
+  components: { ProjectsCards, Comment },
 
   data() {
     return {

@@ -1,14 +1,7 @@
 <template>
   <v-container class="fill-height">
-    <v-responsive
-      class="align-centerfill-height mx-auto"
-      max-width="900"
-    >
-      <v-img
-        class="mb-4"
-        height="150"
-        src="@/assets/logo.png"
-      />
+    <v-responsive class="align-centerfill-height mx-auto" max-width="900">
+      <v-img class="mb-4" height="150" src="@/assets/logo.png" />
 
       <div class="text-center">
         <div class="text-body-2 font-weight-light mb-n1">Welcome to</div>
@@ -25,7 +18,6 @@
             color="surface-variant"
             prepend-icon="mdi-rocket-launch-outline"
             append-icon="mdi-arrow-right"
-
             rounded="lg"
             variant="outlined"
             to="/projects"
@@ -40,7 +32,9 @@
 
             <template #subtitle>
               <div class="text-subtitle-1">
-                立刻浏览zerocat上的<v-kbd> Scratch </v-kbd>和<v-kbd> Python </v-kbd>作品！
+                立刻浏览zerocat上的<v-kbd> Scratch </v-kbd>和<v-kbd>
+                  Python </v-kbd
+                >作品！
               </div>
             </template>
 
@@ -53,7 +47,7 @@
             />
           </v-card>
         </v-col>
-<!--
+        <!--
         <v-col cols="6">
           <v-card
             append-icon="mdi-open-in-new"
@@ -155,5 +149,5 @@
 </template>
 
 <script setup>
-  //
+//
 </script>
