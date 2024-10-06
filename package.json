@@ -27,6 +27,7 @@
     "prettydiff": "^101.2.6",
     "primevue": "^4.0.0",
     "roboto-fontface": "*",
+    "ua-parser-js": "^1.0.39",
     "vue": "^3.4.31",
     "vue-instantsearch": "^4.19.4",
     "vuetify": "^3.6.11",

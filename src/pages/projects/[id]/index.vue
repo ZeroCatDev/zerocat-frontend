@@ -111,24 +111,7 @@ export default {
 
   async created() {
     await this.getproject();
-    init({
-      el: "#waline",
-      serverURL: "https://zerocat-waline.190823.xyz",
-      path: "scratchproject-" + this.$route.params.id,
-      copyright: false,
-      reaction: true,
-      pageview: true,
-      locale: {
-        reactionTitle: "这个作品怎么样？",
-      },
-      emoji: [
-        "//unpkg.com/@waline/emojis@1.1.0/weibo",
-        "//unpkg.com/@waline/emojis@1.1.0/bilibili",
-      ],
-      dark:
-        window.matchMedia &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches,
-    });
+    //init({ el: "#waline", serverURL: "https://zerocat-waline.190823.xyz", path: "scratchproject-" + this.$route.params.id, copyright: false, reaction: true, pageview: true, locale: { reactionTitle: "这个作品怎么样？", }, emoji: [ "//unpkg.com/@waline/emojis@1.1.0/weibo", "//unpkg.com/@waline/emojis@1.1.0/bilibili", ], dark: window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches, });
   },
   methods: {
     async getproject() {

@@ -4,34 +4,46 @@
       <v-card-item>
         <template v-slot:prepend>
           <v-avatar color="blue-darken-2">
-            <v-img :src="comment.avatar"></v-img>
+            <v-img :src="'https://s4-1.wuyuan.1r.ink/user/' +
+              users[comment.user_id].images
+              "></v-img>
           </v-avatar>
         </template>
         <template v-slot:append>
-          <v-btn icon="mdi-reply">
-          </v-btn><v-btn icon="mdi-delete" @click="deleteCommnet({ id: comment.id })"
+          <v-btn icon="mdi-reply"> </v-btn><v-btn icon="mdi-delete" @click="deleteCommnet({ id: comment.id })"
             v-if="comment.user_id == localuser.user.id">
           </v-btn>
         </template>
         <v-card-title :to="'/user/' + comment.user_id">{{
-          comment.nick
+          users[comment.user_id].display_name
         }}</v-card-title>
 
-        <v-card-subtitle>{{ comment.time }} - {{ comment.browser }} ({{
-          comment.os
-        }})</v-card-subtitle>
+        <v-card-subtitle>
+          <TimeAgo :date="comment.insertedAt" /> - ({{
+            UAParser(comment.user_ua).browser.name
+          }}
+          -
+          {{
+            UAParser(comment.user_ua).os.name +
+            UAParser(comment.user_ua).os.version
+          }})
+        </v-card-subtitle>
       </v-card-item>
-      <v-card-text>{{ comment.comment }}</v-card-text>
+      <v-card-text>{{ comment.text }}</v-card-text>
       <v-card class="pb-3 pl-10 pr-3" v-if="comment.children && comment.children.length">
         <v-list density="default">
           <v-list-item v-for="children in comment.children.slice(0, 2)" :key="children.id" link
             @click="showMore(comment)">
             <template v-slot:prepend>
-              <v-img :src="comment.avatar"></v-img>
+              <v-img :src="'https://s4-1.wuyuan.1r.ink/user/' +
+                users[children.user_id].images
+                "></v-img>
             </template>
 
-            <v-list-item-title>{{ children.nick }}</v-list-item-title>
-            <v-list-item-subtitle>{{ children.comment }}</v-list-item-subtitle>
+            <v-list-item-title>{{
+              users[children.user_id].display_name
+            }}</v-list-item-title>
+            <v-list-item-subtitle>{{ children.text }}</v-list-item-subtitle>
           </v-list-item>
 
           <v-list-item v-if="comment.children.length > 2" link @click="viewAllComments">
@@ -54,14 +66,14 @@
       </v-card-text>
     </v-card>
 
-
-
     <v-dialog v-model="moredialog" width="auto"><v-card><v-container>
           <v-card variant="tonal" class="mb-2" elevation hover>
             <v-card-item>
               <template v-slot:prepend>
                 <v-avatar color="blue-darken-2">
-                  <v-img :src="morecommnets.avatar"></v-img>
+                  <v-img :src="'https://s4-1.wuyuan.1r.ink/user/' +
+                    users[morecommnets.user_id].images
+                    "></v-img>
                 </v-avatar>
               </template>
               <template v-slot:append>
@@ -70,43 +82,55 @@
                 </v-btn>
               </template>
               <v-card-title :to="'/user/' + morecommnets.user_id">{{
-                morecommnets.nick
+                users[morecommnets.user_id].display_name
               }}</v-card-title>
 
-              <v-card-subtitle>{{ morecommnets.time }} - {{ morecommnets.browser }} ({{
-                morecommnets.os
-              }})</v-card-subtitle>
+              <v-card-subtitle>
+                <TimeAgo :date="morecommnets.insertedAt" /> - ({{
+                  UAParser(morecommnets.user_ua).browser.name
+                }}
+                -
+                {{
+                  UAParser(morecommnets.user_ua).os.name +
+                  UAParser(morecommnets.user_ua).os.version
+                }}) - {{ morecommnets.insertedAt }}
+              </v-card-subtitle>
             </v-card-item>
-            <v-card-text>{{ morecommnets.comment }}</v-card-text>
+            <v-card-text>{{ morecommnets.text }}</v-card-text>
           </v-card>
           <v-card class="mb-2" v-for="comment in morecommnets.children" :key="comment.id" elevation hover>
             <v-card-item>
               <template v-slot:prepend>
                 <v-avatar color="blue-darken-2">
-                  <v-img :src="comment.avatar"></v-img>
+                  <v-img :src="'https://s4-1.wuyuan.1r.ink/user/' +
+                    users[comment.user_id].images
+                    "></v-img>
                 </v-avatar>
               </template>
               <template v-slot:append>
-                <v-btn icon="mdi-reply" @click="
-                  replyid = comment.id
-                  ">
-                </v-btn><v-btn icon="mdi-delete" @click="deleteCommnet({ id: comment.id })"
-                  v-if="comment.user_id == localuser.user.id">
+                <v-btn icon="mdi-reply" @click="replyid = comment.id"> </v-btn><v-btn icon="mdi-delete"
+                  @click="deleteCommnet({ id: comment.id })" v-if="comment.user_id == localuser.user.id">
                 </v-btn>
               </template>
               <v-card-title :to="'/user/' + comment.user_id">{{
-                comment.nick
+                users[comment.user_id].display_name
               }}</v-card-title>
 
-              <v-card-subtitle>{{ comment.time }} - {{ comment.browser }} ({{
-                comment.os
-              }})</v-card-subtitle>
+              <v-card-subtitle><TimeAgo :date="comment.insertedAt" /> - ({{
+                  UAParser(comment.user_ua).browser.name
+                }}
+                -
+                {{
+                  UAParser(comment.user_ua).os.name +
+                  UAParser(comment.user_ua).os.version
+                }}) - {{ comment.insertedAt }}</v-card-subtitle>
             </v-card-item>
-            <v-card-text>{{ comment.comment }}</v-card-text>
+            <v-card-text>{{ comment.text }}</v-card-text>
           </v-card>
 
           <v-card class="mt-4" elevation hover>
-            <v-card-title class="headline">回复评论{{ replyid }}<v-btn @click="replyid = null" v-if="replyid != null">取消</v-btn></v-card-title>
+            <v-card-title class="headline">回复评论{{ replyid
+              }}<v-btn @click="replyid = null" v-if="replyid != null">取消</v-btn></v-card-title>
             <v-card-text>
               <v-form @submit.prevent>
                 <v-textarea v-model="comment" label="评论" dense auto-grow :rules="commentrules" required></v-textarea>
@@ -125,9 +149,16 @@
 </template>
 
 <script>
+import TimeAgo from "./TimeAgo.vue";
+
 import request from "../axios/axios";
 import { localuser } from "@/stores/user";
+import { UAParser } from "ua-parser-js";
+
 export default {
+  components: {
+    TimeAgo,
+  },
   props: {
     url: {
       type: String,
@@ -141,6 +172,7 @@ export default {
       sort: "时间倒序",
       sorttext: "insertedAt_desc",
       comments: [],
+      users: {},
       page: 0,
       totalPages: 0,
       pageSize: 10,
@@ -157,6 +189,7 @@ export default {
       ],
       comment: "",
       replyid: "",
+      UAParser,
     };
   },
   mounted() {
@@ -180,6 +213,11 @@ export default {
           this.loadbuttondisabled = true;
         }
         this.comments = this.comments.concat(res.data.data);
+        console.log(res.users);
+        res.users.forEach((user) => {
+          this.users[user.id] = user;
+        });
+
         this.page = Number(res.data.page);
         this.totalPages = Number(res.data.totalPages);
         this.pageSize = Number(res.data.pageSize);
@@ -238,6 +276,26 @@ export default {
     showMore(info) {
       this.morecommnets = info;
       this.moredialog = true;
+    },
+    createDateFromMysql(mysql_string) {
+      var t,
+        result = null;
+
+      if (typeof mysql_string === "string") {
+        t = mysql_string.split(/[- :]/);
+
+        //when t[3], t[4] and t[5] are missing they defaults to zero
+        result = new Date(
+          t[0],
+          t[1] - 1,
+          t[2],
+          t[3] || 0,
+          t[4] || 0,
+          t[5] || 0
+        );
+      }
+
+      return result;
     },
   },
 };
