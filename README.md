@@ -1,6 +1,10 @@
-# Vuetify (Default)
+# ZeroCatNext
 
-This is the official scaffolding tool for Vuetify, designed to give you a head start in building your new Vuetify application. It sets up a base template with all the necessary configurations and standard directory structure, enabling you to begin development without the hassle of setting up the project from scratch.
+ZeroCat 是一个轻量级的在线编程、分享平台
+
+本仓库包含以下内容：
+ZeroCat 社区的前端源代码
+
 
 ## ❗️ Important Links
 
