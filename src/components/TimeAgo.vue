@@ -28,6 +28,12 @@ export default {
       this.timeAgo = this.getTimeAgo(new Date(this.date), this.now); // 重新计算
     }, 60000); // 每分钟刷新一次
   },
+  watch: {
+    date() {
+      // 监听传入的日期变化
+      this.timeAgo = this.getTimeAgo(new Date(this.date), this.now);
+    },
+  },
   methods: {
     padWithZeros(vNumber, width) {
       // 辅助函数：补零操作

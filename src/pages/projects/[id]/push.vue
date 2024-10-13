@@ -4,7 +4,7 @@
       <h1 class="text-h4">推送 <span v-text="project.title"></span></h1>
     </div>
     <br />
-    <v-card>
+    <v-card hover border>
       <template v-slot:title>
         {{ project.title }}
       </template>
@@ -17,7 +17,7 @@
         {{ project.description }}
       </template> </v-card
     ><br />
-    <v-card>
+    <v-card hover border>
       <template v-slot:title> 你正在推送你的项目 </template>
 
       <template v-slot:subtitle> 等等，确认点事 </template>
@@ -25,25 +25,9 @@
       <template v-slot:text>
         你正在推送
         <span v-text="project.title"></span>
-        ，这将会从项目开发分支代码复制到生产分支，并创建一份历史记录，您的用户将会看到新的作品。
+        ，这将会从项目开发分支代码复制到生产分支，并创建一份历史记录，您的用户将会看到新的作品。请确认项目中不含有个人隐私信息，违规的、不适宜分发的内容。建议您在推送前先进行测试，包含正在测试中的内容的版本可以新建项目用于发布，而不是发表在主项目中。
       </template>
     </v-card>
-    <!--<v-card>
-      <template v-slot:title>
-        您可以执行推送
-      </template>
-
-      <template v-slot:subtitle>
-        分支保护
-      </template>
-
-      <template v-slot:text> 没有有关的分支保护
-      </template>
-      <v-card-actions>
-        <v-checkbox label="我已了解并确认" v-model="checkprotect"></v-checkbox>
-
-      </v-card-actions>
-    </v-card>-->
 
     <br />
     <v-btn

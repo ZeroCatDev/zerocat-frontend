@@ -30,7 +30,7 @@
             <v-chip pill prepend-icon="mdi-eye"
               >{{ project.view_count }}浏览</v-chip
             >
-            <v-chip pill prepend-icon="mdi-clock">{{ project.time }}</v-chip>
+            <v-chip pill prepend-icon="mdi-clock"><TimeAgo :date="project.time " /></v-chip>
           </div>
           <div class="px-4 d-flex ga-2 mb-2">
             <v-chip pill prepend-icon="mdi-xml" v-if="project.state == 'public'"
@@ -105,8 +105,9 @@ import ProjectRunner from "../../../components/ProjectRunner.vue";
 import { localuser } from "@/stores/user";
 import AddTolist from "../../../components/AddTolist.vue";
 import Comment from "../../../components/Comment.vue";
+import TimeAgo from "@/components/TimeAgo.vue";
 export default {
-  components: { ProjectRunner },
+  components: { ProjectRunner,TimeAgo, Comment, AddTolist },
   data() {
     return {
       project: {
