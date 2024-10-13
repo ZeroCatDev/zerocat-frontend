@@ -1,6 +1,10 @@
-<template>
-  <v-dialog v-model="this.isVisible" persistent max-width="500px">
-    <v-card prepend-icon="mdi-xml" title="新建作品" border>
+<template>  <v-container><v-card hover border title="新建作品">
+  <v-card-text>
+作品是你存储代码的地方，你可以选择你喜欢的类型以从模板创建，作品信息可以随时修改。
+  </v-card-text>
+
+</v-card><br/>
+    <v-card hover border>
       <v-card-text>
         <v-row dense>
           <v-col cols="12" md="12" sm="12">
@@ -17,7 +21,7 @@
               :items="['scratch', 'python', 'text']"
               label="类型"
               required
-              hint="选择一个"
+              hint="可以随时修改"
               v-model="projectinfo.type"
             ></v-select>
           </v-col>
@@ -34,9 +38,9 @@
 
         <v-spacer></v-spacer>
 
-        <v-btn text="取消" variant="plain" @click="isVisible = false"></v-btn>
 
         <v-btn
+        border
           color="primary"
           text="创建"
           variant="tonal"
@@ -44,13 +48,12 @@
           :disabled="created"
         ></v-btn>
       </v-card-actions>
-    </v-card>
-  </v-dialog>
+    </v-card></v-container>
 </template>
 
 <script>
-import openEdit from "../stores/openEdit";
-import request from "../axios/axios";
+import openEdit from "../../stores/openEdit";
+import request from "@/axios/axios";
 export default {
   data() {
     return {
@@ -60,20 +63,11 @@ export default {
       },
       created: false,
       newid: 0,
-      isVisible: false,
       openEdit,
     };
   },
   methods: {
-    show() {
-      (this.projectinfo = {
-        title: "新建作品",
-        type: "scratch",
-      }),
-        (this.created = false);
-      this.newid = 0;
-      this.isVisible = true;
-    },
+
     async newProject() {
       await request.post("/project/", this.projectinfo).then((res) => {
         console.log(res);
@@ -84,7 +78,7 @@ export default {
           life: 3000,
         });
         if (res.status == "1") {
-          //this.created = true
+          this.created = true
           this.newid = res.id;
         }
       });

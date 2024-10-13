@@ -10,7 +10,7 @@
       </v-col>
 
       <v-col cols="4">
-        <v-card hover
+        <v-card hover border
           ><v-card-item>
             <v-card-title>{{ project.title }}</v-card-title>
             <v-card-subtitle>{{ project.description }}</v-card-subtitle>
@@ -65,7 +65,7 @@
           </div>
 
           <div class="px-4">
-            <v-card hover variant="tonal" :to="'/user/' + project.authorid">
+            <v-card hover  :to="'/user/' + project.authorid" border>
               <v-card-item>
                 <template v-slot:prepend>
                   <v-avatar>
@@ -91,7 +91,7 @@
           <br />
         </v-card>
         <br />
-        <v-card hover><AddTolist></AddTolist></v-card>
+        <v-card hover border><AddTolist></AddTolist></v-card>
       </v-col>
     </v-row>
   </v-container>

@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-card class="mx-auto" :disabled="Loading" :loading="Loading">
+    <v-card class="mx-auto" :disabled="Loading" :loading="Loading" border>
       <template v-slot:title>
         <span class="font-weight-black">{{ projectlist.title }}</span>
       </template>
@@ -32,9 +32,9 @@
       <v-card-text class="bg-surface-light pt-4">
         {{ projectlist.description }}
       </v-card-text> </v-card
-    ><v-container>
-      <ProjectsCards :projects="projectlist.data"></ProjectsCards>
-    </v-container>
+    >
+<br/>      <ProjectsCards :projects="projectlist.data"></ProjectsCards><br/>
+
     <Comment
       :url="'projectlist-' + this.$route.params.id"
       name="列表"

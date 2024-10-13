@@ -28,7 +28,7 @@
             append-icon="mdi-arrow-right"
           >
             <span class="hidden-sm-and-down">ZeroCat使用</span>
-            <span class="hidden-md-and-up">由</span>雨云作为基础设施
+            <span class="hidden-md-and-up">由</span>雨云的优质云计算服务
           </v-chip>
 
           <h1 class="text-h4 text-md-h2 font-weight-bold my-6">

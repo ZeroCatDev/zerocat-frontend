@@ -3,7 +3,7 @@
     <h1>列表</h1>
     <v-btn @click="NewProjectListDialog = true">创建</v-btn><br /><br />
     <div v-for="item in lists" :key="item.id">
-      <v-card>
+      <v-card border>
         <v-card-item>
           <v-card-title
             >{{ item.title

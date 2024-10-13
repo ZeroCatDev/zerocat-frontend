@@ -1,5 +1,5 @@
 <template>
-  <v-card :title="`${listinfo.title}(#${listinfo.id})`">
+  <v-card border :title="`${listinfo.title}(#${listinfo.id})`">
     <v-card-text>
       <v-text-field
         v-model="newlistinfo.title"

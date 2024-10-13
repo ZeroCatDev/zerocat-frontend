@@ -44,122 +44,19 @@
       ></v-list-item>
     </v-list>
     <v-divider></v-divider>
-    <v-list>
-      <v-list-subheader>导航</v-list-subheader>
+
+    <v-list v-for="lists in items" :key="lists">
+      <v-list-subheader>{{ lists.title }}</v-list-subheader>
 
       <v-list-item
+        v-for="item in lists.list"
+        :key="item.title"
+        :prepend-icon="item.icon"
+        :title="item.title"
+        :value="item.link"
+        :to="item.link"
         rounded="xl"
-        prepend-icon="mdi-home"
-        title="首页"
-        value="home"
-        to="/"
       ></v-list-item>
-      <v-list-item
-        rounded="xl"
-        prepend-icon="mdi-xml"
-        title="项目"
-        value="projects"
-        to="/projects"
-      ></v-list-item>
-      <v-list-item
-        rounded="xl"
-        prepend-icon="mdi-earth"
-        title="搜索"
-        value="projects"
-        to="/algolia"
-        v-if="algolia_AppId != ''"
-      ></v-list-item>
-
-      <v-list-item
-        rounded="xl"
-        prepend-icon="mdi-plus"
-        title="新作品"
-        value="projects"
-        @click="$refs.NewProjectDialog.show()"
-        v-if="islogin == true"
-      ></v-list-item>
-      <div>
-        <v-list-subheader>Mirror！</v-list-subheader>
-        <v-list-item
-          rounded="xl"
-          prepend-icon="mdi-home"
-          title="首页"
-          value="home"
-          to="/proxy/"
-        ></v-list-item>
-
-        <v-list-item
-          rounded="xl"
-          prepend-icon="mdi-earth"
-          title="探索"
-          value="home"
-          to="/proxy/explore"
-        ></v-list-item>
-        <v-list-item
-          rounded="xl"
-          prepend-icon="mdi-xml"
-          title="搜索"
-          value="projects"
-          to="/proxy/search"
-        ></v-list-item>
-        <v-list-item
-          rounded="xl"
-          prepend-icon="mdi-link"
-          title="打开"
-          value="open"
-          to="/proxy/open"
-        ></v-list-item>
-      </div>
-      <div v-if="islogin == true">
-        <v-list-subheader>账户</v-list-subheader>
-
-        <v-list-item
-          rounded="xl"
-          prepend-icon="mdi-cog"
-          title="账户设置"
-          value="account"
-          to="/account"
-        ></v-list-item>
-        <v-list-item
-          rounded="xl"
-          prepend-icon="mdi-xml"
-          title="我的项目"
-          value="myprojects"
-          to="/projects/my"
-        ></v-list-item>
-        <v-list-item
-          rounded="xl"
-          prepend-icon="mdi-xml"
-          title="我的列表"
-          value="myprojectlist"
-          to="/projectlist"
-        ></v-list-item>
-        <v-list-item
-          rounded="xl"
-          prepend-icon="mdi-export"
-          :title="logoutbutton"
-          value="logout"
-          @click="trylogout"
-        ></v-list-item>
-      </div>
-      <div>
-        <v-list-subheader>工具</v-list-subheader>
-
-        <v-list-item
-          rounded="xl"
-          prepend-icon="mdi-download"
-          title="桌面版镜像"
-          value="asdm"
-          to="/tools/asdm"
-        ></v-list-item>
-        <v-list-item
-          rounded="xl"
-          prepend-icon="mdi-xml"
-          title="项目比较器"
-          value="comparer"
-          to="/tools/comparer"
-        ></v-list-item>
-      </div>
     </v-list>
   </v-navigation-drawer>
   <NewProjectDialog ref="NewProjectDialog" />
@@ -180,10 +77,55 @@ export default {
     logoutbutton: "退出",
     urltoken: "",
     algolia_AppId: import.meta.env.VITE_APP_ALGOLIA_APP_ID,
+    items: {
+      main: {
+        title: "导航",
+        list: [
+          { title: "首页", link: "/", icon: "mdi-home" },
+          { title: "项目", link: "/projects", icon: "mdi-xml" },
+          { title: "搜索", link: "/algolia", icon: "mdi-earth" },
+          { title: "新作品", link: "/projects/new", icon: "mdi-plus" },
+        ],
+      },
+      mirror: {
+        title: "镜像",
+        list: [
+          { title: "首页", link: "/proxy/", icon: "mdi-home" },
+          { title: "探索", link: "/proxy/explore", icon: "mdi-earth" },
+          { title: "搜索", link: "/proxy/search", icon: "mdi-xml" },
+          { title: "打开", link: "/proxy/open", icon: "mdi-link" },
+        ],
+      },
+      account: {
+        title: "账户",
+        list: [
+          { title: "账户设置", link: "/account", icon: "mdi-cog" },
+          { title: "我的项目", link: "/projects/my", icon: "mdi-xml" },
+          { title: "我的列表", link: "/projectlist", icon: "mdi-xml" },
+          { title: "退出", link: "/account/logout", icon: "mdi-export" },
+        ],
+      },
+      tools: {
+        title: "工具",
+        list: [
+          { title: "桌面版镜像", link: "/tools/asdm", icon: "mdi-download" },
+          { title: "项目比较器", link: "/tools/comparer", icon: "mdi-xml" },
+        ],
+      },
+    },
   }),
+  created() {
+    // 在组件创建时检查localStorage中的状态
+    const drawerStatus = localStorage.getItem("drawerStatus");
+    this.drawer = drawerStatus === "true"; // 根据存储的值设置drawer
+  },
   watch: {
     userinfo(newName, oldName) {
       this.$forceUpdate();
+    },
+    drawer(newVal) {
+      // 当 drawer 状态发生变化时，将状态存入localStorage
+      localStorage.setItem("drawerStatus", newVal);
     },
   },
   methods: {

@@ -2,6 +2,7 @@
   <v-container>
     <div class="mb-2">
       <v-card
+      hover border
         class="mx-auto"
         :disabled="UserCardLoading"
         :loading="UserCardLoading"
@@ -43,8 +44,8 @@
         </v-card-text>
       </v-card>
     </div>
-    <v-card>
-      <v-tabs v-model="tab">
+    <v-card hover border>
+      <v-tabs v-model="tab" >
         <v-tab value="userinfo">用户信息</v-tab>
         <v-tab value="username">用户名</v-tab>
         <v-tab value="password">密码</v-tab>
@@ -54,10 +55,11 @@
         <v-tabs-window v-model="tab">
           <v-tabs-window-item value="userinfo">
             <v-form v-model="valid">
-              <v-container>
+
                 <v-row>
                   <v-col cols="12" md="4">
                     <v-text-field
+
                       v-model="UserInfo.display_name"
                       :counter="10"
                       label="显示名称"
@@ -73,6 +75,7 @@
                     ></v-textarea> </v-col
                   ><v-col cols="12" md="4">
                     <v-select
+
                       v-model="select"
                       :items="items"
                       item-title="state"
@@ -88,23 +91,23 @@
                     <v-btn
                       @click="initRecaptcha('recaptcha-div1', 'popup')"
                       variant="text"
-                      >加载验证码</v-btn
+                      border>加载验证码</v-btn
                     >
 
                     <v-btn @click="resetCaptcha()" variant="text"
-                      >刷新</v-btn
+                    border>刷新</v-btn
                     > </v-col
                   ><v-col cols="12">
-                    <v-btn @click="submit" :disabled="!valid"> 提交 </v-btn>
+                    <v-btn @click="submit" :disabled="!valid" border> 提交 </v-btn>
                   </v-col>
                 </v-row>
-              </v-container>
+
             </v-form>
           </v-tabs-window-item>
 
           <v-tabs-window-item value="username"
             ><v-form v-model="usernamevalid">
-              <v-container>
+
                 <v-row>
                   <v-col cols="12" md="4">
                     <v-text-field
@@ -121,25 +124,25 @@
                     <v-btn
                       @click="initRecaptcha('recaptcha-div2', 'popup')"
                       variant="text"
-                      >加载验证码</v-btn
+                      border>加载验证码</v-btn
                     >
 
                     <v-btn @click="resetCaptcha()" variant="text"
-                      >刷新</v-btn
+                    border>刷新</v-btn
                     > </v-col
                   ><v-col cols="12">
-                    <v-btn @click="changeusername" :disabled="!usernamevalid">
+                    <v-btn @click="changeusername" :disabled="!usernamevalid" border>
                       提交
                     </v-btn>
                   </v-col>
                 </v-row>
-              </v-container>
+
             </v-form></v-tabs-window-item
           >
 
-          <v-tabs-window-item value="password">
+          <v-tabs-window-item value="password" >
             <v-form v-model="passwordvalid">
-              <v-container>
+
                 <v-row>
                   <v-col cols="12" md="8">
                     <v-text-field
@@ -162,18 +165,18 @@
                     <v-btn
                       @click="initRecaptcha('recaptcha-div3', 'popup')"
                       variant="text"
-                      >加载验证码</v-btn
+                      border>加载验证码</v-btn
                     >
 
-                    <v-btn @click="resetCaptcha()" variant="text">刷新</v-btn>
+                    <v-btn @click="resetCaptcha()" variant="text" border>刷新</v-btn>
                   </v-col>
                   <v-col cols="12">
-                    <v-btn @click="changepassword" :disabled="!passwordvalid">
+                    <v-btn @click="changepassword" :disabled="!passwordvalid" border>
                       提交
                     </v-btn>
                   </v-col>
                 </v-row>
-              </v-container>
+
             </v-form></v-tabs-window-item
           >
         </v-tabs-window>

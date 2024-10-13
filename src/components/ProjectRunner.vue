@@ -1,14 +1,12 @@
 <template>
-  <div v-if="type === 'scratch'">
-    <div style="width: 100%; height: 100%; aspect-ratio: 4 / 3">
+  <v-card v-if="type === 'scratch'" hover border  style="aspect-ratio: 4 / 3">
       <iframe
         :src="embedurl"
         scrolling="no"
         frameborder="0"
         style="width: 100%; height: 100%"
       ></iframe>
-    </div>
-  </div>
+  </v-card>
   <div v-if="type === 'python'">
     <div style="width: 100%; height: 100%; aspect-ratio: 4 / 3">
       <iframe

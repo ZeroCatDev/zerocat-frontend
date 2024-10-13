@@ -2,6 +2,7 @@
   <v-list>
     <div v-for="item in lists" :key="item.id">
       <v-list-item
+
         :append-icon="
           item.include == true ? 'mdi-minus-circle' : 'mdi-plus-circle'
         "

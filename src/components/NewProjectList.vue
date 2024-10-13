@@ -1,5 +1,5 @@
 <template>
-  <v-card prepend-icon="mdi-xml" title="新建列表">
+  <v-card prepend-icon="mdi-xml" title="新建列表" border>
     <v-card-text>
       <v-row dense>
         <v-col cols="12" md="12" sm="12">

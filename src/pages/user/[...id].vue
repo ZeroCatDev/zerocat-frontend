@@ -2,6 +2,7 @@
   <v-container>
     <div class="mb-2">
       <v-card
+      hover border
         class="mx-auto"
         :disabled="UserCardLoading"
         :loading="UserCardLoading"
@@ -90,7 +91,7 @@
           </v-card>
         </v-card>
       </v-col></v-row
-    >
+    ><br/>
     <Comment :url="'user-' + $route.params.id" name="用户"></Comment>
   </v-container>
 </template>
