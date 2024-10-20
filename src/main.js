@@ -37,3 +37,4 @@ inject();
 
 registerPlugins(app);
 app.mount("#app");
+

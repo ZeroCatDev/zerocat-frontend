@@ -18,17 +18,7 @@
           ></v-img>
         </v-avatar>
       </template>
-      <template v-slot:append>
-        <v-btn icon="mdi-reply" border> </v-btn
-        ><v-btn
-           color="red-darken-1"
-        border
-          icon="mdi-delete"
-          @click="deleteCommnet({ id: comment.id })"
-          v-if="comment.user_id == localuser.user.userid"
-        >
-        </v-btn>
-      </template>
+
       <v-card-title :to="'/user/' + comment.user_id">{{
         users[comment.user_id].display_name
       }}</v-card-title>
@@ -49,7 +39,7 @@
       class="pb-3 pl-10 pr-3"
       v-if="comment.children && comment.children.length"
     >
-      <v-list density="default">
+      <v-list density="default" >
         <v-list-item
           v-for="children in comment.children.slice(0, 2)"
           :key="children.id"
@@ -84,7 +74,9 @@
     </v-card>
   </v-card>
 
-  <v-btn @click="getComments" :disabled="loadbuttondisabled"  border class="mr-2">继续加载</v-btn>
+  <v-btn @click="getComments" :disabled="loadbuttondisabled" border class="mr-2"
+    >继续加载</v-btn
+  >
   <v-btn @click="changesort" border>{{ sort }}</v-btn>
 
   <v-card class="mt-2" elevation hover border>
@@ -99,9 +91,13 @@
           :rules="commentrules"
           required
         ></v-textarea>
-        <v-btn color="primary" @click="addComment({ pid: null, rid: null })" border>
+        <v-btn
+          color="primary"
+          @click="addComment({ pid: null, rid: null })"
+          border
+        >
           评论 </v-btn
-        ><v-btn variant="text" >{{ info }}</v-btn></v-form
+        ><v-btn variant="text">{{ info }}</v-btn></v-form
       >
     </v-card-text>
   </v-card>
@@ -122,14 +118,27 @@
               </v-avatar>
             </template>
             <template v-slot:append>
-              <v-btn
-              border
-              color="red-darken-1"
-                icon="mdi-delete"
-                @click="deleteCommnet({ id: morecommnets.id })"
-                v-if="morecommnets.user_id == localuser.user.userid"
-              >
-              </v-btn>
+              <v-menu>
+                <template v-slot:activator="{ props }">
+                  <v-btn icon="mdi-dots-vertical" v-bind="props" border></v-btn>
+                </template>
+                <v-list border>
+                  <v-list-item
+                  v-if="morecommnets.user_id == localuser.user.userid"
+                  prepend-icon="mdi-delete"
+                  @click="deleteCommnet({ id: morecommnets.id })"
+                  >
+                    <v-list-item-title>删除</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item
+                    prepend-icon="mdi-reply"
+                    @click="replyid = morecommnets.id"
+                  >
+                    <v-list-item-title>回复</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+
             </template>
             <v-card-title :to="'/user/' + morecommnets.user_id">{{
               users[morecommnets.user_id].display_name
@@ -167,17 +176,35 @@
                 ></v-img>
               </v-avatar>
             </template>
-            <template v-slot:append>
-              <v-btn icon="mdi-reply" @click="replyid = comment.id" border> </v-btn
-              ><v-btn
-              color="red-darken-1"
 
-              border
-                icon="mdi-delete"
-                @click="deleteCommnet({ id: comment.id })"
-                v-if="comment.user_id == localuser.user.userid"
+            <template v-slot:append>
+              <v-btn
+                icon="mdi-reply"
+                @click="replyid = comment.id"
+                border
+                v-if="comment.user_id != localuser.user.userid"
               >
               </v-btn>
+              <v-menu>
+                <template v-slot:activator="{ props }">
+                  <v-btn icon="mdi-dots-vertical" v-bind="props" border></v-btn>
+                </template>
+                <v-list border>
+                  <v-list-item
+                    v-if="comment.user_id == localuser.user.userid"
+                    prepend-icon="mdi-delete"
+                    @click="deleteCommnet({ id: comment.id })"
+                  >
+                    <v-list-item-title>删除</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item
+                    prepend-icon="mdi-reply"
+                    @click="replyid = comment.id"
+                  >
+                    <v-list-item-title>回复</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
             </template>
             <v-card-title :to="'/user/' + comment.user_id">{{
               users[comment.user_id].display_name
@@ -201,8 +228,8 @@
           <v-card-title class="headline"
             >回复评论{{ replyid
             }}<v-btn @click="replyid = null" v-if="replyid != null"
-                >取消</v-btn
-              ></v-card-title
+              >取消</v-btn
+            ></v-card-title
           >
           <v-card-text>
             <v-form @submit.prevent>
