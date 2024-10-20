@@ -1,58 +1,49 @@
 <template>
-  <v-container>
-    <div class="mb-2">
-      <v-card
-      hover border
-        class="mx-auto"
-        :disabled="UserCardLoading"
-        :loading="UserCardLoading"
-      >
-        <template v-slot:prepend>
-          <v-avatar class="mb-2">
-            <v-img
-              :alt="userinfo.info.user.display_name"
-              :src="
-                'https://s4-1.wuyuan.1r.ink/user/' + userinfo.info.user.images
-              "
-            ></v-img>
-          </v-avatar>
-        </template>
-        <template v-slot:title>
-          <span class="font-weight-black">{{
-            userinfo.info.user.display_name
-          }}</span>
-        </template>
-        <template v-slot:loader="{ isActive }">
-          <v-progress-linear
-            :active="isActive"
-            height="4"
-            indeterminate
-          ></v-progress-linear>
-        </template>
-        <template v-slot:subtitle>
-          <v-chip>
-            <v-icon icon="mdi-account-circle" start></v-icon>
+  <v-container
+    ><v-responsive class="mt-12">
+      <v-row class="d-flex align-center">
+        <!-- 用户信息 -->
+        <v-col>
+          <p class="font-weight-medium text-primary">ZeroCat 用户</p>
 
-            ID:{{ userinfo.info.user.id }}
-          </v-chip>
-          <v-chip>
-            <v-icon icon="mdi-clock" start></v-icon>
-
-            {{ userinfo.info.user.regTime }}注册
-          </v-chip>
-          <v-chip>
-            <v-icon icon="mdi-tag" start></v-icon>
-
-            创作者</v-chip
+          <p
+            class="font-weight-bold text-sm-h2 text-h4 mt-2 d-inline-flex align-center username"
           >
-          <span class=""></span>
-        </template>
+            {{ userinfo.info.user.display_name }}
+            <v-avatar size="52" class="ma-2">
+              <v-img
+                :src="
+                  'https://s4-1.wuyuan.1r.ink/user/' + userinfo.info.user.images
+                "
+              />
+            </v-avatar>
+          </p>
 
-        <v-card-text class="bg-surface-light pt-4">
-          {{ userinfo.info.user.motto }}
-        </v-card-text>
-      </v-card>
-    </div>
+          <p class="mt-2 text-body-1 text-medium-emphasis">
+            {{ userinfo.info.user.motto }}
+          </p>
+
+          <p class="mt-2 text-medium-emphasis">
+            <v-chip>
+              <v-icon icon="mdi-account-circle" start></v-icon>
+
+              ID:{{ userinfo.info.user.id }}
+            </v-chip>
+            <v-chip>
+              <v-icon icon="mdi-clock" start></v-icon>
+
+              {{ userinfo.info.user.regTime }}注册
+            </v-chip>
+            <v-chip>
+              <v-icon icon="mdi-tag" start></v-icon>
+
+              创作者</v-chip
+            >
+          </p>
+        </v-col>
+      </v-row>
+    </v-responsive>
+    <br />
     <Projects :authorid="userid" ref="Projects" showinfo="true"></Projects>
     <v-row>
       <v-col
@@ -91,7 +82,7 @@
           </v-card>
         </v-card>
       </v-col></v-row
-    ><br/>
+    ><br />
     <Comment :url="'user-' + $route.params.id" name="用户"></Comment>
   </v-container>
 </template>
@@ -164,3 +155,19 @@ export default {
   },
 };
 </script>
+<style scoped>
+.username {
+  color: #fff;
+  /* 白色文本 */
+  font-weight: bold;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.911),
+    rgba(255, 255, 255, 0.911)
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  text-fill-color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+</style>
