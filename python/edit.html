@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Python编程 - ZeroCatPython编辑器
+  </title>
+  <link rel="shortcut icon" href='./staticfile/img/siteicon.png'>
+  <link rel="stylesheet" href='./static/css/style.css' />
+  <link type="text/css" rel="stylesheet" href="./static/showWorks.css" />
+  <link rel="stylesheet" href="./mdui-v1.0.2/css/mdui.min.css" />
+  <link id="layui_theme_css" rel="stylesheet">
+  <link rel="stylesheet" href="./layui/css/layui.css">
+  <link rel="stylesheet" href="./css/projectspage.css">
+  <link rel="stylesheet" href="./css/main.css">
+
+<script>
+  apihost = 'https://zerocat.houlangs.com'
+  frontend = 'https://zeronext.wuyuan.dev'
+  s3file = 'https://s4-1.wuyuan.1r.ink'
+</script>
+
+  <script src="./js/js-cookie.js"></script>
+  <script src="./js/jwt-decode.js"></script>
+  <script src="./mdui-v1.0.2/js/mdui.min.js"></script>
+  <script src="./js/jquery.3.7.1.js"></script>
+  <script>
+    function automsg(msg) {
+      if (typeof msg === 'string') {
+        msg = { message: msg };
+      }
+      mdui.snackbar({
+        message: msg.message,
+        closeable: true,
+      });
+    }
+  </script>
+  <link rel="stylesheet" data-name="vs/editor/editor.main" href="./static/vs/editor/editor.main.css" />
+</head>
+
+
+<body class="mdui-theme-light mdui-theme-accent-blue">
+
+  <div>
+    <div class="mdui-toolbar">
+      <a class="mdui-btn mdui-btn-icon" id="toggle" href="#"><i class="mdui-icon material-icons">code</i></a>
+      <a href="#"><span class="mdui-typo-title">
+          ZeroCat Python编辑器
+        </span></a>
+      <div class="mdui-toolbar-spacer"></div>
+      <a href="javascript:;" onclick="javascript:location.reload();" class="mdui-btn mdui-btn-icon mdui-ripple"><i
+          class="mdui-icon material-icons">refresh</i></a>
+      <button class="mdui-btn mdui-btn-icon mdui-ripple" id="switch-theme"><i
+          class="mdui-icon material-icons">brightness_medium</i></button>
+      <button class="mdui-btn mdui-btn-icon mdui-ripple" mdui-dialog="{target: '#user'}"><i
+          class="mdui-icon material-icons">account_circle</i></button>
+
+    </div>
+    <div class="mdui-tab">
+      <a class="mdui-ripple " style="border-radius: 20px;" mdui-dialog="{target: '#file'}"><i
+          class="mdui-icon material-icons">insert_drive_file</i>文件</a>
+
+      <div id="save_work">
+
+        <a class="mdui-ripple" onclick="save_work()" style="border-radius: 20px;"><i
+            class="mdui-icon material-icons">cloud_upload</i>保存到云端</a>
+
+      </div> <a class="mdui-ripple" id="revise_work" onclick="revise_work()" style="border-radius: 20px;"><i
+          class="mdui-icon material-icons">call_split</i>改编此作品</a>
+
+      <div style="margin: auto 0;" mdui-dialog="{target: '#info'}">
+        <a class="mdui-ripple" style="border-radius: 20px;">
+          <i class="mdui-icon material-icons">info</i>
+          <span>项目信息</span>
+        </a>
+      </div>
+
+      <div class="mdui-toolbar-spacer"></div>
+      <a class="mdui-ripple" onclick="open_YX()" style="border-radius: 20px;"><i
+          class="mdui-icon material-icons">thumb_up</i>优秀作品</a>
+
+      <a class="mdui-ripple" onclick="open_MY()" style="border-radius: 20px;"><i
+          class="mdui-icon material-icons">inbox</i>我的作品</a>
+
+
+
+      <a class="mdui-ripple" mdui-dialog="{target: '#user'}" style="border-radius: 20px;">
+        <i class="mdui-icon material-icons">account_circle</i>
+
+        <span class="ow-usernick"></span>
+      </a>
+
+    </div>
+  </div>
+  <div id="pageprogress">
+  </div>
+  <div class="mdui-dialog" id="user" style="border-radius: 20px;">
+    <div class="mdui-dialog-title">登录为 <span class="ow-usernick"></span>
+    </div>
+    <div class="mdui-dialog-content"> 选择操作前请保存作品</div>
+    <div class="mdui-dialog-actions">
+      <div class="mdui-tab">
+        <a onclick="localStorage.removeItem('token');window.location.reload()" class="mdui-ripple" style="border-radius: 20px;">
+          <i class="mdui-icon material-icons">close</i>
+          <label>退出</label>
+        </a>
+      </div>
+      <button class="mdui-btn mdui-ripple mdui-text-color-theme-text" mdui-dialog-close
+        style="border-radius: 10px;">关闭</button>
+    </div>
+  </div>
+  <div class="mdui-fluid" style="padding: 0;">
+    <!-- 编程区 -->
+
+    <div class="mdui-row mdui-row-gapless">
+      <div class="mdui-col-xs-12 mdui-col-sm-8" style="padding: 0;" id='python_edit_box'>
+        <div class="python-editor-code">
+          <div id="container" style="height:calc(93vh); border: 1px solid grey"></div>
+
+        </div>
+      </div>
+      <!-- 运行结果区 -->
+      <div class=" mdui-col-xs-12 mdui-col-sm-4">
+        <div style="display: flex; position: absolute; top:8px; right:0; z-index: 99999;">
+          <div style="margin:auto 10px;">
+            <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" id="run-code"
+              onclick="run_it()" style="border-radius: 10px;">运行</button>
+          </div>
+          <div style="margin:auto 10px auto 0;">
+            <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-red-accent" onclick="run_clear()"
+              style="border-radius: 10px;">清除</button>
+          </div>
+          <!-- <div style="margin:auto 10px auto 0;">
+          <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-cyan-700" onclick="all_Screen(this)"
+            style="border-radius: 10px;">全屏运行</button>
+        </div>-->
+        </div>
+        <div id='main_edit_box'>
+          <div class="" style="padding: 0;">
+            <div class="">
+              <div class="" style="padding: 0;">
+                <div id="canvas_box"
+                  style="height:calc(50vh);background:url(/*./static/img/welcome_python_editor.png*/) no-repeat center;background-size: contain;background-size:auto 100%;">
+                  <div id="pythoncanvas"></div>
+                </div>
+              </div>
+              <div class=""
+                style="padding: 0!important ; margin:0;background-color: rgb(0, 0, 0);height:calc(50vh - 50px);">
+                <textarea id="output" class="mdui-text-color-theme-text"
+                  style="padding: 0!important ;border: 0px!important ;height: 100%;width: 100%;"
+                  disabled>终端打印输出区</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+  <div class="mdui-dialog" id="info" style="border-radius: 20px;">
+    <div class="mdui-dialog-title">项目信息
+    </div>
+    <div class="mdui-dialog-content">修改内容请手动保存到云端
+      <br />
+      分享
+      <label class="mdui-switch">
+        <input type="checkbox" id="publish-work-box" onclick="publish_work()" />
+        <i class="mdui-switch-icon"></i>
+      </label>
+      <div class="mdui-textfield">
+        <input class="mdui-textfield-input" type="text" placeholder="请输入作品名称" maxlength="20" id='work_title_input'
+          autocomplete="off" onkeypress="work_title_changed()" />
+      </div>
+      <div class="mdui-textfield">
+        <textarea class="mdui-textfield-input" rows="4" placeholder="简介" maxlength="1000" id='work_info_input'
+          onkeypress="work_title_changed()"></textarea>
+      </div>
+    </div>
+    <div class="mdui-dialog-actions">
+
+      <button class="mdui-btn mdui-ripple mdui-text-color-theme-text" mdui-dialog-close
+        style="border-radius: 10px;">关闭</button>
+    </div>
+  </div>
+
+  <div class="mdui-dialog" id="file" style="border-radius: 20px;">
+    <div class="mdui-dialog-title">文件操作
+    </div>
+    <div class="mdui-dialog-content"> 选择操作前请保存作品</div>
+    <div class="mdui-dialog-actions">
+      <div class="mdui-tab">
+        <a class="mdui-ripple " onclick="new_file()" style="border-radius: 20px;"><i
+            class="mdui-icon material-icons">add</i>新建一个作品</a>
+        <a class="mdui-ripple" onclick="open_file()" style="border-radius: 20px;"><i
+            class="mdui-icon material-icons">file_upload</i>从电脑中上传</a> <input type="file" id="files"
+          style="display: none">
+        <a class="mdui-ripple" onclick="save_file()" style="border-radius: 20px;"><i
+            class="mdui-icon material-icons">cloud_download</i>保存到电脑</a>
+      </div>
+      <button class="mdui-btn mdui-ripple mdui-text-color-theme-text" mdui-dialog-close
+        style="border-radius: 10px;">关闭</button>
+    </div>
+  </div>
+
+
+
+
+  <script>self.require = { paths: { 'vs': './static/vs' }, 'vs/nls': { availableLanguages: { '*': 'zh-cn' } } };</script>
+
+  <script src="./static/vs/loader.js"></script>
+  <script src="./static/vs/editor/editor.main.js"></script>
+
+
+
+
+  <script type="text/javascript" src="./js/jquery.3.7.1.js"></script>
+  <script type="text/javascript" src="./static/js/file-saver.js"></script>
+  <script type="text/javascript" src="./static/skulpt.min.js"></script>
+  <script type="text/javascript" src="./static/skulpt-stdlib.js"></script>
+  <script type="text/javascript" src="./static/mode/python.js"></script>
+  <script type="text/javascript" src="./static/js/show-hint.js"></script>
+  <script type="text/javascript" src="./layui/layui.all.js"></script>
+  <script type="text/javascript" src="./static/public.js"></script>
+
+  <script type="text/javascript" src="./static/python_edit.js"></script>
+</body>
+
+</html>
+
+<script>if (localStorage.darkTheme) {
+    document.body.classList.add("mdui-theme-layout-dark");
+    document.body.classList.add("mdui-theme-dark");
+    document.documentElement.classList.add("mdui-theme-dark");
+    document.body.setAttribute("dark", "");
+    $("#layui_theme_css").attr("href", "./css/layui-theme-dark.css");
+  }
+  document.getElementById("switch-theme").addEventListener("click", () => {
+    document.body.classList.toggle("mdui-theme-layout-dark");
+    document.body.classList.toggle("mdui-theme-dark");
+    document.documentElement.classList.toggle("mdui-theme-dark");
+    document.body.toggleAttribute("dark");
+    if (document.body.hasAttribute("dark")) {
+      localStorage.darkTheme = true;
+      $("#layui_theme_css").attr("href", "./css/layui-theme-dark.css");
+    } else {
+      delete localStorage.darkTheme;
+      $("#layui_theme_css").removeAttr("href");
+    }
+  });
+  mdui.setColorScheme('#2087fd');</script>
+
+
+<script>
+  function getQueryString(name) {
+    const url_string = window.location.href
+    const url = new URL(url_string);
+    return url.searchParams.get(name);
+  }
+  try {
+    if (getQueryString('token')) {
+      localStorage.setItem('token', getQueryString('token'))
+      window.location.href = "/edit.html" + window.location.hash
+
+    }
+    var localuser = {}
+    localuser = jwtDecode(localStorage.getItem('token'))
+    console.log(user)
+    $(".ow-userlink").attr("href", "/user?id=" + localuser.userid);
+
+    $(".ow-usernick").text(localuser.display_name);
+    $(".ow-userid").text(localuser.userid);
+    $(".ow-useravatar").attr("src", s3file + "/user/" + localuser.avatar);
+    $(".ow-useravatar").attr("alt", localuser.display_name);
+    var isLogin = true;
+
+  } catch (error) {
+    automsg('请先登录')
+    window.location.href = frontend;
+  }
+</script>
