@@ -1,9 +1,9 @@
 <template>
-  <v-app-bar :elevation="2">
+  <v-app-bar :elevation="2"  border >
     <template v-slot:prepend>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
     </template>
-    <v-app-bar-title>ZeroCatNext</v-app-bar-title>
+    <v-app-bar-title><strong>ZeroCat</strong>Next</v-app-bar-title>
     <template v-slot:append>
       <v-menu>
         <template v-slot:activator="{ props }">
@@ -24,7 +24,8 @@
       </v-menu>
     </template>
   </v-app-bar>
-  <v-navigation-drawer v-model="drawer">
+  <v-navigation-drawer v-model="drawer"
+  >
     <v-list>
       <v-list-item
         v-if="islogin == true"

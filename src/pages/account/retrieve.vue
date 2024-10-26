@@ -1,38 +1,38 @@
 <template>
   <div class="auth-wrapper d-flex align-center justify-center pa-4">
-    <VCard class="auth-card pa-4 pt-7" max-width="448">
+    <v-card class="auth-card pa-4 pt-7" max-width="448" border>
       <v-row>
         <v-col cols="12">
-          <VCardText>
+          <v-cardtext>
             <h5 class="text-h5 font-weight-semibold mb-1">
               欢迎来到ZeroCatNext！ 👋🏻
             </h5>
             <p class="mb-0">找回密码</p>
-          </VCardText>
+          </v-cardtext>
         </v-col></v-row
       >
 
-      <VCardText>
-        <VForm>
-          <VRow>
+      <v-cardtext>
+        <v-form>
+          <v-row>
             <!-- email -->
-            <VCol cols="12">
-              <VTextField
+            <v-col cols="12">
+              <v-text-field
                 label="邮箱"
                 type="text"
                 v-model="email"
                 variant="outlined"
                 :rules="emailRules"
-              ></VTextField>
-            </VCol>
-            <VCol cols="9">
+              ></v-text-field>
+            </v-col>
+            <v-col cols="9">
               <div id="recaptcha-div"></div>
-            </VCol>
-            <VCol cols="3">
+            </v-col>
+            <v-col cols="3">
               <v-btn @click="resetCaptcha()" variant="text">刷新</v-btn>
-            </VCol>
+            </v-col>
             <!-- password -->
-            <VCol cols="12">
+            <v-col cols="12">
               <!-- remember me checkbox
               <div class="d-flex align-center justify-space-between flex-wrap ">
                 <VCheckbox disabled label="Remember me" />
@@ -51,8 +51,8 @@
                 append-icon="mdi-arrow-right"
               ></v-btn>
               <!-- login button -->
-            </VCol>
-            <VCol cols="12">
+            </v-col>
+            <v-col cols="12">
               <v-btn
                 class="text-none"
                 color="white"
@@ -75,12 +75,12 @@
                 to="/account/register"
               ></v-btn>
               <!-- login button -->
-            </VCol>
+            </v-col>
             <!-- create account -->
-          </VRow>
-        </VForm>
-      </VCardText>
-      <v-card
+          </v-row>
+        </v-form>
+      </v-cardtext>
+      <!--<v-card
         class="mx-auto bg-surface-light"
         :href="BASE_API + '/user/login?redirect=new'"
       >
@@ -94,8 +94,8 @@
         ><template v-slot:subtitle>
           <span>您将在 {{ BASE_API }} 完成登录</span>
         </template>
-      </v-card>
-    </VCard>
+      </v-card>-->
+    </v-card>
   </div>
   <LoadingDialog :show="loading" text="正在发送邮件" />
 </template>

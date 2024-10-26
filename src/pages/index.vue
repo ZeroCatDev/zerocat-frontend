@@ -2,7 +2,7 @@
   <v-layout>
     <v-app-bar color="transparent" flat>
       <div class="d-flex flex-1-1-0 ps-md-4">
-        <v-avatar image="https://vuetifyjs.b-cdn.net/docs/images/logos/v.png" />
+        <v-avatar :image="localuser.islogin==true?'https://s4-1.wuyuan.1r.ink/user/'+localuser.user.avatar:'../assets/ZeroCatLogo.svg'"/>
       </div>
 
       <div class="d-flex flex-1-1-0 pe-3">
@@ -225,10 +225,11 @@
 import { ref } from "vue";
 import request from "../axios/axios";
 import $vuetify from "@/plugins/vuetify";
-
+import {localuser} from "../stores/user"
 export default {
   data() {
     return {
+      localuser,
       teams: [
         {
           title: "孙悟元",

@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-card class="mx-auto" rel="noopener" target="_blank">
+    <v-card class="mx-auto" rel="noopener" target="_blank" border>
       <template v-slot:title>
         <span>{{ titlemessage }}</span> </template
       ><template v-slot:subtitle>

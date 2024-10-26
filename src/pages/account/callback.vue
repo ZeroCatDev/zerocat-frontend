@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-card class="mx-auto" rel="noopener" target="_blank">
+    <v-card class="mx-auto" rel="noopener" target="_blank" border>
       <template v-slot:title>
         <span>您正在登录一个账户</span> </template
       ><template v-slot:subtitle>

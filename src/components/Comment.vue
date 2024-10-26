@@ -34,7 +34,7 @@
         }})
       </v-card-subtitle>
     </v-card-item>
-    <v-card-text>{{ comment.text }}</v-card-text>
+    <v-card-text><Markdown>{{ comment.text }}</Markdown></v-card-text>
     <v-card
       class="pb-3 pl-10 pr-3"
       v-if="comment.children && comment.children.length"
@@ -155,7 +155,7 @@
               }}) - {{ morecommnets.insertedAt }}
             </v-card-subtitle>
           </v-card-item>
-          <v-card-text>{{ morecommnets.text }}</v-card-text>
+          <v-card-text><Markdown>{{ morecommnets.text }}</Markdown></v-card-text>
         </v-card>
         <v-card
           class="mb-2"
@@ -221,7 +221,7 @@
               }}) - {{ comment.insertedAt }}</v-card-subtitle
             >
           </v-card-item>
-          <v-card-text>{{ comment.text }}</v-card-text>
+          <v-card-text><Markdown>{{ comment.text }}</Markdown></v-card-text>
         </v-card>
 
         <v-card class="mt-4" elevation hover border>
@@ -262,6 +262,7 @@
 </template>
 
 <script>
+import Markdown from "./Markdown.vue";
 import TimeAgo from "./TimeAgo.vue";
 
 import request from "../axios/axios";
@@ -271,6 +272,7 @@ import { UAParser } from "ua-parser-js";
 export default {
   components: {
     TimeAgo,
+    Markdown,
   },
   props: {
     url: {
