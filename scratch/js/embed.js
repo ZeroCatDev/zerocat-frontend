@@ -46128,7 +46128,7 @@ function _extends() { return _extends = Object.assign ? Object.assign.bind() : f
 
 //const searchParams = new URLSearchParams(location.search);
 //searchParams.get('cloud_host') ||
-const cloudHost = 'wss://zerocat.houlangs.com/clouddata';
+const cloudHost = 'wss://zerocat-api.houlangs.com/clouddata';
 const RenderGUI = props => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_containers_gui_jsx__WEBPACK_IMPORTED_MODULE_1__["default"], _extends({
   cloudHost: cloudHost,
   canUseCloud: true,
