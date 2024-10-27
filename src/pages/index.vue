@@ -2,7 +2,13 @@
   <v-layout>
     <v-app-bar color="transparent" flat>
       <div class="d-flex flex-1-1-0 ps-md-4">
-        <v-avatar :image="localuser.islogin==true?'https://s4-1.wuyuan.1r.ink/user/'+localuser.user.avatar:'../assets/ZeroCatLogo.svg'"/>
+        <v-avatar
+          :image="
+            localuser.islogin == true
+              ? 'https://s4-1.wuyuan.1r.ink/user/' + localuser.user.avatar
+              : '../assets/ZeroCatLogo.svg'
+          "
+        />
       </div>
 
       <div class="d-flex flex-1-1-0 pe-3">
@@ -30,9 +36,9 @@
             <span class="hidden-sm-and-down">使用</span>
             <span class="hidden-md-and-up">由</span>雨云的优质云计算服务
           </v-chip>
-
+          <br />
           <h1 class="text-h4 text-md-h2 font-weight-bold my-6">
-            &lt; ZeroCat /&gt;
+            <Typewriter :config="{}">&lt; ZeroCat /&gt;</Typewriter>
           </h1>
 
           <div class="text-body-1 text-medium-emphasis mb-10">
@@ -225,8 +231,10 @@
 import { ref } from "vue";
 import request from "../axios/axios";
 import $vuetify from "@/plugins/vuetify";
-import {localuser} from "../stores/user"
+import { localuser } from "../stores/user";
+import Typewriter from "../components/Typewriter.vue";
 export default {
+  components: { Typewriter },
   data() {
     return {
       localuser,
@@ -262,11 +270,11 @@ export default {
           link: "#",
         },
         {
-          title: "加入我们",
+          title: "加入我们/合作/拉赞助",
           subtitle:
-            "虽然Jacopo说不招人，但你依然可以投个自我介绍试试，也许呢？",
+            "欢迎",
           avatar: "https://langs.ink/jacopo-logo.webp",
-          link: "mailto:1847261658@qq.com",
+          link: "https://langsteam.feishu.cn/share/base/form/shrcn5jhvy96A93Gx9JWaEAofac",
         },
       ],
       stats: ref([

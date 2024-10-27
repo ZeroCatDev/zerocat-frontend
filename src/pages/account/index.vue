@@ -2,7 +2,8 @@
   <v-container>
     <div class="mb-2">
       <v-card
-      hover border
+        hover
+        border
         class="mx-auto"
         :disabled="UserCardLoading"
         :loading="UserCardLoading"
@@ -45,138 +46,187 @@
       </v-card>
     </div>
     <v-card hover border>
-      <v-tabs v-model="tab" >
+      <v-tabs v-model="tab">
         <v-tab value="userinfo">用户信息</v-tab>
         <v-tab value="username">用户名</v-tab>
         <v-tab value="password">密码</v-tab>
+        <v-tab value="avatar">头像</v-tab>
       </v-tabs>
 
       <v-card-text>
         <v-tabs-window v-model="tab">
           <v-tabs-window-item value="userinfo">
             <v-form v-model="valid">
+              <v-row>
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    v-model="UserInfo.display_name"
+                    :counter="10"
+                    label="显示名称"
+                    required
+                  ></v-text-field>
+                </v-col>
 
-                <v-row>
-                  <v-col cols="12" md="4">
-                    <v-text-field
+                <v-col cols="12" md="12">
+                  <v-textarea
+                    label="显示简介"
+                    v-model="UserInfo.motto"
+                    :counter="500"
+                  ></v-textarea> </v-col
+                ><v-col cols="12" md="4">
+                  <v-select
+                    v-model="select"
+                    :items="items"
+                    item-title="state"
+                    item-value="abbr"
+                    label="性别"
+                    persistent-hint
+                    return-object
+                  ></v-select
+                ></v-col>
 
-                      v-model="UserInfo.display_name"
-                      :counter="10"
-                      label="显示名称"
-                      required
-                    ></v-text-field>
-                  </v-col>
+                <v-col cols="12">
+                  <div id="recaptcha-div1"></div>
+                  <v-btn
+                    @click="initRecaptcha('recaptcha-div1', 'popup')"
+                    variant="text"
+                    border
+                    >加载验证码</v-btn
+                  >
 
-                  <v-col cols="12" md="12">
-                    <v-textarea
-                      label="显示简介"
-                      v-model="UserInfo.motto"
-                      :counter="500"
-                    ></v-textarea> </v-col
-                  ><v-col cols="12" md="4">
-                    <v-select
-
-                      v-model="select"
-                      :items="items"
-                      item-title="state"
-                      item-value="abbr"
-                      label="性别"
-                      persistent-hint
-                      return-object
-                    ></v-select
-                  ></v-col>
-
-                  <v-col cols="12">
-                    <div id="recaptcha-div1"></div>
-                    <v-btn
-                      @click="initRecaptcha('recaptcha-div1', 'popup')"
-                      variant="text"
-                      border>加载验证码</v-btn
-                    >
-
-                    <v-btn @click="resetCaptcha()" variant="text"
-                    border>刷新</v-btn
-                    > </v-col
-                  ><v-col cols="12">
-                    <v-btn @click="submit" :disabled="!valid" border> 提交 </v-btn>
-                  </v-col>
-                </v-row>
-
+                  <v-btn @click="resetCaptcha()" variant="text" border
+                    >刷新</v-btn
+                  > </v-col
+                ><v-col cols="12">
+                  <v-btn @click="submit" :disabled="!valid" border>
+                    提交
+                  </v-btn>
+                </v-col>
+              </v-row>
             </v-form>
           </v-tabs-window-item>
 
           <v-tabs-window-item value="username"
             ><v-form v-model="usernamevalid">
+              <v-row>
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    v-model="UserInfo.username"
+                    :counter="10"
+                    :rules="nameRules"
+                    label="用户名"
+                    required
+                  ></v-text-field>
+                </v-col>
 
-                <v-row>
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      v-model="UserInfo.username"
-                      :counter="10"
-                      :rules="nameRules"
-                      label="用户名"
-                      required
-                    ></v-text-field>
-                  </v-col>
+                <v-col cols="12">
+                  <div id="recaptcha-div2"></div>
+                  <v-btn
+                    @click="initRecaptcha('recaptcha-div2', 'popup')"
+                    variant="text"
+                    border
+                    >加载验证码</v-btn
+                  >
 
-                  <v-col cols="12">
-                    <div id="recaptcha-div2"></div>
-                    <v-btn
-                      @click="initRecaptcha('recaptcha-div2', 'popup')"
-                      variant="text"
-                      border>加载验证码</v-btn
-                    >
-
-                    <v-btn @click="resetCaptcha()" variant="text"
-                    border>刷新</v-btn
-                    > </v-col
-                  ><v-col cols="12">
-                    <v-btn @click="changeusername" :disabled="!usernamevalid" border>
-                      提交
-                    </v-btn>
-                  </v-col>
-                </v-row>
-
+                  <v-btn @click="resetCaptcha()" variant="text" border
+                    >刷新</v-btn
+                  > </v-col
+                ><v-col cols="12">
+                  <v-btn
+                    @click="changeusername"
+                    :disabled="!usernamevalid"
+                    border
+                  >
+                    提交
+                  </v-btn>
+                </v-col>
+              </v-row>
             </v-form></v-tabs-window-item
           >
 
-          <v-tabs-window-item value="password" >
+          <v-tabs-window-item value="password">
             <v-form v-model="passwordvalid">
+              <v-row>
+                <v-col cols="12" md="8">
+                  <v-text-field
+                    v-model="oldpassword"
+                    hint="此框不验证输入值"
+                    label="原密码"
+                    required
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" md="8">
+                  <v-text-field
+                    v-model="newpassword"
+                    :rules="passwordRules"
+                    label="新密码"
+                    required
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12">
+                  <div id="recaptcha-div3"></div>
+                  <v-btn
+                    @click="initRecaptcha('recaptcha-div3', 'popup')"
+                    variant="text"
+                    border
+                    >加载验证码</v-btn
+                  >
 
-                <v-row>
-                  <v-col cols="12" md="8">
-                    <v-text-field
-                      v-model="oldpassword"
-                      hint="此框不验证输入值"
-                      label="原密码"
-                      required
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" md="8">
-                    <v-text-field
-                      v-model="newpassword"
-                      :rules="passwordRules"
-                      label="新密码"
-                      required
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <div id="recaptcha-div3"></div>
-                    <v-btn
-                      @click="initRecaptcha('recaptcha-div3', 'popup')"
-                      variant="text"
-                      border>加载验证码</v-btn
-                    >
+                  <v-btn @click="resetCaptcha()" variant="text" border
+                    >刷新</v-btn
+                  >
+                </v-col>
+                <v-col cols="12">
+                  <v-btn
+                    @click="changepassword"
+                    :disabled="!passwordvalid"
+                    border
+                  >
+                    提交
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-form></v-tabs-window-item
+          >
 
-                    <v-btn @click="resetCaptcha()" variant="text" border>刷新</v-btn>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-btn @click="changepassword" :disabled="!passwordvalid" border>
-                      提交
-                    </v-btn>
-                  </v-col>
-                </v-row>
+          <v-tabs-window-item value="avatar">
+            <v-form v-model="avatarvalid">
+              <v-row>
+                <v-col cols="12" md="8">
+                  <v-file-input
+                    label="上传头像"
+                    accept="image/*"
+                    @change="onFileChange"
+                    placeholder="头像会被压缩"
+                    prepend-icon="mdi-account-circle"
+                  ></v-file-input>
 
+                  <v-img
+                    v-if="previewImage"
+                    :src="previewImage"
+                    max-height="200"
+                    max-width="200"
+                  ></v-img>
+                </v-col>
+                <v-col cols="12">
+                  <div id="recaptcha-div4"></div>
+                  <v-btn
+                    @click="initRecaptcha('recaptcha-div4', 'popup')"
+                    variant="text"
+                    border
+                    >加载验证码</v-btn
+                  >
+
+                  <v-btn @click="resetCaptcha()" variant="text" border
+                    >刷新</v-btn
+                  >
+                </v-col>
+                <v-col cols="12">
+                  <v-btn @click="uploadAvatar" :disabled="!avatarvalid" border>
+                    提交
+                  </v-btn>
+                </v-col>
+              </v-row>
             </v-form></v-tabs-window-item
           >
         </v-tabs-window>
@@ -189,6 +239,8 @@
 import request from "../../axios/axios";
 import { localuser } from "@/stores/user";
 import "https://static.geetest.com/v4/gt4.js";
+import Compressor from "compressorjs";
+
 import {
   initRecaptcha,
   getResponse,
@@ -251,10 +303,25 @@ export default {
           return "密码必须由数字、大小写字母和特殊字符组成，且长度至少为8位";
         },
       ],
+      avatarrules: [
+        (value) => {
+          return (
+            !value ||
+            !value.length ||
+            value[0].size < 2000000 ||
+            "Avatar size should be less than 2 MB!"
+          );
+        },
+      ],
       oldpassword: "",
       newpassword: "",
       passwordvalid: false,
       usernamevalid: false,
+
+      useravatarfile: null,
+      previewImage: null,
+
+      avatarvalid: false,
     };
   },
   setup() {
@@ -264,6 +331,99 @@ export default {
     await this.getuserinfo();
   },
   methods: {
+    // 事件处理函数
+    // 事件处理函数
+    onFileChange(event) {
+      // 从 event 中提取文件
+      const file = event.target.files ? event.target.files[0] : null;
+
+      // 检查 file 是否是有效的 File 对象
+      if (file instanceof File && file.type.startsWith("image/")) {
+        console.log(file.name); // 输出文件名到控制台
+
+        // 使用 Compressor 压缩图片
+        new Compressor(file, {
+          quality: 0.8, // 压缩质量
+          maxWidth: 500, // 最大宽度
+          maxHeight: 500, // 最大高度
+          success: (compressedFile) => {
+            // 生成压缩后的图片预览 URL
+            this.previewImage = URL.createObjectURL(compressedFile);
+            this.useravatarfile = compressedFile;
+            // 调用上传方法上传压缩文件
+          },
+          error(err) {
+            console.error("图片压缩出错：", err.message);
+            this.$toast.add({
+              severity: "error",
+              summary: "错误",
+              detail: err.message,
+              life: 3000,
+            });
+          },
+        });
+      } else {
+        console.error("请选择有效的图片文件");
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: "请选择有效的图片文件",
+          life: 3000,
+        });
+      }
+    },
+
+    async uploadAvatar() {
+      // 创建 FormData 实例并添加文件
+      const formData = new FormData();
+      formData.append("file", this.useravatarfile);
+
+      try {
+        // 调用 getResponse 并获取返回的 JSON 数据
+        const responseData = await getResponse();
+
+        // 将 JSON 数据作为查询参数加入 URL
+        const queryParams = new URLSearchParams(responseData).toString();
+        const urlWithQuery = `/my/set/avatar?${queryParams}`;
+
+        // 发送带查询参数的 POST 请求
+        request({
+          method: "post",
+          url: urlWithQuery,
+          data: formData,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+          .then((response) => {
+            console.log("上传成功", response); // 上传成功的响应数据
+            this.$toast.add({
+              severity: "success",
+              summary: "上传成功",
+              detail: response.message,
+              life: 3000,
+            });
+          })
+          .catch((error) => {
+            console.error("上传失败：", error); // 上传失败的错误信息
+            this.$toast.add({
+              severity: "error",
+              summary: "错误",
+              detail: error,
+              life: 3000,
+            });
+          });
+      } catch (error) {
+        console.error("获取响应数据失败：", error);
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: error,
+          life: 3000,
+        });
+      }
+    },
+
     async getuserinfo() {
       this.UserInfo = await request({
         url: "/api/getuserinfo?id=" + this.localuserinfo.userid,
