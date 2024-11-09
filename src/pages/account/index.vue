@@ -5,19 +5,19 @@
         hover
         border
         class="mx-auto"
-        :disabled="UserCardLoading"
-        :loading="UserCardLoading"
+        :disabled="userCardLoading"
+        :loading="userCardLoading"
       >
         <template v-slot:prepend>
           <v-avatar class="mb-2">
             <v-img
-              :alt="UserInfo.display_name"
-              :src="'https://s4-1.wuyuan.1r.ink/user/' + UserInfo.images"
+              :alt="userInfo.display_name"
+              :src="'https://s4-1.wuyuan.1r.ink/user/' + userInfo.images"
             ></v-img>
           </v-avatar>
         </template>
         <template v-slot:title>
-          <span class="font-weight-black">{{ UserInfo.display_name }}</span>
+          <span class="font-weight-black">{{ userInfo.display_name }}</span>
         </template>
         <template v-slot:loader="{ isActive }">
           <v-progress-linear
@@ -30,7 +30,7 @@
           <v-chip>
             <v-icon icon="mdi-account-circle" start></v-icon>
 
-            ID:{{ UserInfo.id }}
+            ID:{{ userInfo.id }}
           </v-chip>
           <v-chip>
             <v-icon icon="mdi-tag" start></v-icon>
@@ -41,13 +41,13 @@
         </template>
 
         <v-card-text class="bg-surface-light pt-4">
-          {{ UserInfo }}
+          {{ userInfo }}
         </v-card-text>
       </v-card>
     </div>
     <v-card hover border>
       <v-tabs v-model="tab">
-        <v-tab value="userinfo">用户信息</v-tab>
+        <v-tab value="userInfo">用户信息</v-tab>
         <v-tab value="username">用户名</v-tab>
         <v-tab value="password">密码</v-tab>
         <v-tab value="avatar">头像</v-tab>
@@ -55,12 +55,12 @@
 
       <v-card-text>
         <v-tabs-window v-model="tab">
-          <v-tabs-window-item value="userinfo">
+          <v-tabs-window-item value="userInfo">
             <v-form v-model="valid">
               <v-row>
                 <v-col cols="12" md="4">
                   <v-text-field
-                    v-model="UserInfo.display_name"
+                    v-model="userInfo.display_name"
                     :counter="10"
                     label="显示名称"
                     required
@@ -70,7 +70,7 @@
                 <v-col cols="12" md="12">
                   <v-textarea
                     label="显示简介"
-                    v-model="UserInfo.motto"
+                    v-model="userInfo.motto"
                     :counter="500"
                   ></v-textarea> </v-col
                 ><v-col cols="12" md="4">
@@ -111,7 +111,7 @@
               <v-row>
                 <v-col cols="12" md="4">
                   <v-text-field
-                    v-model="UserInfo.username"
+                    v-model="userInfo.username"
                     :counter="10"
                     :rules="nameRules"
                     label="用户名"
@@ -149,7 +149,7 @@
               <v-row>
                 <v-col cols="12" md="8">
                   <v-text-field
-                    v-model="oldpassword"
+                    v-model="oldPassword"
                     hint="此框不验证输入值"
                     label="原密码"
                     required
@@ -157,7 +157,7 @@
                 </v-col>
                 <v-col cols="12" md="8">
                   <v-text-field
-                    v-model="newpassword"
+                    v-model="newPassword"
                     :rules="passwordRules"
                     label="新密码"
                     required
@@ -253,9 +253,9 @@ export default {
       initRecaptcha,
       getResponse,
       resetCaptcha,
-      UserCardLoading: false,
-      localuserinfo: localuser.user,
-      UserInfo: {},
+      userCardLoading: false,
+      localuserInfo: localuser.user,
+      userInfo: {},
       tab: null,
       select: { state: "未知", abbr: "3" },
       items: [
@@ -313,8 +313,8 @@ export default {
           );
         },
       ],
-      oldpassword: "",
-      newpassword: "",
+      oldPassword: "",
+      newPassword: "",
       passwordvalid: false,
       usernamevalid: false,
 
@@ -328,7 +328,7 @@ export default {
     //initRecaptcha('recaptcha-div1');
   },
   async created() {
-    await this.getuserinfo();
+    await this.getuserInfo();
   },
   methods: {
     // 事件处理函数
@@ -424,26 +424,26 @@ export default {
       }
     },
 
-    async getuserinfo() {
-      this.UserInfo = await request({
-        url: "/api/getuserinfo?id=" + this.localuserinfo.userid,
+    async getuserInfo() {
+      this.userInfo = await request({
+        url: "/api/getuserInfo?id=" + this.localuserInfo.userid,
         method: "get",
       });
-      this.UserInfo = this.UserInfo.info.user;
-      this.select = this.items.find((item) => item.abbr == this.UserInfo.sex);
-      this.UserCardLoading = false;
-      console.log(this.UserInfo);
+      this.userInfo = this.userInfo.info.user;
+      this.select = this.items.find((item) => item.abbr == this.userInfo.sex);
+      this.userCardLoading = false;
+      console.log(this.userInfo);
     },
     async submit() {
-      this.UserCardLoading = true;
+      this.userCardLoading = true;
       const response = await request({
-        url: "/my/set/userinfo",
+        url: "/my/set/userInfo",
         method: "post",
         data: {
           captcha: getResponse() || "",
 
-          display_name: this.UserInfo.display_name,
-          aboutme: this.UserInfo.motto,
+          display_name: this.userInfo.display_name,
+          aboutme: this.userInfo.motto,
           sex: this.select.abbr,
         },
       }).catch((error) => {
@@ -463,18 +463,18 @@ export default {
         life: 3000,
       });
 
-      await this.getuserinfo();
-      this.UserCardLoading = false;
+      await this.getuserInfo();
+      this.userCardLoading = false;
     },
     async changeusername() {
-      this.UserCardLoading = true;
+      this.userCardLoading = true;
       const response = await request({
         url: "/my/set/username",
         method: "post",
         data: {
           captcha: getResponse() || "",
 
-          username: this.UserInfo.username,
+          username: this.userInfo.username,
         },
       }).catch((error) => {
         console.log(error);
@@ -494,19 +494,19 @@ export default {
 
       console.log(response.status);
 
-      await this.getuserinfo();
-      this.UserCardLoading = false;
+      await this.getuserInfo();
+      this.userCardLoading = false;
     },
     async changepassword() {
-      this.UserCardLoading = true;
+      this.userCardLoading = true;
       const response = await request({
         url: "/my/set/pw",
         method: "post",
         data: {
           captcha: getResponse() || "",
 
-          oldpw: this.oldpassword,
-          newpw: this.newpassword,
+          oldpw: this.oldPassword,
+          newpw: this.newPassword,
         },
       }).catch((error) => {
         console.log(error);
@@ -525,8 +525,8 @@ export default {
         life: 3000,
       });
 
-      await this.getuserinfo();
-      this.UserCardLoading = false;
+      await this.getuserInfo();
+      this.userCardLoading = false;
     },
   },
 };

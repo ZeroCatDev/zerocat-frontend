@@ -1,6 +1,6 @@
 <template>
   <v-list>
-    <div v-for="item in lists" :key="item.id">
+    <div v-for="item in projectLists" :key="item.id">
       <v-list-item
 
         :append-icon="
@@ -10,21 +10,21 @@
         color="primary"
         @click="
           item.include == true
-            ? ProjectlistDelete(item.id)
-            : ProjectlistAdd(item.id)
+            ? deleteProjectFromList(item.id)
+            : addProjectToList(item.id)
         "
       >
         <v-list-item-title> {{ item.title }}</v-list-item-title>
         <v-list-item-subtitle>{{ item.description }}</v-list-item-subtitle>
       </v-list-item>
     </div>
-    <v-list-item @click="NewProjectListDialog = true">新建列表</v-list-item>
+    <v-list-item @click="newProjectListDialog = true">新建列表</v-list-item>
   </v-list>
 
-  <v-dialog v-model="NewProjectListDialog">
+  <v-dialog v-model="newProjectListDialog">
     <NewProjectList
       :listid="editlistid"
-      :close="() => (NewProjectListDialog = false)"
+      :close="() => (newProjectListDialog = false)"
       :callback="getProjectList"
     >
     </NewProjectList>
@@ -42,13 +42,13 @@ export default {
     return {
       localuser: localuser,
       userinfo: localuser.user,
-      NewProjectListDialog: false,
-      lists: [],
+      newProjectListDialog: false,
+      projectLists: [],
     };
   },
   methods: {
     async getProjectList() {
-      this.lists = (
+      this.projectLists = (
         await request({
           url: "/projectlist/check?projectid=" + this.$route.params.id,
           data: {
@@ -59,7 +59,7 @@ export default {
         })
       ).data;
     },
-    async ProjectlistAdd(id) {
+    async addProjectToList(id) {
       await request({
         url: "/projectlist/add",
         data: {
@@ -78,7 +78,7 @@ export default {
         this.getProjectList();
       });
     },
-    async ProjectlistDelete(id) {
+    async deleteProjectFromList(id) {
       await request({
         url: "/projectlist/delete",
         data: {

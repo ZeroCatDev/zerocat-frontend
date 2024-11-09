@@ -1,20 +1,20 @@
 <template>
-  <v-card border :title="`${listinfo.title}(#${listinfo.id})`">
+  <v-card border :title="`${listInfo.title}(#${listInfo.id})`">
     <v-card-text>
       <v-text-field
-        v-model="newlistinfo.title"
+        v-model="newListInfo.title"
         label="名称"
         required
       ></v-text-field>
       <v-text-field
-        v-model="newlistinfo.description"
+        v-model="newListInfo.description"
         label="简介"
         required
       ></v-text-field>
 
       <v-select
-        v-model="newlistinfo.state"
-        :items="liststates"
+        v-model="newListInfo.state"
+        :items="listStates"
         item-title="state"
         item-value="abbr"
         label="项目状态"
@@ -35,7 +35,7 @@
       <v-btn
         text="回退"
         variant="plain"
-        @click="newlistinfo = Object.assign({}, listinfo)"
+        @click="newListInfo = Object.assign({}, listInfo)"
       ></v-btn>
 
       <v-btn text="关闭" variant="plain" @click="close()"></v-btn>
@@ -55,15 +55,15 @@ import request from "../axios/axios";
 export default {
   data() {
     return {
-      liststates: [
+      listStates: [
         { state: "私密", abbr: "private" },
         { state: "公开", abbr: "public" },
       ],
       created: false,
       newid: 0,
       isVisible: false,
-      listinfo: {},
-      newlistinfo: {},
+      listInfo: {},
+      newListInfo: {},
     };
   },
   props: {
@@ -97,16 +97,16 @@ export default {
         });
         if (res.status == "1") {
           //this.created = true
-          this.listinfo = Object.assign({}, res.data);
+          this.listInfo = Object.assign({}, res.data);
 
-          this.newlistinfo = Object.assign({}, res.data);
+          this.newListInfo = Object.assign({}, res.data);
         }
       });
       this.callback();
     },
     async updateProjectList(listid) {
       await request
-        .put("/projectlist/" + listid, this.newlistinfo)
+        .put("/projectlist/" + listid, this.newListInfo)
         .then((res) => {
           console.log(res);
           this.$toast.add({
@@ -117,9 +117,9 @@ export default {
           });
           if (res.status == "1") {
             //this.created = true
-            this.listinfo = Object.assign({}, res.data);
+            this.listInfo = Object.assign({}, res.data);
 
-            this.newlistinfo = Object.assign({}, res.data);
+            this.newListInfo = Object.assign({}, res.data);
           }
         });
       this.callback();

@@ -23,7 +23,7 @@
         <v-number-input
           control-variant="用户ID"
           :label="'用户ID 为：' + search.authorid"
-          v-model="userinfo.userid"
+          v-model="userInfo.userid"
           disabled
         ></v-number-input
       ></v-col>
@@ -85,7 +85,7 @@
     <br />
 
     <Projects
-      :authorid="userinfo.userid"
+      :authorid="userInfo.userid"
       :title="search.title"
       :description="search.description"
       :source="search.source"
@@ -115,7 +115,7 @@
               <v-text-field
                 label="标题"
                 required
-                v-model="nowProject.title"
+                v-model="currentProject.title"
                 hint="将会在首页展示"
               ></v-text-field>
             </v-col>
@@ -124,7 +124,7 @@
               <v-textarea
                 hint="介绍作品类型，玩法，并向对这个作品有帮助的人致谢！"
                 label="简介"
-                v-model="nowProject.description"
+                v-model="currentProject.description"
               ></v-textarea>
             </v-col>
 
@@ -134,12 +134,12 @@
                 label="类型"
                 required
                 hint="不建议你改"
-                v-model="nowProject.type"
+                v-model="currentProject.type"
               ></v-select>
             </v-col>
             <v-col cols="12" sm="6"
               ><v-select
-                v-model="nowProject.state"
+                v-model="currentProject.state"
                 :items="projectstates"
                 item-title="state"
                 item-value="abbr"
@@ -147,18 +147,18 @@
                 hint="我们鼓励开源"
               ></v-select>
             </v-col>
-            <!--<v-col cols="12" sm="6"><v-select v-model="nowProject.history" :items="projecthistory" item-title="state"
+            <!--<v-col cols="12" sm="6"><v-select v-model="currentProject.history" :items="projecthistory" item-title="state"
                 item-value="abbr" label="项目历史" hint="开启后会记录每一次保存的历史"></v-select> </v-col>-->
 
             <!--<v-col cols="12" sm="6">
               <v-autocomplete
                 :items="['Skiing', 'Ice hockey', 'Soccer', 'Basketball', 'Hockey', 'Reading', 'Writing', 'Coding', 'Basejump']"
-                label="Interests" auto-select-first multiple v-model="nowProject.tags"></v-autocomplete>
+                label="Interests" auto-select-first multiple v-model="currentProject.tags"></v-autocomplete>
             </v-col>-->
             <v-col cols="12">
               <v-combobox
-                v-model="abouttags.chips"
-                :items="abouttags.items"
+                v-model="aboutTags.chips"
+                :items="aboutTags.items"
                 label="标签"
                 prepend-icon="mdi-tag"
                 variant="solo"
@@ -184,7 +184,7 @@
               <v-expansion-panel>
                 <v-expansion-panel-title>详细数据</v-expansion-panel-title>
                 <v-expansion-panel-text>
-                  {{ nowProject }}
+                  {{ currentProject }}
                 </v-expansion-panel-text>
               </v-expansion-panel>
             </v-expansion-panels>
@@ -209,7 +209,7 @@
             color="text"
             text="一键推送"
             variant="tonal"
-            @click="pushproject(nowProject.id)"
+            @click="pushproject(currentProject.id)"
           ></v-btn>
 
           <v-spacer></v-spacer>
@@ -264,10 +264,10 @@ export default {
         { name: "序号升序", type: "id_up" },
         { name: "序号降序", type: "id_down" },
       ],
-      nowProjectID: 0,
+      currentProjectID: 0,
       dialog: false,
-      nowProject: {},
-      oldProject: {},
+      currentProject: {},
+      previousProject: {},
       search: {
         title: "",
         type: "",
@@ -279,8 +279,8 @@ export default {
         state: "",
         tag: "",
       },
-      userinfo: localuser.user,
-      abouttags: {
+      userInfo: localuser.user,
+      aboutTags: {
         items: ["动画", "故事", "音乐", "硬核", "艺术", "水"],
         chips: ref([]),
         selected: [],
@@ -309,10 +309,10 @@ export default {
       });
     },
     openinfo(id, info) {
-      this.nowProjectID = id;
-      this.nowProject = info;
-      this.oldProject = { ...info };
-      this.abouttags.chips = this.nowProject.tags.split(",");
+      this.currentProjectID = id;
+      this.currentProject = info;
+      this.previousProject = { ...info };
+      this.aboutTags.chips = this.currentProject.tags.split(",");
       this.dialog = true;
     },
     openpushpage(id) {
@@ -346,11 +346,11 @@ export default {
       this.$toast.add({
         severity: "error",
         summary: "info",
-        detail: `尝试删除${this.nowProjectID}号作品`,
+        detail: `尝试删除${this.currentProjectID}号作品`,
         life: 3000,
       });
       request({
-        url: "/project/" + this.nowProjectID,
+        url: "/project/" + this.currentProjectID,
         method: "delete",
       })
         .then((res) => {
@@ -365,11 +365,11 @@ export default {
         });
     },
     SaveProjectsInfo() {
-      this.nowProject.tags = this.abouttags.chips.join(",");
+      this.currentProject.tags = this.aboutTags.chips.join(",");
       request({
-        url: "/project/" + this.nowProjectID,
+        url: "/project/" + this.currentProjectID,
         method: "put",
-        data: this.nowProject,
+        data: this.currentProject,
       })
         .then((res) => {
           console.log(res);
@@ -383,17 +383,17 @@ export default {
         });
     },
     SaveProjectsInfoOld() {
-      console.log(this.nowProject);
-      console.log(this.oldProject);
+      console.log(this.currentProject);
+      console.log(this.previousProject);
 
-      if (this.nowProject.title !== this.oldProject.title) {
+      if (this.currentProject.title !== this.previousProject.title) {
         console.log("修改作品标题为");
-        console.log(this.nowProject.title);
+        console.log(this.currentProject.title);
 
         request({
           url: "/project/saveProjcetTitle",
           method: "post",
-          data: { id: this.nowProjectID, title: this.nowProject.title },
+          data: { id: this.currentProjectID, title: this.currentProject.title },
         })
           .then((res) => {
             console.log(res);
@@ -407,16 +407,16 @@ export default {
           });
       }
 
-      if (this.nowProject.description !== this.oldProject.description) {
+      if (this.currentProject.description !== this.previousProject.description) {
         console.log("修改作品简介为");
-        console.log(this.nowProject.description);
+        console.log(this.currentProject.description);
 
         request({
           url: "/project/setDescription",
           method: "post",
           data: {
-            id: this.nowProjectID,
-            description: this.nowProject.description,
+            id: this.currentProjectID,
+            description: this.currentProject.description,
           },
         })
           .then((res) => {
@@ -430,14 +430,14 @@ export default {
             this.addtoast("修改失败");
           });
       }
-      if (this.nowProject.type !== this.oldProject.type) {
+      if (this.currentProject.type !== this.previousProject.type) {
         console.log("修改作品简介为");
-        console.log(this.nowProject.type);
+        console.log(this.currentProject.type);
 
         request({
           url: "/project/setType",
           method: "post",
-          data: { id: this.nowProjectID, type: this.nowProject.type },
+          data: { id: this.currentProjectID, type: this.currentProject.type },
         })
           .then((res) => {
             console.log(res);
@@ -451,14 +451,14 @@ export default {
           });
       }
 
-      if (this.nowProject.state !== this.oldProject.state) {
-        if (this.nowProject.state == "public") {
+      if (this.currentProject.state !== this.previousProject.state) {
+        if (this.currentProject.state == "public") {
           console.log("修改作品状态为公开");
 
           request({
             url: "/project/share",
             method: "post",
-            data: { id: this.nowProjectID },
+            data: { id: this.currentProjectID },
           })
             .then((res) => {
               console.log(res);
@@ -471,13 +471,13 @@ export default {
               this.addtoast("修改失败");
             });
         }
-        if (this.nowProject.state == "private") {
+        if (this.currentProject.state == "private") {
           console.log("修改作品状态为私密");
 
           request({
             url: "/project/noshare",
             method: "post",
-            data: { id: this.nowProjectID },
+            data: { id: this.currentProjectID },
           })
             .then((res) => {
               console.log(res);

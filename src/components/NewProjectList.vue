@@ -7,7 +7,7 @@
             label="标题"
             required
             hint="将便于查找"
-            v-model="projectinfo.title"
+            v-model="projectInfo.title"
             disabled
           ></v-text-field>
         </v-col>
@@ -39,12 +39,12 @@ import request from "../axios/axios";
 export default {
   data() {
     return {
-      projectinfo: {
+      projectInfo: {
         title: "新建项目列表",
       },
       created: false,
-      newid: 0,
-      isVisible: false,
+      newId: 0,
+      isVisibleDialog: false,
       openEdit,
     };
   },
@@ -60,15 +60,15 @@ export default {
   },
   methods: {
     show() {
-      (this.projectinfo = {
+      (this.projectInfo = {
         title: "新建项目列表",
       }),
         (this.created = false);
-      this.newid = 0;
-      this.isVisible = true;
+      this.newId = 0;
+      this.isVisibleDialog = true;
     },
     async newProjectList() {
-      await request.post("/projectlist/", this.projectinfo).then((res) => {
+      await request.post("/projectlist/", this.projectInfo).then((res) => {
         console.log(res);
         this.$toast.add({
           severity: "info",
@@ -78,7 +78,7 @@ export default {
         });
         if (res.status == "1") {
           //this.created = true
-          this.newid = res.id;
+          this.newId = res.id;
         }
       });
       this.callback();
