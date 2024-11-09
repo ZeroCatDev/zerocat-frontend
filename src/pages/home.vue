@@ -112,7 +112,7 @@
     </v-row>
   </v-container>
   <v-container class="pa-md-12 pa-sm-6">
-    <v-card class="pa-6 pa-md-12" :image="src" rounded="xl">
+    <v-card class="pa-6 pa-md-12" :image="src" rounded="xl" border>
       <p class="text-sm-h5 text-subtitle-1 text-medium-emphasis mb-6">
         各位scratcher们，是不是嫌自己的社区太少了？ 那就来zerocat吧！
       </p>
