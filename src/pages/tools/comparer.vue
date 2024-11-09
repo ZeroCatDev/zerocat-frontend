@@ -25,7 +25,7 @@
     <br /><br />
     <v-card
       :title="`${(final * 100).toFixed(0)}%的概率为抄袭`"
-      subtitle="推测数据，请以实际为准"
+      subtitle="推测数据，请以实际为准" border
     >
       <v-row>
         <v-col cols="6">
@@ -96,7 +96,7 @@
         <v-btn @click="printpage()">打印</v-btn>
       </v-card-actions> </v-card
     ><br />
-    <v-card>
+    <v-card border>
       <v-card-title>关于</v-card-title>
       <v-card-subtitle>致谢~</v-card-subtitle>
       <v-card-text>

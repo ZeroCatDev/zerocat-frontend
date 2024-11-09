@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col cols="12" md="6">
-        <v-card hover>
+        <v-card hover border>
           <v-card-item>
             <template v-slot:prepend>
               <v-icon icon="mdi-download-box"></v-icon>
@@ -17,7 +17,7 @@
           </v-card-text>
         </v-card>
 
-        <v-card class="mt-7" hover>
+        <v-card class="mt-7" hover border>
           <v-card-item>
             <template v-slot:prepend>
               <v-icon icon="mdi-heart"></v-icon> </template
@@ -61,7 +61,7 @@
         >
       </v-col>
       <v-col cols="12" md="6">
-        <v-card hover :loading="loading">
+        <v-card hover :loading="loading" border>
           <v-card-item>
             <template v-slot:prepend>
               <v-icon icon="mdi-download"></v-icon>
@@ -111,7 +111,7 @@
             </v-btn></v-card-actions
           >
         </v-card>
-        <v-card hover :loading="loading" class="mt-7">
+        <v-card hover :loading="loading" class="mt-7" border>
           <v-card-item>
             <template v-slot:prepend>
               <v-icon icon="mdi-download"></v-icon>
@@ -161,7 +161,7 @@
             </v-btn></v-card-actions
           >
         </v-card>
-        <v-card class="mt-7" hover>
+        <v-card class="mt-7" hover border>
           <v-card-item>
             <template v-slot:prepend>
               <v-icon icon="mdi-server"></v-icon>
