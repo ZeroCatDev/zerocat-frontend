@@ -2,7 +2,7 @@
   <v-container>
     <v-row justify="center">
       <v-col cols="12" sm="8" md="6">
-        <v-card>
+        <v-card border>
           <v-card-title class="text-h5">启用二步验证 (2FA)</v-card-title>
 
           <v-card-text>
