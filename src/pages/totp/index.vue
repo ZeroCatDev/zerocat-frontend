@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col cols="12">
-        <v-btn @click="generateTOTP">生成新的TOTP验证器</v-btn>
+        <v-btn @click="generateTOTP" color="primary" class="mb-4">生成新的TOTP验证器</v-btn>
       </v-col>
       <v-col cols="12">
         <v-list>
@@ -16,9 +16,9 @@
               <v-list-item-subtitle>{{ totp.status }}</v-list-item-subtitle>
             </v-list-item-content>
             <v-list-item-action>
-              <v-btn @click.stop="renameTOTP(totp.id)">重命名</v-btn>
-              <v-btn @click.stop="deleteTOTP(totp.id)">删除</v-btn>
-              <v-btn @click.stop="activateTOTP(totp.id)">激活</v-btn>
+              <v-btn @click.stop="renameTOTP(totp.id)" color="info">重命名</v-btn>
+              <v-btn @click.stop="deleteTOTP(totp.id)" color="error">删除</v-btn>
+              <v-btn @click.stop="activateTOTP(totp.id)" color="success">激活</v-btn>
             </v-list-item-action>
           </v-list-item>
         </v-list>
@@ -66,6 +66,12 @@ export default {
           const response = await request.post("/totp/rename", { totpId, name: newName });
           if (response.status === "success") {
             this.fetchTOTPList();
+            this.$toast.add({
+              severity: "success",
+              summary: "成功",
+              detail: "TOTP验证器重命名成功",
+              life: 3000,
+            });
           } else {
             this.$toast.add({
               severity: "error",
@@ -89,6 +95,12 @@ export default {
         const response = await request.post("/totp/delete", { totpId });
         if (response.status === "success") {
           this.fetchTOTPList();
+          this.$toast.add({
+            severity: "success",
+            summary: "成功",
+            detail: "TOTP验证器删除成功",
+            life: 3000,
+          });
         } else {
           this.$toast.add({
             severity: "error",
@@ -110,7 +122,12 @@ export default {
       try {
         const response = await request.post("/totp/generate");
         if (response.status === "success") {
-          alert(`新的TOTP验证器已生成: ${response.data.secret}`);
+          this.$toast.add({
+            severity: "success",
+            summary: "成功",
+            detail: `新的TOTP验证器已生成: ${response.data.secret}`,
+            life: 3000,
+          });
           this.fetchTOTPList();
         } else {
           this.$toast.add({
@@ -136,6 +153,12 @@ export default {
           const response = await request.post("/totp/activate", { totpId, totpToken });
           if (response.status === "success") {
             this.fetchTOTPList();
+            this.$toast.add({
+              severity: "success",
+              summary: "成功",
+              detail: "TOTP验证器激活成功",
+              life: 3000,
+            });
           } else {
             this.$toast.add({
               severity: "error",
