@@ -61,38 +61,37 @@
 </template>
 
 <script>
-import QRCode from 'qrcode';
+import QRCode from "qrcode";
 import request from "@/axios/axios";
 
 export default {
-  name: 'TotpGenerator',
+  name: "TotpGenerator",
   data() {
     return {
       loading: false,
-      totpCode: '',
-      authotpUrl: '',
-      totp_id: '',
-      qrCodeUrl: '',
-      errorMessage: ''
+      totpCode: "",
+      authotpUrl: "",
+      totp_id: "",
+      qrCodeUrl: "",
+      errorMessage: "",
     };
   },
   methods: {
     // 请求 TOTP 生成 URL
     async generateTOTP() {
       this.loading = true;
-      this.errorMessage = '';
+      this.errorMessage = "";
 
       try {
-        const response = await request.post('/account/totp/generate');
+        const response = await request.post("/account/totp/generate");
 
         // 获取 otpauth_url
         this.authotpUrl = response.data.otpauth_url;
         this.totp_id = response.data.totp_id;
         // 使用 QRCode 库生成二维码
         this.qrCodeUrl = await QRCode.toDataURL(this.authotpUrl);
-
       } catch (error) {
-        this.errorMessage = error.response?.data?.message || '发生未知错误';
+        this.errorMessage = error.response?.data?.message || "发生未知错误";
       } finally {
         this.loading = false;
       }
@@ -101,20 +100,20 @@ export default {
     // 激活 TOTP 验证码
     async activateTOTP() {
       if (!this.totpCode) {
-        this.errorMessage = '请输入验证码';
+        this.errorMessage = "请输入验证码";
         return;
       }
 
       this.loading = true;
-      this.errorMessage = '';
+      this.errorMessage = "";
 
       try {
-        const response = await request.post('/account/totp/activate', {
+        const response = await request.post("/account/totp/activate", {
           totp_token: this.totpCode,
-          totp_id: this.totp_id
+          totp_id: this.totp_id,
         });
 
-        if (response.data.status === 'success') {
+        if (response.data.status === "success") {
           this.$toast.add({
             severity: "success",
             summary: "成功",
@@ -122,16 +121,15 @@ export default {
             life: 3000,
           });
         } else {
-          this.errorMessage = '验证码无效，请重试';
+          this.errorMessage = "验证码无效，请重试";
         }
-
       } catch (error) {
-        this.errorMessage = error.response?.data?.message || '发生未知错误';
+        this.errorMessage = error.response?.data?.message || "发生未知错误";
       } finally {
         this.loading = false;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

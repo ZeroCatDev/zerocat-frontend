@@ -2,14 +2,9 @@
   <v-container>
     <!-- Add New TOTP Button -->
 
-        <v-btn
-          to="./totp/add"
-          color="primary"
-          class="mb-4"
-        >
-          <v-icon left>mdi-plus</v-icon>新的验证器
-        </v-btn>
-
+    <v-btn to="./totp/add" color="primary" class="mb-4">
+      <v-icon left>mdi-plus</v-icon>新的验证器
+    </v-btn>
 
     <!-- TOTP List Cards -->
     <v-row
@@ -40,20 +35,23 @@
                 >
               </v-card-text>
 
-              <v-card-actions><v-btn color="error" variant="text" @click="deleteTOTP(totp.id)" border>删除</v-btn>
+              <v-card-actions
+                ><v-btn
+                  color="error"
+                  variant="text"
+                  @click="deleteTOTP(totp.id)"
+                  border
+                  >删除</v-btn
+                >
                 <v-spacer></v-spacer>
 
-                <v-btn
-                  text="关闭"
-                  @click="isActive.value = false"
-                ></v-btn>
+                <v-btn text="关闭" @click="isActive.value = false"></v-btn>
               </v-card-actions>
             </v-card>
           </template>
         </v-dialog>
       </v-col>
     </v-row>
-
   </v-container>
 </template>
 
@@ -85,7 +83,6 @@ export default {
     };
   },
   methods: {
-
     // 获取TOTP列表
     async fetchTOTPList() {
       this.loading = true;
@@ -112,8 +109,6 @@ export default {
         this.loading = false;
       }
     },
-
-
 
     // 提交重命名
     async renameTOTP(totpid, newname) {
