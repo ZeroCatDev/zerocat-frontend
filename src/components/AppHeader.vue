@@ -28,12 +28,12 @@
   >
     <v-list>
       <v-list-item
-        v-if="islogin == true"
-        :prepend-avatar="'https://s4-1.wuyuan.1r.ink/user/' + userinfo.avatar"
+        v-if="isLogin == true"
+        :prepend-avatar="'https://s4-1.wuyuan.1r.ink/user/' + userInfo.avatar"
         rounded="xl"
-        :subtitle="userinfo.username"
-        :to="'/user/' + userinfo.userid"
-        :title="userinfo.display_name"
+        :subtitle="userInfo.username"
+        :to="'/user/' + userInfo.userid"
+        :title="userInfo.display_name"
       ></v-list-item>
       <v-list-item
         v-else
@@ -71,11 +71,11 @@ export default {
   components: { NewProjectDialog },
   data: () => ({
     localuser: localuser,
-    userinfo: localuser.user,
+    userInfo: localuser.user,
     drawer: true,
-    islogin: localuser.islogin,
-    clicklogout: 0,
-    logoutbutton: "退出",
+    isLogin: localuser.islogin,
+    clickLogout: 0,
+    logoutButton: "退出",
     urltoken: "",
     algolia_AppId: import.meta.env.VITE_APP_ALGOLIA_APP_ID,
     items: {
@@ -121,7 +121,7 @@ export default {
     this.drawer = drawerStatus === "true"; // 根据存储的值设置drawer
   },
   watch: {
-    userinfo(newName, oldName) {
+    userInfo(newName, oldName) {
       this.$forceUpdate();
     },
     drawer(newVal) {
@@ -130,16 +130,16 @@ export default {
     },
   },
   methods: {
-    trylogout() {
+    tryLogout() {
       console.log(111);
-      if (this.clicklogout == 1) {
+      if (this.clickLogout == 1) {
         this.$router.push("/account/logout");
-        this.clicklogout = 0;
-        this.logoutbutton = "退出";
+        this.clickLogout = 0;
+        this.logoutButton = "退出";
       } else {
-        this.clicklogout = this.clicklogout + 1;
+        this.clickLogout = this.clickLogout + 1;
 
-        this.logoutbutton = "再点一次退出";
+        this.logoutButton = "再点一次退出";
       }
     },
   },

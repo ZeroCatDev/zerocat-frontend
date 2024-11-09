@@ -4,7 +4,7 @@
     border
     class="mb-2"
     elevation
-    v-for="comment in comments"
+    v-for="comment in commentList"
     :key="comment.id"
     @click="showMore(comment)"
   >
@@ -112,7 +112,7 @@
                 <v-img
                   :src="
                     'https://s4-1.wuyuan.1r.ink/user/' +
-                    users[morecommnets.user_id].images
+                    users[moreComments.user_id].images
                   "
                 ></v-img>
               </v-avatar>
@@ -124,15 +124,15 @@
                 </template>
                 <v-list border>
                   <v-list-item
-                  v-if="morecommnets.user_id == localuser.user.userid"
+                  v-if="moreComments.user_id == localuser.user.userid"
                   prepend-icon="mdi-delete"
-                  @click="deleteCommnet({ id: morecommnets.id })"
+                  @click="deleteCommnet({ id: moreComments.id })"
                   >
                     <v-list-item-title>删除</v-list-item-title>
                   </v-list-item>
                   <v-list-item
                     prepend-icon="mdi-reply"
-                    @click="replyid = morecommnets.id"
+                    @click="replyId = moreComments.id"
                   >
                     <v-list-item-title>回复</v-list-item-title>
                   </v-list-item>
@@ -140,26 +140,26 @@
               </v-menu>
 
             </template>
-            <v-card-title :to="'/user/' + morecommnets.user_id">{{
-              users[morecommnets.user_id].display_name
+            <v-card-title :to="'/user/' + moreComments.user_id">{{
+              users[moreComments.user_id].display_name
             }}</v-card-title>
 
             <v-card-subtitle>
-              <TimeAgo :date="morecommnets.insertedAt" /> - ({{
-                UAParser(morecommnets.user_ua).browser.name
+              <TimeAgo :date="moreComments.insertedAt" /> - ({{
+                UAParser(moreComments.user_ua).browser.name
               }}
               -
               {{
-                UAParser(morecommnets.user_ua).os.name +
-                UAParser(morecommnets.user_ua).os.version
-              }}) - {{ morecommnets.insertedAt }}
+                UAParser(moreComments.user_ua).os.name +
+                UAParser(moreComments.user_ua).os.version
+              }}) - {{ moreComments.insertedAt }}
             </v-card-subtitle>
           </v-card-item>
-          <v-card-text><Markdown>{{ morecommnets.text }}</Markdown></v-card-text>
+          <v-card-text><Markdown>{{ moreComments.text }}</Markdown></v-card-text>
         </v-card>
         <v-card
           class="mb-2"
-          v-for="comment in morecommnets.children"
+          v-for="comment in moreComments.children"
           :key="comment.id"
           elevation
           hover
@@ -180,7 +180,7 @@
             <template v-slot:append>
               <v-btn
                 icon="mdi-reply"
-                @click="replyid = comment.id"
+                @click="replyId = comment.id"
                 border
                 v-if="comment.user_id != localuser.user.userid"
               >
@@ -199,7 +199,7 @@
                   </v-list-item>
                   <v-list-item
                     prepend-icon="mdi-reply"
-                    @click="replyid = comment.id"
+                    @click="replyId = comment.id"
                   >
                     <v-list-item-title>回复</v-list-item-title>
                   </v-list-item>
@@ -226,8 +226,8 @@
 
         <v-card class="mt-4" elevation hover border>
           <v-card-title class="headline"
-            >回复评论{{ replyid
-            }}<v-btn @click="replyid = null" v-if="replyid != null"
+            >回复评论{{ replyId
+            }}<v-btn @click="replyId = null" v-if="replyId != null"
               >取消</v-btn
             ></v-card-title
           >
@@ -245,8 +245,8 @@
                 color="primary"
                 @click="
                   addComment({
-                    pid: replyid,
-                    rid: morecommnets.id,
+                    pid: replyId,
+                    rid: moreComments.id,
                     commnet: comment,
                   })
                 "
@@ -295,7 +295,7 @@ export default {
       url: this.url,
       sort: "时间倒序",
       sorttext: "insertedAt_desc",
-      comments: [],
+      commentList: [],
       users: {},
       page: 0,
       totalPages: 0,
@@ -303,7 +303,7 @@ export default {
       count: 0,
       loadbuttondisabled: false,
       moredialog: false,
-      morecommnets: [],
+      moreComments: [],
       localuser: localuser,
       commentrules: [
         (value) => {
@@ -312,7 +312,7 @@ export default {
         },
       ],
       comment: "",
-      replyid: "",
+      replyId: "",
       UAParser,
     };
   },
@@ -323,7 +323,7 @@ export default {
     getComments(info = {}) {
       if (info.retry == true) {
         this.page = 0;
-        this.comments = [];
+        this.commentList = [];
       }
       // 获取评论列表
       request({
@@ -337,7 +337,7 @@ export default {
         if (res.data.data.length == 0) {
           this.loadbuttondisabled = true;
         }
-        this.comments = this.comments.concat(res.data.data);
+        this.commentList = this.commentList.concat(res.data.data);
         console.log(res.users);
         res.users.forEach((user) => {
           this.users[user.id] = user;
@@ -375,7 +375,7 @@ export default {
         if (res.errno == 0) {
           this.info = "评论成功";
           this.comment = "";
-          this.replyid = null;
+          this.replyId = null;
           this.getComments({ retry: true });
         } else {
           this.info = "评论失败";
@@ -399,7 +399,7 @@ export default {
       });
     },
     showMore(info) {
-      this.morecommnets = info;
+      this.moreComments = info;
       this.moredialog = true;
     },
     createDateFromMysql(mysql_string) {
