@@ -38,34 +38,120 @@ export default {
   },
   methods: {
     async fetchTOTPList() {
-      const response = await request.get("/totp/list");
-      if (response.status === "success") {
-        this.totpList = response.data.list;
+      try {
+        const response = await request.get("/totp/list");
+        if (response.status === "success") {
+          this.totpList = response.data.list;
+        } else {
+          this.$toast.add({
+            severity: "error",
+            summary: "错误",
+            detail: response.message,
+            life: 3000,
+          });
+        }
+      } catch (error) {
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: error.message,
+          life: 3000,
+        });
       }
     },
     async renameTOTP(totpId) {
       const newName = prompt("请输入新的名称");
       if (newName) {
-        await request.post("/totp/rename", { totpId, name: newName });
-        this.fetchTOTPList();
+        try {
+          const response = await request.post("/totp/rename", { totpId, name: newName });
+          if (response.status === "success") {
+            this.fetchTOTPList();
+          } else {
+            this.$toast.add({
+              severity: "error",
+              summary: "错误",
+              detail: response.message,
+              life: 3000,
+            });
+          }
+        } catch (error) {
+          this.$toast.add({
+            severity: "error",
+            summary: "错误",
+            detail: error.message,
+            life: 3000,
+          });
+        }
       }
     },
     async deleteTOTP(totpId) {
-      await request.post("/totp/delete", { totpId });
-      this.fetchTOTPList();
+      try {
+        const response = await request.post("/totp/delete", { totpId });
+        if (response.status === "success") {
+          this.fetchTOTPList();
+        } else {
+          this.$toast.add({
+            severity: "error",
+            summary: "错误",
+            detail: response.message,
+            life: 3000,
+          });
+        }
+      } catch (error) {
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: error.message,
+          life: 3000,
+        });
+      }
     },
     async generateTOTP() {
-      const response = await request.post("/totp/generate");
-      if (response.status === "success") {
-        alert(`新的TOTP验证器已生成: ${response.data.secret}`);
-        this.fetchTOTPList();
+      try {
+        const response = await request.post("/totp/generate");
+        if (response.status === "success") {
+          alert(`新的TOTP验证器已生成: ${response.data.secret}`);
+          this.fetchTOTPList();
+        } else {
+          this.$toast.add({
+            severity: "error",
+            summary: "错误",
+            detail: response.message,
+            life: 3000,
+          });
+        }
+      } catch (error) {
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: error.message,
+          life: 3000,
+        });
       }
     },
     async activateTOTP(totpId) {
       const totpToken = prompt("请输入TOTP令牌");
       if (totpToken) {
-        await request.post("/totp/activate", { totpId, totpToken });
-        this.fetchTOTPList();
+        try {
+          const response = await request.post("/totp/activate", { totpId, totpToken });
+          if (response.status === "success") {
+            this.fetchTOTPList();
+          } else {
+            this.$toast.add({
+              severity: "error",
+              summary: "错误",
+              detail: response.message,
+              life: 3000,
+            });
+          }
+        } catch (error) {
+          this.$toast.add({
+            severity: "error",
+            summary: "错误",
+            detail: error.message,
+            life: 3000,
+          });
+        }
       }
     },
   },
