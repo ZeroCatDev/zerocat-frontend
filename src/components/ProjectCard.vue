@@ -1,5 +1,5 @@
 <template>
-  <v-card rounded="lg" >
+  <v-card rounded="lg" border>
     <v-card :to="'/projects/' + info.id" style="aspect-ratio: 4/3" rounded="lg" >
       <v-img
         :src="'https://s4-1.wuyuan.1r.ink/scratch_slt/' + info.id"
