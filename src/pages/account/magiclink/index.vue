@@ -20,18 +20,9 @@
               <v-text-field
                 label="邮箱"
                 type="text"
-                v-model="username"
+                v-model="email"
                 variant="outlined"
                 :rules="emailRules"
-              ></v-text-field>
-              <v-text-field
-                label="密码"
-                v-model="password"
-                variant="outlined"
-                :rules="usernameRules"
-                :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="show1 ? 'text' : 'password'"
-                @click:append="show1 = !show1"
               ></v-text-field>
             </v-col>
             <v-col cols="9">
@@ -53,7 +44,7 @@
                 class="text-none"
                 color="primary"
                 rounded="xl"
-                text="登录"
+                text="发送验证链接"
                 variant="flat"
                 size="large"
                 @click="login"
@@ -66,20 +57,21 @@
                 class="text-none"
                 color="white"
                 rounded="xl"
+                text="密码登录"
+                variant="text"
+                size="large"
+                append-icon="mdi-arrow-right"
+                to="/account/login"
+              ></v-btn>
+              <v-btn
+                class="text-none"
+                color="white"
+                rounded="xl"
                 text="注册"
                 variant="text"
                 size="large"
                 append-icon="mdi-arrow-right"
                 to="/account/register"
-              ></v-btn>  <v-btn
-                class="text-none"
-                color="white"
-                rounded="xl"
-                text="邮箱验证登录"
-                variant="text"
-                size="large"
-                append-icon="mdi-arrow-right"
-                to="/account/magiclink"
               ></v-btn>
               <!-- login button -->
               <v-btn
@@ -120,22 +112,21 @@
 
 <script>
 import { localuser } from "@/stores/user";
-import request from "../../axios/axios";
+import request from "../../../axios/axios";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import "https://static.geetest.com/v4/gt4.js";
 import {
   initRecaptcha,
   getResponse,
   resetCaptcha,
-} from "../../stores/useRecaptcha";
+} from "../../../stores/useRecaptcha";
 
 export default {
   components: { LoadingDialog },
   data() {
     return {
       BASE_API: import.meta.env.VITE_APP_BASE_API,
-      username: "",
-      password: "",
+      email: "",
       tryinguser: {},
       loading: false,
       initRecaptcha,
@@ -176,12 +167,11 @@ export default {
     async login() {
       this.loading = true;
       this.tryinguser = await request({
-        url: "/account/login",
+        url: "/account/magiclink/generate",
         method: "post",
         data: {
           captcha: getResponse(),
-          un: this.username,
-          pw: this.password,
+          email: this.email,
         },
       });
       if (this.tryinguser.message != "OK") {
@@ -189,28 +179,12 @@ export default {
         this.$toast.add({
           severity: "info",
           summary: "info",
-          detail: this.tryinguser.msg || this.tryinguser.message,
+          detail: this.tryinguser.message,
           life: 3000,
         });
         return;
       }
       this.loading = false;
-
-      //this.$toast.add({ severity: 'info', summary: 'info', detail: this.tryinguser.msg||this.tryinguser.message, life: 3000 });
-      localuser.setuser(this.tryinguser.token);
-      console.log(this.tryinguser);
-      if (this.tryinguser.msg || this.tryinguser.message == "OK") {
-        this.$router.push("/");
-      }
-    },
-
-    addtoast(text) {
-      this.$toast.add({
-        severity: "info",
-        summary: "info",
-        detail: text,
-        life: 3000,
-      });
     },
   },
 };
