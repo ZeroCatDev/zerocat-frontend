@@ -1,5 +1,5 @@
 {
-  "name": "zerocatnext",
+  "name": "zerocat-frontend",
   "version": "0.0.0",
   "scripts": {
     "dev": "vite --port 3141 --host",
@@ -7,7 +7,8 @@
     "build:scratch-gui": "cd ./scratch-gui && npm run build && cd ../",
     "preview": "vite preview",
     "lint": "eslint . --fix --ignore-path .gitignore",
-    "deploy": "npm run build"
+    "deploy": "npm run build",
+    "start": "npm run dev"
   },
   "dependencies": {
     "@highlightjs/vue-plugin": "^2.1.0",
