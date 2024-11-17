@@ -263,12 +263,7 @@ export default {
           avatar: "https://langs.ink/shiqian-logo.webp",
           link: "https://github.com/timeshiftsauce",
         },
-        {
-          title: "林雨",
-          subtitle: "Jacopo的好朋友(为什么会放这一条?)",
-          avatar: "https://langs.ink/linyu-logo.jpg",
-          link: "#",
-        },
+
         {
           title: "加入我们/合作/拉赞助",
           subtitle:
