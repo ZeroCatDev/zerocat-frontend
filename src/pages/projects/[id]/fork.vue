@@ -22,7 +22,7 @@
     <v-card>
       <template v-slot:title> 你正在分叉一个项目 </template>
 
-      <template v-slot:subtitle> 等等，确认点事 </template>
+      <template v-slot:subtitle>等等，确认点事 </template>
 
       <template v-slot:text>
         你正在分叉
@@ -51,8 +51,10 @@
           >了解此许可证</v-btn
         >
         <br /><br />
-        开源许可证授予你合理的权利，但前提是你必须遵守许可证的条款。如果没有许可证(显示为NULL)，则默认受专有版权保护，在你分发(开源作品)前，你需要尝试联系作者获得授权。<br />
-        用户在ZeroCatNext分发此作品，不代表用户拥有此作品所有权力。作品可以分叉不代表法律上的授权，分叉是一个技术概念，不代表作者对你有任何授权，
+        开源许可证授予您某些权利，前提是您必须遵守相关许可证条款。如未明确标示许可证（显示为NULL），则默认作品受专有版权保护。在分发该作品之前，您需联系作者并获得授权。
+        <br />
+        用户在ZeroCatNext上分发该作品，并不意味着其拥有该作品的所有权。作品的分叉仅为技术行为，不等同于获得作者的法律授权。<br />
+        ZeroCatNext对用户上传、分发或使用的任何作品不承担任何法律责任。ZeroCatNext仅提供技术支持和托管服务，用户对所上传、分发及使用的作品负责，若因作品内容引发任何法律纠纷或损失，ZeroCatNext不承担任何责任。
       </template>
       <v-card-actions>
         <v-checkbox label="我已了解并确认" v-model="checklicense"></v-checkbox>
