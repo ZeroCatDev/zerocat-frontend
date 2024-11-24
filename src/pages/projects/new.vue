@@ -5,7 +5,7 @@
         作品是你存储代码的地方，你可以选择你喜欢的类型以从模板创建，作品信息可以随时修改。
       </v-card-text>
     </v-card>
-    <br/>
+    <br />
     <v-card hover border>
       <v-card-text>
         <v-row dense>
@@ -56,16 +56,18 @@
 <script>
 import openEdit from "../../stores/openEdit";
 import request from "@/axios/axios";
-import { useHead } from '@unhead/vue'
-
+import { useHead } from "@unhead/vue";
+import { localuser } from "@/stores/user";
 export default {
   setup() {
     useHead({
-      title: '新建作品',
+      title: "新建作品",
     });
   },
+
   data() {
     return {
+      localuser: localuser,
       projectinfo: {
         title: "新建作品",
         type: "scratch",
@@ -74,6 +76,12 @@ export default {
       newid: 0,
       openEdit,
     };
+  },
+
+  async created() {
+    if (this.localuser.islogin == false) {
+      this.$router.push("/account/login");
+    }
   },
   methods: {
     async newProject() {
@@ -86,7 +94,7 @@ export default {
           life: 3000,
         });
         if (res.status == "1") {
-          this.created = true
+          this.created = true;
           this.newid = res.id;
         }
       });

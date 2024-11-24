@@ -119,12 +119,14 @@ export default {
   },
 
   async created() {
+    if (this.localuser.islogin == false) {
+      this.$router.push("/account/login");
+    }
     await this.getproject();
   },
   setup() {
     useHead({
-      title: '分叉',
-
+      title: "分叉",
     });
   },
   methods: {
@@ -134,9 +136,8 @@ export default {
         method: "get",
       });
       useHead({
-      title: '分叉'+this.project.title,
-
-    });
+        title: "分叉" + this.project.title,
+      });
       console.log(this.project);
     },
     async forkproject(id) {

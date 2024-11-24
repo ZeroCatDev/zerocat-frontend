@@ -110,7 +110,7 @@ import {
   getResponse,
   resetCaptcha,
 } from "../../stores/useRecaptcha";
-import { useHead } from '@unhead/vue'
+import { useHead } from "@unhead/vue";
 export default {
   components: { LoadingDialog },
   data() {
@@ -148,13 +148,12 @@ export default {
     if (localuser.islogin.value == true) {
       this.$router.push("/");
     }
-    useHead({
-      title: '找回密码',
-
-    });
+    initRecaptcha("recaptcha-div", "float");
   },
   setup() {
-    initRecaptcha("recaptcha-div", "float");
+    useHead({
+      title: "找回密码",
+    });
   },
   methods: {
     async login() {

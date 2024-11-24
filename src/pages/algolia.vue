@@ -113,12 +113,12 @@
 
 <script>
 import { liteClient as algoliasearch } from "algoliasearch/lite";
-import { useHead } from '@unhead/vue'
+import { useHead } from "@unhead/vue";
 
 export default {
   setup() {
     useHead({
-      title: 'Algolia Search',
+      title: "Algolia Search",
     });
   },
   data() {

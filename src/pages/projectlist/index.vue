@@ -60,23 +60,28 @@ export default {
   data() {
     return {
       localuser: localuser,
-      userinfo: localuser.user,
       editlistid: 0,
       EditProjectListConfigDialog: false,
       NewProjectListDialog: false,
       lists: [],
     };
-  },setup() {
+  },
+  setup() {
     useHead({
-      title: '列表',
-
+      title: "列表",
     });
+  },
+
+  async created() {
+    if (this.localuser.islogin == false) {
+      this.$router.push("/account/login");
+    }
   },
   methods: {
     async getProjectList() {
       this.lists = (
         await request({
-          url: "/projectlist/user/" + this.userinfo.userid,
+          url: "/projectlist/user/" + this.localuser.user.userid,
           method: "get",
         })
       ).data;

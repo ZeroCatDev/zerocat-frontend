@@ -71,7 +71,8 @@
                 size="large"
                 append-icon="mdi-arrow-right"
                 to="/account/register"
-              ></v-btn>  <v-btn
+              ></v-btn>
+              <v-btn
                 class="text-none"
                 color="white"
                 rounded="xl"
@@ -128,15 +129,11 @@ import {
   getResponse,
   resetCaptcha,
 } from "../../stores/useRecaptcha";
-import { useHead } from '@unhead/vue'
+import { useHead } from "@unhead/vue";
 
 export default {
   components: { LoadingDialog },
-  setup() {
-    useHead({
-      title: '登录',
-    });
-  },
+
   data() {
     return {
       BASE_API: import.meta.env.VITE_APP_BASE_API,
@@ -174,9 +171,12 @@ export default {
     if (localuser.islogin.value == true) {
       this.$router.push("/");
     }
+    initRecaptcha("recaptcha-div", "float");
   },
   setup() {
-    initRecaptcha("recaptcha-div", "float");
+    useHead({
+      title: "登录",
+    });
   },
   methods: {
     async login() {

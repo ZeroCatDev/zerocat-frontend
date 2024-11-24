@@ -75,10 +75,10 @@ export default {
       qrCodeUrl: "",
       errorMessage: "",
     };
-  },setup() {
+  },
+  setup() {
     useHead({
-      title: '创建验证器',
-
+      title: "创建验证器",
     });
   },
   methods: {

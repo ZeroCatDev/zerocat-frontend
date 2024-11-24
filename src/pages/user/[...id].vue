@@ -125,14 +125,12 @@ export default {
   },
   setup() {
     useHead({
-      title: '用户',
-
+      title: "用户",
     });
   },
   async created() {
     await this.getuserinfo();
     await this.getProjectList();
-
   },
   methods: {
     async getuserinfo() {
@@ -148,9 +146,8 @@ export default {
 
         this.UserCardLoading = false;
         useHead({
-      title: '' + this.userinfo.info.user.display_name,
-
-    });
+          title: "" + this.userinfo.info.user.display_name,
+        });
         console.log(this.userinfo);
       }
     },

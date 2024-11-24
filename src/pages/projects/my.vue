@@ -1,4 +1,5 @@
 <template>
+  {{ localuser }}
   <v-container>
     <v-row
       ><v-col cols="6">
@@ -23,7 +24,7 @@
         <v-number-input
           control-variant="用户ID"
           :label="'用户ID 为：' + search.authorid"
-          v-model="userInfo.userid"
+          v-model="localuser.user.userid"
           disabled
         ></v-number-input
       ></v-col>
@@ -85,7 +86,7 @@
     <br />
 
     <Projects
-      :authorid="userInfo.userid"
+      :authorid="localuser.user.userid"
       :title="search.title"
       :description="search.description"
       :source="search.source"
@@ -239,6 +240,7 @@ export default {
 
   data() {
     return {
+      localuser: localuser,
       projectstates: [
         { state: "私密", abbr: "private" },
         { state: "开源", abbr: "public" },
@@ -280,17 +282,22 @@ export default {
         state: "",
         tag: "",
       },
-      userInfo: localuser.user,
       aboutTags: {
         items: ["动画", "故事", "音乐", "硬核", "艺术", "水"],
         chips: ref([]),
         selected: [],
       },
     };
-  },setup() {
-    useHead({
-      title: '我的作品',
+  },
 
+  async created() {
+    if (this.localuser.islogin == false) {
+      this.$router.push("/account/login");
+    }
+  },
+  setup() {
+    useHead({
+      title: "我的作品",
     });
   },
   methods: {
@@ -413,7 +420,9 @@ export default {
           });
       }
 
-      if (this.currentProject.description !== this.previousProject.description) {
+      if (
+        this.currentProject.description !== this.previousProject.description
+      ) {
         console.log("修改作品简介为");
         console.log(this.currentProject.description);
 

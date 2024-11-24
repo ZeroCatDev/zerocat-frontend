@@ -233,14 +233,12 @@ import request from "../axios/axios";
 import $vuetify from "@/plugins/vuetify";
 import { localuser } from "../stores/user";
 import Typewriter from "../components/Typewriter.vue";
-import { useHead } from '@unhead/vue'
+import { useHead } from "@unhead/vue";
 
 export default {
   components: { Typewriter },
   setup() {
-    useHead({
-
-    });
+    useHead({});
   },
   data() {
     return {
@@ -273,8 +271,7 @@ export default {
 
         {
           title: "加入我们/合作/拉赞助",
-          subtitle:
-            "欢迎",
+          subtitle: "欢迎",
           avatar: "https://langs.ink/jacopo-logo.webp",
           link: "https://langsteam.feishu.cn/share/base/form/shrcn5jhvy96A93Gx9JWaEAofac",
         },

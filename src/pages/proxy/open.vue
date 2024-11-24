@@ -52,12 +52,12 @@
 </template>
 
 <script>
-import { useHead } from '@unhead/vue'
+import { useHead } from "@unhead/vue";
 
 export default {
   setup() {
     useHead({
-      title: 'Open Scratch Content',
+      title: "Open Scratch Content",
     });
   },
   data() {

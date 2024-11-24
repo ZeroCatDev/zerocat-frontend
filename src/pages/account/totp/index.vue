@@ -81,10 +81,10 @@ export default {
         },
       ],
     };
-  },setup() {
+  },
+  setup() {
     useHead({
-      title: '验证器',
-
+      title: "验证器",
     });
   },
   methods: {

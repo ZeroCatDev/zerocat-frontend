@@ -1,8 +1,7 @@
 <template>
   <v-container>
     <v-card class="mx-auto" rel="noopener" target="_blank" border>
-      <template v-slot:title>
-        <span>您正在登录一个账户</span> </template
+      <template v-slot:title> <span>您正在登录一个账户</span> </template
       ><template v-slot:subtitle>
         <span
           >其他页面传来了一个登录请求，正常情况下它会被自动处理</span
@@ -32,7 +31,11 @@ export default {
       BASE_API: import.meta.env.VITE_APP_BASE_API,
     };
   },
-
+  setup() {
+    useHead({
+      title: "ZeroCat - 确认账户登录",
+    });
+  },
   async created() {
     if (this.$route.query.token) {
       try {
@@ -46,6 +49,9 @@ export default {
         this.user = error;
       }
     } else {
+      useHead({
+        title: "ZeroCat - 账户登录失败",
+      });
       console.log("无token");
     }
   },

@@ -46,9 +46,9 @@ export default {
       this.$router.push("/");
     }
   },
-  async created() {useHead({
-      title: '魔术链接登录',
-
+  async created() {
+    useHead({
+      title: "魔术链接登录",
     });
     if (this.$route.query.token) {
       try {

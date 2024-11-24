@@ -54,6 +54,7 @@ export default {
 
   data() {
     return {
+      localuser: localuser,
       projectlist: {
         status: "1",
         message: "加载中",
@@ -81,25 +82,11 @@ export default {
       title: "ZeroCat - 列表",
     });
   },
+
   async created() {
-    init({
-      el: "#waline",
-      serverURL: "https://zerocat-waline.190823.xyz",
-      path: "projectlist-" + this.$route.params.id,
-      copyright: false,
-      reaction: true,
-      pageview: true,
-      locale: {
-        reactionTitle: "这个列表怎么样？",
-      },
-      emoji: [
-        "//unpkg.com/@waline/emojis@1.1.0/weibo",
-        "//unpkg.com/@waline/emojis@1.1.0/bilibili",
-      ],
-      dark:
-        window.matchMedia &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches,
-    });
+    if (this.localuser.islogin == false) {
+      this.$router.push("/account/login");
+    }
   },
   methods: {
     async getprojectlist() {
@@ -113,9 +100,8 @@ export default {
         this.$router.push("/404");
       }
       useHead({
-      title: '' + this.projectlist.title,
-
-    });
+        title: "" + this.projectlist.title,
+      });
       console.log(this.projectlist);
     },
   },

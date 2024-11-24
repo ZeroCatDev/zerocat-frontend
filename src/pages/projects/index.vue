@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row
-      ><v-col cols="6" >
+      ><v-col cols="6">
         <v-text-field
           :label="'作品名 包含：' + search.title"
           v-model="search.title"
@@ -102,14 +102,13 @@
 
 <script>
 import Projects from "../../components/Projects.vue";
-import { useHead } from '@unhead/vue'
+import { useHead } from "@unhead/vue";
 
 export default {
   components: { Projects },
   setup() {
     useHead({
-      title: '项目',
-
+      title: "项目",
     });
   },
   data() {

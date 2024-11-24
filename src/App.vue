@@ -21,8 +21,7 @@ useHead({
   meta: [
     {
       name: "description",
-      content:
-        "ZeroCat是新一代开源编程社区！",
+      content: "ZeroCat是新一代开源编程社区！",
     },
     {
       name: "keywords",

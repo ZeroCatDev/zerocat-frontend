@@ -160,8 +160,7 @@ export default {
       this.$router.push("/");
     }
     useHead({
-      title: '魔术链接',
-
+      title: "魔术链接",
     });
   },
   setup() {

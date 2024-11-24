@@ -1,10 +1,10 @@
 <template>
   <v-container>
     <v-row
-      ><v-col xs="12" sm="12" md="8" lg="8" xl="8" xxl="8" cols="12" >
+      ><v-col xs="12" sm="12" md="8" lg="8" xl="8" xxl="8" cols="12">
         <ProjectRunner :type="project.type" :id="project.id" />
       </v-col>
-      <v-col xs="12" sm="12" md="4" lg="4" xl="4" xxl="8" cols="12"  >
+      <v-col xs="12" sm="12" md="4" lg="4" xl="4" xxl="8" cols="12">
         <v-card hover border
           ><v-card-item>
             <v-card-title>{{ project.title }}</v-card-title>
@@ -25,9 +25,9 @@
             <v-chip pill prepend-icon="mdi-eye"
               >{{ project.view_count }}浏览</v-chip
             >
-            <v-chip pill prepend-icon="mdi-clock"
-              ><TimeAgo :date="project.time"
-            /></v-chip>
+            <v-chip pill prepend-icon="mdi-clock">
+              <TimeAgo :date="project.time" />
+            </v-chip>
           </div>
           <div class="px-4 d-flex ga-2 mb-2">
             <v-chip pill prepend-icon="mdi-xml" v-if="project.state == 'public'"
@@ -88,8 +88,10 @@
           <br />
         </v-card>
         <br />
-        <v-card hover border><AddTolist></AddTolist></v-card> </v-col
-      ><v-col xxl="8" xl="8" lg="8" md="8"  sm="12" xs="12" cols="12">
+        <v-card hover border>
+          <AddTolist></AddTolist>
+        </v-card> </v-col
+      ><v-col xxl="8" xl="8" lg="8" md="8" sm="12" xs="12" cols="12">
         <Comment :url="'project-' + $route.params.id" name="项目"></Comment>
       </v-col>
     </v-row>
@@ -106,7 +108,6 @@ import AddTolist from "../../../components/AddTolist.vue";
 import Comment from "../../../components/Comment.vue";
 import TimeAgo from "@/components/TimeAgo.vue";
 import { useHead } from "@unhead/vue";
-
 
 export default {
   components: { ProjectRunner, TimeAgo, Comment, AddTolist },
@@ -139,8 +140,7 @@ export default {
   },
   setup() {
     useHead({
-      title: '项目',
-
+      title: "项目",
     });
   },
   async created() {
@@ -154,9 +154,8 @@ export default {
         method: "get",
       });
       useHead({
-      title: '' + this.project.title,
-
-    });
+        title: "" + this.project.title,
+      });
       console.log(this.project);
     },
   },

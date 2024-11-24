@@ -59,11 +59,13 @@ export default {
   },
   setup() {
     useHead({
-      title: '推送',
-
+      title: "推送",
     });
   },
   async created() {
+    if (this.localuser.islogin == false) {
+      this.$router.push("/account/login");
+    }
     await this.getproject();
     if (
       !this.localuser.user &&
@@ -86,9 +88,8 @@ export default {
         method: "get",
       });
       useHead({
-      title: '分叉'+this.project.title,
-
-    });
+        title: "分叉" + this.project.title,
+      });
       console.log(this.project);
     },
     async pushproject(id) {
