@@ -128,12 +128,12 @@ import {
   getResponse,
   resetCaptcha,
 } from "../../stores/useRecaptcha";
-import { useMeta } from 'vue-meta';
+import { useHead } from '@unhead/vue'
 
 export default {
   components: { LoadingDialog },
   setup() {
-    useMeta({
+    useHead({
       title: 'ZeroCat - Login',
       meta: [
         { name: 'description', content: 'Login to your ZeroCat account.' },

@@ -113,11 +113,11 @@
 
 <script>
 import { liteClient as algoliasearch } from "algoliasearch/lite";
-import { useMeta } from 'vue-meta';
+import { useHead } from '@unhead/vue'
 
 export default {
   setup() {
-    useMeta({
+    useHead({
       title: 'ZeroCat - Algolia Search',
       meta: [
         { name: 'description', content: 'Search projects using Algolia on ZeroCat.' },

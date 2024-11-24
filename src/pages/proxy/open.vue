@@ -52,11 +52,11 @@
 </template>
 
 <script>
-import { useMeta } from 'vue-meta';
+import { useHead } from '@unhead/vue'
 
 export default {
   setup() {
-    useMeta({
+    useHead({
       title: 'ZeroCat - Open Scratch Content',
       meta: [
         { name: 'description', content: 'Open and explore Scratch content through ZeroCat Proxy.' },

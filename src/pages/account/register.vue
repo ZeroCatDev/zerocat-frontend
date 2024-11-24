@@ -229,12 +229,12 @@ import {
   getResponse,
   resetCaptcha,
 } from "../../stores/useRecaptcha";
-import { useMeta } from 'vue-meta';
+import { useHead } from '@unhead/vue'
 
 export default {
   components: { LoadingDialog },
   setup() {
-    useMeta({
+    useHead({
       title: 'ZeroCat - Register',
       meta: [
         { name: 'description', content: 'Create a new ZeroCat account.' },

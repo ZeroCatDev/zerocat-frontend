@@ -61,11 +61,11 @@
 
 <script>
 import request from "../../axios/axios";
-import { useMeta } from 'vue-meta';
+import { useHead } from '@unhead/vue'
 
 export default {
   setup() {
-    useMeta({
+    useHead({
       title: 'ZeroCat - Proxy',
       meta: [
         { name: 'description', content: 'Explore and access Scratch content through ZeroCat Proxy.' },

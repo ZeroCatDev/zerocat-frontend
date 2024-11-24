@@ -233,12 +233,12 @@ import request from "../axios/axios";
 import $vuetify from "@/plugins/vuetify";
 import { localuser } from "../stores/user";
 import Typewriter from "../components/Typewriter.vue";
-import { useMeta } from 'vue-meta';
+import { useHead } from '@unhead/vue'
 
 export default {
   components: { Typewriter },
   setup() {
-    useMeta({
+    useHead({
       title: 'ZeroCat - Home',
       meta: [
         { name: 'description', content: 'ZeroCat is a new generation open-source programming community.' },

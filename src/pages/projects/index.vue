@@ -102,12 +102,12 @@
 
 <script>
 import Projects from "../../components/Projects.vue";
-import { useMeta } from 'vue-meta';
+import { useHead } from '@unhead/vue'
 
 export default {
   components: { Projects },
   setup() {
-    useMeta({
+    useHead({
       title: 'ZeroCat - Projects',
       meta: [
         { name: 'description', content: 'Browse and explore various projects on ZeroCat.' },

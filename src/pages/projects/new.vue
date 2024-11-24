@@ -1,4 +1,4 @@
-<template>  
+<template>
   <v-container>
     <v-card hover border title="新建作品">
       <v-card-text>
@@ -56,11 +56,11 @@
 <script>
 import openEdit from "../../stores/openEdit";
 import request from "@/axios/axios";
-import { useMeta } from 'vue-meta';
+import { useHead } from '@unhead/vue'
 
 export default {
   setup() {
-    useMeta({
+    useHead({
       title: 'ZeroCat - New Project',
       meta: [
         { name: 'description', content: 'Create a new project on ZeroCat.' },
