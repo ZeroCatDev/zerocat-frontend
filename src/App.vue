@@ -22,7 +22,7 @@ useHead({
     {
       name: "description",
       content:
-        "ZeroCat是新一代开源编程社区！坚信每一行代码都可以改变世界，我们致力于提供优质的开源编程社区，让开源编程更加容易。",
+        "ZeroCat是新一代开源编程社区！",
     },
     {
       name: "keywords",
