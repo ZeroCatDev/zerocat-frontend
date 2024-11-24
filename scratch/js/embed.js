@@ -10758,7 +10758,7 @@ const AuthorInfo = _ref2 => {
     props = _objectWithoutProperties(_ref2, _excluded);
   return projectId ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("a", {
     className: _author_info_css__WEBPACK_IMPORTED_MODULE_5___default.a.link,
-    href: "".concat("https://zerocat.houlangs.com", "/scratch/play?id=").concat(projectId),
+    href: "".concat("https://zerocat-api.houlangs.com", "/scratch/play?id=").concat(projectId),
     target: "_blank",
     rel: "noreferrer"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(ActualAuthorInfo, props)) : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(ActualAuthorInfo, props);
@@ -40175,7 +40175,7 @@ const ProjectFetcherHOC = function ProjectFetcherHOC(WrappedComponent) {
   };
   ProjectFetcherComponent.defaultProps = {
     assetHost: "https://s4-1.wuyuan.1r.ink/material/asset",
-    projectHost: "https://zerocat.houlangs.com" + '/project'
+    projectHost: "https://zerocat-api.houlangs.com" + '/project'
   };
   const mapStateToProps = state => ({
     isCreatingNew: Object(_reducers_project_state__WEBPACK_IMPORTED_MODULE_6__["getIsCreatingNew"])(state.scratchGui.projectState.loadingState),
@@ -40704,12 +40704,12 @@ __webpack_require__.r(__webpack_exports__);
   if (creatingProject) {
     Object.assign(opts, {
       method: 'post',
-      url: "".concat("https://zerocat.houlangs.com", "/scratch/projects?&token=").concat(localStorage.getItem('token'))
+      url: "".concat("https://zerocat-api.houlangs.com", "/scratch/projects?&token=").concat(localStorage.getItem('token'))
     });
   } else {
     Object.assign(opts, {
       method: 'put',
-      url: "".concat("https://zerocat.houlangs.com", "/project/").concat(projectId, "/source?&token=").concat(localStorage.getItem('token'))
+      url: "".concat("https://zerocat-api.houlangs.com", "/project/").concat(projectId, "/source?&token=").concat(localStorage.getItem('token'))
     });
   }
   return new Promise((resolve, reject) => {
@@ -42815,7 +42815,7 @@ function _objectWithoutPropertiesLoose(r, e) { if (null == r) return {}; var t =
 
 
 const fetchProjectMeta = async projectId => {
-  const urls = ["".concat("https://zerocat.houlangs.com", "/scratch/projectinfo2?id=").concat(projectId, "&token=").concat(localStorage.getItem('token'))];
+  const urls = ["".concat("https://zerocat-api.houlangs.com", "/scratch/projectinfo2?id=").concat(projectId, "&token=").concat(localStorage.getItem('token'))];
   let firstError;
   for (const url of urls) {
     try {
@@ -42871,7 +42871,7 @@ const TWProjectMetaFetcherHOC = function TWProjectMetaFetcherHOC(WrappedComponen
               this.props.onSetProjectTitle(title);
             }
             const authorName = data.author.username;
-            const authorThumbnail = "".concat("https://zerocat.houlangs.com", "/api/usertx?id=").concat(data.author.id);
+            const authorThumbnail = "".concat("https://zerocat-api.houlangs.com", "/api/usertx?id=").concat(data.author.id);
             this.props.onSetAuthor(authorName, authorThumbnail);
             const instructions = data.instructions || '';
             const credits = data.description || '';
