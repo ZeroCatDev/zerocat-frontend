@@ -239,11 +239,7 @@ export default {
   components: { Typewriter },
   setup() {
     useHead({
-      title: 'ZeroCat - Home',
-      meta: [
-        { name: 'description', content: 'ZeroCat is a new generation open-source programming community.' },
-        { name: 'keywords', content: 'ZeroCat, open-source, programming, community' }
-      ]
+
     });
   },
   data() {

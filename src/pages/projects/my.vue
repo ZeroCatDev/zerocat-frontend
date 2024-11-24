@@ -233,6 +233,7 @@ import openEditor from "../../stores/openEdit";
 import request from "../../axios/axios";
 import Projects from "../../components/Projects.vue";
 import { localuser } from "@/stores/user";
+import { useHead } from "@unhead/vue";
 export default {
   components: { Projects },
 
@@ -286,6 +287,11 @@ export default {
         selected: [],
       },
     };
+  },setup() {
+    useHead({
+      title: '我的作品',
+
+    });
   },
   methods: {
     removetag(item) {

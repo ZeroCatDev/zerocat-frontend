@@ -118,11 +118,7 @@ import { useHead } from '@unhead/vue'
 export default {
   setup() {
     useHead({
-      title: 'ZeroCat - Algolia Search',
-      meta: [
-        { name: 'description', content: 'Search projects using Algolia on ZeroCat.' },
-        { name: 'keywords', content: 'ZeroCat, Algolia, search, projects' }
-      ]
+      title: 'Algolia Search',
     });
   },
   data() {

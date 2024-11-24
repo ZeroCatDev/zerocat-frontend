@@ -92,6 +92,7 @@ import openEditor from "../../../stores/openEdit";
 
 import request from "../../../axios/axios";
 import { localuser } from "@/stores/user";
+import { useHead } from "@unhead/vue";
 export default {
   data() {
     return {
@@ -120,13 +121,22 @@ export default {
   async created() {
     await this.getproject();
   },
+  setup() {
+    useHead({
+      title: '分叉',
 
+    });
+  },
   methods: {
     async getproject() {
       this.project = await request({
         url: "/project/" + this.$route.params.id,
         method: "get",
       });
+      useHead({
+      title: '分叉'+this.project.title,
+
+    });
       console.log(this.project);
     },
     async forkproject(id) {

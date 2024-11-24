@@ -48,6 +48,7 @@
 <script>
 import request from "../../../axios/axios";
 import { localuser } from "@/stores/user";
+import { useHead } from "@unhead/vue";
 export default {
   data() {
     return {
@@ -56,7 +57,12 @@ export default {
       checkprotect: true,
     };
   },
+  setup() {
+    useHead({
+      title: '推送',
 
+    });
+  },
   async created() {
     await this.getproject();
     if (
@@ -79,6 +85,10 @@ export default {
         url: "/project/" + this.$route.params.id,
         method: "get",
       });
+      useHead({
+      title: '分叉'+this.project.title,
+
+    });
       console.log(this.project);
     },
     async pushproject(id) {

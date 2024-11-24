@@ -235,11 +235,7 @@ export default {
   components: { LoadingDialog },
   setup() {
     useHead({
-      title: 'ZeroCat - Register',
-      meta: [
-        { name: 'description', content: 'Create a new ZeroCat account.' },
-        { name: 'keywords', content: 'ZeroCat, register, account' }
-      ]
+      title: '注册',
     });
   },
   data() {

@@ -21,6 +21,7 @@
 <script>
 import { jwtDecode } from "jwt-decode";
 import { localuser } from "@/stores/user";
+import { useHead } from "@unhead/vue";
 
 import request from "../../axios/axios";
 export default {

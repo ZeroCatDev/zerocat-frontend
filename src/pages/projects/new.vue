@@ -61,11 +61,7 @@ import { useHead } from '@unhead/vue'
 export default {
   setup() {
     useHead({
-      title: 'ZeroCat - New Project',
-      meta: [
-        { name: 'description', content: 'Create a new project on ZeroCat.' },
-        { name: 'keywords', content: 'ZeroCat, new project, create' }
-      ]
+      title: '新建作品',
     });
   },
   data() {

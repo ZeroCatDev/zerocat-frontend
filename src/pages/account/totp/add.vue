@@ -63,7 +63,7 @@
 <script>
 import QRCode from "qrcode";
 import request from "@/axios/axios";
-
+import { useHead } from "@unhead/vue";
 export default {
   name: "TotpGenerator",
   data() {
@@ -75,6 +75,11 @@ export default {
       qrCodeUrl: "",
       errorMessage: "",
     };
+  },setup() {
+    useHead({
+      title: '创建验证器',
+
+    });
   },
   methods: {
     // 请求 TOTP 生成 URL

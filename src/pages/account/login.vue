@@ -134,11 +134,7 @@ export default {
   components: { LoadingDialog },
   setup() {
     useHead({
-      title: 'ZeroCat - Login',
-      meta: [
-        { name: 'description', content: 'Login to your ZeroCat account.' },
-        { name: 'keywords', content: 'ZeroCat, login, account' }
-      ]
+      title: '登录',
     });
   },
   data() {

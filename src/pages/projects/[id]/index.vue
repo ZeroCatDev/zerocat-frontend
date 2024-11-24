@@ -105,6 +105,9 @@ import { localuser } from "@/stores/user";
 import AddTolist from "../../../components/AddTolist.vue";
 import Comment from "../../../components/Comment.vue";
 import TimeAgo from "@/components/TimeAgo.vue";
+import { useHead } from "@unhead/vue";
+
+
 export default {
   components: { ProjectRunner, TimeAgo, Comment, AddTolist },
   data() {
@@ -134,7 +137,12 @@ export default {
       localuser: localuser,
     };
   },
+  setup() {
+    useHead({
+      title: '项目',
 
+    });
+  },
   async created() {
     await this.getproject();
     //init({ el: "#waline", serverURL: "https://zerocat-waline.190823.xyz", path: "scratchproject-" + this.$route.params.id, copyright: false, reaction: true, pageview: true, locale: { reactionTitle: "这个作品怎么样？", }, emoji: [ "//unpkg.com/@waline/emojis@1.1.0/weibo", "//unpkg.com/@waline/emojis@1.1.0/bilibili", ], dark: window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches, });
@@ -145,6 +153,10 @@ export default {
         url: "/project/" + this.$route.params.id,
         method: "get",
       });
+      useHead({
+      title: '' + this.project.title,
+
+    });
       console.log(this.project);
     },
   },

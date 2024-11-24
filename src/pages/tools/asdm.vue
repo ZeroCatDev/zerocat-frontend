@@ -209,11 +209,7 @@ import { useHead } from '@unhead/vue'
 export default {
   setup() {
     useHead({
-      title: 'ZeroCat - ASDM',
-      meta: [
-        { name: 'description', content: 'Download and explore Auto Scratch-Desktop Mirror (ASDM) on ZeroCat.' },
-        { name: 'keywords', content: 'ZeroCat, ASDM, Auto Scratch-Desktop Mirror, download, explore' }
-      ]
+      title: 'Scratch桌面版镜像',
     });
   },
   data() {

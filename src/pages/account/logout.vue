@@ -12,6 +12,7 @@
 
 <script>
 import { localuser } from "@/stores/user";
+import { useHead } from "@unhead/vue";
 
 export default {
   data() {
@@ -20,7 +21,12 @@ export default {
       logs: "",
     };
   },
+  setup() {
+    useHead({
+      title: '退出',
 
+    });
+  },
   async created() {
     this.log("正在退出账户");
 

@@ -32,6 +32,7 @@ import { jwtDecode } from "jwt-decode";
 import { localuser } from "@/stores/user";
 
 import request from "../../../axios/axios";
+import { useHead } from "@unhead/vue";
 export default {
   data() {
     return {
@@ -45,7 +46,10 @@ export default {
       this.$router.push("/");
     }
   },
-  async created() {
+  async created() {useHead({
+      title: '魔术链接登录',
+
+    });
     if (this.$route.query.token) {
       try {
         await request({

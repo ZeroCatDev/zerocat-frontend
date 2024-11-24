@@ -92,7 +92,7 @@ import Comment from "../../components/Comment.vue";
 
 import request from "../../axios/axios";
 import Projects from "../../components/Projects.vue";
-
+import { useHead } from "@unhead/vue";
 export default {
   components: { Projects, Comment },
 
@@ -123,10 +123,16 @@ export default {
       lists: [],
     };
   },
+  setup() {
+    useHead({
+      title: '用户',
 
+    });
+  },
   async created() {
     await this.getuserinfo();
     await this.getProjectList();
+
   },
   methods: {
     async getuserinfo() {
@@ -141,6 +147,10 @@ export default {
         this.$refs.Projects.onPageChange(1);
 
         this.UserCardLoading = false;
+        useHead({
+      title: '' + this.userinfo.info.user.display_name,
+
+    });
         console.log(this.userinfo);
       }
     },

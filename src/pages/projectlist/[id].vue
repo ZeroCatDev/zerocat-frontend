@@ -31,9 +31,10 @@
 
       <v-card-text class="bg-surface-light pt-4">
         {{ projectlist.description }}
-      </v-card-text> </v-card
-    >
-<br/>      <ProjectsCards :projects="projectlist.data"></ProjectsCards><br/>
+      </v-card-text>
+    </v-card>
+    <br />
+    <ProjectsCards :projects="projectlist.data"></ProjectsCards><br />
 
     <Comment
       :url="'projectlist-' + this.$route.params.id"
@@ -47,7 +48,7 @@ import Comment from "../../components/Comment.vue";
 import request from "../../axios/axios";
 import { localuser } from "@/stores/user";
 import ProjectsCards from "../../components/ProjectsCards.vue";
-
+import { useHead } from "@unhead/vue";
 export default {
   components: { ProjectsCards, Comment },
 
@@ -75,7 +76,11 @@ export default {
       Loading: true,
     };
   },
-
+  setup() {
+    useHead({
+      title: "ZeroCat - 列表",
+    });
+  },
   async created() {
     init({
       el: "#waline",
@@ -107,6 +112,10 @@ export default {
       } else {
         this.$router.push("/404");
       }
+      useHead({
+      title: '' + this.projectlist.title,
+
+    });
       console.log(this.projectlist);
     },
   },

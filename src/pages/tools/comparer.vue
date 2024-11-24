@@ -121,6 +121,11 @@
 
 <script setup>
 import { ref } from "vue";
+import { useHead } from "@unhead/vue";
+    useHead({
+      title: '比较器',
+
+    });
 
 var blob1;
 var blob2;

@@ -15,6 +15,22 @@
 
 <script setup>
 import Toast from "primevue/toast";
+import { useHead } from "@unhead/vue";
+useHead({
+  titleTemplate: (title) => (!title ? "ZeroCat社区" : `${title} - ZeroCat社区`),
+  meta: [
+    {
+      name: "description",
+      content:
+        "ZeroCat是新一代开源编程社区！坚信每一行代码都可以改变世界，我们致力于提供优质的开源编程社区，让开源编程更加容易。",
+    },
+    {
+      name: "keywords",
+      content:
+        "scratch编程,scratch社区,python编程,python社区,在线编程,编程社区,开源,自托管,开源编程社区,代码,阿尔法营,有道小图灵,别针社区,clipcc,蝾螈池,zerocat",
+    },
+  ],
+});
 </script>
 
 <style scoped>

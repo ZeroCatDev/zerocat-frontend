@@ -57,7 +57,7 @@
 
 <script>
 import request from "@/axios/axios";
-
+import { useHead } from "@unhead/vue";
 export default {
   data() {
     return {
@@ -81,6 +81,11 @@ export default {
         },
       ],
     };
+  },setup() {
+    useHead({
+      title: '验证器',
+
+    });
   },
   methods: {
     // 获取TOTP列表

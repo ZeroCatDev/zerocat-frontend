@@ -240,7 +240,7 @@ import request from "../../axios/axios";
 import { localuser } from "@/stores/user";
 import "https://static.geetest.com/v4/gt4.js";
 import Compressor from "compressorjs";
-
+import { useHead } from "@unhead/vue";
 import {
   initRecaptcha,
   getResponse,
@@ -325,7 +325,10 @@ export default {
     };
   },
   setup() {
-    //initRecaptcha('recaptcha-div1');
+    useHead({
+      title: '账户',
+
+    });
   },
   async created() {
     if (this.localuser.islogin == false) {

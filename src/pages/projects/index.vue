@@ -108,11 +108,8 @@ export default {
   components: { Projects },
   setup() {
     useHead({
-      title: 'ZeroCat - Projects',
-      meta: [
-        { name: 'description', content: 'Browse and explore various projects on ZeroCat.' },
-        { name: 'keywords', content: 'ZeroCat, projects, browse, explore' }
-      ]
+      title: '项目',
+
     });
   },
   data() {

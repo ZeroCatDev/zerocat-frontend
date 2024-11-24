@@ -57,11 +57,7 @@ import { useHead } from '@unhead/vue'
 export default {
   setup() {
     useHead({
-      title: 'ZeroCat - Open Scratch Content',
-      meta: [
-        { name: 'description', content: 'Open and explore Scratch content through ZeroCat Proxy.' },
-        { name: 'keywords', content: 'ZeroCat, Scratch, proxy, open, explore' }
-      ]
+      title: 'Open Scratch Content',
     });
   },
   data() {
