@@ -254,7 +254,7 @@ export default {
       getResponse,
       resetCaptcha,
       userCardLoading: false,
-      localuserInfo: localuser.user,
+      localuser: localuser,
       userInfo: {},
       tab: null,
       select: { state: "未知", abbr: "3" },
@@ -328,7 +328,11 @@ export default {
     //initRecaptcha('recaptcha-div1');
   },
   async created() {
-    await this.getuserInfo();
+    if (this.localuser.islogin == false) {
+      this.$router.push("/account/login");
+    } else {
+      await this.getuserInfo();
+    }
   },
   methods: {
     // 事件处理函数
@@ -426,7 +430,7 @@ export default {
 
     async getuserInfo() {
       this.userInfo = await request({
-        url: "/api/getuserInfo?id=" + this.localuserInfo.userid,
+        url: "/api/getuserInfo?id=" + this.localuser.user.userid,
         method: "get",
       });
       this.userInfo = this.userInfo.info.user;
