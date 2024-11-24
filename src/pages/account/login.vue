@@ -128,9 +128,19 @@ import {
   getResponse,
   resetCaptcha,
 } from "../../stores/useRecaptcha";
+import { useMeta } from 'vue-meta';
 
 export default {
   components: { LoadingDialog },
+  setup() {
+    useMeta({
+      title: 'ZeroCat - Login',
+      meta: [
+        { name: 'description', content: 'Login to your ZeroCat account.' },
+        { name: 'keywords', content: 'ZeroCat, login, account' }
+      ]
+    });
+  },
   data() {
     return {
       BASE_API: import.meta.env.VITE_APP_BASE_API,

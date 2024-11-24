@@ -113,9 +113,18 @@
 
 <script>
 import { liteClient as algoliasearch } from "algoliasearch/lite";
-//import "instantsearch.css/themes/reset.css";
+import { useMeta } from 'vue-meta';
 
 export default {
+  setup() {
+    useMeta({
+      title: 'ZeroCat - Algolia Search',
+      meta: [
+        { name: 'description', content: 'Search projects using Algolia on ZeroCat.' },
+        { name: 'keywords', content: 'ZeroCat, Algolia, search, projects' }
+      ]
+    });
+  },
   data() {
     return {
       algolia_index_name: import.meta.env.VITE_APP_ALGOLIA_INDEX_NAME,

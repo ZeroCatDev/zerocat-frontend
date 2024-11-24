@@ -102,10 +102,19 @@
 
 <script>
 import Projects from "../../components/Projects.vue";
+import { useMeta } from 'vue-meta';
 
 export default {
   components: { Projects },
-
+  setup() {
+    useMeta({
+      title: 'ZeroCat - Projects',
+      meta: [
+        { name: 'description', content: 'Browse and explore various projects on ZeroCat.' },
+        { name: 'keywords', content: 'ZeroCat, projects, browse, explore' }
+      ]
+    });
+  },
   data() {
     return {
       searchstates: [{ state: "所有", abbr: "public" }],

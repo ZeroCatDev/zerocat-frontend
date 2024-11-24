@@ -9,8 +9,8 @@ import { registerPlugins } from "@/plugins";
 import ToastService from "primevue/toastservice";
 import PrimeVue from "primevue/config";
 import Aura from "@primevue/themes/aura";
-
 import InstantSearch from "vue-instantsearch/vue3/es";
+import { createMetaManager } from 'vue-meta'; // Pf95b
 
 // Components
 import App from "./App.vue";
@@ -25,8 +25,10 @@ app.use(PrimeVue, {
   },
 });
 app.use(ToastService);
-
 app.use(InstantSearch);
+
+const metaManager = createMetaManager(); // Pde41
+app.use(metaManager); // Pde41
 
 // 使用 Vercel Speed Insights 观测网站性能
 import { injectSpeedInsights } from "@vercel/speed-insights";
@@ -37,4 +39,3 @@ inject();
 
 registerPlugins(app);
 app.mount("#app");
-

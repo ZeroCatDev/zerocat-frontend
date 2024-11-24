@@ -1,9 +1,11 @@
-<template>  <v-container><v-card hover border title="新建作品">
-  <v-card-text>
-作品是你存储代码的地方，你可以选择你喜欢的类型以从模板创建，作品信息可以随时修改。
-  </v-card-text>
-
-</v-card><br/>
+<template>  
+  <v-container>
+    <v-card hover border title="新建作品">
+      <v-card-text>
+        作品是你存储代码的地方，你可以选择你喜欢的类型以从模板创建，作品信息可以随时修改。
+      </v-card-text>
+    </v-card>
+    <br/>
     <v-card hover border>
       <v-card-text>
         <v-row dense>
@@ -38,9 +40,8 @@
 
         <v-spacer></v-spacer>
 
-
         <v-btn
-        border
+          border
           color="primary"
           text="创建"
           variant="tonal"
@@ -48,13 +49,25 @@
           :disabled="created"
         ></v-btn>
       </v-card-actions>
-    </v-card></v-container>
+    </v-card>
+  </v-container>
 </template>
 
 <script>
 import openEdit from "../../stores/openEdit";
 import request from "@/axios/axios";
+import { useMeta } from 'vue-meta';
+
 export default {
+  setup() {
+    useMeta({
+      title: 'ZeroCat - New Project',
+      meta: [
+        { name: 'description', content: 'Create a new project on ZeroCat.' },
+        { name: 'keywords', content: 'ZeroCat, new project, create' }
+      ]
+    });
+  },
   data() {
     return {
       projectinfo: {
@@ -67,7 +80,6 @@ export default {
     };
   },
   methods: {
-
     async newProject() {
       await request.post("/project/", this.projectinfo).then((res) => {
         console.log(res);
