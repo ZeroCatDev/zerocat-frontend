@@ -229,9 +229,19 @@ import {
   getResponse,
   resetCaptcha,
 } from "../../stores/useRecaptcha";
+import { useMeta } from 'vue-meta';
 
 export default {
   components: { LoadingDialog },
+  setup() {
+    useMeta({
+      title: 'ZeroCat - Register',
+      meta: [
+        { name: 'description', content: 'Create a new ZeroCat account.' },
+        { name: 'keywords', content: 'ZeroCat, register, account' }
+      ]
+    });
+  },
   data() {
     return {
       BASE_API: import.meta.env.VITE_APP_BASE_API,

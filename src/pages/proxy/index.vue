@@ -61,8 +61,18 @@
 
 <script>
 import request from "../../axios/axios";
+import { useMeta } from 'vue-meta';
 
 export default {
+  setup() {
+    useMeta({
+      title: 'ZeroCat - Proxy',
+      meta: [
+        { name: 'description', content: 'Explore and access Scratch content through ZeroCat Proxy.' },
+        { name: 'keywords', content: 'ZeroCat, Scratch, proxy, explore, access' }
+      ]
+    });
+  },
   data() {
     return {
       orderitems: [

@@ -52,7 +52,18 @@
 </template>
 
 <script>
+import { useMeta } from 'vue-meta';
+
 export default {
+  setup() {
+    useMeta({
+      title: 'ZeroCat - Open Scratch Content',
+      meta: [
+        { name: 'description', content: 'Open and explore Scratch content through ZeroCat Proxy.' },
+        { name: 'keywords', content: 'ZeroCat, Scratch, proxy, open, explore' }
+      ]
+    });
+  },
   data() {
     return {
       scratchprojectid: "",

@@ -204,8 +204,18 @@
 <!-- ZeroCatNext中request会直接返回body的内容，所以代码不通用 -->
 <script>
 import request from "../../axios/axios";
+import { useMeta } from 'vue-meta';
 
 export default {
+  setup() {
+    useMeta({
+      title: 'ZeroCat - ASDM',
+      meta: [
+        { name: 'description', content: 'Download and explore Auto Scratch-Desktop Mirror (ASDM) on ZeroCat.' },
+        { name: 'keywords', content: 'ZeroCat, ASDM, Auto Scratch-Desktop Mirror, download, explore' }
+      ]
+    });
+  },
   data() {
     return {
       release: {
