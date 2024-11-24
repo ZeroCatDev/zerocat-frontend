@@ -164,7 +164,7 @@ export default {
     });
   },
   setup() {
-    initRecaptcha("recaptcha-div", "float");
+    initRecaptcha("recaptcha-div", "popup");
   },
   methods: {
     async login() {

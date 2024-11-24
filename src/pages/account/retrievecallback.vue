@@ -164,7 +164,7 @@ export default {
     if (localuser.islogin.value == true) {
       this.$router.push("/");
     }
-    initRecaptcha("recaptcha-div", "float");
+    initRecaptcha("recaptcha-div", "popup");
   },
   setup() {
     useHead({
