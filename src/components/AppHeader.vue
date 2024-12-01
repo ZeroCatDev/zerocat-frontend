@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar :elevation="2"  border >
+  <v-app-bar :elevation="2" border>
     <template v-slot:prepend>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
     </template>
@@ -24,8 +24,7 @@
       </v-menu>
     </template>
   </v-app-bar>
-  <v-navigation-drawer v-model="drawer"
-  >
+  <v-navigation-drawer v-model="drawer">
     <v-list>
       <v-list-item
         v-if="isLogin == true"
@@ -47,28 +46,25 @@
     <v-divider></v-divider>
 
     <v-list v-for="lists in items" :key="lists">
-      <v-list-subheader>{{ lists.title }}</v-list-subheader>
-
-      <v-list-item
-        v-for="item in lists.list"
-        :key="item.title"
-        :prepend-icon="item.icon"
-        :title="item.title"
-        :value="item.link"
-        :to="item.link"
-        rounded="xl"
-      ></v-list-item>
+      <div v-if="lists.login == false || lists.login == localuser.islogin">
+        <v-list-subheader>{{ lists.title }}</v-list-subheader>
+        <v-list-item
+          v-for="item in lists.list"
+          :key="item.title"
+          :prepend-icon="item.icon"
+          :title="item.title"
+          :value="item.link"
+          :to="item.link"
+          rounded="xl"
+        ></v-list-item>
+      </div>
     </v-list>
   </v-navigation-drawer>
-  <NewProjectDialog ref="NewProjectDialog" />
 </template>
 
 <script>
-import NewProjectDialog from "@/components/NewProjectDialog.vue";
-import Algolia from "@/pages/algolia.vue";
 import { localuser } from "@/stores/user";
 export default {
-  components: { NewProjectDialog },
   data: () => ({
     localuser: localuser,
     userInfo: localuser.user,
@@ -81,6 +77,7 @@ export default {
     items: {
       main: {
         title: "导航",
+        login: false,
         list: [
           { title: "首页", link: "/", icon: "mdi-home" },
           { title: "项目", link: "/projects", icon: "mdi-xml" },
@@ -90,6 +87,7 @@ export default {
       },
       mirror: {
         title: "镜像",
+        login: true,
         list: [
           { title: "首页", link: "/proxy/", icon: "mdi-home" },
           { title: "探索", link: "/proxy/explore", icon: "mdi-earth" },
@@ -98,6 +96,7 @@ export default {
         ],
       },
       account: {
+        login: true,
         title: "账户",
         list: [
           { title: "账户设置", link: "/account", icon: "mdi-cog" },
@@ -107,6 +106,8 @@ export default {
         ],
       },
       tools: {
+        login: false,
+
         title: "工具",
         list: [
           { title: "桌面版镜像", link: "/tools/asdm", icon: "mdi-download" },
@@ -131,7 +132,6 @@ export default {
   },
   methods: {
     tryLogout() {
-      console.log(111);
       if (this.clickLogout == 1) {
         this.$router.push("/account/logout");
         this.clickLogout = 0;
