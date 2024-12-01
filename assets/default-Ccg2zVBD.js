@@ -1,1 +1,0 @@
-import{o,c as r,w as e,V as n,r as s,a as t,b as _}from"./index-B4S81A1B.js";const f={__name:"default",setup(c){return(l,u)=>{const a=s("router-view");return o(),r(n,null,{default:e(()=>[t(_,null,{default:e(()=>[t(a)]),_:1})]),_:1})}}};export{f as default};
