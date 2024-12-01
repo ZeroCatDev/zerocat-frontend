@@ -96,7 +96,29 @@ import { useHead } from "@unhead/vue";
 export default {
   data() {
     return {
-      project: {},
+      project: {
+        id: 0,
+        type: "scratch",
+        licence: "加载中",
+        authorid: 89,
+        state: "public",
+        view_count: 119,
+        time: "2000-01-01T00:00:00.000Z",
+        title: "加载中",
+        description: "加载中",
+        tags: "",
+        source:
+          "",
+        author: {
+          id: 89,
+          username: "加载中",
+          display_name: "加载中",
+          state: 0,
+          regTime: "2000-01-01T00:00:00.000Z",
+          motto: "加载中",
+          images: "加载中",
+        },
+      },
       openEditor: openEditor,
       localuser: localuser,
       checktext: "",
