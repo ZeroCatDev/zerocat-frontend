@@ -174,7 +174,7 @@
                     @click="select"
                     @click:close="removetag(item)"
                   >
-                    <strong>{{ item }}</strong
+                    <strong>{{ item.name }}</strong
                     >&nbsp;
                     <span>(interest)</span>
                   </v-chip>
@@ -325,7 +325,7 @@ export default {
       this.currentProjectID = id;
       this.currentProject = info;
       this.previousProject = { ...info };
-      this.aboutTags.chips = this.currentProject.tags.split(",");
+      this.aboutTags.chips = this.currentProject.tags.map(tag => tag.name);
       this.dialog = true;
     },
     openpushpage(id) {
@@ -378,7 +378,10 @@ export default {
         });
     },
     SaveProjectsInfo() {
-      this.currentProject.tags = this.aboutTags.chips.join(",");
+      this.currentProject.tags = this.aboutTags.chips.map(name => {
+        const tag = this.aboutTags.items.find(item => item.name === name);
+        return tag ? { name: tag.name, id: tag.id } : { name };
+      });
       request({
         url: "/project/" + this.currentProjectID,
         method: "put",

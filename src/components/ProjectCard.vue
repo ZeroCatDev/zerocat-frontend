@@ -72,7 +72,7 @@ export default {
       immediate: true,
       handler(newVal) {
         if (newVal.tags) {
-          this.tags = newVal.tags.split(",");
+          this.tags = newVal.tags.map(tag => tag.name);
         } else {
           this.tags = [];
         }
