@@ -20,11 +20,11 @@
         ></v-text-field
       ></v-col>
       <v-col cols="6">
-        <v-number-input
+        <v-text-field
           control-variant="用户ID"
           :label="'用户ID 为：' + search.authorid"
           v-model="search.authorid"
-        ></v-number-input
+        ></v-text-field
       ></v-col>
 
       <v-col cols="3"
@@ -113,6 +113,18 @@ export default {
   },
   data() {
     return {
+
+      search: {
+        title: "",
+        type: "",
+        description: "",
+        source: "",
+        order: "view_up",
+        authorid: "",
+        type: "scratch",
+        state: "public",
+        tag: "",
+      },
       searchstates: [{ state: "所有", abbr: "public" }],
       typeitems: [
         { name: "所有", type: "" },
@@ -127,17 +139,6 @@ export default {
         { name: "序号升序", type: "id_up" },
         { name: "序号降序", type: "id_down" },
       ],
-      search: {
-        title: "",
-        type: "",
-        description: "",
-        source: "",
-        order: "view_up",
-        authorid: "",
-        type: "scratch",
-        state: "public",
-        tag: "",
-      },
     };
   },
   methods: {

@@ -20,12 +20,12 @@
         ></v-text-field
       ></v-col>
       <v-col cols="6">
-        <v-number-input
+        <v-text-field
           control-variant="用户ID"
           :label="'用户ID 为：' + search.authorid"
           v-model="localuser.user.userid"
           disabled
-        ></v-number-input
+        ></v-text-field
       ></v-col>
 
       <v-col cols="3"
