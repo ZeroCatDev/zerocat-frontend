@@ -1,5 +1,4 @@
 <template>
-  {{ aboutTags }}
   <v-container>
     <v-row
       ><v-col cols="6">
