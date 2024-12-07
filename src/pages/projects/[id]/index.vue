@@ -45,8 +45,8 @@
             }}</v-chip>
           </div>
           <div class="px-4 d-flex ga-2 mb-2">
-            <div v-for="tag in project.tags.split(',')">
-              <v-chip>{{ tag }}</v-chip>
+            <div v-for="tag in project.tags">
+              <v-chip>{{ tag.name }}</v-chip>
             </div>
           </div>
           <div class="px-4 d-flex ga-2 mb-2">

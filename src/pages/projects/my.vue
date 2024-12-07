@@ -1,5 +1,5 @@
 <template>
-  {{ localuser }}
+  {{ aboutTags }}
   <v-container>
     <v-row
       ><v-col cols="6">
@@ -201,12 +201,6 @@
             @click="deleteProject"
           ></v-btn>
           <v-btn
-            color="primary"
-            text="保存(旧版)"
-            variant="tonal"
-            @click="SaveProjectsInfoOld"
-          ></v-btn>
-          <v-btn
             color="text"
             text="一键推送"
             variant="tonal"
@@ -284,7 +278,7 @@ export default {
       },
       aboutTags: {
         items: ["动画", "故事", "音乐", "硬核", "艺术", "水"],
-        chips: ref([]),
+        chips: ref({}),
         selected: [],
       },
     };
@@ -378,10 +372,7 @@ export default {
         });
     },
     SaveProjectsInfo() {
-      this.currentProject.tags = this.aboutTags.chips.map(name => {
-        const tag = this.aboutTags.items.find(item => item.name === name);
-        return tag ? { name: tag.name, id: tag.id } : { name };
-      });
+      this.currentProject.tags = this.aboutTags.chips.map(name => name);
       request({
         url: "/project/" + this.currentProjectID,
         method: "put",
@@ -398,118 +389,7 @@ export default {
           this.addtoast("修改失败");
         });
     },
-    SaveProjectsInfoOld() {
-      console.log(this.currentProject);
-      console.log(this.previousProject);
 
-      if (this.currentProject.title !== this.previousProject.title) {
-        console.log("修改作品标题为");
-        console.log(this.currentProject.title);
-
-        request({
-          url: "/project/saveProjcetTitle",
-          method: "post",
-          data: { id: this.currentProjectID, title: this.currentProject.title },
-        })
-          .then((res) => {
-            console.log(res);
-            this.addtoast("修改成功");
-            this.dialog = false;
-            this.onPageChange();
-          })
-          .catch((err) => {
-            console.log(err);
-            this.addtoast("修改失败");
-          });
-      }
-
-      if (
-        this.currentProject.description !== this.previousProject.description
-      ) {
-        console.log("修改作品简介为");
-        console.log(this.currentProject.description);
-
-        request({
-          url: "/project/setDescription",
-          method: "post",
-          data: {
-            id: this.currentProjectID,
-            description: this.currentProject.description,
-          },
-        })
-          .then((res) => {
-            console.log(res);
-            this.addtoast("修改成功");
-            this.dialog = false;
-            this.onPageChange();
-          })
-          .catch((err) => {
-            console.log(err);
-            this.addtoast("修改失败");
-          });
-      }
-      if (this.currentProject.type !== this.previousProject.type) {
-        console.log("修改作品简介为");
-        console.log(this.currentProject.type);
-
-        request({
-          url: "/project/setType",
-          method: "post",
-          data: { id: this.currentProjectID, type: this.currentProject.type },
-        })
-          .then((res) => {
-            console.log(res);
-            this.addtoast("修改成功");
-            this.dialog = false;
-            this.onPageChange();
-          })
-          .catch((err) => {
-            console.log(err);
-            this.addtoast("修改失败");
-          });
-      }
-
-      if (this.currentProject.state !== this.previousProject.state) {
-        if (this.currentProject.state == "public") {
-          console.log("修改作品状态为公开");
-
-          request({
-            url: "/project/share",
-            method: "post",
-            data: { id: this.currentProjectID },
-          })
-            .then((res) => {
-              console.log(res);
-              this.addtoast("修改成功");
-              this.dialog = false;
-              this.onPageChange();
-            })
-            .catch((err) => {
-              console.log(err);
-              this.addtoast("修改失败");
-            });
-        }
-        if (this.currentProject.state == "private") {
-          console.log("修改作品状态为私密");
-
-          request({
-            url: "/project/noshare",
-            method: "post",
-            data: { id: this.currentProjectID },
-          })
-            .then((res) => {
-              console.log(res);
-              this.addtoast("修改成功");
-              this.dialog = false;
-              this.onPageChange();
-            })
-            .catch((err) => {
-              console.log(err);
-              this.addtoast("修改失败");
-            });
-        }
-      }
-    },
   },
 };
 </script>
