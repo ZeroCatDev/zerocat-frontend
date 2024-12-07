@@ -14,9 +14,9 @@
           <v-list-item to="/" prepend-icon="mdi-home" title="首页" rounded="xl">
           </v-list-item>
           <v-list-item
-            href="https://zerocat.houlangs.com"
+            :href="BASE_API"
             prepend-icon="mdi-web"
-            title="原站点"
+            title="本站后端"
             rounded="xl"
           >
           </v-list-item>
@@ -66,6 +66,7 @@
 import { localuser } from "@/stores/user";
 export default {
   data: () => ({
+    BASE_API:import.meta.env.VITE_APP_BASE_API,
     localuser: localuser,
     userInfo: localuser.user,
     drawer: true,
