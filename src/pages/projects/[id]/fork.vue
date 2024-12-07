@@ -4,7 +4,7 @@
       <h1 class="text-h4">Fork <span v-text="project.title"></span></h1>
     </div>
     <br />
-    <v-card>
+    <v-card hover border>
       <template v-slot:title>
         {{ project.title }}
       </template>
@@ -19,7 +19,7 @@
         {{ project.description }}
       </template> </v-card
     ><br />
-    <v-card>
+    <v-card hover border>
       <template v-slot:title> 你正在分叉一个项目 </template>
 
       <template v-slot:subtitle>等等，确认点事 </template>
@@ -34,7 +34,7 @@
         <v-checkbox label="我已了解并确认" v-model="checkknow"></v-checkbox>
       </v-card-actions>
     </v-card>
-    <br /><v-card>
+    <br /><v-card hover border>
       <template v-slot:title>
         {{ project.license }}
       </template>

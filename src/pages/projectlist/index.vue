@@ -1,7 +1,21 @@
 <template>
   <v-container>
-    <h1>列表</h1>
-    <v-btn @click="NewProjectListDialog = true">创建</v-btn><br /><br />
+    <div class="d-flex justify-space-between mb-4">
+      <h1>列表</h1>
+
+      <div class="d-flex ga-2">
+        <v-btn
+        @click="NewProjectListDialog = true"
+          border
+          color="primary"
+          rounded="lg"
+          slim
+          text="创建"
+          variant="flat"
+        />
+
+      </div>
+    </div>
     <div v-for="item in lists" :key="item.id">
       <v-card border>
         <v-card-item>

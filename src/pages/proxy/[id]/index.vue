@@ -107,7 +107,7 @@
           </template>
         </v-card>
         <br />
-        <v-card subtitle="这是Scratch上的内容" title="ScratchMirror">
+        <v-card subtitle="这是Scratch上的内容" title="ZeroCatScratchMirror">
           <v-card-text class="bg-surface-light pt-4">
             我们使用这种方式促进Scratch及其社区的发展，这些内容是按照<a
               >署名-相同方式共享 2.0 通用</a

@@ -5,12 +5,12 @@
     indeterminate
   ></v-progress-linear>
   <div class="mb-2" v-if="showinfo == true || showinfo == 'true'">
-    <v-chip
+    <v-chip class="text-medium-emphasis"
       ><v-icon icon="mdi-counter" start></v-icon>共{{
         this.projectscount
       }}个作品
     </v-chip>
-    <v-chip
+    <v-chip class="text-medium-emphasis"
       ><v-icon icon="mdi-clock" start></v-icon>本页加载用时{{
         Math.abs(usetime / 1000)
       }}秒

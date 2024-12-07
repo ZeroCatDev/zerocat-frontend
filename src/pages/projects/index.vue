@@ -63,9 +63,19 @@
           v-model="search.tag"
         ></v-autocomplete
       ></v-col>
-      <v-col cols="3">
-        <v-btn @click="onPageChange()"> 搜索 </v-btn>
+      <v-col cols="12">
         <v-btn
+          color="primary"
+          variant="flat"
+          rounded="xl"
+          @click="onPageChange()"
+          append-icon="mdi-magnify"
+          >搜索</v-btn
+        >
+        <v-btn
+          color=""
+          variant="flat"
+          rounded="xl"
           @click="
             search.order = 'view_up';
             search.type = '';
@@ -74,12 +84,11 @@
             search.description = '';
             search.title = '';
             search.state = 'public';
-
             onPageChange();
           "
           >重置</v-btn
-        ></v-col
-      ></v-row
+        >
+      </v-col></v-row
     >
     <br />
     <br />
@@ -113,7 +122,6 @@ export default {
   },
   data() {
     return {
-
       search: {
         title: "",
         type: "",
