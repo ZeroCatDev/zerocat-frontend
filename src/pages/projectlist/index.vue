@@ -95,7 +95,7 @@ export default {
     async getProjectList() {
       this.lists = (
         await request({
-          url: "/projectlist/user/" + this.localuser.user.userid,
+          url: `/projectlist/user/${this.localuser.user.userid}`,
           method: "get",
         })
       ).data;
