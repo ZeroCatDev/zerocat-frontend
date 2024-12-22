@@ -25,6 +25,9 @@
             <v-chip pill prepend-icon="mdi-eye"
               >{{ project.view_count }}浏览</v-chip
             >
+            <v-chip pill prepend-icon="mdi-star"
+              >{{ communityinfo.stars }} Star</v-chip
+            >
             <v-chip pill prepend-icon="mdi-clock">
               <TimeAgo :date="project.time" />
             </v-chip>
@@ -49,7 +52,8 @@
               <v-chip>{{ tag.name }}</v-chip>
             </div>
           </div>
-          <div class="px-4 d-flex ga-2 mb-2"><ProjectStar/>
+          <div class="px-4 d-flex ga-2 mb-2">
+            <ProjectStar />
             <v-btn @click="openEditor(project.id, project.type)" variant="text"
               >打开创造页</v-btn
             >
@@ -135,6 +139,7 @@ export default {
           images: "加载中",
         },
       },
+      communityinfo: { stars: '' },
       openEditor: openEditor,
       localuser: localuser,
     };
@@ -154,6 +159,12 @@ export default {
         url: "/project/" + this.$route.params.id,
         method: "get",
       });
+      this.communityinfo = await request({
+        url: "/project/community/" + this.$route.params.id,
+        method: "get",
+      })
+      this.communityinfo=this.communityinfo.data;
+      console.log(this.communityinfo);
       useHead({
         title: "" + this.project.title,
       });

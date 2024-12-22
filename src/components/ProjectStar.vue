@@ -1,5 +1,5 @@
 <template>
-  <v-btn @click="ToggleStarProject()" :color="star ? 'yellow' : ''">Star</v-btn
+  <v-btn @click="ToggleStarProject()" :color="star ? 'yellow' : ''" prepend-icon="mdi-star" variant="tonal">Star</v-btn
   >{{ projectLists }}
 </template>
 <script>
