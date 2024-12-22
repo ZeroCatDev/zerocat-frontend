@@ -10,7 +10,7 @@
         color="primary"
         @click="
           item.include == true
-            ? deleteProjectFromList(item.id)
+            ? removeProjectFromList(item.id)
             : addProjectToList(item.id)
         "
       >
@@ -51,10 +51,6 @@ export default {
       this.projectLists = (
         await request({
           url: "/projectlist/check?projectid=" + this.$route.params.id,
-          data: {
-            userid: this.userinfo.id,
-            projectid: this.$route.params.id,
-          },
           method: "get",
         })
       ).data;
@@ -78,11 +74,10 @@ export default {
         this.getProjectList();
       });
     },
-    async deleteProjectFromList(id) {
+    async removeProjectFromList(id) {
       await request({
-        url: "/projectlist/delete",
+        url: "/projectlist/remove",
         data: {
-          userid: this.userinfo.id,
           projectid: this.$route.params.id,
           listid: id,
         },

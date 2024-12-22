@@ -68,7 +68,7 @@ export default {
       this.isVisibleDialog = true;
     },
     async newProjectList() {
-      await request.post("/projectlist/", this.projectInfo).then((res) => {
+      await request.post("/projectlist/create", this.projectInfo).then((res) => {
         console.log(res);
         this.$toast.add({
           severity: "info",

@@ -68,9 +68,13 @@ import { localuser } from "@/stores/user";
 import request from "../../axios/axios";
 import { useHead } from "@unhead/vue";
 export default {
-  components: { NewProjectList, EditProjectListConfig },
+  components: {NewProjectList, EditProjectListConfig},
 
-  name: "projectlist",
+  async created() {
+    if (this.localuser.islogin == false) {
+      this.$router.push("/account/login");
+    }
+  },
   data() {
     return {
       localuser: localuser,
@@ -80,29 +84,25 @@ export default {
       lists: [],
     };
   },
-  setup() {
-    useHead({
-      title: "列表",
-    });
-  },
-
-  async created() {
-    if (this.localuser.islogin == false) {
-      this.$router.push("/account/login");
-    }
-  },
   methods: {
     async getProjectList() {
       this.lists = (
         await request({
-          url: `/projectlist/user/${this.localuser.user.userid}`,
+          url: `/projectlist/my`,
           method: "get",
         })
       ).data;
     },
   },
+
   mounted() {
     this.getProjectList();
+  },
+  name: "projectlist",
+  setup() {
+    useHead({
+      title: "列表",
+    });
   },
 };
 </script>

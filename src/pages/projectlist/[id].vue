@@ -34,7 +34,7 @@
       </v-card-text>
     </v-card>
     <br />
-    <ProjectsCards :projects="projectlist.data"></ProjectsCards><br />
+    <ProjectsCards :projects="projectlist.projects"></ProjectsCards><br />
 
     <Comment
       :url="'projectlist-' + this.$route.params.id"
@@ -91,7 +91,7 @@ export default {
   methods: {
     async getprojectlist() {
       this.projectlist = await request({
-        url: "/projectlist/" + this.$route.params.id,
+        url: "/projectlist/listid/" + this.$route.params.id,
         method: "get",
       });
       if (this.projectlist.status == "1") {

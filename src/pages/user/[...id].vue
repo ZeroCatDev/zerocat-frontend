@@ -154,7 +154,7 @@ export default {
     async getProjectList() {
       this.lists = (
         await request({
-          url: `/projectlist/user/${this.userinfo.info.user.id}/public`,
+          url: `/projectlist/userid/${this.userinfo.info.user.id}/public`,
           method: "get",
         })
       ).data;

@@ -87,7 +87,7 @@ export default {
       this.isVisible = true;
     },
     async getProjectList(listid) {
-      await request.get("/projectlist/" + listid).then((res) => {
+      await request.get("/projectlist/listid/" + listid).then((res) => {
         console.log(res);
         this.$toast.add({
           severity: "info",
@@ -106,7 +106,7 @@ export default {
     },
     async updateProjectList(listid) {
       await request
-        .put("/projectlist/" + listid, this.newListInfo)
+        .post("/projectlist/update/" + listid, this.newListInfo)
         .then((res) => {
           console.log(res);
           this.$toast.add({
