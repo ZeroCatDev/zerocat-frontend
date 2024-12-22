@@ -49,7 +49,7 @@
               <v-chip>{{ tag.name }}</v-chip>
             </div>
           </div>
-          <div class="px-4 d-flex ga-2 mb-2">
+          <div class="px-4 d-flex ga-2 mb-2"><ProjectStar/>
             <v-btn @click="openEditor(project.id, project.type)" variant="text"
               >打开创造页</v-btn
             >
@@ -105,12 +105,13 @@ import request from "../../../axios/axios";
 import ProjectRunner from "../../../components/ProjectRunner.vue";
 import { localuser } from "@/stores/user";
 import AddTolist from "../../../components/AddTolist.vue";
+import ProjectStar from "../../../components/ProjectStar.vue";
 import Comment from "../../../components/Comment.vue";
 import TimeAgo from "@/components/TimeAgo.vue";
 import { useHead } from "@unhead/vue";
 
 export default {
-  components: { ProjectRunner, TimeAgo, Comment, AddTolist },
+  components: { ProjectRunner, TimeAgo, Comment, AddTolist, ProjectStar },
   data() {
     return {
       project: {
