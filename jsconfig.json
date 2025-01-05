@@ -15,6 +15,16 @@
       "dom",
       "dom.iterable",
       "scripthost"
-    ],
-  }
+    ]
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "scripts",
+    "types",
+    "LICENSE",
+    "README.md",
+    "vite.config.js"
+  ]
 }
+
