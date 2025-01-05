@@ -300,10 +300,11 @@
                 var data = asset.data;
                 if (asset.clean == false) {
                     console.log(asset.clean);
-                    var formData = new FormData();
+                    const formData = new FormData();
+                    formData.append('file', new Blob([data], { type: asset.assetType.contentType }), `${asset.assetId}.${asset.dataFormat}`);
+
                     $.ajax({
-                        url:
-                            window.apiHost +
+                        url: window.apiHost +
                             "/scratch/assets/" +
                             asset.assetId +
                             "." +
@@ -311,29 +312,20 @@
                             "?token=" +
                             localStorage.getItem("token"),
                         type: "POST",
-                        data: new Blob([data], {
-                            type: asset.assetType.contentType,
-                        }),
+                        data: formData,
                         processData: false,
                         contentType: false,
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem("token")
+                        },
                         success: function (response) {
-                            logText.innerText += `[${getTime()}]文件上传成功${asset.assetId
-                                }.${asset.dataFormat}\n`;
-                            console.log(
-                                "文件上传成功:",
-                                asset.assetId + "." + asset.dataFormat
-                            );
+                            logText.innerText += `[${getTime()}]文件上传成功${asset.assetId}.${asset.dataFormat}\n`;
+                            console.log("文件上传成功:", asset.assetId + "." + asset.dataFormat);
                             asset.clean = true;
                         },
                         error: function (xhr, status, error) {
-                            logText.innerText += `[${getTime()}]文件上传失败${asset.assetId
-                                }.${asset.dataFormat}\nerror:${error}\n`;
-
-                            console.error(
-                                "文件上传失败:",
-                                asset.assetId + "." + asset.dataFormat,
-                                error
-                            );
+                            logText.innerText += `[${getTime()}]文件上传失败${asset.assetId}.${asset.dataFormat}\nerror:${error}\n`;
+                            console.error("文件上传失败:", asset.assetId + "." + asset.dataFormat, error);
                         },
                     });
                 } else {
@@ -346,7 +338,7 @@
                     );
                 }
             });
-        snackbar('媒体库保存完成')
+            snackbar('媒体库保存完成')
         }
         // 上传作品
         function uploadProject() {
@@ -550,7 +542,8 @@
                 document.getElementById("push-button").innerText = "推送";
                 document.getElementById("push-button").onclick =
                     function () {
-window.open('/projects/'+_pid+'/push')                    };
+                        window.open('/projects/' + _pid + '/push')
+                    };
                 console.log("设置推送按钮");
             }
         }
@@ -559,8 +552,9 @@ window.open('/projects/'+_pid+'/push')                    };
             // document.getElementById("push-button").style.removeProperty("display");
             document.getElementById("push-button").innerText = "改编";
             document.getElementById("push-button").onclick =
-                    function () {
-window.open('/projects/'+_pid+'/fork')                    };
+                function () {
+                    window.open('/projects/' + _pid + '/fork')
+                };
             console.log("设置改编按钮");
         }
 
