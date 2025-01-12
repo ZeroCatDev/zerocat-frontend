@@ -32,7 +32,7 @@
       </v-row>
     </v-responsive>
     <br />
-    <Projects :authorid="userid" ref="Projects" showinfo="true"></Projects>
+    <Projects :url="url"></Projects>
     <v-row>
       <v-col
         cols="12"
@@ -77,7 +77,7 @@ import Comment from "../../components/Comment.vue";
 import Projects from "../../components/Projects.vue";
 import { useHead } from "@unhead/vue";
 import { liveFetchUserDetails, refreshUserCache } from "../../stores/cache/user.js";
-
+import request from "../../axios/axios.js";
 export default {
   components: { Projects, Comment },
   data() {
@@ -85,6 +85,7 @@ export default {
       userid: Number(this.$route.params.id),
       user: {},
       lists: [],
+      url: `/searchapi?search_userid=${this.$route.params.id}&search_type=&search_title=&search_source=&search_description=&search_orderby=view_up&search_state=public&search_tag=`,
     };
   },
   async created() {
