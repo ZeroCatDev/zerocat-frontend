@@ -289,6 +289,8 @@ export default {
     if (this.localuser.islogin == false) {
       this.$router.push("/account/login");
     }
+    await this.onPageChange();
+1
   },
   setup() {
     useHead({
