@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-card border>
-      <v-card-title>实时获取项目数据</v-card-title>
+      <v-card-title>实时获取缓存的项目数据</v-card-title>
       <v-card-text>
         <v-text-field
           v-model="inputValue"
@@ -18,8 +18,9 @@
       </v-card-text>
     </v-card>
 
+
     <v-card class="mt-4" border>
-      <v-card-title>添加项目数据</v-card-title>
+      <v-card-title>添加缓存的项目数据</v-card-title>
       <v-card-text>
         <v-form>
           <v-text-field
@@ -45,21 +46,34 @@
         </v-form>
       </v-card-text>
     </v-card>
+    <v-card class="mt-4" border>
+      <v-card-title>所有缓存的项目数据</v-card-title>
+      <v-card-text>
+        <v-list>
+          <v-list-item v-for="project in allProjects" :key="project.id">
+            <v-list-item-title>{{ project.title || '未缓存' }}</v-list-item-title>
+            <v-list-item-subtitle>{{ project.description || '' }}</v-list-item-subtitle>
+          </v-list-item>
+        </v-list>
+      </v-card-text>
+    </v-card>
   </v-container>
 </template>
 
 <script>
 import { ref } from "vue";
-import { fetchProjectDetails, addProjectCache, removeProjectCache, refreshProjectCache, liveFetchProjectDetails } from "../../../stores/cache/project.js";
+import { fetchProjectDetails, addProjectCache, removeProjectCache, refreshProjectCache, liveFetchProjectDetails,DebugliveFetchAllProjectDetails } from "../../../stores/cache/project.js";
 
 export default {
   data() {
     return {
       inputValue: "",
       projects: [],
+      allProjects: [],
       status: "",
       ProjectID: 0,
       liveQuerySubscription: null,
+      allProjectsSubscription: null,
     };
   },
   methods: {
@@ -103,6 +117,13 @@ export default {
       this.liveQuerySubscription = liveFetchProjectDetails(ids, (projects) => {
         this.projects = projects;
       });
+
+      if (this.allProjectsSubscription) {
+        this.allProjectsSubscription.unsubscribe();
+      }
+      this.allProjectsSubscription = DebugliveFetchAllProjectDetails((projects) => {
+        this.allProjects = projects;
+      });
     },
   },
   mounted() {
@@ -112,6 +133,10 @@ export default {
     if (this.liveQuerySubscription) {
       this.liveQuerySubscription.unsubscribe();
     }
+    if (this.allProjectsSubscription) {
+      this.allProjectsSubscription.unsubscribe();
+    }
   },
 };
 </script>
+

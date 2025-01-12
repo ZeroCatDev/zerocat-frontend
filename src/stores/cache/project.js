@@ -123,3 +123,8 @@ export function liveFetchProjectDetails(ids, callback) {
   return liveQuery(() => db.projects.where('id').anyOf(ids).toArray()).subscribe(callback);
 }
 
+// 实时查询并更新项目信息函数
+export function DebugliveFetchAllProjectDetails(callback) {
+  return liveQuery(() => db.projects.toArray()).subscribe(callback);
+}
+

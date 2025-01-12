@@ -1,14 +1,14 @@
 <template>
   <v-container>
     <v-card border>
-      <v-card-title>获取数据</v-card-title>
+      <v-card-title>实时获取缓存的用户数据</v-card-title>
       <v-card-text>
         <v-text-field
           v-model="inputValue"
-          label="输入ID"
+          label="输入用户ID"
           class="mb-4"
         ></v-text-field>
-        <v-btn @click="startLiveFetch" color="primary" class="mb-4">实时获取数据</v-btn>
+        <v-btn @click="fetchUserInfo" color="primary" class="mb-4">获取用户信息</v-btn>
         <v-list>
           <v-list-item v-for="friend in users" :key="friend.id">
             <v-list-item-title>{{ friend.display_name || '未缓存' }}</v-list-item-title>
@@ -19,12 +19,12 @@
     </v-card>
 
     <v-card class="mt-4" border>
-      <v-card-title>添加数据</v-card-title>
+      <v-card-title>添加缓存的用户数据</v-card-title>
       <v-card-text>
         <v-form>
           <v-text-field
             v-model="UserID"
-            label="ID"
+            label="用户ID"
             type="number"
             required
           ></v-text-field>
@@ -45,14 +45,24 @@
         </v-form>
       </v-card-text>
     </v-card>
+
+    <v-card class="mt-4" border>
+      <v-card-title>所有缓存的用户数据</v-card-title>
+      <v-card-text>
+        <v-list>
+          <v-list-item v-for="user in allUsers" :key="user.id">
+            <v-list-item-title>{{ user.display_name || '未缓存' }}</v-list-item-title>
+            <v-list-item-subtitle>{{ user.motto || '' }}</v-list-item-subtitle>
+          </v-list-item>
+        </v-list>
+      </v-card-text>
+    </v-card>
   </v-container>
 </template>
 
 <script>
-import { liveQuery } from "dexie";
 import { ref } from "vue";
-import { db } from "@/stores/db.js";
-import { fetchUserDetails, addUserCache, removeUserCache, refreshUserCache, liveFetchUserDetails } from "../../../stores/cache/user.js";
+import { fetchUserDetails, addUserCache, removeUserCache, refreshUserCache, getUserInfo, liveFetchUserDetails, DebugliveFetchAllUserDetails } from "../../../stores/cache/user.js";
 
 export default {
   data() {
@@ -62,17 +72,14 @@ export default {
       status: "",
       UserID: 0,
       liveQuerySubscription: null,
+      allUsers: [],
     };
   },
   methods: {
-    async fetchUsers() {
+    async fetchUserInfo() {
       const ids = this.inputValue.split(",").map((id) => Number(id.trim())); // 确保 id 类型为 number
-      const result = await fetchUserDetails(ids);
-      if (typeof result === "object" && !Array.isArray(result)) {
-        this.users = [result];
-      } else {
-        this.users = result;
-      }
+      const result = await Promise.all(ids.map(id => getUserInfo(id)));
+      this.users = result;
     },
     async addUser() {
       const user = {
@@ -102,11 +109,18 @@ export default {
         this.users = users;
       });
     },
+    startLiveFetchAll() {
+      if (this.liveQuerySubscription) {
+        this.liveQuerySubscription.unsubscribe();
+      }
+      this.liveQuerySubscription = DebugliveFetchAllUserDetails((users) => {
+        this.allUsers = users;
+      });
+    },
   },
   mounted() {
-    liveQuery(() => db.users.toArray()).subscribe((users) => {
-      this.users = users;
-    });
+    this.startLiveFetch();
+    this.startLiveFetchAll();
   },
   beforeDestroy() {
     if (this.liveQuerySubscription) {
@@ -115,3 +129,6 @@ export default {
   },
 };
 </script>
+
+
+

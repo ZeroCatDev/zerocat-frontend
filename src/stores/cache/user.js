@@ -103,7 +103,10 @@ export function liveFetchUserDetails(ids, callback) {
   }
   return liveQuery(() => db.users.where('id').anyOf(ids).toArray()).subscribe(callback);
 }
-
+// 实时查询并更新用户信息函数
+export function DebugliveFetchAllUserDetails(callback) {
+  return liveQuery(() => db.users.toArray()).subscribe(callback);
+}
 // 简单易用的获取用户信息函数
 export async function getUserInfo(userId) {
   const cachedUser = await db.users.get(Number(userId));
