@@ -73,7 +73,6 @@
         </template>
       </v-card>
     </div>
-    <!--<Projects :authorid="userid" ref="Projects" showinfo="true"></Projects>-->
     <Comment
       :url="'scratchmiteduuser-' + userinfo.id"
       name="Scratch官网用户"

@@ -192,7 +192,6 @@
         </template>
       </v-card>
     </div>
-    <!--<Projects :authorid="userid" ref="Projects" showinfo="true"></Projects>-->
 
     <Comment
       :url="'scratchmitedustudio-' + this.$route.params.id"

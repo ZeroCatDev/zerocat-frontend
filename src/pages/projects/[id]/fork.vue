@@ -10,15 +10,14 @@
       </template>
 
       <template v-slot:subtitle>
-        作者{{ project.author.display_name }}，发布于：{{ project.time }}，{{
-          project.view_count
-        }}次浏览
+        作者{{ author.display_name }}，发布于：{{ project.time }}，{{ project.view_count }}次浏览
       </template>
 
       <template v-slot:text>
         {{ project.description }}
-      </template> </v-card
-    ><br />
+      </template>
+    </v-card>
+    <br />
     <v-card hover border>
       <template v-slot:title> 你正在分叉一个项目 </template>
 
@@ -34,7 +33,8 @@
         <v-checkbox label="我已了解并确认" v-model="checkknow"></v-checkbox>
       </v-card-actions>
     </v-card>
-    <br /><v-card hover border>
+    <br />
+    <v-card hover border>
       <template v-slot:title>
         {{ project.license }}
       </template>
@@ -58,8 +58,9 @@
       </template>
       <v-card-actions>
         <v-checkbox label="我已了解并确认" v-model="checklicense"></v-checkbox>
-      </v-card-actions> </v-card
-    ><br />
+      </v-card-actions>
+    </v-card>
+    <br />
     <v-text>如果您已了解以上内容，请在下方的输入框中输入</v-text> <br /><br />
     <v-text-field
       hint="请准确输入上方的话"
@@ -89,10 +90,11 @@
 
 <script>
 import openEditor from "../../../stores/openEdit";
-
-import request from "../../../axios/axios";
 import { localuser } from "@/stores/user";
 import { useHead } from "@unhead/vue";
+import { liveFetchProjectDetails, refreshProjectCache } from "../../../stores/cache/project.js";
+import { fetchUserDetails, refreshUserCache, liveFetchUserDetails } from "../../../stores/cache/user.js";
+import request from "../../../axios/axios";
 export default {
   data() {
     return {
@@ -107,17 +109,16 @@ export default {
         title: "加载中",
         description: "加载中",
         tags: "",
-        source:
-          "",
-        author: {
-          id: 89,
-          username: "加载中",
-          display_name: "加载中",
-          state: 0,
-          regTime: "2000-01-01T00:00:00.000Z",
-          motto: "加载中",
-          images: "加载中",
-        },
+        source: "",
+      },
+      author: {
+        id: 89,
+        username: "加载中",
+        display_name: "加载中",
+        state: 0,
+        regTime: "2000-01-01T00:00:00.000Z",
+        motto: "加载中",
+        images: "加载中",
       },
       openEditor: openEditor,
       localuser: localuser,
@@ -144,7 +145,9 @@ export default {
     if (this.localuser.islogin == false) {
       this.$router.push("/account/login");
     }
-    await this.getproject();
+    this.startLiveFetch();
+    await this.refreshProject();
+    await this.refreshAuthor();
   },
   setup() {
     useHead({
@@ -152,15 +155,28 @@ export default {
     });
   },
   methods: {
-    async getproject() {
-      this.project = await request({
-        url: "/project/" + this.$route.params.id,
-        method: "get",
+    startLiveFetch() {
+      liveFetchProjectDetails([Number(this.$route.params.id)], (projects) => {
+        if (projects.length > 0) {
+          this.project = projects[0];
+          useHead({
+            title: "分叉" + this.project.title,
+          });
+        }
       });
-      useHead({
-        title: "分叉" + this.project.title,
+      liveFetchUserDetails([Number(this.project.authorid)], async (users) => {
+        if (users.length > 0) {
+          this.author = users[0];
+        }
+        await refreshUserCache(this.project.authorid);
+
       });
-      console.log(this.project);
+    },
+    async refreshProject() {
+      await refreshProjectCache(this.$route.params.id);
+    },
+    async refreshAuthor() {
+      await refreshUserCache(this.project.authorid);
     },
     async forkproject(id) {
       await request({

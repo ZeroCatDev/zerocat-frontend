@@ -1,148 +1,107 @@
 <template>
-  <v-progress-linear
-    :active="ProjectsLoading"
-    height="4"
-    indeterminate
-  ></v-progress-linear>
-  <div class="mb-2" v-if="showinfo == true || showinfo == 'true'">
-    <v-chip class="text-medium-emphasis"
-      ><v-icon icon="mdi-counter" start></v-icon>共{{
-        this.projectscount
-      }}个作品
-    </v-chip>
-    <v-chip class="text-medium-emphasis"
-      ><v-icon icon="mdi-clock" start></v-icon>本页加载用时{{
-        Math.abs(usetime / 1000)
-      }}秒
-    </v-chip>
-  </div>
-  <ProjectsCards :projects="projects" :actions="actions"></ProjectsCards>
-
-  <v-pagination
-    v-model="curPage"
-    :length="totalPage"
-    rounded="circle"
-    :v-model="curPage"
-    @update:model-value="onPageChange(curPage)"
-    @input="onPageChange(curPage)"
-  ></v-pagination>
+  <v-container>
+    <v-progress-linear
+      v-if="loading"
+      indeterminate
+      color="primary"
+    ></v-progress-linear>
+    <v-row>
+      <v-col cols="12">
+        <p class="mt-2 text-medium-emphasis">
+          <v-chip>
+            <v-icon icon="mdi-timer" start></v-icon>
+            加载耗时: {{ loadTime }} ms
+          </v-chip>
+          <v-chip v-if="totalCount">
+            <v-icon icon="mdi-counter" start></v-icon>
+            总作品数量: {{ totalCount }}
+          </v-chip>
+        </p>
+      </v-col>
+    </v-row>
+    <show-projects :projectIds="projectIds" :actions="actions"></show-projects>
+    <br />
+    <v-pagination
+      v-if="hasTotalCount"
+      v-model="page"
+      :length="totalPage"
+      @input="fetchProjects"
+      rounded="circle"
+    ></v-pagination>
+    <v-btn v-else @click="loadMore" color="primary">继续加载</v-btn>
+  </v-container>
 </template>
 
 <script>
-import request from "../axios/axios";
-import ProjectsCards from "./ProjectsCards.vue";
+import showProjects from "./project/showProjects.vue";
+import request from "@/axios/axios";
+
 export default {
-  components: { ProjectsCards },
+  components: { showProjects },
   props: {
-    authorid: {
+    url: {
       type: String,
-      default: "",
-    },
-    title: {
-      type: String,
-      default: "",
-    },
-    type: {
-      type: String,
-      default: "",
-    },
-    description: {
-      type: String,
-      default: "",
-    },
-    order: {
-      type: String,
-      default: "view_down",
-    },
-    source: {
-      type: String,
-      default: "",
-    },
-    state: {
-      type: String,
-      default: "",
-    },
-    tag: {
-      type: String,
-      default: "",
-    },
-    showinfo: {
-      type: String,
-      default: false,
+      required: true,
     },
     actions: {
       type: Array,
-      required: false,
     },
   },
-
   data() {
     return {
-      ProjectsLoading: false,
-      projects: [],
-      curPage: 1,
+      projectIds: [],
+      page: 1,
+      limit: 16,
       totalPage: 1,
-      limit: 20,
-      typeitems: { all: "", scratch: "scratch", python: "python" },
-      usetime: 0,
-      projectscount: 0,
-      search: {
-        title: "",
-        type: "",
-        description: "",
-        source: "",
-        order: { name: "观看量升序", type: "view_up" },
-        authorid: "",
-        type: { name: "所有", type: "" },
-        typeitems: [
-          { name: "所有", type: "" },
-          { name: "Scratch", type: "scratch" },
-          { name: "Python", type: "python" },
-        ],
-        orderitems: [
-          { name: "观看量升序", type: "view_up" },
-          { name: "观看量降序", type: "view_down" },
-          { name: "时间升序", type: "time_up" },
-          { name: "时间降序", type: "time_down" },
-          { name: "序号升序", type: "id_up" },
-          { name: "序号降序", type: "id_down" },
-        ],
-        state: "",
-      },
+      totalCount: 0,
+      loading: false,
+      loadTime: 0,
     };
   },
-  async created() {
-    await this.getprojects();
+  computed: {
+    hasTotalCount() {
+      return this.totalCount > 0;
+    },
   },
   methods: {
-    async getprojects() {
-      this.onPageChange(1);
+    async fetchProjects() {
+      this.loading = true;
+      const startTime = performance.now();
+      try {
+        const response = await request.get(
+          `${this.url}&curr=${this.page}&limit=${this.limit}`
+        );
+        this.projectIds = this.hasTotalCount
+          ? response.projects
+          : [...this.projectIds, ...response.projects];
+        this.totalCount = response.totalCount || 0;
+        this.totalPage = this.totalCount
+          ? Math.ceil(this.totalCount / this.limit)
+          : 1;
+      } catch (error) {
+        console.error("Failed to fetch projects:", error);
+      } finally {
+        this.loading = false;
+        this.loadTime = performance.now() - startTime;
+      }
     },
-    async onPageChange(page) {
-      this.usetime = Date.now();
-      this.ProjectsLoading = true;
-
-      this.projects = await request({
-        url: `/searchapi?search_userid=${this.authorid}&search_type=${
-          this.type == "all" ? "" : this.type
-        }&search_title=${this.title}&search_source=${
-          this.source
-        }&search_description=${this.description}&search_orderby=${
-          this.order
-        }&search_state=${this.state}&search_tag=${
-          this.tag
-        }&curr=${page}&limit=${this.limit}`,
-        method: "get",
-      });
-      this.totalPage = Math.ceil(
-        this.projects.totalCount[0].totalCount / this.limit
-      );
-      this.projectscount = this.projects.totalCount[0].totalCount;
-      this.curPage = page;
-      console.log(this.projects);
-      console.log(this.totalPage);
-      this.ProjectsLoading = false;
-      this.usetime = Date.now() - this.usetime;
+    loadMore() {
+      this.page++;
+      this.fetchProjects();
+    },
+  },
+  watch: {
+    url: {
+      handler() {
+        this.page = 1;
+        this.fetchProjects();
+      },
+      immediate: true,
+    },
+    page: {
+      handler() {
+        this.fetchProjects();
+      },
     },
   },
 };

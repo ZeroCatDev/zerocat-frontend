@@ -95,16 +95,7 @@
     <br />
 
     <Projects
-      :authorid="localuser.user.userid"
-      :title="search.title"
-      :description="search.description"
-      :source="search.source"
-      :order="search.order"
-      :type="search.type"
-      ref="Projects"
-      showinfo="true"
-      :state="search.state"
-      :tag="search.tag"
+      :url="url"
       :actions="[
         { name: '信息', function: openinfo },
         { name: '编辑', function: openedit },
@@ -290,6 +281,7 @@ export default {
         chips: ref({}),
         selected: [],
       },
+      url: "",
     };
   },
 
@@ -313,8 +305,23 @@ export default {
         subtitle: item.department,
       };
     },
-    onPageChange() {
-      this.$refs.Projects.onPageChange(1);
+
+    async onPageChange(page = 1) {
+      this.url=`/searchapi?search_userid=${this.localuser.user.userid}&search_type=${this.search.type}&search_title=${this.search.title}&search_source=${this.search.source}&search_description=${this.search.description}&search_orderby=${this.search.order}&search_state=${this.search.state}&search_tag=${this.search.tag}`
+    },
+    resetSearch() {
+      this.search = {
+        title: "",
+        type: "scratch",
+        description: "",
+        source: "",
+        order: "view_up",
+        authorid: "",
+        state: "public",
+        tag: "",
+        limit: 20,
+      };
+      this.onPageChange();
     },
     addtoast(a) {
       this.$toast.add({

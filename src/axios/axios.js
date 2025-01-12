@@ -30,7 +30,7 @@ axiosInstance.interceptors.response.use(
   },
   (error) => {
     console.log(error);
-    alert(`Error: ${error.message}`); // 自定义错误提示
+    //alert(`Error: ${error.message}`); // 自定义错误提示
     return Promise.reject(error);
   }
 );

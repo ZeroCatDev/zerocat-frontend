@@ -1,68 +1,64 @@
 <template>
   <v-container>
-    <v-row
-      ><v-col cols="6">
+    <v-row>
+      <v-col cols="6">
         <v-text-field
           :label="'作品名 包含：' + search.title"
           v-model="search.title"
-        ></v-text-field
-      ></v-col>
-      <v-col cols="6"
-        ><v-text-field
+        ></v-text-field>
+      </v-col>
+      <v-col cols="6">
+        <v-text-field
           :label="'作品描述 包含：' + search.description"
           v-model="search.description"
-        ></v-text-field
-      ></v-col>
+        ></v-text-field>
+      </v-col>
       <v-col cols="6">
         <v-text-field
           :label="'作品内容 包含：' + search.source"
           v-model="search.source"
-        ></v-text-field
-      ></v-col>
+        ></v-text-field>
+      </v-col>
       <v-col cols="6">
         <v-text-field
-          control-variant="用户ID"
           :label="'用户ID 为：' + search.authorid"
           v-model="search.authorid"
-        ></v-text-field
-      ></v-col>
-
-      <v-col cols="3"
-        ><v-select
+        ></v-text-field>
+      </v-col>
+      <v-col cols="3">
+        <v-select
           v-model="search.order"
           :items="orderitems"
           item-title="name"
           item-value="type"
           label="排序"
-        ></v-select
-      ></v-col>
-
-      <v-col cols="3"
-        ><v-select
+        ></v-select>
+      </v-col>
+      <v-col cols="3">
+        <v-select
           v-model="search.type"
           :items="typeitems"
           item-title="name"
           item-value="type"
           label="项目类型"
-        ></v-select
-      ></v-col>
-      <v-col cols="3"
-        ><v-select
+        ></v-select>
+      </v-col>
+      <v-col cols="3">
+        <v-select
           v-model="search.state"
           :items="searchstates"
           item-title="state"
           item-value="abbr"
           label="项目状态"
-        ></v-select
-      ></v-col>
-
+        ></v-select>
+      </v-col>
       <v-col cols="3">
         <v-autocomplete
           :label="'标签 为：' + search.tag"
           :items="['', '动画', '故事', '音乐', '硬核', '艺术', '水']"
           v-model="search.tag"
-        ></v-autocomplete
-      ></v-col>
+        ></v-autocomplete>
+      </v-col>
       <v-col cols="12">
         <v-btn
           color="primary"
@@ -70,51 +66,28 @@
           rounded="xl"
           @click="onPageChange()"
           append-icon="mdi-magnify"
-          >搜索</v-btn
         >
-        <v-btn
-          color=""
-          variant="flat"
-          rounded="xl"
-          @click="
-            search.order = 'view_up';
-            search.type = '';
-            search.authorid = '';
-            search.source = '';
-            search.description = '';
-            search.title = '';
-            search.state = 'public';
-            onPageChange();
-          "
-          >重置</v-btn
-        >
-      </v-col></v-row
-    >
-    <br />
-    <br />
+          搜索
+        </v-btn>
+        <v-btn variant="flat" rounded="xl" @click="resetSearch"> 重置 </v-btn>
+      </v-col>
+    </v-row>
 
-    <Projects
-      :authorid="search.authorid"
-      :title="search.title"
-      :description="search.description"
-      :source="search.source"
-      :order="search.order"
-      :type="search.type"
-      :state="search.state"
-      :tag="search.tag"
-      ref="Projects"
-      showinfo="true"
-    >
-    </Projects>
+
+
+
+    <Projects :url="url"></Projects>
   </v-container>
 </template>
 
 <script>
+import showProjects from "../../components/project/showProjects.vue";
 import Projects from "../../components/Projects.vue";
 import { useHead } from "@unhead/vue";
+import request from "../../axios/axios";
 
 export default {
-  components: { Projects },
+  components: { Projects, showProjects },
   setup() {
     useHead({
       title: "项目",
@@ -124,14 +97,14 @@ export default {
     return {
       search: {
         title: "",
-        type: "",
+        type: "scratch",
         description: "",
         source: "",
         order: "view_up",
         authorid: "",
-        type: "scratch",
         state: "public",
         tag: "",
+        limit: 20,
       },
       searchstates: [{ state: "所有", abbr: "public" }],
       typeitems: [
@@ -147,12 +120,36 @@ export default {
         { name: "序号升序", type: "id_up" },
         { name: "序号降序", type: "id_down" },
       ],
+      projects: {},
+      ProjectsLoading: false,
+      totalPage: 0,
+      projectscount: 0,
+      curPage: 1,
+      usetime: 0,
+      url: "",
     };
   },
   methods: {
-    onPageChange() {
-      this.$refs.Projects.onPageChange(1);
+    async onPageChange(page = 1) {
+      this.url=`/searchapi?search_userid=${this.search.authorid}&search_type=${this.search.type}&search_title=${this.search.title}&search_source=${this.search.source}&search_description=${this.search.description}&search_orderby=${this.search.order}&search_state=${this.search.state}&search_tag=${this.search.tag}`
     },
+    resetSearch() {
+      this.search = {
+        title: "",
+        type: "scratch",
+        description: "",
+        source: "",
+        order: "view_up",
+        authorid: "",
+        state: "public",
+        tag: "",
+        limit: 20,
+      };
+      this.onPageChange();
+    },
+  },
+  async created() {
+    await this.onPageChange();
   },
 };
 </script>
