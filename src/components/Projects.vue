@@ -1,5 +1,4 @@
 <template>
-  <v-container>
     <v-progress-linear
       v-if="loading"
       indeterminate
@@ -29,7 +28,6 @@
       rounded="circle"
     ></v-pagination>
     <v-btn v-else @click="loadMore" color="primary">继续加载</v-btn>
-  </v-container>
 </template>
 
 <script>

@@ -23,7 +23,13 @@
     </v-app-bar>
 
     <v-main :min-height="$vuetify.display.mdAndUp ? 1000 : 550">
-      <v-container class="h-100 d-flex align-center justify-center">
+      <v-container class="h-100 d-flex align-center justify-center">  <blur-hash-image
+    width="400"
+    height="300"
+    hash="LdHfL}oJR$WBKnfi%3ofT0kCM{ay"
+    src="https://images.unsplash.com/photo-1545910684-8e7c081be9b0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1867&q=80"
+    alt="green lawn grass during daytime"
+  />
         <div class="w-100 w-md-50 text-center">
           <v-chip
             border="thin opacity-25"
@@ -234,9 +240,9 @@ import $vuetify from "@/plugins/vuetify";
 import { localuser } from "../stores/user";
 import Typewriter from "../components/Typewriter.vue";
 import { useHead } from "@unhead/vue";
-
+import VueBlurHash from 'vue-blurhash'
 export default {
-  components: { Typewriter },
+  components: { Typewriter,VueBlurHash },
   setup() {
     useHead({});
   },

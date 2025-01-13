@@ -22,6 +22,29 @@
           </v-list-item>
         </v-list>
       </v-menu>
+      <v-menu>
+        <template v-slot:activator="{ props }">
+          <v-btn icon="mdi-account-circle" v-bind="props"></v-btn>
+        </template><v-card v-if="isLogin == true" border style="padding: 10px;">
+        <v-card :title="userInfo.display_name" :subtitle="userInfo.username" :append-avatar="'https://s4-1.wuyuan.1r.ink/user/' + userInfo.avatar">
+
+</v-card>
+        <v-list>
+          <v-list-item :to="'/user/' + userInfo.userid"  prepend-icon="mdi-account" title="个人主页" rounded="xl"  color="primary">
+          </v-list-item>
+          <v-list-item :to="'/account'" prepend-icon="mdi-cog" title="账户设置" rounded="xl" color="primary">
+          </v-list-item>
+          <v-list-item :to="'/projects/my'" prepend-icon="mdi-xml" title="项目" rounded="xl" color="primary">
+          </v-list-item>
+          <v-list-item :to="'/projectlist'" prepend-icon="mdi-xml" title="列表" rounded="xl" color="primary">
+          </v-list-item></v-list><v-divider></v-divider><v-list>
+
+          <v-list-item :to="'/account/logout'" prepend-icon="mdi-logout" title="退出" color="error" active variant="plain"
+          rounded="xl">
+          </v-list-item>
+
+        </v-list></v-card>
+      </v-menu>
     </template>
   </v-app-bar>
   <v-navigation-drawer v-model="drawer">
