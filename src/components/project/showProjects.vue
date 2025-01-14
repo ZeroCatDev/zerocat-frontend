@@ -11,7 +11,7 @@
       xl="2"
       xxl="2"
     >
-      <v-card rounded="lg" border>
+      <v-card rounded="lg" border >
         <v-card
           :to="'/projects/' + project.id"
           style="aspect-ratio: 4/3"

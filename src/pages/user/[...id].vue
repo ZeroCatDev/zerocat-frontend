@@ -48,21 +48,15 @@
         <v-card rounded="lg">
           <v-card
             :to="'/projectlist/' + item.id"
-            style="aspect-ratio: 4/3"
             rounded="lg"
+            :title="item.title"
+            :subtitle="item.description"
+            color="primary"
+            variant="tonal"
           >
-            <v-img
-              class="align-end"
-              lazy-src="../../assets/43-lazyload.png"
-              height="100%"
-              gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-              cover
-            >
-              <v-card-item>
-                <v-card-title>{{ item.title }} </v-card-title>
-                <v-card-subtitle>{{ item.title }} </v-card-subtitle>
-              </v-card-item>
-            </v-img>
+
+
+
           </v-card>
         </v-card>
       </v-col>
