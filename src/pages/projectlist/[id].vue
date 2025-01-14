@@ -34,7 +34,7 @@
       </v-card-text>
     </v-card>
     <br />
-    <ProjectsCards :projects="projectlist.projects"></ProjectsCards><br />
+    <showProjects :projectIds="projectlist.projects"></showProjects><br />
 
     <Comment
       :url="'projectlist-' + this.$route.params.id"
@@ -47,10 +47,10 @@
 import Comment from "../../components/Comment.vue";
 import request from "../../axios/axios";
 import { localuser } from "@/stores/user";
-import ProjectsCards from "../../components/ProjectsCards.vue";
 import { useHead } from "@unhead/vue";
+import showProjects from "../../components/project/showProjects.vue";
 export default {
-  components: { ProjectsCards, Comment },
+  components: { showProjects, Comment },
 
   data() {
     return {

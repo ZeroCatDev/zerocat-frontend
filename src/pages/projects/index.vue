@@ -82,7 +82,7 @@
 
 <script>
 import showProjects from "../../components/project/showProjects.vue";
-import Projects from "../../components/Projects.vue";
+import Projects from "../../components/project/Projects.vue";
 import { useHead } from "@unhead/vue";
 import request from "../../axios/axios";
 

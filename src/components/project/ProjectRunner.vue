@@ -31,7 +31,7 @@
 import "highlight.js/styles/github-dark.css";
 import hljs from "highlight.js/lib/common";
 import hljsVuePlugin from "@highlightjs/vue-plugin";
-import request from "../axios/axios";
+import request from "../../axios/axios";
 import { ref } from "vue";
 export default {
   components: {

@@ -74,10 +74,10 @@
 <script>
 import openEditor from "../../../stores/openEdit";
 import request from "../../../axios/axios";
-import ProjectRunner from "../../../components/ProjectRunner.vue";
+import ProjectRunner from "../../../components/project/ProjectRunner.vue";
 import { localuser } from "@/stores/user";
 import AddTolist from "../../../components/AddTolist.vue";
-import ProjectStar from "../../../components/ProjectStar.vue";
+import ProjectStar from "../../../components/project/ProjectStar.vue";
 import Comment from "../../../components/Comment.vue";
 import TimeAgo from "@/components/TimeAgo.vue";
 import { useHead } from "@unhead/vue";

@@ -3,9 +3,9 @@
   >{{ projectLists }}
 </template>
 <script>
-import NewProjectList from "@/components/NewProjectList.vue";
+import NewProjectList from "@/components/projectlist/NewProjectList.vue";
 import { localuser } from "@/stores/user";
-import request from "../axios/axios";
+import request from "../../axios/axios";
 export default {
   components: { NewProjectList },
 

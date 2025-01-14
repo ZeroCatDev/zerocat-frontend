@@ -34,8 +34,8 @@
 </template>
 
 <script>
-import openEdit from "../stores/openEdit";
-import request from "../axios/axios";
+import openEdit from "../../stores/openEdit";
+import request from "../../axios/axios";
 export default {
   data() {
     return {

@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import showProjects from "./project/showProjects.vue";
+import showProjects from "./showProjects.vue";
 import request from "@/axios/axios";
 
 export default {

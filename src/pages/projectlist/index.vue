@@ -62,7 +62,7 @@
   </v-dialog>
 </template>
 <script>
-import NewProjectList from "@/components/NewProjectList.vue";
+import NewProjectList from "@/components/projectlist/NewProjectList.vue";
 import EditProjectListConfig from "@/components/EditProjectListConfig.vue";
 import { localuser } from "@/stores/user";
 import request from "../../axios/axios";

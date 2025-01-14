@@ -202,7 +202,7 @@
 
 <script>
 import request from "../../../axios/axios";
-import Projects from "../../../components/Projects.vue";
+import Projects from "../../../components/project/Projects.vue";
 import Comment from "../../../components/Comment.vue";
 
 import { ref } from "vue";

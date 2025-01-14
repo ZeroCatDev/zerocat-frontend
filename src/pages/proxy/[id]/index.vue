@@ -142,7 +142,7 @@ import openEditor from "../../../stores/openEdit";
 import Comment from "../../../components/Comment.vue";
 
 import request from "../../../axios/axios";
-import ProjectRunner from "../../../components/ProjectRunner.vue";
+import ProjectRunner from "../../../components/project/ProjectRunner.vue";
 import { localuser } from "@/stores/user";
 export default {
   components: { ProjectRunner, Comment },
