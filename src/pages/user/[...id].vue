@@ -74,7 +74,7 @@
 
 <script>
 import Comment from "../../components/Comment.vue";
-import Projects from "../../components/Projects.vue";
+import Projects from "../../components/project/Projects.vue";
 import { useHead } from "@unhead/vue";
 import { liveFetchUserDetails, refreshUserCache } from "../../stores/cache/user.js";
 import request from "../../axios/axios.js";
