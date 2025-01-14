@@ -287,7 +287,13 @@ export default {
     async register() {
       for (const key in this.agreement) {
         if (this.agreement[key] === false) {
-          this.addtoast("请先阅读并同意有关协议");
+
+          this.$toast.add({
+        severity: "info",
+        summary: "info",
+        detail: "请先阅读并同意有关协议",
+        life: 3000,
+      });
           return;
         }
       }
@@ -302,7 +308,16 @@ export default {
           pw: this.username,
         },
       });
-      if (this.tryinguser.message != "OK") {
+      if (this.tryinguser.status == "success") {
+        this.loading = false;
+        this.$toast.add({
+          severity: "success",
+          summary: "注册成功",
+          detail: this.tryinguser.message,
+          life: 3000,
+        });
+        return;
+      }else  {
         this.loading = false;
         this.$toast.add({
           severity: "info",
@@ -312,23 +327,16 @@ export default {
         });
         return;
       }
-      this.loading = false;
+      // this.loading = false;
 
       //this.$toast.add({ severity: 'info', summary: 'info', detail: this.tryinguser.msg||this.tryinguser.message, life: 3000 });
-      localuser.setuser(this.tryinguser.token);
-      console.log(this.tryinguser);
-      if (this.tryinguser.msg || this.tryinguser.message == "OK") {
-        this.$router.push("/");
-      }
+      // localuser.setuser(this.tryinguser.token);
+      // console.log(this.tryinguser);
+      // if (this.tryinguser.msg || this.tryinguser.message == "OK") {
+      //   this.$router.push("/");
+      // }
     },
-    addtoast(text) {
-      this.$toast.add({
-        severity: "info",
-        summary: "info",
-        detail: text,
-        life: 3000,
-      });
-    },
+
   },
 };
 </script>

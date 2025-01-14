@@ -325,14 +325,7 @@ export default {
       };
       this.onPageChange();
     },
-    addtoast(a) {
-      this.$toast.add({
-        severity: "info",
-        summary: "info",
-        detail: a,
-        life: 3000,
-      });
-    },
+
     openinfo(id, info) {
       this.currentProjectID = id;
       this.currentProject = info;
@@ -350,12 +343,24 @@ export default {
       })
         .then((res) => {
           console.log(res);
-          this.addtoast(res.message);
+          this.$toast.add({
+        severity: "info",
+        summary: "info",
+        detail: res.message,
+        life: 3000,
+      });
+
           this.onPageChange();
         })
         .catch((err) => {
           console.log(err);
-          this.addtoast("失败");
+
+          this.$toast.add({
+        severity: "error",
+        summary: "失败",
+        detail: "失败",
+        life: 3000,
+      });
         });
     },
     openedit(id, info) {
@@ -380,13 +385,23 @@ export default {
       })
         .then((res) => {
           console.log(res);
-          this.addtoast(res.message);
+          this.$toast.add({
+        severity: "info",
+        summary: "info",
+        detail: res.message,
+        life: 3000,
+      });
           this.onPageChange();
           this.dialog = false;
         })
         .catch((err) => {
           console.log(err);
-          this.addtoast("删除失败");
+          this.$toast.add({
+        severity: "error",
+        summary: "error",
+        detail: "删除失败",
+        life: 3000,
+      });
         });
     },
     SaveProjectsInfo() {
@@ -398,13 +413,22 @@ export default {
       })
         .then((res) => {
           console.log(res);
-          this.addtoast(res.message);
+          this.$toast.add({
+        severity: "info",
+        summary: "info",
+        detail: res.message,
+        life: 3000,});
           this.dialog = false;
           this.onPageChange();
         })
         .catch((err) => {
           console.log(err);
-          this.addtoast("修改失败");
+          this.$toast.add({
+        severity: "error",
+        summary: "error",
+        detail: "修改失败",
+        life: 3000,
+      });
         });
     },
 

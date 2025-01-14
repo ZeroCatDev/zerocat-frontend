@@ -240,9 +240,8 @@ import $vuetify from "@/plugins/vuetify";
 import { localuser } from "../stores/user";
 import Typewriter from "../components/Typewriter.vue";
 import { useHead } from "@unhead/vue";
-import VueBlurHash from 'vue-blurhash'
 export default {
-  components: { Typewriter,VueBlurHash },
+  components: { Typewriter },
   setup() {
     useHead({});
   },

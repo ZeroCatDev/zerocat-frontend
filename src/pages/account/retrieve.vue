@@ -185,14 +185,7 @@ export default {
         this.$router.push("/");
       }
     },
-    addtoast(text) {
-      this.$toast.add({
-        severity: "info",
-        summary: "info",
-        detail: text,
-        life: 3000,
-      });
-    },
+
   },
 };
 </script>

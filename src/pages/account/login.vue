@@ -141,6 +141,7 @@ export default {
       password: "",
       tryinguser: {},
       loading: false,
+      localuser: localuser,
       initRecaptcha,
       getResponse,
       resetCaptcha,
@@ -190,12 +191,12 @@ export default {
           pw: this.password,
         },
       });
-      if (this.tryinguser.message != "OK") {
+      if (this.tryinguser.message == "error") {
         this.loading = false;
         this.$toast.add({
           severity: "info",
           summary: "info",
-          detail: this.tryinguser.msg || this.tryinguser.message,
+          detail: this.tryinguser.message,
           life: 3000,
         });
         return;
@@ -205,19 +206,12 @@ export default {
       //this.$toast.add({ severity: 'info', summary: 'info', detail: this.tryinguser.msg||this.tryinguser.message, life: 3000 });
       localuser.setuser(this.tryinguser.token);
       console.log(this.tryinguser);
-      if (this.tryinguser.msg || this.tryinguser.message == "OK") {
+      if (this.localuser.islogin==true) {
         this.$router.push("/");
       }
     },
 
-    addtoast(text) {
-      this.$toast.add({
-        severity: "info",
-        summary: "info",
-        detail: text,
-        life: 3000,
-      });
-    },
+
   },
 };
 </script>

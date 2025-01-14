@@ -174,7 +174,7 @@
       ><br />
       <v-btn @click="onPageChange(curPage + 1, false)">继续加载</v-btn>
       <br /><br />
-      <v-card subtitle="这是Scratch上的内容" title="ZeroCatScratchMirror">
+      <v-card subtitle="这是Scratch上的内容" title="ZeroCatScratchMirror" border>
         <v-card-text class="bg-surface-light pt-4">
           我们使用这种方式促进Scratch及其社区的发展，这些内容是按照<a
             >署名-相同方式共享 2.0 通用</a
