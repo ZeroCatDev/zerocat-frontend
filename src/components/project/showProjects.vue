@@ -80,7 +80,8 @@ export default {
         this.liveQuerySubscription.unsubscribe();
       }
       this.liveQuerySubscription = liveFetchProjectDetails(this.projectIds, (projects) => {
-        this.projects = projects;
+        const projectMap = new Map(projects.map(project => [project.id, project]));
+        this.projects = this.projectIds.map(id => projectMap.get(id)).filter(Boolean);
         this.updateAuthorIds();
       });
     },

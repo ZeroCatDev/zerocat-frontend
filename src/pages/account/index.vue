@@ -85,7 +85,7 @@
                   <v-btn @click="resetCaptcha()" variant="text" border>刷新</v-btn>
                 </v-col>
                 <v-col cols="12">
-                  <v-btn @click="submit" :disabled="!valid" border>提交</v-btn>
+                  <v-btn @click="submit" :disabled="!valid" color="primary" class="mt-4">提交</v-btn>
                 </v-col>
               </v-row>
             </v-form>
@@ -108,7 +108,7 @@
                   <v-btn @click="resetCaptcha()" variant="text" border>刷新</v-btn>
                 </v-col>
                 <v-col cols="12">
-                  <v-btn @click="changeusername" :disabled="!usernamevalid" border>提交</v-btn>
+                  <v-btn @click="changeusername" :disabled="!usernamevalid" color="primary" class="mt-4">提交</v-btn>
                 </v-col>
               </v-row>
             </v-form>
@@ -138,7 +138,7 @@
                   <v-btn @click="resetCaptcha()" variant="text" border>刷新</v-btn>
                 </v-col>
                 <v-col cols="12">
-                  <v-btn @click="changepassword" :disabled="!passwordvalid" border>提交</v-btn>
+                  <v-btn @click="changepassword" :disabled="!passwordvalid" color="primary" class="mt-4">提交</v-btn>
                 </v-col>
               </v-row>
             </v-form>
@@ -162,7 +162,7 @@
                   <v-btn @click="resetCaptcha()" variant="text" border>刷新</v-btn>
                 </v-col>
                 <v-col cols="12">
-                  <v-btn @click="uploadAvatar" :disabled="!avatarvalid" border>提交</v-btn>
+                  <v-btn @click="uploadAvatar" :disabled="!avatarvalid" color="primary" class="mt-4">提交</v-btn>
                 </v-col>
               </v-row>
             </v-form>

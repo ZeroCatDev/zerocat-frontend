@@ -1,8 +1,10 @@
 <template>
     <v-progress-linear
-      v-if="loading"
       indeterminate
       color="primary"
+      :active="loading"
+      height="4"
+
     ></v-progress-linear>
     <v-row>
       <v-col cols="12">
@@ -69,13 +71,17 @@ export default {
         const response = await request.get(
           `${this.url}&curr=${this.page}&limit=${this.limit}`
         );
-        this.projectIds = this.hasTotalCount
-          ? response.projects
-          : [...this.projectIds, ...response.projects];
-        this.totalCount = response.totalCount || 0;
-        this.totalPage = this.totalCount
-          ? Math.ceil(this.totalCount / this.limit)
-          : 1;
+       // this.projectIds = response.projects;
+       // this.totalCount = response.totalCount;
+       // this.totalPage = Math.ceil(this.totalCount / this.limit);
+
+        if (response.totalCount) {
+          this.projectIds = response.projects;
+          this.totalCount = response.totalCount;
+          this.totalPage = Math.ceil(this.totalCount / this.limit);
+        } else {
+          this.projectIds = [...this.projectIds, ...response.projects];
+        }
       } catch (error) {
         console.error("Failed to fetch projects:", error);
       } finally {
