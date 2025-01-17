@@ -1,4 +1,6 @@
 # ZeroCatNext
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FZeroCatDev%2Fzerocat-frontend.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FZeroCatDev%2Fzerocat-frontend?ref=badge_shield)
+
 
 ZeroCat 是一个轻量级的在线编程、分享平台
 
@@ -69,3 +71,5 @@ Once the build process is completed, your application will be ready for deployme
 [GPL](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 Copyright (c) 2020-present Sun Wuyuan <sun@wuyuan.dev> and HouLangs Dev Team
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FZeroCatDev%2Fzerocat-frontend.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FZeroCatDev%2Fzerocat-frontend?ref=badge_large)
