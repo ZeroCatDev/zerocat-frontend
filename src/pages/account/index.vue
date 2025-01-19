@@ -255,7 +255,7 @@ export default {
     },
     async uploadAvatar() {
       const formData = new FormData();
-      formData.append("file", this.useravatarfile);
+      formData.append("zcfile", this.useravatarfile);
       try {
         const responseData = await getResponse();
         const queryParams = new URLSearchParams(responseData).toString();
