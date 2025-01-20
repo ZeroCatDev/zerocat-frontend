@@ -40168,7 +40168,7 @@ const ProjectFetcherHOC = function ProjectFetcherHOC(WrappedComponent) {
     vm: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.instanceOf(scratch_vm__WEBPACK_IMPORTED_MODULE_10___default.a)
   };
   ProjectFetcherComponent.defaultProps = {
-    assetHost: "https://s4-1.wuyuan.1r.ink/material/asset",
+    assetHost: "https://s4-1.wuyuan.1r.ink/",
     projectHost: "https://zerocat-api.houlangs.com"
   };
   const mapStateToProps = state => ({
@@ -41441,7 +41441,7 @@ class Storage extends _zerocat_scratch_storage__WEBPACK_IMPORTED_MODULE_0___defa
     this.assetHost = assetHost;
   }
   getAssetGetConfig(asset) {
-    return "".concat(this.assetHost, "/").concat(asset.assetId, ".").concat(asset.dataFormat);
+    return "".concat(this.assetHost, "material/asset/").concat(asset.assetId, ".").concat(asset.dataFormat);
   }
   getAssetCreateConfig(asset) {
     return {
