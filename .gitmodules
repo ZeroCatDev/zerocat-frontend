@@ -7,4 +7,5 @@
 	url = https://github.com/ZeroCatDev/python-editor.git
 [submodule "public/clipcc"]
 	path = public/clipcc
-	url = "https://github.com/ZeroCatDev/zerocat-clipcc-gui.git#build"
+	url = "https://github.com/ZeroCatDev/zerocat-clipcc-gui.git"
+	branch = build
