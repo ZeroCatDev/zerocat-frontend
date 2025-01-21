@@ -10,12 +10,9 @@
     <title>
         ZeroCat - Run Scratch projects faster
     </title>
+
     <link rel="apple-touch-icon" href="./images/apple-touch-icon.png" />
     
-            <script src="./main.js"></script>
-            <script src="./jquery.3.7.1.js"></script>
-            <link rel="stylesheet" href="https://unpkg.com/mdui@2/mdui.css" />
-            <script src="https://unpkg.com/mdui@2/mdui.global.js"></script>
 
             <style>
                 .splash-screen {
@@ -228,22 +225,14 @@
         })();
     </script>
 
-    <mdui-dialog headline="作品" description="加载中" close-on-overlay-click id="zerocat-tab">
-        <mdui-button id="savestatic" onclick="uploadAssets()">保存媒体库</mdui-button>
-        <mdui-button onclick="projectjson='null';saveproject()">强制保存作品</mdui-button>
-        <mdui-button onclick="logText.innerText = ''">清空log</mdui-button>
-
-        <div id="log-text"></div>
-    </mdui-dialog>
 
 
-    <script src="./jwt-decode.js"></script>
-    <script src="https://zerocat-api.houlangs.com/scratchtool"></script>
+
     <div id="app"></div>
 <script src="./js/vendors~addon-settings~credits~editor~embed~fullscreen~player.js"></script><script src="./js/vendors~editor~embed~fullscreen~player.js"></script><script src="./js/addon-settings~addons~editor~fullscreen~player.js"></script><script src="./js/addon-settings~editor~embed~fullscreen~player.js"></script><script src="./js/editor.js"></script></body>
 
 </html>
-
+<!--
 <mdui-dialog close-on-overlay-click id="fork-dialog" style="display: none">
     <span slot="headline">改编此作品</span>
     <span slot="description">你确定要改编这个作品吗？<br />
@@ -255,4 +244,4 @@
 
     <mdui-button
         onclick="if(document.querySelector('#suretoforktext').value=='我保证会好好对待改编的作品'){forkproject();forkdialog.open=false}else{alert('请输入正确的内容')}">改编</mdui-button>
-</mdui-dialog>
+</mdui-dialog>-->    <script src="/scratchtool"></script>
