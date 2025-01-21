@@ -1,6 +1,6 @@
 export default function open(id, type) {
   if (type == "scratch") {
-    window.open("/scratch/editor.html#" + id);
+    window.open("/scratch/editor.html?id=" + id);
   }
   if (type == "python") {
     window.open("/python/edit.html?id=" + id);

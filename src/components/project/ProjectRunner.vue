@@ -17,26 +17,13 @@
       ></iframe>
     </div>
   </div>
-  <br />
-  <v-expansion-panels v-if="type != 'scratch'">
-    <v-expansion-panel>
-      <v-expansion-panel-title>原始数据</v-expansion-panel-title>
-      <v-expansion-panel-text>
-        <highlightjs autodetect :code="code" />
-      </v-expansion-panel-text>
-    </v-expansion-panel>
-  </v-expansion-panels>
+
 </template>
 <script>
-import "highlight.js/styles/github-dark.css";
-import hljs from "highlight.js/lib/common";
-import hljsVuePlugin from "@highlightjs/vue-plugin";
 import request from "../../axios/axios";
 import { ref } from "vue";
 export default {
-  components: {
-    highlightjs: hljsVuePlugin.component,
-  },
+
   data() {
     return {
       embedurl: "/",
@@ -63,11 +50,6 @@ export default {
       this.watchedtype = newVal;
       this.watchedid = newVal;
 
-      this.code = await request({
-        url: "/project/" + this.id + "/source/",
-        method: "get",
-      });
-      console.log(this.code);
       if (this.type === "scratch") {
         this.embedurl = `/scratch/embed.html?id=${this.id}&branch=main&ref=latest`;
       }
