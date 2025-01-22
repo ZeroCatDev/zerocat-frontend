@@ -51,7 +51,7 @@ export default {
       this.watchedid = newVal;
 
       if (this.type === "scratch") {
-        this.embedurl = `/scratch/embed.html?id=${this.id}&branch=main&ref=latest`;
+        this.embedurl = `/scratch/embed.html?id=${this.id}&branch=main&ref=latest&embed=true`;
       }
       if (this.type === "python") {
         this.pythonplayer = "/python/nextplay.html?id=" + this.id;
