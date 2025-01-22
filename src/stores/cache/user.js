@@ -133,6 +133,26 @@ export async function fetchUserDetailsFromCloud(id) {
   }
 }
 
+
 // 简单易用的获取用户信息函数
+export async function getUserInfo(userId) {
+  const cachedUser = await db.users.get(Number(userId));
+  if (cachedUser) {
+    refreshUserCache(userId); // 后台刷新用户信息
+    return cachedUser;
+  } else {
+    const exampleUser = {
+      id: userId,
+      display_name: "示例用户",
+      motto: "这是一个示例",
+      images: "default.png",
+      regTime: "0000-00-00T00:00:00.000Z",
+      sex: "未知",
+      username: "exampleuser",
+    };
+    refreshUserCache(userId); // 后台刷新用户信息
+    return exampleUser;
+  }
+}
 
 
