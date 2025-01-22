@@ -76,7 +76,7 @@ export default {
           detail: res,
           life: 3000,
         });
-        if (res.status == "1") {
+        if (res.status == "success") {
           //this.created = true
           this.newId = res.id;
         }

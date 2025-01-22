@@ -128,3 +128,43 @@ export function DebugliveFetchAllProjectDetails(callback) {
   return liveQuery(() => db.projects.toArray()).subscribe(callback);
 }
 
+// 直接读取数据库中指定id的数据，不使用实时查询
+export function getProjectDetailsFromCache(id) {
+  return db.projects.get(Number(id)).then(
+    (project) =>
+      project || {
+        id,
+        title: "未知项目",
+        description: "项目信息未缓存",
+        authorid: 0,
+        type: "scratch",
+        licence: "unknow",
+        state: "unknow",
+        view_count: 0,
+        time: 0,
+        tags: [],
+        source: "unknow",
+      }
+  );
+}
+
+// 从云端获取数据，返回，并存入数据库中
+export async function fetchProjectDetailsFromCloud(id) {
+  const data = await request.get(`/project/${id}`);
+  const project = {
+    id: data.id,
+    type: data.type,
+    licence: data.licence,
+    authorid: data.authorid,
+    state: data.state,
+    view_count: data.view_count,
+    time: data.time,
+    title: data.title,
+    description: data.description,
+    tags: data.tags,
+    source: data.source,
+  };
+  await cacheProjectInfo(project);
+  return project;
+}
+

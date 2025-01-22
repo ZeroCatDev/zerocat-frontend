@@ -73,7 +73,7 @@ export async function refreshUserCache(UserID) {
       UserID.map(async (id) => {
         const data = await request.get(`/api/getuserinfo?id=${id}`);
         console.log(data);
-        if (data.status === "ok") {
+        if (data.status === "success") {
           const user = {
             id: data.info.user.id,
             display_name: data.info.user.display_name,
@@ -107,24 +107,32 @@ export function liveFetchUserDetails(ids, callback) {
 export function DebugliveFetchAllUserDetails(callback) {
   return liveQuery(() => db.users.toArray()).subscribe(callback);
 }
-// 简单易用的获取用户信息函数
-export async function getUserInfo(userId) {
-  const cachedUser = await db.users.get(Number(userId));
-  if (cachedUser) {
-    refreshUserCache(userId); // 后台刷新用户信息
-    return cachedUser;
-  } else {
-    const exampleUser = {
-      id: userId,
-      display_name: "示例用户",
-      motto: "这是一个示例",
-      images: "default.png",
-      regTime: "0000-00-00T00:00:00.000Z",
-      sex: "未知",
-      username: "exampleuser",
+
+// 直接读取数据库中指定id的数据，不使用实时查询
+export function getUserDetailsFromCache(id) {
+  return db.users.get(Number(id)).then((user) => user || { id, display_name: "未知用户", motto: "", images: "" });
+}
+
+// 从云端获取数据，返回，并存入数据库中
+export async function fetchUserDetailsFromCloud(id) {
+  const data = await request.get(`/api/getuserinfo?id=${id}`);
+  if (data.status === "success") {
+    const user = {
+      id: data.info.user.id,
+      display_name: data.info.user.display_name,
+      motto: data.info.user.motto,
+      images: data.info.user.images,
+      regTime: data.info.user.regTime,
+      sex: data.info.user.sex,
+      username: data.info.user.username,
     };
-    refreshUserCache(userId); // 后台刷新用户信息
-    return exampleUser;
+    await cacheUserInfo(user);
+    return user;
+  } else {
+    return { id, display_name: "未知用户", motto: "", images: "" };
   }
 }
+
+// 简单易用的获取用户信息函数
+
 

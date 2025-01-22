@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container>{{ project }}
     <v-row>
       <v-col xs="12" sm="12" md="8" lg="8" xl="8" xxl="8" cols="12">
         <ProjectRunner :type="project.type" :id="project.id" />
@@ -81,8 +81,9 @@ import ProjectStar from "../../../components/project/ProjectStar.vue";
 import Comment from "../../../components/Comment.vue";
 import TimeAgo from "@/components/TimeAgo.vue";
 import { useHead } from "@unhead/vue";
-import { liveFetchProjectDetails, refreshProjectCache } from "../../../stores/cache/project.js";
-import { fetchUserDetails, refreshUserCache,liveFetchUserDetails } from "../../../stores/cache/user.js";
+import { liveFetchProjectDetails, refreshProjectCache,getProjectDetailsFromCache, fetchProjectDetailsFromCloud } from "../../../stores/cache/project.js";
+import { fetchUserDetails, refreshUserCache,liveFetchUserDetails ,getUserDetailsFromCache, fetchUserDetailsFromCloud } from "../../../stores/cache/user.js";
+
 
 export default {
   components: { ProjectRunner, TimeAgo, Comment, AddTolist, ProjectStar },
@@ -117,32 +118,33 @@ export default {
     };
   },
   async mounted() {
-    this.startLiveFetch();
     await this.refreshProject();
-    await this.refreshAuthor();
+    this.fetchProjectAndAuthorDetails();
+
   },
   methods: {
-    startLiveFetch() {
-      liveFetchProjectDetails([Number(this.$route.params.id)], (projects) => {
-        if (projects.length > 0) {
-          this.project = projects[0];
-          useHead({
-            title: "" + this.project.title,
-          });
-        }
-      });
-      liveFetchUserDetails([Number(this.project.authorid)], (users) => {
-        if (users.length > 0) {
-          this.author = users[0];
-        }
-      });
+    async fetchProjectAndAuthorDetails() {
+      const projectId = Number(this.$route.params.id);
+
+      // 先获取本地缓存
+      this.project = await getProjectDetailsFromCache(projectId);
+      useHead({ title: this.project.title });
+      this.author = await getUserDetailsFromCache(this.project.authorid);
+
+      // 再强制获取云端数据
+      const projectFromCloud = await fetchProjectDetailsFromCloud(projectId);
+      this.project = projectFromCloud;
+      useHead({ title: this.project.title });
+      this.author = await fetchUserDetailsFromCloud(this.project.authorid);
     },
     async refreshProject() {
       await refreshProjectCache(this.$route.params.id);
+      await this.refreshAuthor();
     },
     async refreshAuthor() {
       await refreshUserCache(this.project.authorid);
     },
   },
+
 };
 </script>

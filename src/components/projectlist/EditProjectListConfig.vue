@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import request from "../axios/axios";
+import request from "../../axios/axios";
 export default {
   data() {
     return {
@@ -95,7 +95,7 @@ export default {
           detail: res,
           life: 3000,
         });
-        if (res.status == "1") {
+        if (res.status == "success") {
           //this.created = true
           this.listInfo = Object.assign({}, res.data);
 
