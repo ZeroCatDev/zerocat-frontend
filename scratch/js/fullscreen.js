@@ -13179,8 +13179,12 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_7___default.a.Component {
     })))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
       className: _menu_bar_css__WEBPACK_IMPORTED_MODULE_38___default.a.menuBarItem
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement(_button_button_jsx__WEBPACK_IMPORTED_MODULE_10__["default"], {
-      id: "zerocattool"
-    }, "\u6D4B\u8BD5"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
+      id: "zerocattool",
+      onClick: () => {
+        var _window$renderButtons, _window;
+        return (_window$renderButtons = (_window = window).renderButtons) === null || _window$renderButtons === void 0 ? void 0 : _window$renderButtons.call(_window);
+      }
+    }, "\u52A0\u8F7DZeroCat\u5DE5\u5177"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement("div", {
       className: _menu_bar_css__WEBPACK_IMPORTED_MODULE_38___default.a.accountInfoGroup
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_7___default.a.createElement(_tw_save_status_jsx__WEBPACK_IMPORTED_MODULE_30__["default"], {
       onSaveNow: this.handleClickSave
