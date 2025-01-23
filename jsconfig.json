@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "target": "es5",
-    "module": "esnext",
+    "target": "ES6",
+    "module": "CommonJS",
     "baseUrl": "./",
     "moduleResolution": "bundler",
     "paths": {
@@ -24,7 +24,9 @@
     "types",
     "LICENSE",
     "README.md",
-    "vite.config.js"
+    "vite.config.js",
+    "out",
+    "build",
+    "public"
   ]
 }
-
