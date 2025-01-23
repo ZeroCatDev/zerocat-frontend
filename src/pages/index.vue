@@ -1,26 +1,6 @@
 <template>
   <v-layout>
-    <v-app-bar color="transparent" flat>
-      <div class="d-flex flex-1-1-0 ps-md-4">
-        <v-avatar
-          :image="
-            localuser.islogin == true
-              ? 'https://s4-1.wuyuan.1r.ink/user/' + localuser.user.avatar
-              : '../assets/ZeroCatLogo.svg'
-          "
-        />
-      </div>
 
-      <div class="d-flex flex-1-1-0 pe-3">
-        <v-btn
-          append-icon="mdi-chevron-right"
-          class="ms-auto text-none"
-          slim
-          text="账户"
-          to="/app/account"
-        />
-      </div>
-    </v-app-bar>
 
     <v-main height="90vh">
       <v-container class="h-100 d-flex align-center justify-center">
