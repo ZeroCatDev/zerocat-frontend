@@ -4,7 +4,7 @@
       <v-img
         :src="'https://scratch.192325.xyz/thumbnails/' + project.id"
         class="align-end"
-        lazy-src="../../../assets/43-lazyload.png"
+        lazy-src="../../../../assets/43-lazyload.png"
         height="100%"
         gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
         cover

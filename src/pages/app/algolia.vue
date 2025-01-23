@@ -43,7 +43,7 @@
                 <v-img
                   :src="'https://s4-1.wuyuan.1r.ink/scratch_slt/' + item.id"
                   class="align-end"
-                  lazy-src="../assets/43-lazyload.png"
+                  lazy-src="../../assets/43-lazyload.png"
                   height="100%"
                   gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
                   cover
@@ -103,7 +103,7 @@
       rel="noopener noreferrer"
     >
       <v-img
-        src="../assets/Algolia-logo-blue.svg"
+        src="../../assets/Algolia-logo-blue.svg"
         height="1.5rem"
         width="5rem"
       ></v-img>

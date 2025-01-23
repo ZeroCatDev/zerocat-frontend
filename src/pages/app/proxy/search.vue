@@ -58,7 +58,7 @@
           <v-img
             :src="`${scratch_proxy}/thumbnails/${info.id}`"
             cover
-            lazy-src="../../assets/43-lazyload.png"
+            lazy-src="../../../assets/43-lazyload.png"
           ></v-img
           ><v-card-item>
             <v-card-title>{{ info.title }}</v-card-title>
