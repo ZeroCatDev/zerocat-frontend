@@ -21,7 +21,7 @@
       v-model="scratchprojectid"
     ></v-text-field>
     <v-btn
-      :to="'/proxy/' + scratchprojectid"
+      :to="'/app/proxy/' + scratchprojectid"
       :disabled="scratchprojectid == ''"
       color="primary"
       >打开</v-btn
@@ -32,7 +32,7 @@
       v-model="scratchstudioid"
     ></v-text-field>
     <v-btn
-      :to="'/proxy/studio/' + scratchstudioid"
+      :to="'/app/proxy/studio/' + scratchstudioid"
       :disabled="scratchstudioid == ''"
       color="primary"
       >打开</v-btn

@@ -154,7 +154,7 @@
       </div>
       <v-row>
         <v-col cols="4" md="2" v-for="info in projects" :key="info">
-          <v-card :to="'/proxy/' + info.id">
+          <v-card :to="'/app/proxy/' + info.id">
             <v-img
               :src="`${scratch_proxy}/thumbnails/${info.id}`"
               cover

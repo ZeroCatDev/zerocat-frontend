@@ -101,7 +101,7 @@
             此项目可以被存储到ZeroCat服务器
           </v-card-text>
           <template v-slot:actions>
-            <v-btn :to="'/proxy/' + project.id + '/fork'" variant="text"
+            <v-btn :to="'/app/proxy/' + project.id + '/fork'" variant="text"
               >保存到ZeroCat</v-btn
             >
           </template>

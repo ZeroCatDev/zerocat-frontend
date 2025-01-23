@@ -32,7 +32,7 @@
       <br />
       <v-row>
         <v-col cols="4" md="2" v-for="info in name" :key="info">
-          <v-card :to="'/proxy/' + info.id" v-if="info.type == 'project'">
+          <v-card :to="'/app/proxy/' + info.id" v-if="info.type == 'project'">
             <v-img
               :src="`${scratch_proxy}/thumbnails/${info.id}`"
               cover
