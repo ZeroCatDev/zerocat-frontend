@@ -36,7 +36,7 @@
               :key="item.objectID"
             >
               <v-card
-                :to="'/projects/' + item.id"
+                :to="`${item.authorid}/${item.id}`"
                 style="aspect-ratio: 4/3"
                 rounded="lg"
               >

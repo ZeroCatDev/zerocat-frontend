@@ -9,7 +9,6 @@
         <template #activator="{ props }">
           <v-btn icon="mdi-dots-vertical" v-bind="props"></v-btn>
         </template>
-
         <v-list>
           <v-list-item
             to="/"
@@ -65,7 +64,7 @@
               color="primary"
             ></v-list-item>
             <v-list-item
-              to="/projects/my"
+              to="/explore/my"
               prepend-icon="mdi-xml"
               title="项目"
               rounded="xl"
@@ -94,19 +93,28 @@
         </v-card>
       </v-menu>
     </template>
+    <template v-slot:extension v-if="subNavItems.length">
+      <transition name="fade">
+        <v-tabs align-tabs="center">
+          <v-tab v-for="item in subNavItems" :key="item.title" :to="item.link">
+            {{ item.title }}
+          </v-tab>
+        </v-tabs>
+      </transition>
+    </template>
   </v-app-bar>
   <v-navigation-drawer v-model="drawer" :rail="drawerRail" expand-on-hover>
-    <v-list v-for="lists in items" :key="lists">
+    <v-list v-for="lists in items" :key="lists.title">
       <div v-if="lists.login === false || lists.login === isLogin">
         <v-list-subheader>
           <v-icon :icon="lists.icon" size="small"></v-icon>
+          {{ lists.title }}
         </v-list-subheader>
         <v-list-item
           v-for="item in lists.list"
           :key="item.title"
           :prepend-icon="item.icon"
           :title="item.title"
-          :value="item.link"
           :to="item.link"
           rounded="xl"
         ></v-list-item>
@@ -142,9 +150,9 @@ export default {
           login: false,
           list: [
             { title: "首页", link: "/", icon: "mdi-home" },
-            { title: "项目", link: "/projects", icon: "mdi-xml" },
+            { title: "项目", link: "/explore", icon: "mdi-xml" },
             { title: "搜索", link: "/algolia", icon: "mdi-earth" },
-            { title: "新作品", link: "/projects/new", icon: "mdi-plus" },
+            { title: "新作品", link: "/explore/new", icon: "mdi-plus" },
           ],
         },
         mirror: {
@@ -168,42 +176,73 @@ export default {
           ],
         },
       },
+      subNavItems: [],
+      hideNavPaths: ['/explore',"/algolia",'/tools','/proxy','/account','/projectlist'],
+      hideExactPaths: ['/', '/index.html']
     };
   },
   created() {
-    // 在组件创建时检查localStorage中的状态
     const drawerStatus = localStorage.getItem("drawerStatus");
     const drawerRailStatus = localStorage.getItem("drawerRailStatus");
 
-    this.drawer = drawerStatus === "true"; // 根据存储的值设置drawer
-    this.drawerRail = drawerRailStatus === "true"; // 根据存储的值设置drawerRail
+    this.drawer = drawerStatus === "true";
+    this.drawerRail = drawerRailStatus === "true";
+    this.updateSubNavItems(this.$route);
   },
   watch: {
-    userInfo(newName, oldName) {
+    userInfo() {
       this.$forceUpdate();
     },
     drawer(newVal) {
-      // 当 drawer 状态发生变化时，将状态存入localStorage
       localStorage.setItem("drawerStatus", newVal);
     },
     drawerRail(newVal) {
-      // 当 drawerRail 状态发生变化时，将状态存入localStorage
       localStorage.setItem("drawerRailStatus", newVal);
     },
+    $route(to) {
+      this.updateSubNavItems(to);
+    }
   },
   methods: {
-    tryLogout() {
-      if (this.clickLogout === 1) {
-        this.$router.push("/account/logout");
-        this.clickLogout = 0;
-        this.logoutButton = "退出";
+    updateSubNavItems(route) {
+      if (this.shouldHideNav(route.path)) {
+        this.subNavItems = [];
+      } else if (route.path.startsWith('/user/')) {
+        this.setUserNavItems(route.params.id);
+      } else if (route.path.startsWith('/')) {
+        this.setProjectNavItems(route.params.id, route.params.authorid);
       } else {
-        this.clickLogout += 1;
-
-        this.logoutButton = "再点一次退出";
+        this.subNavItems = [];
       }
     },
+    shouldHideNav(path) {
+      return this.hideNavPaths.some(hidePath => path.startsWith(hidePath)) || this.hideExactPaths.includes(path);
+    },
+    setUserNavItems(userId) {
+      this.subNavItems = [
+        { title: '主页', link: `/${userId}` },
+        { title: '信息', link: `/${userId}?tab=info` },
+      ];
+    },
+    setProjectNavItems(projectId, authorId) {
+      const isAuthor = this.userInfo.userid == authorId;
+      this.subNavItems = [
+        { title: '代码', link: `/${authorId}/${projectId}` },
+        ...(isAuthor ? [
+          { title: '推送', link: `/${authorId}/${projectId}/push` },
+          { title: '设置', link: `/${authorId}/${projectId}/settings` }
+        ] : [])
+      ];
+    }
   },
 };
 </script>
 
+<style>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+</style>

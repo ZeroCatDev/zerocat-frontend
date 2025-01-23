@@ -106,7 +106,7 @@ export default {
             life: 3000,
           });
           if (res.status == "1") {
-            this.$router.push("/projects/" + this.project.id);
+            this.$router.push(`${localuser.user.userid}/${this.project.id}`);
           }
         })
         .catch((err) => {

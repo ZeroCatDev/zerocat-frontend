@@ -62,7 +62,7 @@
       </v-col>
     </v-row>
     <br />
-    <Comment :url="'user-' + $route.params.id" name="用户"></Comment>
+    <Comment :url="'user-' + $route.params.authorid" name="用户"></Comment>
   </v-container>
 </template>
 
@@ -76,10 +76,10 @@ export default {
   components: { Projects, Comment },
   data() {
     return {
-      userid: Number(this.$route.params.id),
+      userid: Number(this.$route.params.authorid),
       user: {},
       lists: [],
-      url: `/searchapi?search_userid=${this.$route.params.id}&search_type=&search_title=&search_source=&search_description=&search_orderby=view_up&search_state=public&search_tag=`,
+      url: `/searchapi?search_userid=${this.$route.params.authorid}&search_type=&search_title=&search_source=&search_description=&search_orderby=view_up&search_state=public&search_tag=`,
     };
   },
   async created() {

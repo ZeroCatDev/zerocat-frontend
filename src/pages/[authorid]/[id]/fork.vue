@@ -192,7 +192,7 @@ export default {
             life: 3000,
           });
           if (res.id) {
-            this.$router.push("/projects/" + res.id);
+            this.$router.push(`${localuser.user.userid}/${res.id}`);
           }
         })
         .catch((err) => {

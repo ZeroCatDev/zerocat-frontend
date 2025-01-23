@@ -1,5 +1,5 @@
 <template>
-  <v-container>{{ project }}
+  <v-container>
     <v-row>
       <v-col xs="12" sm="12" md="8" lg="8" xl="8" xxl="8" cols="12">
         <ProjectRunner :type="project.type" :id="project.id" />
@@ -39,7 +39,7 @@
           <div class="px-4 d-flex ga-2 mb-2">
             <ProjectStar />
             <v-btn @click="openEditor(project.id, project.type)" variant="text">打开创造页</v-btn>
-            <v-btn v-if="project.authorid != localuser.user.id" :to="'/projects/' + projectid + '/fork'" variant="text">改编</v-btn>
+            <v-btn v-if="project.authorid != localuser.user.id" :to="`${project.authorid}/${projectid}/fork`" variant="text">改编</v-btn>
           </div>
           <div class="px-4">
             <v-card hover :to="'/user/' + project.authorid" border>

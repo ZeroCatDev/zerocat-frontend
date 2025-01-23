@@ -99,7 +99,6 @@
       :actions="[
         { name: '信息', function: openinfo },
         { name: '编辑', function: openedit },
-        { name: '推送页', function: openpushpage },
       ]"
     >
     </Projects>
@@ -333,9 +332,7 @@ export default {
       this.aboutTags.chips = this.currentProject.tags.map(tag => tag.name);
       this.dialog = true;
     },
-    openpushpage(id) {
-      this.$router.push("/projects/" + id + "/push");
-    },
+
     pushproject(id, info) {
       request({
         url: "/project/" + id + "/push",
