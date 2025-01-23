@@ -23,13 +23,7 @@
     </v-app-bar>
 
     <v-main height="90vh">
-      <v-container class="h-100 d-flex align-center justify-center">  <blur-hash-image
-    width="400"
-    height="300"
-    hash="LdHfL}oJR$WBKnfi%3ofT0kCM{ay"
-    src="https://images.unsplash.com/photo-1545910684-8e7c081be9b0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1867&q=80"
-    alt="green lawn grass during daytime"
-  />
+      <v-container class="h-100 d-flex align-center justify-center">
         <div class="w-100 w-md-50 text-center">
           <v-chip
             border="thin opacity-25"
@@ -56,7 +50,7 @@
               class="text-none"
               color="primary"
               flat
-              to="/projects"
+              to="/app/explore"
               rounded="lg"
               text="浏览作品"
             />
