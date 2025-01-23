@@ -92,7 +92,7 @@
               <h1>管理员</h1>
               <v-row>
                 <v-col cols=" 12" md="3" v-for="info in managers" :key="info">
-                  <v-card :to="'/proxy/user/' + info.username">
+                  <v-card :to="'/app/proxy/user/' + info.username">
                     <v-card-item>
                       <template v-slot:prepend>
                         <v-avatar
@@ -116,7 +116,7 @@
               <h1>成员</h1>
               <v-row>
                 <v-col cols=" 12" md="3" v-for="info in curators" :key="info">
-                  <v-card :to="'/proxy/user/' + info.username">
+                  <v-card :to="'/app/proxy/user/' + info.username">
                     <v-card-item>
                       <template v-slot:prepend>
                         <v-avatar
@@ -201,9 +201,9 @@
 </template>
 
 <script>
-import request from "../../../axios/axios";
-import Projects from "../../../components/project/Projects.vue";
-import Comment from "../../../components/Comment.vue";
+import request from "../../../../axios/axios";
+import Projects from "../../../../components/project/Projects.vue";
+import Comment from "../../../../components/Comment.vue";
 
 import { ref } from "vue";
 export default {

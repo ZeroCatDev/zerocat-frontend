@@ -65,7 +65,7 @@
 import NewProjectList from "@/components/projectlist/NewProjectList.vue";
 import EditProjectListConfig from "@/components/projectlist/EditProjectListConfig.vue";
 import { localuser } from "@/stores/user";
-import request from "../../axios/axios";
+import request from "../../../axios/axios";
 import { useHead } from "@unhead/vue";
 export default {
   components: {NewProjectList, EditProjectListConfig},

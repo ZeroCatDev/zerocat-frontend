@@ -206,7 +206,7 @@
                 </v-list>
               </v-menu>
             </template>
-            <v-card-title :to="'/user/' + comment.user_id">{{
+            <v-card-title :to="'/' + comment.user_id">{{
               users[comment.user_id].display_name
             }}</v-card-title>
 

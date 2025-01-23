@@ -73,7 +73,7 @@
             <v-card
               hover
               variant="tonal"
-              :to="'/proxy/user/' + project.author.username"
+              :to="'/app/proxy/user/' + project.author.username"
             >
               <v-card-item>
                 <template v-slot:prepend>
@@ -138,11 +138,11 @@
 </template>
 
 <script>
-import openEditor from "../../../stores/openEdit";
-import Comment from "../../../components/Comment.vue";
+import openEditor from "../../../../stores/openEdit";
+import Comment from "../../../../components/Comment.vue";
 
-import request from "../../../axios/axios";
-import ProjectRunner from "../../../components/project/ProjectRunner.vue";
+import request from "../../../../axios/axios";
+import ProjectRunner from "../../../../components/project/ProjectRunner.vue";
 import { localuser } from "@/stores/user";
 export default {
   components: { ProjectRunner, Comment },

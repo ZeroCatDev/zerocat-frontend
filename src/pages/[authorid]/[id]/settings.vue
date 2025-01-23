@@ -182,14 +182,12 @@ export default {
       this.currentProject.tags = this.aboutTags.chips.map(name => name);
       try {
         const response = await request.put(`/project/${this.currentProjectID}`, this.currentProject);
-        await cacheProjectInfo(this.currentProject);
         this.$toast.add({
-          severity: "info",
-          summary: "成功",
-          detail: response.data.message,
+          severity: response.status,
+          summary: response.message,
+          detail: response.message,
           life: 3000,
         });
-        this.$router.push("/explore/my");
       } catch (error) {
         console.error(error);
         this.$toast.add({

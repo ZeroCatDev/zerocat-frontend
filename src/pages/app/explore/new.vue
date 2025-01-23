@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import openEdit from "../../stores/openEdit";
+import openEdit from "../../../stores/openEdit";
 import request from "@/axios/axios";
 import { useHead } from "@unhead/vue";
 import { localuser } from "@/stores/user";

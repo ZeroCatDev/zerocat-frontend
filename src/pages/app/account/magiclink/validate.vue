@@ -31,7 +31,7 @@
 import { jwtDecode } from "jwt-decode";
 import { localuser } from "@/stores/user";
 
-import request from "../../../axios/axios";
+import request from "../../../../axios/axios";
 import { useHead } from "@unhead/vue";
 export default {
   data() {

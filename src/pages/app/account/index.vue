@@ -174,12 +174,12 @@
 </template>
 
 <script>
-import request from "../../axios/axios";
+import request from "../../../axios/axios";
 import { localuser } from "@/stores/user";
 import "https://static.geetest.com/v4/gt4.js";
 import Compressor from "compressorjs";
 import { useHead } from "@unhead/vue";
-import { initRecaptcha, getResponse, resetCaptcha } from "../../stores/useRecaptcha";
+import { initRecaptcha, getResponse, resetCaptcha } from "../../../stores/useRecaptcha";
 
 export default {
   data() {

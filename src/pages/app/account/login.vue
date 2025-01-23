@@ -99,21 +99,7 @@
           </v-row>
         </v-form>
       </v-cardtext>
-      <!--<v-card
-        class="mx-auto bg-surface-light"
-        :href="BASE_API + '/user/login?redirect=new'"
-      >
-        <template v-slot:prepend>
-          <v-icon icon="mdi-web"></v-icon>
-        </template>
-        <template v-slot:append>
-          <v-icon icon="mdi-arrow-right-circle"></v-icon>
-        </template>
-        <template v-slot:title> <span>在 ZeroCat 完成登录</span> </template
-        ><template v-slot:subtitle>
-          <span>您将在 {{ BASE_API }} 完成登录</span>
-        </template>
-      </v-card>-->
+
     </v-card>
   </div>
   <LoadingDialog :show="loading" text="登录中" />
@@ -121,14 +107,14 @@
 
 <script>
 import { localuser } from "@/stores/user";
-import request from "../../axios/axios";
+import request from "../../../axios/axios";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import "https://static.geetest.com/v4/gt4.js";
 import {
   initRecaptcha,
   getResponse,
   resetCaptcha,
-} from "../../stores/useRecaptcha";
+} from "../../../stores/useRecaptcha";
 import { useHead } from "@unhead/vue";
 
 export default {

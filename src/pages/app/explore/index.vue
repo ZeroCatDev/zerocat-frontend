@@ -107,7 +107,7 @@
 </template>
 
 <script>
-import Projects from "../../components/project/Projects.vue";
+import Projects from "../../../components/project/Projects.vue";
 import { useHead } from "@unhead/vue";
 
 export default {

@@ -43,7 +43,7 @@
       v-model="scratchusername"
     ></v-text-field>
     <v-btn
-      :to="'/proxy/user/' + scratchusername"
+      :to="'/app/proxy/user/' + scratchusername"
       :disabled="scratchusername == ''"
       color="primary"
       >打开</v-btn

@@ -44,11 +44,11 @@
 </template>
 
 <script>
-import Comment from "../../components/Comment.vue";
-import request from "../../axios/axios";
+import Comment from "../../../components/Comment.vue";
+import request from "../../../axios/axios";
 import { localuser } from "@/stores/user";
 import { useHead } from "@unhead/vue";
-import showProjects from "../../components/project/showProjects.vue";
+import showProjects from "../../../components/project/showProjects.vue";
 export default {
   components: { showProjects, Comment },
 

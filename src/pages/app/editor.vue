@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import request from "../axios/axios";
+import request from "../../axios/axios";
 export default {
   data() {
     return {

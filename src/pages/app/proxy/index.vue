@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import request from "../../axios/axios";
+import request from "../../../axios/axios";
 import { useHead } from "@unhead/vue";
 
 export default {

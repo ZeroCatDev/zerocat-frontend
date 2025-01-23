@@ -50,7 +50,7 @@
           ></v-card>
           <v-list>
             <v-list-item
-              :to="`/user/${userInfo.userid}`"
+              :to="`/${userInfo.userid}`"
               prepend-icon="mdi-account"
               title="个人主页"
               rounded="xl"
@@ -150,9 +150,9 @@ export default {
           login: false,
           list: [
             { title: "首页", link: "/", icon: "mdi-home" },
-            { title: "项目", link: "/explore", icon: "mdi-xml" },
-            { title: "搜索", link: "/algolia", icon: "mdi-earth" },
-            { title: "新作品", link: "/explore/new", icon: "mdi-plus" },
+            { title: "项目", link: "/app/explore", icon: "mdi-xml" },
+            { title: "搜索", link: "/app/algolia", icon: "mdi-earth" },
+            { title: "新作品", link: "/app/explore/new", icon: "mdi-plus" },
           ],
         },
         mirror: {
@@ -160,10 +160,10 @@ export default {
           icon: "mdi-link-variant",
           login: true,
           list: [
-            { title: "首页", link: "/proxy/", icon: "mdi-home" },
-            { title: "探索", link: "/proxy/explore", icon: "mdi-earth" },
-            { title: "搜索", link: "/proxy/search", icon: "mdi-xml" },
-            { title: "打开", link: "/proxy/open", icon: "mdi-link" },
+            { title: "首页", link: "/app/proxy/", icon: "mdi-home" },
+            { title: "探索", link: "/app/proxy/explore", icon: "mdi-earth" },
+            { title: "搜索", link: "/app/proxy/search", icon: "mdi-xml" },
+            { title: "打开", link: "/app/proxy/open", icon: "mdi-link" },
           ],
         },
         tools: {
@@ -171,13 +171,13 @@ export default {
           icon: "mdi-tools",
           title: "工具",
           list: [
-            { title: "桌面版镜像", link: "/tools/asdm", icon: "mdi-download" },
-            { title: "项目比较器", link: "/tools/comparer", icon: "mdi-xml" },
+            { title: "桌面版镜像", link: "/app/tools/asdm", icon: "mdi-download" },
+            { title: "项目比较器", link: "/app/tools/comparer", icon: "mdi-xml" },
           ],
         },
       },
       subNavItems: [],
-      hideNavPaths: ['/explore',"/algolia",'/tools','/proxy','/account','/projectlist'],
+      hideNavPaths: ['/app', '/404'],
       hideExactPaths: ['/', '/index.html']
     };
   },
@@ -207,21 +207,25 @@ export default {
     updateSubNavItems(route) {
       if (this.shouldHideNav(route.path)) {
         this.subNavItems = [];
-      } else if (route.path.startsWith('/user/')) {
-        this.setUserNavItems(route.params.id);
-      } else if (route.path.startsWith('/')) {
-        this.setProjectNavItems(route.params.id, route.params.authorid);
       } else {
-        this.subNavItems = [];
+        this.setDefaultNavItems(route);
       }
     },
     shouldHideNav(path) {
       return this.hideNavPaths.some(hidePath => path.startsWith(hidePath)) || this.hideExactPaths.includes(path);
     },
+    setDefaultNavItems(route) {
+      const pathSegments = route.path.split('/').filter(Boolean);
+      if (pathSegments.length === 1) {
+        this.setUserNavItems(pathSegments[0]);
+      } else {
+        this.setProjectNavItems(pathSegments[1], pathSegments[0]);
+      }
+    },
     setUserNavItems(userId) {
       this.subNavItems = [
         { title: '主页', link: `/${userId}` },
-        { title: '信息', link: `/${userId}?tab=info` },
+        { title: '信息', link: `/${userId}/?tab=info` },
       ];
     },
     setProjectNavItems(projectId, authorId) {

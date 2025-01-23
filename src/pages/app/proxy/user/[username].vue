@@ -81,9 +81,9 @@
 </template>
 
 <script>
-import request from "../../../axios/axios";
-import Projects from "../../../components/project/Projects.vue";
-import Comment from "../../../components/Comment.vue";
+import request from "../../../../axios/axios";
+import Projects from "../../../../components/project/Projects.vue";
+import Comment from "../../../../components/Comment.vue";
 
 export default {
   components: { Projects, Comment },

@@ -48,9 +48,9 @@
 </template>
 
 <script>
-import openEditor from "../../../stores/openEdit";
+import openEditor from "../../../../stores/openEdit";
 
-import request from "../../../axios/axios";
+import request from "../../../../axios/axios";
 import { localuser } from "@/stores/user";
 export default {
   data() {
