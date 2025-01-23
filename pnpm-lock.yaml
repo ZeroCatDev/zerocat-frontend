@@ -111,6 +111,9 @@ importers:
       eslint:
         specifier: ^9.14.0
         version: 9.18.0
+      eslint-config-prettier:
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@9.18.0)
       eslint-config-vuetify:
         specifier: ^2.0.5
         version: 2.0.5(eslint-plugin-n@17.15.1(eslint@9.18.0))(eslint@9.18.0)(typescript@5.7.2)(vite-plugin-vuetify@2.0.3)
@@ -1059,6 +1062,12 @@ packages:
     engines: {node: '>=12'}
     peerDependencies:
       eslint: '>=6.0.0'
+
+  eslint-config-prettier@10.0.1:
+    resolution: {integrity: sha512-lZBts941cyJyeaooiKxAtzoPHTN+GbQTJFAIdQbRhA4/8whaAraEh47Whw/ZFfrjNSnlAxqfm9i0XVAEkULjCw==}
+    hasBin: true
+    peerDependencies:
+      eslint: '>=7.0.0'
 
   eslint-config-vuetify@2.0.5:
     resolution: {integrity: sha512-/5g7N2fvuC1J2wbwl2v05ZAnzNdy2fH8wuaIJEhXjh18+wMFDznWntzrPq1otYzUies9pQ4Ic7i+BXvBrd7AUQ==}
@@ -3373,6 +3382,10 @@ snapshots:
     dependencies:
       eslint: 9.18.0
       semver: 7.6.3
+
+  eslint-config-prettier@10.0.1(eslint@9.18.0):
+    dependencies:
+      eslint: 9.18.0
 
   eslint-config-vuetify@2.0.5(eslint-plugin-n@17.15.1(eslint@9.18.0))(eslint@9.18.0)(typescript@5.7.2)(vite-plugin-vuetify@2.0.3):
     dependencies:

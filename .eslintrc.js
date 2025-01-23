@@ -12,6 +12,7 @@ module.exports = {
   extends: [
     'vuetify',
     './.eslintrc-auto-import.json',
+    'prettier',
   ],
   rules: {
     'vue/multi-word-component-names': 'off',
