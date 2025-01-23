@@ -1,7 +1,5 @@
 <template>
   <v-layout>
-
-
     <v-main height="90vh">
       <v-container class="h-100 d-flex align-center justify-center">
         <div class="w-100 w-md-50 text-center">
@@ -45,12 +43,6 @@
           </div>
         </div>
 
-        <div class="v-bg position-absolute top-0 right-0 left-0 bottom-0">
-          <div
-            aria-hidden="true"
-            class="overflow-hidden opacity-20 w-100 h-100"
-          />
-        </div>
       </v-container>
     </v-main>
   </v-layout>
