@@ -39,7 +39,7 @@
               EditProjectListConfigDialog = true;
             "
             >编辑</v-btn
-          ><v-btn :to="`/projectlist/${item.id}`">打开</v-btn>
+          ><v-btn :to="`/app/projectlist/${item.id}`">打开</v-btn>
         </v-card-actions>
       </v-card>
       <br />
@@ -72,7 +72,7 @@ export default {
 
   async created() {
     if (this.localuser.islogin == false) {
-      this.$router.push("/account/login");
+      this.$router.push("/app/account/login");
     }
   },
   data() {

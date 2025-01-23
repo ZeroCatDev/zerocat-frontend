@@ -226,7 +226,7 @@ export default {
   },
   async created() {
     if (!this.localuser.islogin) {
-      this.$router.push("/account/login");
+      this.$router.push("/app/account/login");
     } else {
       await this.getuserInfo();
     }

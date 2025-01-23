@@ -70,7 +70,7 @@
                 variant="text"
                 size="large"
                 append-icon="mdi-arrow-right"
-                to="/account/register"
+                to="/app/account/register"
               ></v-btn>
               <v-btn
                 class="text-none"
@@ -80,7 +80,7 @@
                 variant="text"
                 size="large"
                 append-icon="mdi-arrow-right"
-                to="/account/magiclink"
+                to="/app/account/magiclink"
               ></v-btn>
               <!-- login button -->
               <v-btn
@@ -91,7 +91,7 @@
                 variant="text"
                 size="large"
                 append-icon="mdi-arrow-right"
-                to="/account/retrieve"
+                to="/app/account/retrieve"
               ></v-btn>
               <!-- login button -->
             </v-col>

@@ -19,7 +19,7 @@
           color="primary"
           text="返回登录"
           variant="tonal"
-          to="/account/login"
+          to="/app/account/login"
           @click="login"
         ></v-btn>
       </v-card-actions>

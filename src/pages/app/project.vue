@@ -222,10 +222,10 @@
 </template>
 
 <script>
-import openEditor from "../../../stores/openEdit";
+import openEditor from "../../stores/openEdit";
 
-import request from "../../../axios/axios";
-import Projects from "../../../components/project/Projects.vue";
+import request from "../../axios/axios";
+import Projects from "../../components/project/Projects.vue";
 import { localuser } from "@/stores/user";
 import { useHead } from "@unhead/vue";
 export default {
@@ -286,7 +286,7 @@ export default {
 
   async created() {
     if (this.localuser.islogin == false) {
-      this.$router.push("/account/login");
+      this.$router.push("/app/account/login");
     }
     await this.onPageChange();
 1

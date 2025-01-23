@@ -17,7 +17,7 @@
           class="ms-auto text-none"
           slim
           text="账户"
-          to="/account"
+          to="/app/account"
         />
       </div>
     </v-app-bar>

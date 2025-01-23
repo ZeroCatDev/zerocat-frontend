@@ -56,7 +56,8 @@
               @click="select"
               @click:close="removetag(item)"
             >
-              <strong>{{ item.name }}</strong>&nbsp;
+              <strong>{{ item.name }}</strong
+              >&nbsp;
               <span>(interest)</span>
             </v-chip>
           </template>
@@ -98,7 +99,9 @@
         <v-card-text>你确定要删除这个项目吗？此操作无法撤销。</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" text @click="confirmDelete = false">取消</v-btn>
+          <v-btn color="primary" text @click="confirmDelete = false"
+            >取消</v-btn
+          >
           <v-btn color="error" text @click="deleteProject">删除</v-btn>
         </v-card-actions>
       </v-card>
@@ -110,7 +113,10 @@
 import request from "../../../axios/axios";
 import { localuser } from "@/stores/user";
 import { useHead } from "@unhead/vue";
-import { fetchProjectDetailsFromCloud, cacheProjectInfo } from "@/stores/cache/project";
+import {
+  fetchProjectDetailsFromCloud,
+  cacheProjectInfo,
+} from "@/stores/cache/project";
 
 export default {
   data() {
@@ -131,7 +137,7 @@ export default {
   },
   async created() {
     if (this.localuser.islogin == false) {
-      this.$router.push("/account/login");
+      this.$router.push("/app/account/login");
     }
     await this.fetchProject();
   },
@@ -146,8 +152,10 @@ export default {
     },
     async fetchProject() {
       try {
-        this.currentProject = await fetchProjectDetailsFromCloud(this.currentProjectID);
-        this.aboutTags.chips = this.currentProject.tags.map(tag => tag.name);
+        this.currentProject = await fetchProjectDetailsFromCloud(
+          this.currentProjectID
+        );
+        this.aboutTags.chips = this.currentProject.tags.map((tag) => tag.name);
       } catch (error) {
         console.error(error);
         this.$toast.add({
@@ -167,7 +175,7 @@ export default {
           detail: "项目已删除",
           life: 3000,
         });
-        this.$router.push("/explore/my");
+        this.$router.push("/explore");
       } catch (error) {
         console.error(error);
         this.$toast.add({
@@ -179,9 +187,12 @@ export default {
       }
     },
     async SaveProjectsInfo() {
-      this.currentProject.tags = this.aboutTags.chips.map(name => name);
+      this.currentProject.tags = this.aboutTags.chips.map((name) => name);
       try {
-        const response = await request.put(`/project/${this.currentProjectID}`, this.currentProject);
+        const response = await request.put(
+          `/project/${this.currentProjectID}`,
+          this.currentProject
+        );
         this.$toast.add({
           severity: response.status,
           summary: response.message,

@@ -85,7 +85,7 @@ export default {
 
   async created() {
     if (this.localuser.islogin == false) {
-      this.$router.push("/account/login");
+      this.$router.push("/app/account/login");
     }
   },
   methods: {
@@ -94,10 +94,10 @@ export default {
         url: "/projectlist/listid/" + this.$route.params.id,
         method: "get",
       });
-      if (this.projectlist.status == "1") {
+      if (this.projectlist.status == "success") {
         this.projectlist = this.projectlist.data;
       } else {
-        this.$router.push("/404");
+        //this.$router.push("/404");
       }
       useHead({
         title: "" + this.projectlist.title,

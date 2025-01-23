@@ -74,7 +74,7 @@
                 variant="text"
                 size="large"
                 append-icon="mdi-arrow-right"
-                to="/account/login"
+                to="/app/account/login"
               ></v-btn>
               <!-- login button -->
             </v-col>

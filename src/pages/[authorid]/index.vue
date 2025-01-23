@@ -47,7 +47,7 @@
       >
         <v-card rounded="lg">
           <v-card
-            :to="'/projectlist/' + item.id"
+            :to="'/app/projectlist/' + item.id"
             rounded="lg"
             :title="item.title"
             :subtitle="item.description"

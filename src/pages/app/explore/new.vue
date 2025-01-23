@@ -80,7 +80,7 @@ export default {
 
   async created() {
     if (this.localuser.islogin == false) {
-      this.$router.push("/account/login");
+      this.$router.push("/app/account/login");
     }
   },
   methods: {

@@ -32,9 +32,9 @@
             </v-btn>
           </template>
           <template v-else>
-            <v-btn to="/account/login" text="登录" rounded="xl"></v-btn>
+            <v-btn to="/app/account/login" text="登录" rounded="xl"></v-btn>
             <v-btn
-              to="/account/register"
+              to="/app/account/register"
               text="注册"
               rounded="xl"
               color="primary"
@@ -57,21 +57,21 @@
               color="primary"
             ></v-list-item>
             <v-list-item
-              to="/account"
+              to="/app/account"
               prepend-icon="mdi-cog"
               title="账户设置"
               rounded="xl"
               color="primary"
             ></v-list-item>
             <v-list-item
-              to="/explore/my"
+              to="/app/project"
               prepend-icon="mdi-xml"
               title="项目"
               rounded="xl"
               color="primary"
             ></v-list-item>
             <v-list-item
-              to="/projectlist"
+              to="/app/projectlist"
               prepend-icon="mdi-xml"
               title="列表"
               rounded="xl"
@@ -81,7 +81,7 @@
           <v-divider></v-divider>
           <v-list>
             <v-list-item
-              to="/account/logout"
+              to="/app/account/logout"
               prepend-icon="mdi-logout"
               title="退出"
               color="error"

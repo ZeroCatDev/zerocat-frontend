@@ -180,7 +180,7 @@
                 variant="text"
                 size="large"
                 append-icon="mdi-arrow-right"
-                to="/account/login"
+                to="/app/account/login"
               ></v-btn>
               <!-- login button -->
               <v-btn
@@ -191,7 +191,7 @@
                 variant="text"
                 size="large"
                 append-icon="mdi-arrow-right"
-                to="/account/retrieve"
+                to="/app/account/retrieve"
               ></v-btn>
               <!-- login button -->
             </v-col>
