@@ -143,7 +143,37 @@ export default {
       drawer: true,
       drawerRail: true,
       isLogin: localuser.islogin,
-      items: {
+      items: this.initializeNavItems(),
+      subNavItems: [],
+      hideNavPaths: ['/app', '/404'],
+      hideExactPaths: ['/', '/index.html']
+    };
+  },
+  created() {
+    const drawerStatus = localStorage.getItem("drawerStatus");
+    const drawerRailStatus = localStorage.getItem("drawerRailStatus");
+
+    this.drawer = drawerStatus === "true";
+    this.drawerRail = drawerRailStatus === "true";
+    this.updateSubNavItems(this.$route);
+  },
+  watch: {
+    userInfo() {
+      this.$forceUpdate();
+    },
+    drawer(newVal) {
+      localStorage.setItem("drawerStatus", newVal);
+    },
+    drawerRail(newVal) {
+      localStorage.setItem("drawerRailStatus", newVal);
+    },
+    $route(to) {
+      this.updateSubNavItems(to);
+    }
+  },
+  methods: {
+    initializeNavItems() {
+      return {
         main: {
           title: "导航",
           icon: "mdi-menu",
@@ -175,62 +205,35 @@ export default {
             { title: "项目比较器", link: "/app/tools/comparer", icon: "mdi-xml" },
           ],
         },
-      },
-      subNavItems: [],
-      hideNavPaths: ['/app', '/404'],
-      hideExactPaths: ['/', '/index.html']
-    };
-  },
-  created() {
-    const drawerStatus = localStorage.getItem("drawerStatus");
-    const drawerRailStatus = localStorage.getItem("drawerRailStatus");
-
-    this.drawer = drawerStatus === "true";
-    this.drawerRail = drawerRailStatus === "true";
-    this.updateSubNavItems(this.$route);
-  },
-  watch: {
-    userInfo() {
-      this.$forceUpdate();
+      };
     },
-    drawer(newVal) {
-      localStorage.setItem("drawerStatus", newVal);
-    },
-    drawerRail(newVal) {
-      localStorage.setItem("drawerRailStatus", newVal);
-    },
-    $route(to) {
-      this.updateSubNavItems(to);
-    }
-  },
-  methods: {
     updateSubNavItems(route) {
       if (this.shouldHideNav(route.path)) {
         this.subNavItems = [];
       } else {
-        this.setDefaultNavItems(route);
+        this.setSubNavItems(route);
       }
     },
     shouldHideNav(path) {
       return this.hideNavPaths.some(hidePath => path.startsWith(hidePath)) || this.hideExactPaths.includes(path);
     },
-    setDefaultNavItems(route) {
+    setSubNavItems(route) {
       const pathSegments = route.path.split('/').filter(Boolean);
       if (pathSegments.length === 1) {
-        this.setUserNavItems(pathSegments[0]);
+        this.subNavItems = this.getUserSubNavItems(pathSegments[0]);
       } else {
-        this.setProjectNavItems(pathSegments[1], pathSegments[0]);
+        this.subNavItems = this.getProjectSubNavItems(pathSegments[1], pathSegments[0]);
       }
     },
-    setUserNavItems(userId) {
-      this.subNavItems = [
+    getUserSubNavItems(userId) {
+      return [
         { title: '主页', link: `/${userId}` },
         { title: '信息', link: `/${userId}/?tab=info` },
       ];
     },
-    setProjectNavItems(projectId, authorId) {
+    getProjectSubNavItems(projectId, authorId) {
       const isAuthor = this.userInfo.userid == authorId;
-      this.subNavItems = [
+      return [
         { title: '代码', link: `/${authorId}/${projectId}` },
         ...(isAuthor ? [
           { title: '推送', link: `/${authorId}/${projectId}/push` },
