@@ -248,84 +248,32 @@ export default {
   created() {
     this.loading = true;
     this.release.stat = 0;
-    request
-      .get(this.scratch_proxy + "/asdm")
-      .then((res) => {
-        this.release.stat = 1;
-        this.release.url.windows = res.assets
-          .filter((element) => {
-            return element["name"] == "scratch-win.exe";
-          })[0]
-          .browser_download_url.replace("https://github.com", "");
-        this.release.url.macos = res.assets
-          .filter((element) => {
-            return element["name"] == "scratch-mac.dmg";
-          })[0]
-          .browser_download_url.replace("https://github.com", "");
-        this.release.url.windows_link = res.assets
-          .filter((element) => {
-            return element["name"] == "scratch-link-win.zip";
-          })[0]
-          .browser_download_url.replace("https://github.com", "");
-        this.release.url.macos_link = res.assets
-          .filter((element) => {
-            return element["name"] == "scratch-link-mac.zip";
-          })[0]
-          .browser_download_url.replace("https://github.com", "");
-        this.release.date = new Date(res.published_at).toLocaleString();
-        this.release.scratch_version = JSON.parse(
-          res.body
-        ).scratch_version.split("-")[0];
-        this.release.scratch_link_version = JSON.parse(
-          res.body
-        ).scratch_version.split("-")[1];
-        this.loading = false;
-      })
-      .catch((err) => {
-        console.log(err);
-        axios
-          .get(
-            "https://api.github.com/repos/sunwuyuan/AutoScratchDesktopMirror/releases/latest"
-          )
-          .then((res) => {
-            this.release.stat = 1;
-            this.release.url.windows = res.assets
-              .filter((element) => {
-                return element["name"] == "scratch-win.exe";
-              })[0]
-              .browser_download_url.replace("https://github.com", "");
-            this.release.url.macos = res.assets
-              .filter((element) => {
-                return element["name"] == "scratch-mac.dmg";
-              })[0]
-              .browser_download_url.replace("https://github.com", "");
-            this.release.url.windows_link = res.assets
-              .filter((element) => {
-                return element["name"] == "scratch-link-win.zip";
-              })[0]
-              .browser_download_url.replace("https://github.com", "");
-            this.release.url.macos_link = res.assets
-              .filter((element) => {
-                return element["name"] == "scratch-link-mac.zip";
-              })[0]
-              .browser_download_url.replace("https://github.com", "");
-            this.release.date = new Date(res.published_at).toLocaleString();
-            this.release.scratch_version = JSON.parse(
-              res.body
-            ).scratch_version.split("-")[0];
-            this.release.scratch_link_version = JSON.parse(
-              res.body
-            ).scratch_version.split("-")[1];
-
-            this.loading = false;
-          })
-          .catch((err) => {
-            this.release.stat = 0;
-            this.release.stat = err.response.status;
-            this.loading = false;
-            return;
-          });
-      });
+    this.fetchReleaseData(this.scratch_proxy + "/asdm")
+      .catch(() => this.fetchReleaseData("https://api.github.com/repos/sunwuyuan/AutoScratchDesktopMirror/releases/latest"))
+      .finally(() => this.loading = false);
   },
+  methods: {
+    async fetchReleaseData(url) {
+      try {
+        const res = await request.get(url);
+        this.release.stat = 1;
+        this.release.url.windows = this.extractDownloadUrl(res.data.assets, "scratch-win.exe");
+        this.release.url.macos = this.extractDownloadUrl(res.data.assets, "scratch-mac.dmg");
+        this.release.url.windows_link = this.extractDownloadUrl(res.data.assets, "scratch-link-win.zip");
+        this.release.url.macos_link = this.extractDownloadUrl(res.data.assets, "scratch-link-mac.zip");
+        this.release.date = new Date(res.data.published_at).toLocaleString();
+        const versions = JSON.parse(res.data.body).scratch_version.split("-");
+        this.release.scratch_version = versions[0];
+        this.release.scratch_link_version = versions[1];
+      } catch (err) {
+        console.log(err);
+        this.release.stat = err.response ? err.response.status : 0;
+      }
+    },
+    extractDownloadUrl(assets, fileName) {
+      const asset = assets.find(element => element.name === fileName);
+      return asset ? asset.browser_download_url.replace("https://github.com", "") : "";
+    }
+  }
 };
 </script>

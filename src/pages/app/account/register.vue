@@ -37,10 +37,7 @@
               </v-text-field>
             </v-col>
             <v-col cols="9">
-              <div id="recaptcha-div"></div>
-            </v-col>
-            <v-col cols="3">
-              <v-btn @click="resetCaptcha()" variant="text">刷新</v-btn>
+              <Recaptcha recaptchaId="recaptcha-div" />
             </v-col>
             <!-- password -->
             <v-col cols="12">
@@ -207,18 +204,14 @@
 
 <script>
 import { localuser } from "@/stores/user";
-import request from "../../../axios/axios";
+import { registerUser } from "@/services/userService";
 import LoadingDialog from "@/components/LoadingDialog.vue";
-import "https://static.geetest.com/v4/gt4.js";
-import {
-  initRecaptcha,
-  getResponse,
-  resetCaptcha,
-} from "../../../stores/useRecaptcha";
+import Recaptcha from "@/components/Recaptcha.vue";
 import { useHead } from "@unhead/vue";
+import { getResponse } from "@/stores/useRecaptcha";
 
 export default {
-  components: { LoadingDialog },
+  components: { LoadingDialog, Recaptcha },
 
   data() {
     return {
@@ -227,9 +220,7 @@ export default {
       username: "",
       tryinguser: {},
       loading: false,
-      initRecaptcha,
       getResponse,
-      resetCaptcha,
       agreement: {
         privacy: false,
         terms: false,
@@ -262,7 +253,6 @@ export default {
     if (localuser.islogin.value == true) {
       this.$router.push("/");
     }
-    initRecaptcha("recaptcha-div", "popup");
   },
   setup() {
     useHead({
@@ -273,56 +263,50 @@ export default {
     async register() {
       for (const key in this.agreement) {
         if (this.agreement[key] === false) {
-
           this.$toast.add({
-        severity: "info",
-        summary: "info",
-        detail: "请先阅读并同意有关协议",
-        life: 3000,
-      });
+            severity: "info",
+            summary: "info",
+            detail: "请先阅读并同意有关协议",
+            life: 3000,
+          });
           return;
         }
       }
 
       this.loading = true;
-      this.tryinguser = await request({
-        url: "/account/register",
-        method: "post",
-        data: {
+      try {
+        const response = await registerUser({
           captcha: getResponse(),
           un: this.email,
           pw: this.username,
-        },
-      });
-      if (this.tryinguser.status == "success") {
-        this.loading = false;
+        });
+        this.tryinguser = response.data;
+        if (this.tryinguser.status == "success") {
+          this.$toast.add({
+            severity: "success",
+            summary: "注册成功",
+            detail: this.tryinguser.message,
+            life: 3000,
+          });
+        } else {
+          this.$toast.add({
+            severity: "info",
+            summary: "info",
+            detail: this.tryinguser.msg || this.tryinguser.message,
+            life: 3000,
+          });
+        }
+      } catch (error) {
         this.$toast.add({
-          severity: "success",
-          summary: "注册成功",
-          detail: this.tryinguser.message,
+          severity: "error",
+          summary: "错误",
+          detail: error.message,
           life: 3000,
         });
-        return;
-      }else  {
+      } finally {
         this.loading = false;
-        this.$toast.add({
-          severity: "info",
-          summary: "info",
-          detail: this.tryinguser.msg || this.tryinguser.message,
-          life: 3000,
-        });
-        return;
       }
-      // this.loading = false;
-
-      //this.$toast.add({ severity: 'info', summary: 'info', detail: this.tryinguser.msg||this.tryinguser.message, life: 3000 });
-      // localuser.setuser(this.tryinguser.token);
-      // console.log(this.tryinguser);
-      // if (this.tryinguser.msg || this.tryinguser.message == "OK") {
-      //   this.$router.push("/");
-      // }
     },
-
   },
 };
 </script>

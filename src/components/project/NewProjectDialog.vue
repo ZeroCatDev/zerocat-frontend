@@ -80,12 +80,12 @@ export default {
         this.$toast.add({
           severity: "info",
           summary: "info",
-          detail: res,
+          detail: res.data,
           life: 3000,
         });
-        if (res.status == "success") {
+        if (res.data.status == "success") {
           //this.created = true
-          this.newid = res.id;
+          this.newid = res.data.id;
         }
       });
     },

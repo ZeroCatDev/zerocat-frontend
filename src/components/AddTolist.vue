@@ -53,7 +53,7 @@ export default {
           url: "/projectlist/check?projectid=" + this.$route.params.id,
           method: "get",
         })
-      ).data;
+      ).data.data;
     },
     async addProjectToList(id) {
       await request({
@@ -68,7 +68,7 @@ export default {
         this.$toast.add({
           severity: "info",
           summary: "info",
-          detail: res.message,
+          detail: res.data.message,
           life: 3000,
         });
         this.getProjectList();
@@ -86,7 +86,7 @@ export default {
         this.$toast.add({
           severity: "info",
           summary: "info",
-          detail: res.message,
+          detail: res.data.message,
           life: 3000,
         });
         this.getProjectList();

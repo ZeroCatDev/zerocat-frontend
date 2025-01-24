@@ -92,7 +92,7 @@ export default {
     async fetchTOTPList() {
       this.loading = true;
       try {
-        const response = await request.get("/account/totp/list");
+        const response = await request.get("/account/totp/list").data;
         if (response.status === "success") {
           this.totpList = response.data.list;
         } else {
@@ -126,7 +126,7 @@ export default {
         const response = await request.post("/account/totp/rename", {
           totp_id: totpid,
           name: newname,
-        });
+        }).data;
 
         if (response.status === "success") {
           this.fetchTOTPList();
@@ -159,7 +159,7 @@ export default {
       try {
         const response = await request.post("/account/totp/delete", {
           totp_id: totpid,
-        });
+        }).data;
 
         if (response.status === "success") {
           this.fetchTOTPList();

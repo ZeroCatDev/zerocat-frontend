@@ -147,7 +147,7 @@ export default {
               this.search.limit
             }&language=zh-cn`,
           method: "get",
-        })
+        }).data
       );
 
       this.curPage = page;

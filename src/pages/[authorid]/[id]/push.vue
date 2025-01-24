@@ -83,10 +83,10 @@ export default {
 
   methods: {
     async getproject() {
-      this.project = await request({
+      this.project = (await request({
         url: "/project/" + this.$route.params.id,
         method: "get",
-      });
+      })).data;
       useHead({
         title: "分叉" + this.project.title,
       });
@@ -98,14 +98,14 @@ export default {
         method: "post",
       })
         .then((res) => {
-          console.log(res);
+          console.log(res.data);
           this.$toast.add({
             severity: "success",
             summary: "成功",
             detail: "推送成功",
             life: 3000,
           });
-          if (res.status == "1") {
+          if (res.data.status == "1") {
             this.$router.push(`${localuser.user.userid}/${this.project.id}`);
           }
         })

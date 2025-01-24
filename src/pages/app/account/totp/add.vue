@@ -88,7 +88,7 @@ export default {
       this.errorMessage = "";
 
       try {
-        const response = await request.post("/account/totp/generate");
+        const response = await request.post("/account/totp/generate").data;
 
         // 获取 otpauth_url
         this.authotpUrl = response.data.otpauth_url;
@@ -116,7 +116,7 @@ export default {
         const response = await request.post("/account/totp/activate", {
           totp_token: this.totpCode,
           totp_id: this.totp_id,
-        });
+        }).data;
 
         if (response.data.status === "success") {
           this.$toast.add({

@@ -25,7 +25,7 @@ export default {
         url: `/projectlist/checkstar?projectid=${this.$route.params.id}`,
         method: "get",
       }).then((res) => {
-        this.star = res.star;
+        this.star = res.data.star;
       });
     },
     ToggleStarProject() {
@@ -37,7 +37,7 @@ export default {
             projectid: this.$route.params.id,
           },
         }).then((res) => {
-          this.star = res.star;
+          this.star = res.data.star;
         });
       } else {
         request({
@@ -47,7 +47,7 @@ export default {
             projectid: this.$route.params.id,
           },
         }).then((res) => {
-          this.star = res.star;
+          this.star = res.data.star;
         });
       }
     },

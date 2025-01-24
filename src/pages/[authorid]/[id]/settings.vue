@@ -189,10 +189,10 @@ export default {
     async SaveProjectsInfo() {
       this.currentProject.tags = this.aboutTags.chips.map((name) => name);
       try {
-        const response = await request.put(
+        const response = (await request.put(
           `/project/${this.currentProjectID}`,
           this.currentProject
-        );
+        )).data;
         this.$toast.add({
           severity: response.status,
           summary: response.message,

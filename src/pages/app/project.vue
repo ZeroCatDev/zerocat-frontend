@@ -333,102 +333,72 @@ export default {
       this.dialog = true;
     },
 
-    pushproject(id, info) {
-      request({
-        url: "/project/" + id + "/push",
-        method: "post",
-      })
-        .then((res) => {
-          console.log(res);
-          this.$toast.add({
-        severity: "info",
-        summary: "info",
-        detail: res.message,
-        life: 3000,
-      });
-
-          this.onPageChange();
-        })
-        .catch((err) => {
-          console.log(err);
-
-          this.$toast.add({
-        severity: "error",
-        summary: "失败",
-        detail: "失败",
-        life: 3000,
-      });
+    async pushproject(id) {
+      try {
+        const res = await request.post(`/project/${id}/push`);
+        console.log(res.data);
+        this.$toast.add({
+          severity: "info",
+          summary: "info",
+          detail: res.data.message,
+          life: 3000,
         });
-    },
-    openedit(id, info) {
-      this.$toast.add({
-        severity: "info",
-        summary: "info",
-        detail: `尝试打开${info.type}编辑器并编辑${id}号作品`,
-        life: 3000,
-      });
-      openEditor(id, info.type);
-    },
-    deleteProject() {
-      this.$toast.add({
-        severity: "error",
-        summary: "info",
-        detail: `尝试删除${this.currentProjectID}号作品`,
-        life: 3000,
-      });
-      request({
-        url: "/project/" + this.currentProjectID,
-        method: "delete",
-      })
-        .then((res) => {
-          console.log(res);
-          this.$toast.add({
-        severity: "info",
-        summary: "info",
-        detail: res.message,
-        life: 3000,
-      });
-          this.onPageChange();
-          this.dialog = false;
-        })
-        .catch((err) => {
-          console.log(err);
-          this.$toast.add({
-        severity: "error",
-        summary: "error",
-        detail: "删除失败",
-        life: 3000,
-      });
+        this.onPageChange();
+      } catch (err) {
+        console.log(err);
+        this.$toast.add({
+          severity: "error",
+          summary: "失败",
+          detail: "失败",
+          life: 3000,
         });
+      }
     },
-    SaveProjectsInfo() {
+    async deleteProject() {
+      try {
+        const res = await request.delete(`/project/${this.currentProjectID}`);
+        console.log(res.data);
+        this.$toast.add({
+          severity: "info",
+          summary: "info",
+          detail: res.data.message,
+          life: 3000,
+        });
+        this.onPageChange();
+        this.dialog = false;
+      } catch (err) {
+        console.log(err);
+        this.$toast.add({
+          severity: "error",
+          summary: "error",
+          detail: "删除失败",
+          life: 3000,
+        });
+      }
+    },
+    async SaveProjectsInfo() {
       this.currentProject.tags = this.aboutTags.chips.map(name => name);
-      request({
-        url: "/project/" + this.currentProjectID,
-        method: "put",
-        data: this.currentProject,
-      })
-        .then((res) => {
-          console.log(res);
-          this.$toast.add({
-        severity: "info",
-        summary: "info",
-        detail: res.message,
-        life: 3000,});
-          this.dialog = false;
-          this.onPageChange();
-        })
-        .catch((err) => {
-          console.log(err);
-          this.$toast.add({
-        severity: "error",
-        summary: "error",
-        detail: "修改失败",
-        life: 3000,
-      });
+      try {
+        const res = await request.put(`/project/${this.currentProjectID}`, this.currentProject);
+        console.log(res.data);
+        this.$toast.add({
+          severity: "info",
+          summary: "info",
+          detail: res.data.message,
+          life: 3000,
         });
+        this.dialog = false;
+        this.onPageChange();
+      } catch (err) {
+        console.log(err);
+        this.$toast.add({
+          severity: "error",
+          summary: "error",
+          detail: "修改失败",
+          life: 3000,
+        });
+      }
     },
-
   },
 };
 </script>

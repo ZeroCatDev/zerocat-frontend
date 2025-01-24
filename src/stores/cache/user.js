@@ -71,7 +71,7 @@ export async function refreshUserCache(UserID) {
   try {
     const results = await Promise.all(
       UserID.map(async (id) => {
-        const data = await request.get(`/api/getuserinfo?id=${id}`);
+        const data = await request.get(`/api/getuserinfo?id=${id}`).data;
         console.log(data);
         if (data.status === "success") {
           const user = {
@@ -115,7 +115,7 @@ export function getUserDetailsFromCache(id) {
 
 // 从云端获取数据，返回，并存入数据库中
 export async function fetchUserDetailsFromCloud(id) {
-  const data = await request.get(`/api/getuserinfo?id=${id}`);
+  const data = await request.get(`/api/getuserinfo?id=${id}`).data;
   if (data.status === "success") {
     const user = {
       id: data.info.user.id,

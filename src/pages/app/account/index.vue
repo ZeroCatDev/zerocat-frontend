@@ -80,9 +80,7 @@
                   ></v-select>
                 </v-col>
                 <v-col cols="12">
-                  <div id="recaptcha-div1"></div>
-                  <v-btn @click="initRecaptcha('recaptcha-div1', 'popup')" variant="text" border>加载验证码</v-btn>
-                  <v-btn @click="resetCaptcha()" variant="text" border>刷新</v-btn>
+                  <Recaptcha recaptchaId="recaptcha-div1" />
                 </v-col>
                 <v-col cols="12">
                   <v-btn @click="submit" :disabled="!valid" color="primary" class="mt-4">提交</v-btn>
@@ -103,9 +101,7 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
-                  <div id="recaptcha-div2"></div>
-                  <v-btn @click="initRecaptcha('recaptcha-div2', 'popup')" variant="text" border>加载验证码</v-btn>
-                  <v-btn @click="resetCaptcha()" variant="text" border>刷新</v-btn>
+                  <Recaptcha recaptchaId="recaptcha-div2" />
                 </v-col>
                 <v-col cols="12">
                   <v-btn @click="changeusername" :disabled="!usernamevalid" color="primary" class="mt-4">提交</v-btn>
@@ -133,9 +129,7 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
-                  <div id="recaptcha-div3"></div>
-                  <v-btn @click="initRecaptcha('recaptcha-div3', 'popup')" variant="text" border>加载验证码</v-btn>
-                  <v-btn @click="resetCaptcha()" variant="text" border>刷新</v-btn>
+                  <Recaptcha recaptchaId="recaptcha-div3" />
                 </v-col>
                 <v-col cols="12">
                   <v-btn @click="changepassword" :disabled="!passwordvalid" color="primary" class="mt-4">提交</v-btn>
@@ -157,9 +151,7 @@
                   <v-img v-if="previewImage" :src="previewImage" max-height="200" max-width="200"></v-img>
                 </v-col>
                 <v-col cols="12">
-                  <div id="recaptcha-div4"></div>
-                  <v-btn @click="initRecaptcha('recaptcha-div4', 'popup')" variant="text" border>加载验证码</v-btn>
-                  <v-btn @click="resetCaptcha()" variant="text" border>刷新</v-btn>
+                  <Recaptcha recaptchaId="recaptcha-div4" />
                 </v-col>
                 <v-col cols="12">
                   <v-btn @click="uploadAvatar" :disabled="!avatarvalid" color="primary" class="mt-4">提交</v-btn>
@@ -174,19 +166,19 @@
 </template>
 
 <script>
-import request from "../../../axios/axios";
 import { localuser } from "@/stores/user";
 import "https://static.geetest.com/v4/gt4.js";
 import Compressor from "compressorjs";
 import { useHead } from "@unhead/vue";
-import { initRecaptcha, getResponse, resetCaptcha } from "../../../stores/useRecaptcha";
+import Recaptcha from "@/components/Recaptcha.vue";
+import { getUserInfo, updateUserInfo, updateUsername, updatePassword, uploadUserAvatar } from "@/services/userService";
+import { getResponse } from "@/stores/useRecaptcha";
 
 export default {
+  components: { Recaptcha },
   data() {
     return {
-      initRecaptcha,
       getResponse,
-      resetCaptcha,
       userCardLoading: false,
       localuser: localuser,
       userInfo: {},
@@ -259,81 +251,74 @@ export default {
       try {
         const responseData = await getResponse();
         const queryParams = new URLSearchParams(responseData).toString();
-        const urlWithQuery = `/my/set/avatar?${queryParams}`;
-        request({
-          method: "post",
-          url: urlWithQuery,
-          data: formData,
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-          .then((response) => {
-            this.$toast.add({ severity: "success", summary: "上传成功", detail: response.message, life: 3000 });
-          })
-          .catch((error) => {
-            this.$toast.add({ severity: "error", summary: "错误", detail: error, life: 3000 });
-          });
+        await uploadUserAvatar(queryParams, formData);
+        this.showToast("info", "上传头像成功", "头像已更新");
       } catch (error) {
-        this.$toast.add({ severity: "error", summary: "错误", detail: error, life: 3000 });
+        this.showToast("error", "错误", error.message);
       }
     },
     async getuserInfo() {
-      this.userInfo = await request({
-        url: `/api/getuserInfo?id=${this.localuser.user.userid}`,
-        method: "get",
-      }).then(response => response.info.user);
-      this.select = this.items.find(item => item.abbr == this.userInfo.sex);
-      this.userCardLoading = false;
+      this.userCardLoading = true;
+      try {
+        const response = await getUserInfo(this.localuser.user.userid);
+        this.userInfo = response.data.info.user;
+        this.select = this.items.find(item => item.abbr == this.userInfo.sex);
+      } catch (error) {
+        this.showToast("error", "错误", error.message);
+      } finally {
+        this.userCardLoading = false;
+      }
     },
     async submit() {
       this.userCardLoading = true;
-      const response = await request({
-        url: "/my/set/userInfo",
-        method: "post",
-        data: {
+      try {
+        const response = await updateUserInfo({
           captcha: getResponse() || "",
           display_name: this.userInfo.display_name,
           aboutme: this.userInfo.motto,
           sex: this.select.abbr,
-        },
-      }).catch((error) => {
-        this.$toast.add({ severity: "error", summary: "错误", detail: error, life: 3000 });
-      });
-      this.$toast.add({ severity: "info", summary: "修改个人信息", detail: response.status, life: 3000 });
-      await this.getuserInfo();
-      this.userCardLoading = false;
+        });
+        this.showToast("info", "修改个人信息", response.status);
+        await this.getuserInfo();
+      } catch (error) {
+        this.showToast("error", "错误", error.message);
+      } finally {
+        this.userCardLoading = false;
+      }
     },
     async changeusername() {
       this.userCardLoading = true;
-      const response = await request({
-        url: "/my/set/username",
-        method: "post",
-        data: {
+      try {
+        const response = await updateUsername({
           captcha: getResponse() || "",
           username: this.userInfo.username,
-        },
-      }).catch((error) => {
-        this.$toast.add({ severity: "error", summary: "错误", detail: error, life: 3000 });
-      });
-      this.$toast.add({ severity: "info", summary: "修改用户名", detail: response.status, life: 3000 });
-      await this.getuserInfo();
-      this.userCardLoading = false;
+        });
+        this.showToast("info", "修改用户名", response.status);
+        await this.getuserInfo();
+      } catch (error) {
+        this.showToast("error", "错误", error.message);
+      } finally {
+        this.userCardLoading = false;
+      }
     },
     async changepassword() {
       this.userCardLoading = true;
-      const response = await request({
-        url: "/my/set/pw",
-        method: "post",
-        data: {
+      try {
+        const response = await updatePassword({
           captcha: getResponse() || "",
           oldpw: this.oldPassword,
           newpw: this.newPassword,
-        },
-      }).catch((error) => {
-        this.$toast.add({ severity: "error", summary: "错误", detail: error, life: 3000 });
-      });
-      this.$toast.add({ severity: "info", summary: "修改密码", detail: response.message, life: 3000 });
-      await this.getuserInfo();
-      this.userCardLoading = false;
+        });
+        this.showToast("info", "修改密码", response.message);
+        await this.getuserInfo();
+      } catch (error) {
+        this.showToast("error", "错误", error.message);
+      } finally {
+        this.userCardLoading = false;
+      }
+    },
+    showToast(severity, summary, detail) {
+      this.$toast.add({ severity, summary, detail, life: 3000 });
     },
   },
 };

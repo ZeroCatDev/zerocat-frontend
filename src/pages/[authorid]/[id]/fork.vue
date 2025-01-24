@@ -184,15 +184,15 @@ export default {
         method: "post",
       })
         .then((res) => {
-          console.log(res);
+          console.log(res.data);
           this.$toast.add({
             severity: "success",
             summary: "成功",
             detail: "分叉成功",
             life: 3000,
           });
-          if (res.id) {
-            this.$router.push(`${localuser.user.userid}/${res.id}`);
+          if (res.data.id) {
+            this.$router.push(`${localuser.user.userid}/${res.data.id}`);
           }
         })
         .catch((err) => {

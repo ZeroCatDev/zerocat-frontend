@@ -20,13 +20,13 @@ axiosInstance.interceptors.request.use(
 // 响应拦截器
 axiosInstance.interceptors.response.use(
   (response) => {
-    const responseData = response.data;
-    //if (data && data.code !== 200) { // 根据接口返回的状态码判断是否有错误
-    //    alert(`Error code ${data.code}: ${data.message}`); // 自定义错误提示
-    //    return Promise.reject(new Error(data.message));
-    //} else {
-    return responseData;
-    //}
+    // const responseData = response.data;
+    // if (data && data.code !== 200) { // 根据接口返回的状态码判断是否有错误
+    //     alert(`Error code ${data.code}: ${data.message}`); // 自定义错误提示
+    //     return Promise.reject(new Error(data.message));
+    // } else {
+    return response;
+    // }
   },
   (error) => {
     console.log(error);

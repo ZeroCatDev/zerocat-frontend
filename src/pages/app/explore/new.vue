@@ -86,16 +86,16 @@ export default {
   methods: {
     async newProject() {
       await request.post("/project/", this.projectinfo).then((res) => {
-        console.log(res);
+        console.log(res.data);
         this.$toast.add({
           severity: "info",
           summary: "info",
-          detail: res,
+          detail: res.data,
           life: 3000,
         });
-        if (res.status == "1") {
+        if (res.data.status == "1") {
           this.created = true;
-          this.newid = res.id;
+          this.newid = res.data.id;
         }
       });
     },

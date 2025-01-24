@@ -273,7 +273,7 @@ export default {
             this.$route.params.id
           }/projects?&offset=${page * 16 - 16}&limit=${this.limit}`,
           method: "get",
-        })
+        }).data
       );
 
       this.curPage = page;
@@ -286,7 +286,7 @@ export default {
           this.$route.params.id
         }/curators?&offset=${page * 16 - 16}&limit=${this.limit}`,
         method: "get",
-      });
+      }).data;
       if (loadcurators.length == 0) {
         this.curatorscanload = false;
       }
@@ -300,7 +300,7 @@ export default {
           this.$route.params.id
         }/managers?&offset=${page * 16 - 16}&limit=${this.limit}`,
         method: "get",
-      });
+      }).data;
       if (loadmanagers.length == 0) {
         this.managerscanload = false;
       }
@@ -312,7 +312,7 @@ export default {
       this.studioinfo = await request({
         url: `${this.scratch_proxy}/studios/${this.$route.params.id}`,
         method: "get",
-      });
+      }).data;
       //this.$refs.Projects.onPageChange(1);
 
       this.UserCardLoading = false;

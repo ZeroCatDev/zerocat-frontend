@@ -93,7 +93,7 @@ export default {
       this.projectlist = await request({
         url: "/projectlist/listid/" + this.$route.params.id,
         method: "get",
-      });
+      }).data;
       if (this.projectlist.status == "success") {
         this.projectlist = this.projectlist.data;
       } else {

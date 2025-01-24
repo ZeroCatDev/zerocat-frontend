@@ -26,10 +26,7 @@
               ></v-text-field>
             </v-col>
             <v-col cols="9">
-              <div id="recaptcha-div"></div>
-            </v-col>
-            <v-col cols="3">
-              <v-btn @click="resetCaptcha()" variant="text">刷新</v-btn>
+              <Recaptcha recaptchaId="recaptcha-div" />
             </v-col>
             <!-- password -->
             <v-col cols="12">
@@ -100,24 +97,20 @@
 import { localuser } from "@/stores/user";
 import request from "../../../../axios/axios";
 import LoadingDialog from "@/components/LoadingDialog.vue";
-import "https://static.geetest.com/v4/gt4.js";
-import {
-  initRecaptcha,
-  getResponse,
-  resetCaptcha,
-} from "../../../../stores/useRecaptcha";
+import Recaptcha from "@/components/Recaptcha.vue";
 import { useHead } from "@unhead/vue";
+import { generateMagicLink } from "@/services/userService";
+import { getResponse } from "@/stores/useRecaptcha";
+
 export default {
-  components: { LoadingDialog },
+  components: { LoadingDialog, Recaptcha },
   data() {
     return {
       BASE_API: import.meta.env.VITE_APP_BASE_API,
       email: "",
       tryinguser: {},
       loading: false,
-      initRecaptcha,
       getResponse,
-      resetCaptcha,
       show1: ref(false),
       emailRules: [
         (value) => {
@@ -155,25 +148,30 @@ export default {
   methods: {
     async login() {
       this.loading = true;
-      this.tryinguser = await request({
-        url: "/account/magiclink/generate",
-        method: "post",
-        data: {
+      try {
+        const response = await generateMagicLink({
           captcha: getResponse(),
           email: this.email,
-        },
-      });
-      if (this.tryinguser.message != "OK") {
-        this.loading = false;
+        });
+        this.tryinguser = response.data;
+        if (this.tryinguser.message != "OK") {
+          this.$toast.add({
+            severity: "info",
+            summary: "info",
+            detail: this.tryinguser.message,
+            life: 3000,
+          });
+        }
+      } catch (error) {
         this.$toast.add({
-          severity: "info",
-          summary: "info",
-          detail: this.tryinguser.message,
+          severity: "error",
+          summary: "错误",
+          detail: error.message,
           life: 3000,
         });
-        return;
+      } finally {
+        this.loading = false;
       }
-      this.loading = false;
     },
   },
 };

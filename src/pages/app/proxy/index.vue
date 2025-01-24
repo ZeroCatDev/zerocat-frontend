@@ -122,7 +122,7 @@ export default {
       this.projects = await request({
         url: this.scratch_proxy + `/proxy/featured`,
         method: "get",
-      });
+      }).data;
 
       this.ProjectsLoading = false;
       this.usetime = Date.now() - this.usetime;

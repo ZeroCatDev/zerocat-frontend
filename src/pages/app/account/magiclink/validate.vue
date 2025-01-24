@@ -30,8 +30,8 @@
 <script>
 import { jwtDecode } from "jwt-decode";
 import { localuser } from "@/stores/user";
+import { validateMagicLink } from "@/services/userService";
 
-import request from "../../../../axios/axios";
 import { useHead } from "@unhead/vue";
 export default {
   data() {
@@ -52,28 +52,23 @@ export default {
     });
     if (this.$route.query.token) {
       try {
-        await request({
-          url: "/account/magiclink/validate?token=" + this.$route.query.token,
-          method: "get",
-        }).then((res) => {
-          this.$toast.add({
-            severity: res.status,
-            summary: res.status,
-            detail: res.message,
-            life: 3000,
-          });
-
-          if (res.token) {
-            this.token = res.token;
-
-            this.user = jwtDecode(this.token);
-            localStorage.setItem("token", this.token); // 将JWT令牌存储到本地存储中
-            this.user = jwtDecode(localStorage.getItem("token")); // 从本地存储中获取并解码JWT令牌
-            console.log(this.user);
-            localuser.loaduser();
-            this.$router.push({ path: "/" });
-          }
+        const res = await validateMagicLink(this.$route.query.token);
+        this.$toast.add({
+          severity: res.data.status,
+          summary: res.data.status,
+          detail: res.data.message,
+          life: 3000,
         });
+
+        if (res.data.token) {
+          this.token = res.data.token;
+          this.user = jwtDecode(this.token);
+          localStorage.setItem("token", this.token); // 将JWT令牌存储到本地存储中
+          this.user = jwtDecode(localStorage.getItem("token")); // 从本地存储中获取并解码JWT令牌
+          console.log(this.user);
+          localuser.loaduser();
+          this.$router.push({ path: "/" });
+        }
       } catch (error) {
         this.user = error;
       }

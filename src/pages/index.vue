@@ -258,14 +258,14 @@ export default {
   methods: {
     getinfo() {
       request.get("/api/info").then((res) => {
-        console.log(res);
+        console.log(res.data);
         this.stats = [
           {
-            title: res.user,
+            title: res.data.user,
             subtitle: "用户",
           },
           {
-            title: res.project,
+            title: res.data.project,
             subtitle: "作品",
           },
           {

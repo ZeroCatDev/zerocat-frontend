@@ -68,9 +68,9 @@ export default {
       this.loading = true;
       const startTime = performance.now();
       try {
-        const response = await request.get(
+        const response = (await request.get(
           `${this.url}&curr=${this.page}&limit=${this.limit}`
-        );
+        )).data;
        // this.projectIds = response.projects;
        // this.totalCount = response.totalCount;
        // this.totalPage = Math.ceil(this.totalCount / this.limit);

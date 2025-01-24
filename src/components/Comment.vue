@@ -334,19 +334,19 @@ export default {
         method: "get",
       }).then((res) => {
         //在数据末尾添加新数据
-        if (res.data.data.length == 0) {
+        if (res.data.data.data.length == 0) {
           this.loadbuttondisabled = true;
         }
-        this.commentList = this.commentList.concat(res.data.data);
-        console.log(res.users);
-        res.users.forEach((user) => {
+        this.commentList = this.commentList.concat(res.data.data.data);
+        console.log(res.data.users);
+        res.data.users.forEach((user) => {
           this.users[user.id] = user;
         });
 
-        this.page = Number(res.data.page);
-        this.totalPages = Number(res.data.totalPages);
-        this.pageSize = Number(res.data.pageSize);
-        this.count = Number(res.data.count);
+        this.page = Number(res.data.data.page);
+        this.totalPages = Number(res.data.data.totalPages);
+        this.pageSize = Number(res.data.data.pageSize);
+        this.count = Number(res.data.data.count);
         this.moredialog = false;
       });
     },
@@ -372,7 +372,7 @@ export default {
           rid: info.rid || null,
         },
       }).then((res) => {
-        if (res.errno == 0) {
+        if (res.data.errno == 0) {
           this.info = "评论成功";
           this.comment = "";
           this.replyId = null;
@@ -389,7 +389,7 @@ export default {
         url: `/comment/api/comment/${info.id}`,
         method: "delete",
       }).then((res) => {
-        if (res.errno == 0) {
+        if (res.data.errno == 0) {
           this.info = "删除成功";
           this.getComments({ retry: true });
         } else {

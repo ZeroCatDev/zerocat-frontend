@@ -92,14 +92,14 @@ export default {
         this.$toast.add({
           severity: "info",
           summary: "info",
-          detail: res,
+          detail: res.data,
           life: 3000,
         });
-        if (res.status == "success") {
+        if (res.data.status == "success") {
           //this.created = true
-          this.listInfo = Object.assign({}, res.data);
+          this.listInfo = Object.assign({}, res.data.data);
 
-          this.newListInfo = Object.assign({}, res.data);
+          this.newListInfo = Object.assign({}, res.data.data);
         }
       });
       this.callback();
@@ -112,14 +112,14 @@ export default {
           this.$toast.add({
             severity: "info",
             summary: "info",
-            detail: res,
+            detail: res.data,
             life: 3000,
           });
-          if (res.status == "1") {
+          if (res.data.status == "1") {
             //this.created = true
-            this.listInfo = Object.assign({}, res.data);
+            this.listInfo = Object.assign({}, res.data.data);
 
-            this.newListInfo = Object.assign({}, res.data);
+            this.newListInfo = Object.assign({}, res.data.data);
           }
         });
       this.callback();
@@ -130,7 +130,7 @@ export default {
         this.$toast.add({
           severity: "info",
           summary: "info",
-          detail: res,
+          detail: res.data,
           life: 3000,
         });
       });

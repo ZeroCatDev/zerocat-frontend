@@ -136,7 +136,7 @@ export default {
       this.userinfo = await request({
         url: this.scratch_proxy + "/users/" + this.$route.params.username,
         method: "get",
-      });
+      }).data;
       //this.$refs.Projects.onPageChange(1);
 
       this.UserCardLoading = false;

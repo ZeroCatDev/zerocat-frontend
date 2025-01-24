@@ -107,7 +107,7 @@ export default {
           url: `/projectlist/userid/${this.user.id}/public`,
           method: "get",
         })
-      ).data;
+      ).data.data;
     },
   },
 };

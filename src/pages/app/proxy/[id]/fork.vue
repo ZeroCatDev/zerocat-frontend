@@ -89,7 +89,7 @@ export default {
       this.project = await request({
         url: this.scratch_proxy + "/projects/" + this.$route.params.id,
         method: "get",
-      });
+      }).data;
       console.log(this.project);
     },
     async forkproject(id) {
@@ -98,15 +98,15 @@ export default {
         method: "post",
       })
         .then((res) => {
-          console.log(res);
+          console.log(res.data);
           this.$toast.add({
             severity: "success",
             summary: "成功",
             detail: "分叉成功",
             life: 3000,
           });
-          if (res.id) {
-            this.$router.push("/projects/" + res.id);
+          if (res.data.id) {
+            this.$router.push("/projects/" + res.data.id);
           }
         })
         .catch((err) => {
@@ -128,7 +128,7 @@ export default {
         const projectFileRes = await request({
           url: `${this.scratch_proxy}/projects/source/${this.$route.params.id}?token=${this.project.project_token}`,
           method: "get",
-        });
+        }).data;
 
         console.log(projectFileRes);
         this.$toast.add({
@@ -144,7 +144,7 @@ export default {
           title: this.project.title,
           type: "scratch",
           state: "public",
-        });
+        }).data;
 
         console.log(createProjectRes);
         this.$toast.add({
@@ -161,7 +161,7 @@ export default {
           const uploadRes = await request.put(
             `/project/${this.newid}/source`,
             this.projectfile
-          );
+          ).data;
           console.log(uploadRes);
           this.$toast.add({
             severity: "info",
@@ -171,7 +171,7 @@ export default {
           });
 
           // 推送项目
-          const pushRes = await request.post(`/project/${this.newid}/push`);
+          const pushRes = await request.post(`/project/${this.newid}/push`).data;
           console.log(pushRes);
           this.$toast.add({
             severity: "info",
