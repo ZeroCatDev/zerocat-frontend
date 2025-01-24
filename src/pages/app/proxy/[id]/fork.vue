@@ -86,100 +86,67 @@ export default {
 
   methods: {
     async getproject() {
-      this.project = await request({
-        url: this.scratch_proxy + "/projects/" + this.$route.params.id,
-        method: "get",
-      }).data;
-      console.log(this.project);
+      try {
+        const res = await request.get(`${this.scratch_proxy}/projects/${this.$route.params.id}`);
+        this.project = res.data;
+      } catch (err) {
+        console.log(err);
+      }
     },
     async forkproject(id) {
-      await request({
-        url: "/project/" + id + "/fork",
-        method: "post",
-      })
-        .then((res) => {
-          console.log(res.data);
-          this.$toast.add({
-            severity: "success",
-            summary: "成功",
-            detail: "分叉成功",
-            life: 3000,
-          });
-          if (res.data.id) {
-            this.$router.push("/projects/" + res.data.id);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          this.$toast.add({
-            severity: "error",
-            summary: "错误",
-            detail: err,
-            life: 3000,
-          });
+      try {
+        const res = await request.post(`/project/${id}/fork`);
+        console.log(res.data);
+        this.$toast.add({
+          severity: "success",
+          summary: "成功",
+          detail: "分叉成功",
+          life: 3000,
         });
+        if (res.data.id) {
+          this.$router.push(`/projects/${res.data.id}`);
+        }
+      } catch (err) {
+        console.log(err);
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: err,
+          life: 3000,
+        });
+      }
     },
     async getProjectFile() {
       try {
-        // 获取项目详情
         await this.getproject();
-
-        // 获取项目文件
-        const projectFileRes = await request({
-          url: `${this.scratch_proxy}/projects/source/${this.$route.params.id}?token=${this.project.project_token}`,
-          method: "get",
-        }).data;
-
-        console.log(projectFileRes);
+        const projectFileRes = await request.get(`${this.scratch_proxy}/projects/source/${this.$route.params.id}?token=${this.project.project_token}`);
+        this.projectfile = projectFileRes.data;
         this.$toast.add({
           severity: "success",
           summary: "成功",
           detail: "获取项目文件成功",
           life: 3000,
         });
-        this.projectfile = projectFileRes;
-
-        // 提交项目
         const createProjectRes = await request.post("/project/", {
           title: this.project.title,
           type: "scratch",
           state: "public",
-        }).data;
-
-        console.log(createProjectRes);
+        });
+        this.newid = createProjectRes.data.id;
+        const uploadRes = await request.put(`/project/${this.newid}/source`, this.projectfile);
         this.$toast.add({
           severity: "info",
           summary: "信息",
-          detail: createProjectRes,
+          detail: uploadRes.data,
           life: 3000,
         });
-
-        if (createProjectRes.status === "1") {
-          this.newid = createProjectRes.id;
-
-          // 上传项目文件
-          const uploadRes = await request.put(
-            `/project/${this.newid}/source`,
-            this.projectfile
-          ).data;
-          console.log(uploadRes);
-          this.$toast.add({
-            severity: "info",
-            summary: "信息",
-            detail: uploadRes,
-            life: 3000,
-          });
-
-          // 推送项目
-          const pushRes = await request.post(`/project/${this.newid}/push`).data;
-          console.log(pushRes);
-          this.$toast.add({
-            severity: "info",
-            summary: "信息",
-            detail: pushRes,
-            life: 3000,
-          });
-        }
+        const pushRes = await request.post(`/project/${this.newid}/push`);
+        this.$toast.add({
+          severity: "info",
+          summary: "信息",
+          detail: pushRes.data,
+          life: 3000,
+        });
       } catch (error) {
         console.error(error);
         this.$toast.add({

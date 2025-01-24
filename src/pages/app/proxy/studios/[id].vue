@@ -256,67 +256,58 @@ export default {
   async created() {
     await this.getstudioinfo();
     await this.onPageChange(1, false);
-    //await this.onCuratorsPageChange(1);
-    //await this.onManagersPageChange(1)
   },
   methods: {
     async onPageChange(page, clean) {
-      if (clean == true) {
+      if (clean) {
         this.projects = [];
       }
       this.usetime = Date.now();
       this.ProjectsLoading = true;
-
-      this.projects = this.projects.concat(
-        await request({
-          url: `${this.scratch_proxy}/studios/${
-            this.$route.params.id
-          }/projects?&offset=${page * 16 - 16}&limit=${this.limit}`,
-          method: "get",
-        }).data
-      );
-
+      try {
+        const res = await request.get(`${this.scratch_proxy}/studios/${this.$route.params.id}/projects?&offset=${page * 16 - 16}&limit=${this.limit}`);
+        this.projects = this.projects.concat(res.data);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        this.ProjectsLoading = false;
+        this.usetime = Date.now() - this.usetime;
+      }
       this.curPage = page;
-      this.ProjectsLoading = false;
-      this.usetime = Date.now() - this.usetime;
     },
     async onCuratorsPageChange(page) {
-      var loadcurators = await request({
-        url: `${this.scratch_proxy}/studios/${
-          this.$route.params.id
-        }/curators?&offset=${page * 16 - 16}&limit=${this.limit}`,
-        method: "get",
-      }).data;
-      if (loadcurators.length == 0) {
-        this.curatorscanload = false;
+      try {
+        const res = await request.get(`${this.scratch_proxy}/studios/${this.$route.params.id}/curators?&offset=${page * 16 - 16}&limit=${this.limit}`);
+        if (res.data.length === 0) {
+          this.curatorscanload = false;
+        }
+        this.curators = this.curators.concat(res.data);
+      } catch (err) {
+        console.log(err);
       }
-      this.curators = this.curators.concat(loadcurators);
-
       this.curatorspage = page;
     },
     async onManagersPageChange(page) {
-      var loadmanagers = await request({
-        url: `${this.scratch_proxy}/studios/${
-          this.$route.params.id
-        }/managers?&offset=${page * 16 - 16}&limit=${this.limit}`,
-        method: "get",
-      }).data;
-      if (loadmanagers.length == 0) {
-        this.managerscanload = false;
+      try {
+        const res = await request.get(`${this.scratch_proxy}/studios/${this.$route.params.id}/managers?&offset=${page * 16 - 16}&limit=${this.limit}`);
+        if (res.data.length === 0) {
+          this.managerscanload = false;
+        }
+        this.managers = this.managers.concat(res.data);
+      } catch (err) {
+        console.log(err);
       }
-      this.managers = this.managers.concat(loadmanagers);
-
       this.managerspage = page;
     },
     async getstudioinfo() {
-      this.studioinfo = await request({
-        url: `${this.scratch_proxy}/studios/${this.$route.params.id}`,
-        method: "get",
-      }).data;
-      //this.$refs.Projects.onPageChange(1);
-
-      this.UserCardLoading = false;
-      console.log(this.studioinfo);
+      try {
+        const res = await request.get(`${this.scratch_proxy}/studios/${this.$route.params.id}`);
+        this.studioinfo = res.data;
+      } catch (err) {
+        console.log(err);
+      } finally {
+        this.UserCardLoading = false;
+      }
     },
   },
 };

@@ -118,14 +118,15 @@ export default {
     async onPageChange() {
       this.usetime = Date.now();
       this.ProjectsLoading = true;
-
-      this.projects = await request({
-        url: this.scratch_proxy + `/proxy/featured`,
-        method: "get",
-      }).data;
-
-      this.ProjectsLoading = false;
-      this.usetime = Date.now() - this.usetime;
+      try {
+        const res = await request.get(`${this.scratch_proxy}/proxy/featured`);
+        this.projects = res.data;
+      } catch (err) {
+        console.log(err);
+      } finally {
+        this.ProjectsLoading = false;
+        this.usetime = Date.now() - this.usetime;
+      }
     },
   },
 };

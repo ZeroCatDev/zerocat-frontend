@@ -131,28 +131,21 @@ export default {
       this.onPageChange(1);
     },
     async onPageChange(page, clean) {
-      if (clean == true) {
+      if (clean) {
         this.projects = [];
       }
       this.usetime = Date.now();
       this.ProjectsLoading = true;
-
-      this.projects = this.projects.concat(
-        await request({
-          url:
-            this.scratch_proxy +
-            `/projects/explore/projects?mode=${this.search.order}&q=${
-              this.search.tag
-            }&offset=${page * 16 - 16}&limit=${
-              this.search.limit
-            }&language=zh-cn`,
-          method: "get",
-        }).data
-      );
-
+      try {
+        const res = await request.get(`${this.scratch_proxy}/projects/explore/projects?mode=${this.search.order}&q=${this.search.tag}&offset=${page * 16 - 16}&limit=${this.search.limit}&language=zh-cn`);
+        this.projects = this.projects.concat(res.data);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        this.ProjectsLoading = false;
+        this.usetime = Date.now() - this.usetime;
+      }
       this.curPage = page;
-      this.ProjectsLoading = false;
-      this.usetime = Date.now() - this.usetime;
     },
   },
 };

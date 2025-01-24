@@ -133,14 +133,14 @@ export default {
   },
   methods: {
     async getuserinfo() {
-      this.userinfo = await request({
-        url: this.scratch_proxy + "/users/" + this.$route.params.username,
-        method: "get",
-      }).data;
-      //this.$refs.Projects.onPageChange(1);
-
-      this.UserCardLoading = false;
-      console.log(this.userinfo);
+      try {
+        const res = await request.get(this.scratch_proxy + "/users/" + this.$route.params.username);
+        this.userinfo = res.data;
+      } catch (err) {
+        console.log(err);
+      } finally {
+        this.UserCardLoading = false;
+      }
     },
   },
 };

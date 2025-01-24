@@ -214,13 +214,13 @@ export default {
   },
   methods: {
     async getproject() {
-      this.project = await request({
-        url: this.scratch_proxy + "/projects/" + this.$route.params.id,
-        method: "get",
-      }).data;
-      this.embedurl =
-        this.scratch_proxy_gui + "/embed.html#" + this.$route.params.id;
-      console.log(this.project);
+      try {
+        const res = await request.get(`${this.scratch_proxy}/projects/${this.$route.params.id}`);
+        this.project = res.data;
+        this.embedurl = `${this.scratch_proxy_gui}/embed.html#${this.$route.params.id}`;
+      } catch (err) {
+        console.log(err);
+      }
     },
   },
 };
