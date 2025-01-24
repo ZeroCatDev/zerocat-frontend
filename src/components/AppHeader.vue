@@ -244,7 +244,10 @@ export default {
     },
     setSubNavItems(route) {
       const pathSegments = route.path.split("/").filter(Boolean);
-      if (pathSegments.length === 1) {
+      if (this.shouldHideNav(route.path)) {
+        this.subNavItems = [];
+        this.activeTab = null;
+      } else if (pathSegments.length === 1) {
         this.subNavItems = this.getUserSubNavItems(pathSegments[0]);
         this.activeTab = route.query.tab || "home";
       } else {

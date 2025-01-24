@@ -42,7 +42,7 @@
             <v-btn v-if="project.authorid != localuser.user.id" :to="`${project.authorid}/${projectid}/fork`" variant="text">改编</v-btn>
           </div>
           <div class="px-4">
-            <v-card hover :to="'/' + project.authorid" border>
+            <v-card hover :to="'/' + author.username" border>
               <v-card-item>
                 <template v-slot:prepend>
                   <v-avatar>
