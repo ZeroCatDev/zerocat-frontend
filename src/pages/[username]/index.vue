@@ -61,7 +61,7 @@
       </v-col>
     </v-row>
     <br />
-    <Comment :url="'user-' + $route.params.authorid" name="用户"></Comment>
+    <Comment :url="'user-' + user.id" name="用户"></Comment>
   </v-container>
 </template>
 
@@ -69,39 +69,29 @@
 import Comment from "../../components/Comment.vue";
 import Projects from "../../components/project/Projects.vue";
 import { useHead } from "@unhead/vue";
-import {
-  liveFetchUserDetails,
-  refreshUserCache,
-} from "../../stores/cache/user.js";
+import { getUserByUsername } from "../../stores/cache/user.js";
 import request from "../../axios/axios.js";
 export default {
   components: { Projects, Comment },
   data() {
     return {
-      userid: Number(this.$route.params.authorid),
+      username: this.$route.params.username,
       user: {},
       lists: [],
-      url: `/searchapi?search_userid=${this.$route.params.authorid}&search_type=&search_title=&search_source=&search_description=&search_orderby=view_up&search_state=public&search_tag=`,
+      url: "",
     };
   },
   async created() {
-    await this.startLiveFetch();
-    await this.refreshUser();
+    await this.fetchUser();
     await this.getProjectList();
   },
   methods: {
-    async startLiveFetch() {
-      liveFetchUserDetails([this.userid], (users) => {
-        if (users.length > 0) {
-          this.user = users[0];
-          useHead({
-            title: "" + this.user.display_name,
-          });
-        }
+    async fetchUser() {
+      this.user = await getUserByUsername(this.username);
+      useHead({
+        title: "" + this.user.display_name,
       });
-    },
-    async refreshUser() {
-      await refreshUserCache(this.userid);
+      this.url = `/searchapi?search_userid=${this.user.id}&search_type=&search_title=&search_source=&search_description=&search_orderby=view_up&search_state=public&search_tag=`;
     },
     async getProjectList() {
       this.lists = (

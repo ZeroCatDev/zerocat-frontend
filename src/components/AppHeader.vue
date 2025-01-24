@@ -231,13 +231,13 @@ export default {
         { title: '信息', link: `/${userId}/?tab=info` },
       ];
     },
-    getProjectSubNavItems(projectId, authorId) {
-      const isAuthor = this.userInfo.userid == authorId;
+    getProjectSubNavItems(projectId, authorname) {
+      const isAuthor = this.userInfo.username == authorname;
       return [
-        { title: '代码', link: `/${authorId}/${projectId}` },
+        { title: '代码', link: `/${authorname}/${projectId}` },
         ...(isAuthor ? [
-          { title: '推送', link: `/${authorId}/${projectId}/push` },
-          { title: '设置', link: `/${authorId}/${projectId}/settings` }
+          { title: '推送', link: `/${authorname}/${projectId}/push` },
+          { title: '设置', link: `/${authorname}/${projectId}/settings` }
         ] : [])
       ];
     }

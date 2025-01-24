@@ -156,3 +156,9 @@ export async function getUserInfo(userId) {
 }
 
 
+export async function getUserByUsername(username) {
+  return (await request({
+    url: `/user/username/${username}`,
+    method: "get"
+  })).data.info;
+}

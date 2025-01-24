@@ -11,9 +11,9 @@
       xl="2"
       xxl="2"
     >
-      <v-card rounded="lg" border >
+      <v-card rounded="lg" border>
         <v-card
-          :to="`/${project.authorid}/${project.id}`"
+          :to="`/${project.author.username}/${project.id}`"
           style="aspect-ratio: 4/3"
           rounded="lg"
         >
@@ -31,9 +31,13 @@
             </v-card-item>
           </v-img>
         </v-card>
+        <!-- <v-card-title>{{ project.author.display_name || "未知用户" }}</v-card-title>
+        <v-card-subtitle>{{ project.created_at || "未知时间" }}</v-card-subtitle>-->
         <v-card-actions v-if="actions">
           <div v-for="action in actions" :key="action.name">
-            <v-btn @click="action.function(project.id, project)">{{ action.name }}</v-btn>
+            <v-btn @click="action.function(project.id, project)">{{
+              action.name
+            }}</v-btn>
           </div>
         </v-card-actions>
       </v-card>
@@ -42,8 +46,7 @@
 </template>
 
 <script>
-import { liveFetchProjectDetails, refreshProjectCache } from "@/stores/cache/project.js";
-import { liveFetchUserDetails, refreshUserCache } from "@/stores/cache/user.js";
+import request from "@/axios/axios.js";
 
 export default {
   props: {
@@ -53,69 +56,67 @@ export default {
     },
     actions: {
       type: Array,
-    }
+    },
   },
   data() {
     return {
       projects: [],
       authorids: [],
       authors: {},
-      liveQuerySubscription: null,
-      authorQuerySubscription: null,
     };
   },
   watch: {
     projectIds: {
       handler() {
-        this.startLiveFetch();
-        this.refreshData();
+        this.fetchProjects();
       },
       immediate: true,
       deep: true,
     },
   },
   methods: {
-    startLiveFetch() {
-      if (this.liveQuerySubscription) {
-        this.liveQuerySubscription.unsubscribe();
-      }
-      this.liveQuerySubscription = liveFetchProjectDetails(this.projectIds, (projects) => {
-        const projectMap = new Map(projects.map(project => [project.id, project]));
-        this.projects = this.projectIds.map(id => projectMap.get(id)).filter(Boolean);
-        this.updateAuthorIds();
+    async fetchProjects() {
+      const response = await request({
+        url: "/project/batch",
+        method: "post",
+        data: {
+          projectIds: this.projectIds,
+        },
       });
+      const projectMap = new Map(response.data.data.map(project => [project.id, project]));
+      this.projects = this.projectIds.map(id => ({
+        ...projectMap.get(id),
+        author: { display_name: "加载中..." },
+      }));
+      this.updateAuthorIds();
     },
     updateAuthorIds() {
-      const newAuthorIds = [...new Set(this.projects.map((project) => project.authorid))];
-      if (JSON.stringify(newAuthorIds) !== JSON.stringify(this.authorids)) {
-        this.authorids = newAuthorIds;
-        this.startAuthorLiveFetch();
-      }
+      this.authorids = [
+        ...new Set(this.projects.map((project) => project.authorid)),
+      ];
+      this.fetchAuthors();
     },
-    startAuthorLiveFetch() {
-      if (this.authorQuerySubscription) {
-        this.authorQuerySubscription.unsubscribe();
-      }
-      this.authorQuerySubscription = liveFetchUserDetails(this.authorids, (users) => {
-        const authors = {};
-        users.forEach((user) => {
-          authors[user.id] = user;
-        });
-        this.authors = authors;
+    async fetchAuthors() {
+      const response = await request({
+        url: "/user/batch",
+        method: "post",
+        data: {
+          userIds: this.authorids,
+        },
       });
+      const authors = {};
+      response.data.data.forEach((user) => {
+        authors[user.id] = user;
+      });
+      this.authors = authors;
+      this.updateProjectAuthors();
     },
-    async refreshData() {
-      await refreshProjectCache(this.projectIds);
-      await refreshUserCache(this.authorids);
+    updateProjectAuthors() {
+      this.projects = this.projects.map((project) => ({
+        ...project,
+        author: this.authors[project.authorid] || { display_name: "未知用户" },
+      }));
     },
-  },
-  beforeDestroy() {
-    if (this.liveQuerySubscription) {
-      this.liveQuerySubscription.unsubscribe();
-    }
-    if (this.authorQuerySubscription) {
-      this.authorQuerySubscription.unsubscribe();
-    }
   },
 };
 </script>
