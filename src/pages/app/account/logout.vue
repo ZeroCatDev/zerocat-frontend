@@ -1,11 +1,11 @@
 <template>
-  <v-container>{{ localuser }}
+  <v-container>
     <v-card class="mx-auto" rel="noopener" target="_blank" border>
       <template v-slot:title>
         <span>{{ titlemessage }}</span> </template
       ><template v-slot:subtitle>
         <span>正在退出您的ZeroCat账户</span> </template
-      ><v-card-text class="bg-surface-light pt-4" v-html="logs"> </v-card-text>
+      ><v-card-text class="bg-surface-light pt-4">{{ log }}</v-card-text>
     </v-card>
   </v-container>
 </template>
@@ -18,42 +18,28 @@ export default {
   data() {
     return {
       titlemessage: "正在退出账户",
-      logs: "",
+      log: "",
     };
   },
   setup() {
     useHead({
-      title: '退出',
-
+      title: "退出",
     });
   },
   async created() {
-    this.log("正在退出账户");
+    this.log="正在退出账户";
 
     try {
-      this.log("正在清除localStorage中的账户数据");
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      localStorage.removeItem("userInfo");
+      this.log="正在退出";
+      localuser.logout();
+      this.titlemessage="已退出";
 
-      this.log("请关闭此标签页并刷新其他标签页");
-
-      localuser.loadUser();
+      this.log="请关闭此标签页并刷新其他标签页";
     } catch (error) {
-      this.log(error);
+      this.titlemessage="出现错误";
+      this.log=error;
     }
   },
-  methods: {
-    currentTime() {
-      const now = new Date();
-      const hours = now.getHours().toString().padStart(2, "0");
-      const minutes = now.getMinutes().toString().padStart(2, "0");
-      const seconds = now.getSeconds().toString().padStart(2, "0");
-      return `${hours}:${minutes}:${seconds}`;
-    },
-    log(log) {
-      this.logs = this.logs + `[${this.currentTime()}] ${log}<br/>`;
-    },
-  },
+
 };
 </script>

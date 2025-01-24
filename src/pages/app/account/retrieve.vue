@@ -77,7 +77,6 @@
           </v-row>
         </v-form>
       </v-cardtext>
-
     </v-card>
   </div>
   <LoadingDialog :show="loading" text="正在发送邮件" />

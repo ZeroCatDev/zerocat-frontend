@@ -63,12 +63,10 @@ export default {
 
         if (res.data.token) {
           this.token = res.data.token;
-          this.user = jwtDecode(this.token);
-          localStorage.setItem("token", this.token); // 将JWT令牌存储到本地存储中
-          this.user = jwtDecode(localStorage.getItem("token")); // 从本地存储中获取并解码JWT令牌
-          console.log(this.user);
-          localuser.loaduser();
-          this.$router.push({ path: "/" });
+          await localuser.setUser(res.data.token);
+          if (localuser.isLogin.value == true) {
+            this.$router.push("/");
+          }
         }
       } catch (error) {
         this.user = error;

@@ -79,7 +79,6 @@
           </v-row>
         </v-form>
       </v-cardtext>
-
     </v-card>
   </div>
   <LoadingDialog :show="loading" text="正在重设密码" />
@@ -152,25 +151,21 @@ export default {
     async login() {
       this.loading = true;
       try {
-        await this.$nextTick(); // 确保$refs已被正确初始化
         const response = await resetPassword({
           jwttoken: this.$route.query.token,
           captcha: this.$refs.recaptcha.getResponse(),
           pw: this.password,
         });
         this.tryinguser = response.data;
-        if (this.tryinguser.message != "OK") {
+        if (this.tryinguser.status === "success") {
+          this.$router.push("/app/account/login");
+        } else {
           this.$toast.add({
             severity: "info",
             summary: "info",
-            detail: this.tryinguser.msg || this.tryinguser.message,
+            detail: this.tryinguser.message,
             life: 3000,
           });
-        } else {
-          localuser.setUser(this.tryinguser.token);
-          if (this.tryinguser.msg || this.tryinguser.message == "OK") {
-            this.$router.push("/");
-          }
         }
       } catch (error) {
         this.$toast.add({

@@ -26,9 +26,9 @@
       </v-menu>
       <v-menu :close-on-content-click="false">
         <template #activator="{ props }">
-          <template v-if="isLogin">
+          <template v-if="localuser.isLogin">
             <v-btn icon v-bind="props">
-              <v-avatar :image="'https://s4-1.wuyuan.1r.ink/user/'+userInfo.images"></v-avatar>
+              <v-avatar :image="'https://s4-1.wuyuan.1r.ink/user/'+localuser.user.images"></v-avatar>
             </v-btn>
           </template>
           <template v-else>
@@ -44,13 +44,13 @@
         </template>
         <v-card border style="padding: 10px">
           <v-card
-            :title="userInfo.display_name"
-            :subtitle="userInfo.username"
-            :append-avatar="'https://s4-1.wuyuan.1r.ink/user/'+userInfo.avatar"
+            :title="localuser.user.display_name"
+            :subtitle="localuser.user.username"
+            :append-avatar="'https://s4-1.wuyuan.1r.ink/user/'+localuser.user.avatar"
           ></v-card>
           <v-list>
             <v-list-item
-              :to="`/${userInfo.username}`"
+              :to="`/${localuser.user.username}`"
               prepend-icon="mdi-account"
               title="个人主页"
               rounded="xl"
@@ -139,7 +139,7 @@ export default {
     return {
       BASE_API: import.meta.env.VITE_APP_BASE_API,
       localuser,
-      userInfo: localuser.user,
+
       drawer: true,
       drawerRail: true,
       isLogin: localuser.isLogin,
@@ -232,7 +232,7 @@ export default {
       ];
     },
     getProjectSubNavItems(projectId, authorname) {
-      const isAuthor = this.userInfo.username == authorname;
+      const isAuthor = this.localuser.user.username == authorname;
       return [
         { title: '代码', link: `/${authorname}/${projectId}` },
         ...(isAuthor ? [

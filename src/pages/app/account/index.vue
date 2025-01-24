@@ -1,5 +1,5 @@
 <template>
-  <v-container>{{ localuser }}
+  <v-container>
     <div class="mb-2">
       <v-card
         hover

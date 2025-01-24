@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import request from "../axios/axios";
 
 const USER_INFO_KEY = 'userInfo';
@@ -28,14 +28,11 @@ const loadUser = async () => {
       logout();
     }
   } else {
-    isLogin.value = false;
-    user.value = DEFAULT_USER;
+    resetUser();
   }
 };
 
-const getToken = () => {
-  return localStorage.getItem(TOKEN_KEY);
-};
+const getToken = () => localStorage.getItem(TOKEN_KEY);
 
 const getCachedUserInfo = () => {
   const userInfo = localStorage.getItem(USER_INFO_KEY);
@@ -49,8 +46,9 @@ const cacheUserInfo = (userInfo) => {
 const fetchUserInfo = async () => {
   const token = getToken();
   if (!token) {
-    user.value = DEFAULT_USER;
-    isLogin.value = false;
+    alert('Token not found, please login again');
+    resetUser();
+    return;
   }
 
   const response = await request({
@@ -87,21 +85,25 @@ const getUserInfo = async () => {
   return userInfo;
 };
 
-const setUser = (data) => {
+const setUser = async (data) => {
   localStorage.setItem(TOKEN_KEY, data);
   token.value = data;
-  loadUser();
+  await loadUser();
+};
+
+const resetUser = () => {
+  user.value = DEFAULT_USER;
+  isLogin.value = false;
 };
 
 const logout = () => {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_INFO_KEY);
   token.value = null;
-  user.value = DEFAULT_USER;
-  isLogin.value = false;
+  resetUser();
 };
 
-loadUser();
+watch(token, loadUser);
 
 export const localuser = {
   token,

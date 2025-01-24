@@ -93,7 +93,7 @@ export default {
           detail: res.data,
           life: 3000,
         });
-        if (res.data.status == "1") {
+        if (res.data.status == "success") {
           this.created = true;
           this.newid = res.data.id;
         }

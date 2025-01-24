@@ -96,7 +96,6 @@
           </v-row>
         </v-form>
       </v-cardtext>
-
     </v-card>
   </div>
   <LoadingDialog :show="loading" text="登录中" />
@@ -109,6 +108,7 @@ import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
 import { useHead } from "@unhead/vue";
 import { loginUser } from "@/services/userService";
+import { ref } from "vue";
 
 export default {
   components: { LoadingDialog, Recaptcha },
@@ -145,7 +145,7 @@ export default {
   },
 
   created() {
-    if (localuser.isLogin.value == true) {
+    if (localuser.isLogin.value === true) {
       this.$router.push("/");
     }
   },
@@ -164,19 +164,21 @@ export default {
           un: this.username,
           pw: this.password,
         });
+        console.log(response);
         this.tryinguser = response.data;
-        if (this.tryinguser.message == "error") {
+        console.log(this.tryinguser);
+        if (this.tryinguser.status === "success") {
+          await localuser.setUser(this.tryinguser.token);
+          if (localuser.isLogin.value === true) {
+            this.$router.push("/");
+          }
+        } else {
           this.$toast.add({
             severity: "info",
             summary: "info",
             detail: this.tryinguser.message,
             life: 3000,
           });
-        } else {
-          localuser.setUser(this.tryinguser.token);
-          if (localuser.isLogin.value) {
-            this.$router.push("/");
-          }
         }
       } catch (error) {
         this.$toast.add({
