@@ -28,7 +28,11 @@
         <template #activator="{ props }">
           <template v-if="localuser.isLogin">
             <v-btn icon v-bind="props">
-              <v-avatar :image="'https://s4-1.wuyuan.1r.ink/user/'+localuser.user.images"></v-avatar>
+              <v-avatar
+                :image="
+                  'https://s4-1.wuyuan.1r.ink/user/' + localuser.user.images
+                "
+              ></v-avatar>
             </v-btn>
           </template>
           <template v-else>
@@ -47,7 +51,9 @@
             @click="localuser.loadUser(true)"
             :title="localuser.user.display_name"
             :subtitle="localuser.user.username"
-            :append-avatar="'https://s4-1.wuyuan.1r.ink/user/'+localuser.user.avatar"
+            :append-avatar="
+              'https://s4-1.wuyuan.1r.ink/user/' + localuser.user.avatar
+            "
           ></v-card>
           <v-list>
             <v-list-item
@@ -96,10 +102,12 @@
     </template>
     <template v-slot:extension v-if="subNavItems.length">
       <transition name="fade">
-        <v-tabs align-tabs="center">
-          <v-tab v-for="item in subNavItems" :key="item.title" :to="item.link">
-            {{ item.title }}
-          </v-tab>
+        <v-tabs align-tabs="center" v-model="activeTab">
+          <div v-for="item in subNavItems" :key="item.name">
+            <v-tab :to="item.link" :value="item.name">
+              {{ item.title }}
+            </v-tab>
+          </div>
         </v-tabs>
       </transition>
     </template>
@@ -146,8 +154,9 @@ export default {
       isLogin: localuser.isLogin,
       items: this.initializeNavItems(),
       subNavItems: [],
-      hideNavPaths: ['/app', '/404'],
-      hideExactPaths: ['/', '/index.html']
+      hideNavPaths: ["/app", "/404"],
+      hideExactPaths: ["/", "/index.html"],
+      activeTab: "1",
     };
   },
   created() {
@@ -170,7 +179,10 @@ export default {
     },
     $route(to) {
       this.updateSubNavItems(to);
-    }
+    },
+    activeTab(newVal) {
+      this.setSubNavItems(this.$route);
+    },
   },
   methods: {
     initializeNavItems() {
@@ -202,8 +214,16 @@ export default {
           icon: "mdi-tools",
           title: "工具",
           list: [
-            { title: "桌面版镜像", link: "/app/tools/asdm", icon: "mdi-download" },
-            { title: "项目比较器", link: "/app/tools/comparer", icon: "mdi-xml" },
+            {
+              title: "桌面版镜像",
+              link: "/app/tools/asdm",
+              icon: "mdi-download",
+            },
+            {
+              title: "项目比较器",
+              link: "/app/tools/comparer",
+              icon: "mdi-xml",
+            },
           ],
         },
       };
@@ -211,46 +231,67 @@ export default {
     updateSubNavItems(route) {
       if (this.shouldHideNav(route.path)) {
         this.subNavItems = [];
+        this.activeTab = null;
       } else {
         this.setSubNavItems(route);
       }
     },
     shouldHideNav(path) {
-      return this.hideNavPaths.some(hidePath => path.startsWith(hidePath)) || this.hideExactPaths.includes(path);
+      return (
+        this.hideNavPaths.some((hidePath) => path.startsWith(hidePath)) ||
+        this.hideExactPaths.includes(path)
+      );
     },
     setSubNavItems(route) {
-      const pathSegments = route.path.split('/').filter(Boolean);
+      const pathSegments = route.path.split("/").filter(Boolean);
       if (pathSegments.length === 1) {
         this.subNavItems = this.getUserSubNavItems(pathSegments[0]);
+        this.activeTab = route.query.tab || "home";
       } else {
-        this.subNavItems = this.getProjectSubNavItems(pathSegments[1], pathSegments[0]);
+        this.subNavItems = this.getProjectSubNavItems(
+          pathSegments[1],
+          pathSegments[0]
+        );
+        this.activeTab = pathSegments[2] || "home";
       }
     },
     getUserSubNavItems(userId) {
       return [
-        { title: '主页', link: `/${userId}` },
-        { title: '信息', link: `/${userId}/?tab=info` },
+        { title: "主页", link: `/${userId}`, name: "home" },
+        { title: "评论", link: `/${userId}/?tab=comment`, name: "comment" },
       ];
     },
     getProjectSubNavItems(projectId, authorname) {
       const isAuthor = this.localuser.user.username == authorname;
       return [
-        { title: '代码', link: `/${authorname}/${projectId}` },
-        ...(isAuthor ? [
-          { title: '推送', link: `/${authorname}/${projectId}/push` },
-          { title: '设置', link: `/${authorname}/${projectId}/settings` }
-        ] : [])
+        { title: "代码", link: `/${authorname}/${projectId}`, name: "home" },
+        ...(isAuthor
+          ? [
+              {
+                title: "推送",
+                link: `/${authorname}/${projectId}/push`,
+                name: "push",
+              },
+              {
+                title: "设置",
+                link: `/${authorname}/${projectId}/settings`,
+                name: "settings",
+              },
+            ]
+          : []),
       ];
-    }
+    },
   },
 };
 </script>
 
 <style>
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.5s;
 }
-.fade-enter, .fade-leave-to {
+.fade-enter,
+.fade-leave-to {
   opacity: 0;
 }
 </style>

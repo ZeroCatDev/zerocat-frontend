@@ -1,6 +1,9 @@
 <template>
   <v-container>
-    <v-responsive class="mt-12">
+<v-tabs-window v-model="tab">
+  <v-tabs-window-item value="home">
+
+    <v-responsive class="mt-8">
       <v-row class="d-flex align-center">
         <v-col>
           <p class="font-weight-medium text-primary">ZeroCat 用户</p>
@@ -35,6 +38,7 @@
     </v-responsive>
     <br />
     <Projects :url="url"></Projects>
+
     <v-row>
       <v-col
         cols="12"
@@ -62,7 +66,17 @@
     </v-row>
     <br />
     <Comment :url="'user-' + user.id" name="用户"></Comment>
-  </v-container>
+
+  </v-tabs-window-item>
+  <v-tabs-window-item value="comment">
+    <Comment :url="'user-' + user.id" name="用户"></Comment>
+
+  </v-tabs-window-item>
+  <v-tabs-window-item value="3">
+    <div>内容 3</div>
+  </v-tabs-window-item>
+</v-tabs-window> </v-container>
+
 </template>
 
 <script>
@@ -79,11 +93,18 @@ export default {
       user: {},
       lists: [],
       url: "",
+      tab: this.$route.query.tab || 'home',
     };
+  },
+  watch: {
+    '$route.query.tab'(newTab) {
+      this.tab = newTab || 'home';
+    }
   },
   async created() {
     await this.fetchUser();
     await this.getProjectList();
+    this.tab = this.$route.query.tab || 'home';
   },
   methods: {
     async fetchUser() {

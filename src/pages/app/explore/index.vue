@@ -180,7 +180,7 @@ export default {
     },
   },
   async created() {
-    await this.onPageChange();
+    this.onPageChange();
   },
 };
 </script>
