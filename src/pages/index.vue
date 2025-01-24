@@ -203,7 +203,7 @@
 import { ref } from "vue";
 import request from "../axios/axios";
 import $vuetify from "@/plugins/vuetify";
-import { localuser } from "../stores/user";
+import { localuser } from "@/middleware/userMiddleware";
 import Typewriter from "../components/Typewriter.vue";
 import { useHead } from "@unhead/vue";
 export default {

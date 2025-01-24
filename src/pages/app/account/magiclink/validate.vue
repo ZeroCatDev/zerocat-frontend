@@ -29,7 +29,7 @@
 
 <script>
 import { jwtDecode } from "jwt-decode";
-import { localuser } from "@/stores/user";
+import { localuser } from "@/middleware/userMiddleware";
 import { validateMagicLink } from "@/services/userService";
 import { useHead } from "@unhead/vue";
 
@@ -42,7 +42,7 @@ export default {
     };
   },
   mounted() {
-    if (localuser.islogin.value == true) {
+    if (localuser.isLogin.value == true) {
       this.$router.push("/");
     }
   },

@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container>{{ localuser }}
     <v-card class="mx-auto" rel="noopener" target="_blank" border>
       <template v-slot:title>
         <span>{{ titlemessage }}</span> </template
@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { localuser } from "@/stores/user";
+import { localuser } from "@/middleware/userMiddleware";
 import { useHead } from "@unhead/vue";
 
 export default {
@@ -33,12 +33,12 @@ export default {
     try {
       this.log("正在清除localStorage中的账户数据");
       localStorage.removeItem("token");
-      if (localStorage.getItem("token") === null) {
-        this.log("成功清除localStorage中的账户数据");
-      }
-      this.log("已成功退出您的账户，请关闭此标签页并刷新其他标签页");
+      localStorage.removeItem("user");
+      localStorage.removeItem("userInfo");
 
-      localuser.loaduser();
+      this.log("请关闭此标签页并刷新其他标签页");
+
+      localuser.loadUser();
     } catch (error) {
       this.log(error);
     }

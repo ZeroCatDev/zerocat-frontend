@@ -47,7 +47,7 @@
 
 <script>
 import request from "../../../axios/axios";
-import { localuser } from "@/stores/user";
+import { localuser } from "@/middleware/userMiddleware";
 import { useHead } from "@unhead/vue";
 export default {
   data() {
@@ -63,7 +63,7 @@ export default {
     });
   },
   async created() {
-    if (this.localuser.islogin == false) {
+    if (this.localuser.isLogin == false) {
       this.$router.push("/app/account/login");
     }
     await this.getproject();
@@ -106,7 +106,7 @@ export default {
             life: 3000,
           });
           if (res.data.status == "1") {
-            this.$router.push(`${localuser.user.userid}/${this.project.id}`);
+            this.$router.push(`${localuser.user.id}/${this.project.id}`);
           }
         })
         .catch((err) => {

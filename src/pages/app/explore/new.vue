@@ -57,7 +57,7 @@
 import openEdit from "../../../stores/openEdit";
 import request from "@/axios/axios";
 import { useHead } from "@unhead/vue";
-import { localuser } from "@/stores/user";
+import { localuser } from "@/middleware/userMiddleware";
 export default {
   setup() {
     useHead({
@@ -79,7 +79,7 @@ export default {
   },
 
   async created() {
-    if (this.localuser.islogin == false) {
+    if (this.localuser.isLogin == false) {
       this.$router.push("/app/account/login");
     }
   },

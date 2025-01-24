@@ -46,7 +46,7 @@
 <script>
 import Comment from "../../../components/Comment.vue";
 import request from "../../../axios/axios";
-import { localuser } from "@/stores/user";
+import { localuser } from "@/middleware/userMiddleware";
 import { useHead } from "@unhead/vue";
 import showProjects from "../../../components/project/showProjects.vue";
 export default {
@@ -84,20 +84,17 @@ export default {
   },
 
   async created() {
-    if (this.localuser.islogin == false) {
+    if (this.localuser.isLogin == false) {
       this.$router.push("/app/account/login");
     }
   },
   methods: {
     async getprojectlist() {
-      this.projectlist = await request({
-        url: "/projectlist/listid/" + this.$route.params.id,
-        method: "get",
-      }).data;
-      if (this.projectlist.status == "success") {
-        this.projectlist = this.projectlist.data;
+      const res = await request.get(`/projectlist/listid/${this.$route.params.id}`);
+      if (res.data.status === "success") {
+        this.projectlist = res.data.data;
       } else {
-        //this.$router.push("/404");
+        this.$router.push("/404");
       }
       useHead({
         title: "" + this.projectlist.title,
@@ -112,3 +109,4 @@ export default {
   },
 };
 </script>
+

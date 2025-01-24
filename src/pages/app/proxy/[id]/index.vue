@@ -143,7 +143,7 @@ import Comment from "../../../../components/Comment.vue";
 
 import request from "../../../../axios/axios";
 import ProjectRunner from "../../../../components/project/ProjectRunner.vue";
-import { localuser } from "@/stores/user";
+import { localuser } from "@/middleware/userMiddleware";
 export default {
   components: { ProjectRunner, Comment },
   data() {

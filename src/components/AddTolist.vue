@@ -32,7 +32,7 @@
 </template>
 <script>
 import NewProjectList from "@/components/projectlist/NewProjectList.vue";
-import { localuser } from "@/stores/user";
+import { localuser } from "@/middleware/userMiddleware";
 import request from "../axios/axios";
 export default {
   components: { NewProjectList },

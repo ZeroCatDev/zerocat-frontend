@@ -203,7 +203,7 @@
 </template>
 
 <script>
-import { localuser } from "@/stores/user";
+import { localuser } from "@/middleware/userMiddleware";
 import { registerUser } from "@/services/userService";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
@@ -248,7 +248,7 @@ export default {
   },
 
   created() {
-    if (localuser.islogin.value == true) {
+    if (localuser.isLogin.value == true) {
       this.$router.push("/");
     }
   },

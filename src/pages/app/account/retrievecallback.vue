@@ -86,7 +86,7 @@
 </template>
 
 <script>
-import { localuser } from "@/stores/user";
+import { localuser } from "@/middleware/userMiddleware";
 import request from "../../../axios/axios";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
@@ -138,7 +138,7 @@ export default {
   },
 
   created() {
-    if (localuser.islogin.value == true) {
+    if (localuser.isLogin.value == true) {
       this.$router.push("/");
     }
   },
@@ -167,7 +167,7 @@ export default {
             life: 3000,
           });
         } else {
-          localuser.setuser(this.tryinguser.token);
+          localuser.setUser(this.tryinguser.token);
           if (this.tryinguser.msg || this.tryinguser.message == "OK") {
             this.$router.push("/");
           }

@@ -28,7 +28,7 @@
         <template #activator="{ props }">
           <template v-if="isLogin">
             <v-btn icon v-bind="props">
-              <v-avatar :image="'https://s4-1.wuyuan.1r.ink/user/'+userInfo.avatar"></v-avatar>
+              <v-avatar :image="'https://s4-1.wuyuan.1r.ink/user/'+userInfo.images"></v-avatar>
             </v-btn>
           </template>
           <template v-else>
@@ -132,7 +132,7 @@
 </template>
 
 <script>
-import { localuser } from "@/stores/user";
+import { localuser } from "@/middleware/userMiddleware";
 
 export default {
   data() {
@@ -142,7 +142,7 @@ export default {
       userInfo: localuser.user,
       drawer: true,
       drawerRail: true,
-      isLogin: localuser.islogin,
+      isLogin: localuser.isLogin,
       items: this.initializeNavItems(),
       subNavItems: [],
       hideNavPaths: ['/app', '/404'],

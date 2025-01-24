@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container>{{ localuser }}
     <div class="mb-2">
       <v-card
         hover
@@ -166,7 +166,7 @@
 </template>
 
 <script>
-import { localuser } from "@/stores/user";
+import { localuser } from "@/middleware/userMiddleware";
 import "https://static.geetest.com/v4/gt4.js";
 import Compressor from "compressorjs";
 import { useHead } from "@unhead/vue";
@@ -215,7 +215,7 @@ export default {
     useHead({ title: '账户' });
   },
   async created() {
-    if (!this.localuser.islogin) {
+    if (!this.localuser.isLogin) {
       this.$router.push("/app/account/login");
     } else {
       await this.getuserInfo();
@@ -266,7 +266,7 @@ export default {
     async getuserInfo() {
       this.userCardLoading = true;
       try {
-        const response = await getUserInfo(this.localuser.user.userid);
+        const response = await getUserInfo(this.localuser.user.id);
         this.userInfo = response.data.info.user;
         this.select = this.items.find(item => item.abbr == this.userInfo.sex);
       } catch (error) {

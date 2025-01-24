@@ -64,14 +64,14 @@
 <script>
 import NewProjectList from "@/components/projectlist/NewProjectList.vue";
 import EditProjectListConfig from "@/components/projectlist/EditProjectListConfig.vue";
-import { localuser } from "@/stores/user";
+import { localuser } from "@/middleware/userMiddleware";
 import request from "../../../axios/axios";
 import { useHead } from "@unhead/vue";
 export default {
   components: {NewProjectList, EditProjectListConfig},
 
   async created() {
-    if (this.localuser.islogin == false) {
+    if (this.localuser.isLogin == false) {
       this.$router.push("/app/account/login");
     }
   },

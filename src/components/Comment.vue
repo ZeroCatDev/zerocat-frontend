@@ -124,7 +124,7 @@
                 </template>
                 <v-list border>
                   <v-list-item
-                  v-if="moreComments.user_id == localuser.user.userid"
+                  v-if="moreComments.user_id == localuser.user.id"
                   prepend-icon="mdi-delete"
                   @click="deleteCommnet({ id: moreComments.id })"
                   >
@@ -182,7 +182,7 @@
                 icon="mdi-reply"
                 @click="replyId = comment.id"
                 border
-                v-if="comment.user_id != localuser.user.userid"
+                v-if="comment.user_id != localuser.user.id"
               >
               </v-btn>
               <v-menu>
@@ -191,7 +191,7 @@
                 </template>
                 <v-list border>
                   <v-list-item
-                    v-if="comment.user_id == localuser.user.userid"
+                    v-if="comment.user_id == localuser.user.id"
                     prepend-icon="mdi-delete"
                     @click="deleteCommnet({ id: comment.id })"
                   >
@@ -266,7 +266,7 @@ import Markdown from "./Markdown.vue";
 import TimeAgo from "./TimeAgo.vue";
 
 import request from "../axios/axios";
-import { localuser } from "@/stores/user";
+import { localuser } from "@/middleware/userMiddleware";
 import { UAParser } from "ua-parser-js";
 
 export default {

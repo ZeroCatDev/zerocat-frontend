@@ -90,7 +90,7 @@
 
 <script>
 import openEditor from "../../../stores/openEdit";
-import { localuser } from "@/stores/user";
+import { localuser } from "@/middleware/userMiddleware";
 import { useHead } from "@unhead/vue";
 import { liveFetchProjectDetails, refreshProjectCache } from "../../../stores/cache/project.js";
 import { fetchUserDetails, refreshUserCache, liveFetchUserDetails } from "../../../stores/cache/user.js";
@@ -142,7 +142,7 @@ export default {
   },
 
   async created() {
-    if (this.localuser.islogin == false) {
+    if (this.localuser.isLogin == false) {
       this.$router.push("/app/account/login");
     }
     this.startLiveFetch();
@@ -192,7 +192,7 @@ export default {
             life: 3000,
           });
           if (res.data.id) {
-            this.$router.push(`${localuser.user.userid}/${res.data.id}`);
+            this.$router.push(`${localuser.user.id}/${res.data.id}`);
           }
         })
         .catch((err) => {
