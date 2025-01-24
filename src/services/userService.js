@@ -78,3 +78,11 @@ export function loginUser(data) {
     data,
   });
 }
+
+export function resetPassword(data) {
+  return request({
+    url: "/account/torepw",
+    method: "post",
+    data,
+  });
+}

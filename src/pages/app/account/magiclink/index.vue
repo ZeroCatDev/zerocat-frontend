@@ -100,7 +100,7 @@ import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
 import { useHead } from "@unhead/vue";
 import { generateMagicLink } from "@/services/userService";
-import { getResponse } from "@/stores/useRecaptcha";
+import { getResponse, initRecaptcha } from "@/stores/useRecaptcha"; // 确保导入 initRecaptcha
 
 export default {
   components: { LoadingDialog, Recaptcha },
