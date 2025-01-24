@@ -1,6 +1,6 @@
 <template>
   <div class="auth-wrapper d-flex align-center justify-center pa-4">
-    <v-card class="auth-card pa-4 pt-7" max-width="448" border>
+    <v-card class="auth-card pa-4 pt-7" max-width="448" border  rounded="lg">
       <v-row>
         <v-col cols="12">
           <v-cardtext>
