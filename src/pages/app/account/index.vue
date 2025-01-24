@@ -79,9 +79,9 @@
                     return-object
                   ></v-select>
                 </v-col>
-                <v-col cols="12">
-                  <Recaptcha recaptchaId="recaptcha-div1" />
-                </v-col>
+                <!--<v-col cols="12">
+                  <Recaptcha recaptchaId="recaptcha-div1" ref="recaptcha1" />
+                </v-col>-->
                 <v-col cols="12">
                   <v-btn @click="submit" :disabled="!valid" color="primary" class="mt-4">提交</v-btn>
                 </v-col>
@@ -100,9 +100,9 @@
                     required
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12">
-                  <Recaptcha recaptchaId="recaptcha-div2" />
-                </v-col>
+                <!--<v-col cols="12">
+                  <Recaptcha recaptchaId="recaptcha-div2" ref="recaptcha2" />
+                </v-col>-->
                 <v-col cols="12">
                   <v-btn @click="changeusername" :disabled="!usernamevalid" color="primary" class="mt-4">提交</v-btn>
                 </v-col>
@@ -128,9 +128,9 @@
                     required
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12">
-                  <Recaptcha recaptchaId="recaptcha-div3" />
-                </v-col>
+               <!-- <v-col cols="12">
+                  <Recaptcha recaptchaId="recaptcha-div3" ref="recaptcha3" />
+                </v-col>-->
                 <v-col cols="12">
                   <v-btn @click="changepassword" :disabled="!passwordvalid" color="primary" class="mt-4">提交</v-btn>
                 </v-col>
@@ -150,9 +150,9 @@
                   ></v-file-input>
                   <v-img v-if="previewImage" :src="previewImage" max-height="200" max-width="200"></v-img>
                 </v-col>
-                <v-col cols="12">
-                  <Recaptcha recaptchaId="recaptcha-div4" />
-                </v-col>
+                <!--<v-col cols="12">
+                  <Recaptcha recaptchaId="recaptcha-div4" ref="recaptcha4" />
+                </v-col>-->
                 <v-col cols="12">
                   <v-btn @click="uploadAvatar" :disabled="!avatarvalid" color="primary" class="mt-4">提交</v-btn>
                 </v-col>
@@ -170,15 +170,13 @@ import { localuser } from "@/stores/user";
 import "https://static.geetest.com/v4/gt4.js";
 import Compressor from "compressorjs";
 import { useHead } from "@unhead/vue";
-import Recaptcha from "@/components/Recaptcha.vue";
+//import Recaptcha from "@/components/Recaptcha.vue";
 import { getUserInfo, updateUserInfo, updateUsername, updatePassword, uploadUserAvatar } from "@/services/userService";
-import { getResponse } from "@/stores/useRecaptcha";
 
 export default {
-  components: { Recaptcha },
+  //components: { Recaptcha },
   data() {
     return {
-      getResponse,
       userCardLoading: false,
       localuser: localuser,
       userInfo: {},
@@ -223,6 +221,12 @@ export default {
       await this.getuserInfo();
     }
   },
+  mounted() {
+    //this.$refs.recaptcha1.initRecaptcha();
+    //this.$refs.recaptcha2.initRecaptcha();
+    //this.$refs.recaptcha3.initRecaptcha();
+    //this.$refs.recaptcha4.initRecaptcha();
+  },
   methods: {
     onFileChange(event) {
       const file = event.target.files ? event.target.files[0] : null;
@@ -249,9 +253,11 @@ export default {
       const formData = new FormData();
       formData.append("zcfile", this.useravatarfile);
       try {
-        const responseData = await getResponse();
-        const queryParams = new URLSearchParams(responseData).toString();
-        await uploadUserAvatar(queryParams, formData);
+        //const responseData = await this.$refs.recaptcha4.getResponse();
+        //const queryParams = new URLSearchParams(responseData).toString();
+        //await uploadUserAvatar(queryParams, formData);
+        await uploadUserAvatar('' , formData);
+
         this.showToast("info", "上传头像成功", "头像已更新");
       } catch (error) {
         this.showToast("error", "错误", error.message);
@@ -273,7 +279,7 @@ export default {
       this.userCardLoading = true;
       try {
         const response = await updateUserInfo({
-          captcha: getResponse() || "",
+          //captcha: this.$refs.recaptcha1.getResponse() || "",
           display_name: this.userInfo.display_name,
           aboutme: this.userInfo.motto,
           sex: this.select.abbr,
@@ -290,7 +296,7 @@ export default {
       this.userCardLoading = true;
       try {
         const response = await updateUsername({
-          captcha: getResponse() || "",
+          //captcha: this.$refs.recaptcha2.getResponse() || "",
           username: this.userInfo.username,
         });
         this.showToast("info", "修改用户名", response.status);
@@ -305,7 +311,7 @@ export default {
       this.userCardLoading = true;
       try {
         const response = await updatePassword({
-          captcha: getResponse() || "",
+          //captcha: this.$refs.recaptcha3.getResponse() || "",
           oldpw: this.oldPassword,
           newpw: this.newPassword,
         });

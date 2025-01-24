@@ -35,7 +35,7 @@
               ></v-text-field>
             </v-col>
             <v-col cols="9">
-              <Recaptcha recaptchaId="recaptcha-div" />
+              <Recaptcha ref="recaptcha" recaptchaId="recaptcha-div" />
             </v-col>
             <!-- password -->
             <v-col cols="12">
@@ -109,7 +109,6 @@ import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
 import { useHead } from "@unhead/vue";
 import { loginUser } from "@/services/userService";
-import { getResponse } from "@/stores/useRecaptcha";
 
 export default {
   components: { LoadingDialog, Recaptcha },
@@ -122,7 +121,6 @@ export default {
       tryinguser: {},
       loading: false,
       localuser: localuser,
-      getResponse,
       show1: ref(false),
       emailRules: [
         (value) => {
@@ -151,6 +149,7 @@ export default {
       this.$router.push("/");
     }
   },
+
   setup() {
     useHead({
       title: "登录",
@@ -161,7 +160,7 @@ export default {
       this.loading = true;
       try {
         const response = await loginUser({
-          captcha: getResponse(),
+          captcha: this.$refs.recaptcha.getResponse(),
           un: this.username,
           pw: this.password,
         });

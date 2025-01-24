@@ -31,9 +31,7 @@
 import { jwtDecode } from "jwt-decode";
 import { localuser } from "@/stores/user";
 import { validateMagicLink } from "@/services/userService";
-
 import { useHead } from "@unhead/vue";
-import { getResponse, initRecaptcha } from "@/stores/useRecaptcha"; // 确保导入 initRecaptcha
 
 export default {
   data() {
@@ -52,13 +50,10 @@ export default {
     useHead({
       title: "魔术链接登录",
     });
-    initRecaptcha("recaptcha-div", "popup"); // 初始化验证码
     if (this.$route.query.token) {
       try {
-        const res = await validateMagicLink({
-          token: this.$route.query.token,
-          captcha: getResponse(),
-        });
+        await this.$nextTick(); // 确保$refs已被正确初始化
+        const res = await validateMagicLink(this.$route.query.token);
         this.$toast.add({
           severity: res.data.status,
           summary: res.data.status,

@@ -39,7 +39,7 @@
               </v-text-field>
             </v-col>
             <v-col cols="9">
-              <Recaptcha recaptchaId="recaptcha-div" />
+              <Recaptcha ref="recaptcha" recaptchaId="recaptcha-div" />
             </v-col>
             <!-- password -->
             <v-col cols="12">
@@ -92,7 +92,6 @@ import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
 import { useHead } from "@unhead/vue";
 import { resetPassword } from "@/services/userService";
-import { getResponse } from "@/stores/useRecaptcha";
 
 export default {
   components: { LoadingDialog, Recaptcha },
@@ -106,7 +105,6 @@ export default {
 
       tryinguser: {},
       loading: false,
-      getResponse,
       emailRules: [
         (value) => {
           if (value) return true;
@@ -144,6 +142,7 @@ export default {
       this.$router.push("/");
     }
   },
+
   setup() {
     useHead({
       title: "重设密码",
@@ -153,9 +152,10 @@ export default {
     async login() {
       this.loading = true;
       try {
+        await this.$nextTick(); // 确保$refs已被正确初始化
         const response = await resetPassword({
           jwttoken: this.$route.query.token,
-          captcha: getResponse(),
+          captcha: this.$refs.recaptcha.getResponse(),
           pw: this.password,
         });
         this.tryinguser = response.data;

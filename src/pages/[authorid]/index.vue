@@ -5,10 +5,12 @@
         <v-col>
           <p class="font-weight-medium text-primary">ZeroCat 用户</p>
 
-          <p class="font-weight-bold text-sm-h2 text-h4 mt-2 d-inline-flex align-center username">
+          <p
+            class="font-weight-bold text-sm-h2 text-h4 mt-2 d-inline-flex align-center username"
+          >
             {{ user.display_name }}
             <v-avatar size="52" class="ma-2">
-              <v-img  :src="'https://s4-1.wuyuan.1r.ink/user/' + user.images" />
+              <v-img :src="'https://s4-1.wuyuan.1r.ink/user/' + user.images" />
             </v-avatar>
           </p>
 
@@ -54,9 +56,6 @@
             color="primary"
             variant="tonal"
           >
-
-
-
           </v-card>
         </v-card>
       </v-col>
@@ -70,7 +69,10 @@
 import Comment from "../../components/Comment.vue";
 import Projects from "../../components/project/Projects.vue";
 import { useHead } from "@unhead/vue";
-import { liveFetchUserDetails, refreshUserCache } from "../../stores/cache/user.js";
+import {
+  liveFetchUserDetails,
+  refreshUserCache,
+} from "../../stores/cache/user.js";
 import request from "../../axios/axios.js";
 export default {
   components: { Projects, Comment },
@@ -125,8 +127,7 @@ export default {
   );
   background-clip: text;
   -webkit-background-clip: text;
-  text-fill-color: transparent;
+  color: transparent;
   -webkit-text-fill-color: transparent;
 }
 </style>
-

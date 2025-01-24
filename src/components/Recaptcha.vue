@@ -7,7 +7,6 @@
 
 <script>
 import "https://static.geetest.com/v4/gt4.js";
-import { initRecaptcha } from "@/stores/useRecaptcha";
 
 export default {
   props: {
@@ -25,10 +24,33 @@ export default {
   },
   methods: {
     initRecaptcha() {
-      initRecaptcha(this.recaptchaId, this.product);
+      console.log(import.meta.env.VITE_APP_GEEID);
+      initGeetest4(
+        {
+          captchaId: import.meta.env.VITE_APP_GEEID,
+          product: this.product,
+        },
+        (captchaObj) => {
+          window.gt4 = captchaObj;
+          captchaObj.appendTo(`#${this.recaptchaId}`);
+          captchaObj
+            .onReady(() => {
+              console.log(`Challenge Ready`);
+            })
+            .onSuccess(() => {
+              console.log(`Challenge Success`);
+            })
+            .onError(() => {
+              console.log(`Challenge Error`);
+            });
+        }
+      );
     },
     resetCaptcha() {
-      this.initRecaptcha();
+      window.gt4.reset();
+    },
+    getResponse() {
+      return window.gt4.getValidate();
     },
   },
 };
