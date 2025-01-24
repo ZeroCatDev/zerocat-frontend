@@ -61,7 +61,7 @@ export default {
   data() {
     return {
       projects: [],
-      authorids: [],
+      authorIds: [],
       authors: {},
     };
   },
@@ -91,7 +91,7 @@ export default {
       this.updateAuthorIds();
     },
     updateAuthorIds() {
-      this.authorids = [
+      this.authorIds = [
         ...new Set(this.projects.map((project) => project.authorid)),
       ];
       this.fetchAuthors();
@@ -101,7 +101,7 @@ export default {
         url: "/user/batch",
         method: "post",
         data: {
-          userIds: this.authorids,
+          userIds: this.authorIds,
         },
       });
       const authors = {};

@@ -50,7 +50,7 @@
           ></v-card>
           <v-list>
             <v-list-item
-              :to="`/${userInfo.userid}`"
+              :to="`/${userInfo.username}`"
               prepend-icon="mdi-account"
               title="个人主页"
               rounded="xl"
