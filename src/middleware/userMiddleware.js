@@ -5,8 +5,8 @@ const USER_INFO_KEY = 'userInfo';
 const TOKEN_KEY = 'token';
 
 const token = ref(localStorage.getItem(TOKEN_KEY));
-const user = ref({});
-const isLogin = ref(false);
+const user = ref(JSON.parse(localStorage.getItem(USER_INFO_KEY)) || DEFAULT_USER);
+const isLogin = ref(true);
 
 const DEFAULT_USER = {
   id: 0,
@@ -18,17 +18,9 @@ const DEFAULT_USER = {
   username: "virtual"
 };
 
-const loadUser = async () => {
-  if (token.value) {
-    try {
-      await fetchUserInfo();
-      isLogin.value = true;
-    } catch (error) {
-      console.error(error);
-      logout();
-    }
-  } else {
-    resetUser();
+const loadUser = async (force) => {
+  if (user.value.id===0 || force===true) {
+    await fetchUserInfo();
   }
 };
 
@@ -46,7 +38,6 @@ const cacheUserInfo = (userInfo) => {
 const fetchUserInfo = async () => {
   const token = getToken();
   if (!token) {
-    alert('Token not found, please login again');
     resetUser();
     return;
   }
@@ -74,6 +65,7 @@ const fetchUserInfo = async () => {
     username: data.info.username
   };
   cacheUserInfo(user.value);
+  isLogin.value = true;
 };
 
 const getUserInfo = async () => {

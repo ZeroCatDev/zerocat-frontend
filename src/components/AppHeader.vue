@@ -44,6 +44,7 @@
         </template>
         <v-card border style="padding: 10px">
           <v-card
+            @click="localuser.loadUser(true)"
             :title="localuser.user.display_name"
             :subtitle="localuser.user.username"
             :append-avatar="'https://s4-1.wuyuan.1r.ink/user/'+localuser.user.avatar"
