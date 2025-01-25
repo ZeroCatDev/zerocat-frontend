@@ -7,7 +7,7 @@ const defaultProject = (id) => ({
   description: "项目信息未缓存",
   authorid: 0,
   type: "scratch",
-  licence: "unknow",
+  license: "unknow",
   state: "unknow",
   view_count: 0,
   time: 0,

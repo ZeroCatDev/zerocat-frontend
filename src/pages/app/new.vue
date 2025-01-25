@@ -55,10 +55,10 @@
 
     <v-select
       label="选择许可证"
-      :items="licence"
+      :items="license"
       item-title="text"
       item-value="value"
-      v-model="projectinfo.licence"
+      v-model="projectinfo.license"
     ></v-select>
     <p class="text-caption text-medium-emphasis">
       许可证告诉其他人他们可以和不能使用您的代码。<a
@@ -104,9 +104,9 @@ export default {
         name: "",
         state: "public",
         description: "",
-        licence: "None",
+        license: "None",
       },
-      licence: [
+      license: [
         { text: "None", value: "" },
         { text: "Apache License 2.0", value: "apache-2.0" },
         { text: "GNU General Public License v3.0", value: "gpl-3.0" },
