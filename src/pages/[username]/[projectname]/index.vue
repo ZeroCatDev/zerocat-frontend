@@ -4,31 +4,28 @@
       <v-col xs="12" sm="12" md="8" lg="8" xl="8" xxl="8" cols="12">
         <ProjectRunner :type="project.type" :id="project.id" /><br/>
         <v-card>
-    <v-tabs
-      v-model="tab"
-      bg-color="primary"
-    >
-      <v-tab value="readme">README</v-tab>
-      <v-tab value="license">LICENSE</v-tab>
-      <v-tab value="three">Item Three</v-tab>
-    </v-tabs>
+          <v-tabs v-model="tab" bg-color="primary">
+            <v-tab value="readme">README</v-tab>
+            <v-tab value="license">LICENSE</v-tab>
+            <v-tab value="three">Item Three</v-tab>
+          </v-tabs>
 
-    <v-card-text>
-      <v-tabs-window v-model="tab">
-        <v-tabs-window-item value="readme">
-          <Markdown>{{project.description}}</Markdown>
-        </v-tabs-window-item>
+          <v-card-text>
+            <v-tabs-window v-model="tab">
+              <v-tabs-window-item value="readme">
+                <Markdown>{{ project.description }}</Markdown>
+              </v-tabs-window-item>
 
-        <v-tabs-window-item value="license">
-          {{project.license}}
-        </v-tabs-window-item>
+              <v-tabs-window-item value="license">
+                <License :licenseKey="project.license || 'none'" />
+              </v-tabs-window-item>
 
-        <v-tabs-window-item value="three">
-          Three
-        </v-tabs-window-item>
-      </v-tabs-window>
-    </v-card-text>
-  </v-card>
+              <v-tabs-window-item value="three">
+                Three
+              </v-tabs-window-item>
+            </v-tabs-window>
+          </v-card-text>
+        </v-card>
       </v-col>
       <v-col xs="12" sm="12" md="4" lg="4" xl="4" xxl="8" cols="12">
         <v-card hover border>
@@ -127,8 +124,9 @@ import { useHead } from "@unhead/vue";
 import { getProjectInfoByNamespace } from "../../../stores/cache/project.js";
 import { getUserById } from "../../../stores/cache/user.js";
 import Markdown from "@/components/Markdown.vue";
+import License from "@/components/license/License.vue";
 export default {
-  components: { ProjectRunner, TimeAgo, Comment, ProjectStar,Markdown },
+  components: { ProjectRunner, TimeAgo, Comment, ProjectStar,Markdown ,License},
   data() {
     return {
       projectid: this.$route.params.id,
