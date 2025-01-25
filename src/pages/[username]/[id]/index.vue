@@ -73,7 +73,6 @@
 
 <script>
 import openEditor from "../../../stores/openEdit";
-import request from "../../../axios/axios";
 import ProjectRunner from "../../../components/project/ProjectRunner.vue";
 import { localuser } from "@/middleware/userMiddleware";
 import AddTolist from "../../../components/AddTolist.vue";
@@ -81,9 +80,8 @@ import ProjectStar from "../../../components/project/ProjectStar.vue";
 import Comment from "../../../components/Comment.vue";
 import TimeAgo from "@/components/TimeAgo.vue";
 import { useHead } from "@unhead/vue";
-import {  refreshProjectCache, fetchProjectDetailsFromCloud } from "../../../stores/cache/project.js";
-import {  refreshUserCache , fetchUserDetailsFromCloud } from "../../../stores/cache/user.js";
-
+import { fetchProjectDetailsFromCloud } from "../../../stores/cache/project.js";
+import { fetchUserDetailsFromCloud } from "../../../stores/cache/user.js";
 
 export default {
   components: { ProjectRunner, TimeAgo, Comment, AddTolist, ProjectStar },
@@ -120,12 +118,10 @@ export default {
   async mounted() {
     await this.refreshProject();
     this.fetchProjectAndAuthorDetails();
-
   },
   methods: {
     async fetchProjectAndAuthorDetails() {
       const projectId = Number(this.$route.params.id);
-
 
       // 再强制获取云端数据
       const projectFromCloud = await fetchProjectDetailsFromCloud(projectId);
@@ -133,14 +129,6 @@ export default {
       useHead({ title: this.project.title });
       this.author = await fetchUserDetailsFromCloud(this.project.authorid);
     },
-    async refreshProject() {
-      await refreshProjectCache(this.$route.params.id);
-      await this.refreshAuthor();
-    },
-    async refreshAuthor() {
-      await refreshUserCache(this.project.authorid);
-    },
   },
-
 };
 </script>
