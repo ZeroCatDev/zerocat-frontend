@@ -67,15 +67,15 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./dist
         publish_branch: build
-    - name: to target repo
-      uses: s0/git-publish-subdir-action@develop
-      env:
-        # 换成自己的目标仓库
-        REPO: git@gitee.com:sunwuyuan/zerocatnext.git
-        # 目标分支
-        BRANCH: main
-        # 要推送的目录
-        FOLDER: dist
-        # 保存在secrets里面生成的ssh私钥
-        SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
-        KNOWN_HOSTS_FILE: known_hosts # Path relative to the root of the repository
+#    - name: to target repo
+#      uses: s0/git-publish-subdir-action@develop
+#      env:
+#        # 换成自己的目标仓库
+#        REPO: git@gitee.com:sunwuyuan/zerocatnext.git
+#        # 目标分支
+#        BRANCH: main
+#        # 要推送的目录
+#        FOLDER: dist
+#        # 保存在secrets里面生成的ssh私钥
+#        SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+#        KNOWN_HOSTS_FILE: known_hosts # Path relative to the root of the repository
