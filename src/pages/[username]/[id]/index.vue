@@ -80,8 +80,8 @@ import ProjectStar from "../../../components/project/ProjectStar.vue";
 import Comment from "../../../components/Comment.vue";
 import TimeAgo from "@/components/TimeAgo.vue";
 import { useHead } from "@unhead/vue";
-import { fetchProjectDetailsFromCloud } from "../../../stores/cache/project.js";
-import { fetchUserDetailsFromCloud } from "../../../stores/cache/user.js";
+import { getProjectInfo } from "../../../stores/cache/project.js";
+import { getUserById } from "../../../stores/cache/user.js";
 
 export default {
   components: { ProjectRunner, TimeAgo, Comment, AddTolist, ProjectStar },
@@ -116,18 +116,17 @@ export default {
     };
   },
   async mounted() {
-    await this.refreshProject();
     this.fetchProjectAndAuthorDetails();
   },
   methods: {
     async fetchProjectAndAuthorDetails() {
       const projectId = Number(this.$route.params.id);
 
-      // 再强制获取云端数据
-      const projectFromCloud = await fetchProjectDetailsFromCloud(projectId);
+      // 获取云端数据
+      const projectFromCloud = await getProjectInfo(projectId);
       this.project = projectFromCloud;
       useHead({ title: this.project.title });
-      this.author = await fetchUserDetailsFromCloud(this.project.authorid);
+      this.author = await getUserById(this.project.authorid);
     },
   },
 };

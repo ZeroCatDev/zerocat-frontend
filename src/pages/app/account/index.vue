@@ -171,7 +171,7 @@ import "https://static.geetest.com/v4/gt4.js";
 import Compressor from "compressorjs";
 import { useHead } from "@unhead/vue";
 //import Recaptcha from "@/components/Recaptcha.vue";
-import { getUserInfo, updateUserInfo, updateUsername, updatePassword, uploadUserAvatar } from "@/services/userService";
+import { getUserById, updateUserInfo, updateUsername, updatePassword, uploadUserAvatar } from "@/services/userService";
 
 export default {
   //components: { Recaptcha },
@@ -218,7 +218,7 @@ export default {
     if (!this.localuser.isLogin) {
       this.$router.push("/app/account/login");
     } else {
-      await this.getuserInfo();
+      await this.getUserById();
     }
   },
   mounted() {
@@ -263,10 +263,10 @@ export default {
         this.showToast("error", "错误", error.message);
       }
     },
-    async getuserInfo() {
+    async getUserById() {
       this.userCardLoading = true;
       try {
-        const response = await getUserInfo(this.localuser.user.id);
+        const response = await getUserById(this.localuser.user.id);
         this.userInfo = response.data.info.user;
         this.select = this.items.find(item => item.abbr == this.userInfo.sex);
       } catch (error) {
@@ -285,7 +285,7 @@ export default {
           sex: this.select.abbr,
         });
         this.showToast("info", "修改个人信息", response.status);
-        await this.getuserInfo();
+        await this.getUserById();
       } catch (error) {
         this.showToast("error", "错误", error.message);
       } finally {
@@ -300,7 +300,7 @@ export default {
           username: this.userInfo.username,
         });
         this.showToast("info", "修改用户名", response.status);
-        await this.getuserInfo();
+        await this.getUserById();
       } catch (error) {
         this.showToast("error", "错误", error.message);
       } finally {
@@ -316,7 +316,7 @@ export default {
           newpw: this.newPassword,
         });
         this.showToast("info", "修改密码", response.message);
-        await this.getuserInfo();
+        await this.getUserById();
       } catch (error) {
         this.showToast("error", "错误", error.message);
       } finally {

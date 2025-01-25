@@ -356,7 +356,7 @@ export default {
     },
     async deleteProject() {
       try {
-        const res = await request.delete(`/project/${this.currentProjectID}`);
+        const res = await request.delete(`/project/edit/${this.currentProjectID}`);
         console.log(res.data);
         this.$toast.add({
           severity: "info",
@@ -379,7 +379,7 @@ export default {
     async SaveProjectsInfo() {
       this.currentProject.tags = this.aboutTags.chips.map(name => name);
       try {
-        const res = await request.put(`/project/${this.currentProjectID}`, this.currentProject);
+        const res = await request.put(`/project/id/${this.currentProjectID}`, this.currentProject);
         console.log(res.data);
         this.$toast.add({
           severity: "info",

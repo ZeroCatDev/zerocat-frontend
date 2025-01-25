@@ -46,7 +46,8 @@
 </template>
 
 <script>
-import request from "@/axios/axios.js";
+import { getProjectInfo } from "@/stores/cache/project.js";
+import { getUserById } from "@/stores/cache/user.js";
 
 export default {
   props: {
@@ -76,16 +77,9 @@ export default {
   },
   methods: {
     async fetchProjects() {
-      const response = await request({
-        url: "/project/batch",
-        method: "post",
-        data: {
-          projectIds: this.projectIds,
-        },
-      });
-      const projectMap = new Map(response.data.data.map(project => [project.id, project]));
-      this.projects = this.projectIds.map(id => ({
-        ...projectMap.get(id),
+      const projects = await getProjectInfo(this.projectIds);
+      this.projects = projects.map(project => ({
+        ...project,
         author: { display_name: "加载中..." },
       }));
       this.updateAuthorIds();
@@ -97,18 +91,12 @@ export default {
       this.fetchAuthors();
     },
     async fetchAuthors() {
-      const response = await request({
-        url: "/user/batch/id",
-        method: "post",
-        data: {
-          userIds: this.authorIds,
-        },
+      const authors = await getUserById(this.authorIds);
+      const authorsMap = {};
+      authors.forEach((user) => {
+        authorsMap[user.id] = user;
       });
-      const authors = {};
-      response.data.data.forEach((user) => {
-        authors[user.id] = user;
-      });
-      this.authors = authors;
+      this.authors = authorsMap;
       this.updateProjectAuthors();
     },
     updateProjectAuthors() {

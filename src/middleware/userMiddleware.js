@@ -69,7 +69,7 @@ const fetchUserInfo = async () => {
   isLogin.value = true;
 };
 
-const getUserInfo = async () => {
+const getUserById = async () => {
   let userInfo = getCachedUserInfo();
   if (!userInfo) {
     userInfo = await fetchUserInfo();
@@ -104,6 +104,6 @@ export const localuser = {
   isLogin,
   loadUser,
   setUser,
-  getUserInfo,
+  getUserById,
   logout
 };

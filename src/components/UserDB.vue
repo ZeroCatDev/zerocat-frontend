@@ -61,10 +61,10 @@ export default {
   methods: {
     async fetchUsers() {
       const ids = this.inputValue.split(",").map((id) => id.trim());
-      const result = await this.fetchUserDetails(ids);
+      const result = await this.getUserById(ids);
       console.log(result); // Display raw result
     },
-    async fetchUserDetails(ids) {
+    async getUserById(ids) {
       if (!Array.isArray(ids)) {
         ids = [ids];
       }
@@ -77,7 +77,7 @@ export default {
     async addFriend() {
       try {
         const resp = await fetch(
-          `http://localhost:3000/api/getuserinfo?id=${this.UserID}`
+          `http://localhost:3000/api/getUserById?id=${this.UserID}`
         );
         const data = await resp.json();
 

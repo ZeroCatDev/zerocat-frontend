@@ -16,26 +16,20 @@ const defaultProject = (id) => ({
 });
 
 // 获取项目详情函数
-export async function fetchProjectDetails(ids) {
-  if (!Array.isArray(ids)) ids = [ids];
-  return Promise.all(
-    ids.map(async (id) => {
-      try {
-        const { data } = await request.get(`/project/${id}`);
-        return data;
-      } catch (error) {
-        return defaultProject(id);
-      }
-    })
-  ).then((projects) => (ids.length === 1 ? projects[0] : projects));
-}
-
-// 从云端获取数据，返回项目详情
-export async function fetchProjectDetailsFromCloud(id) {
-  try {
-    const { data } = await request.get(`/project/${id}`);
-    return data;
-  } catch (error) {
-    return defaultProject(id);
+export async function getProjectInfo(ids) {
+  if (Array.isArray(ids)) {
+    try {
+      const { data } = await request.post(`/project/batch`, { projectIds: ids });
+      return data.data;
+    } catch (error) {
+      return ids.map(id => defaultProject(id));
+    }
+  } else {
+    try {
+      const { data } = await request.get(`/project/id/${ids}`);
+      return data;
+    } catch (error) {
+      return defaultProject(ids);
+    }
   }
 }

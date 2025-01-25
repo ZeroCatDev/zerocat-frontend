@@ -114,7 +114,7 @@ import request from "../../../axios/axios";
 import { localuser } from "@/middleware/userMiddleware";
 import { useHead } from "@unhead/vue";
 import {
-  fetchProjectDetailsFromCloud,
+  getProjectInfo,
   cacheProjectInfo,
 } from "@/stores/cache/project";
 
@@ -152,7 +152,7 @@ export default {
     },
     async fetchProject() {
       try {
-        this.currentProject = await fetchProjectDetailsFromCloud(
+        this.currentProject = await getProjectInfo(
           this.currentProjectID
         );
         this.aboutTags.chips = this.currentProject.tags.map((tag) => tag.name);
@@ -190,7 +190,7 @@ export default {
       this.currentProject.tags = this.aboutTags.chips.map((name) => name);
       try {
         const response = (await request.put(
-          `/project/${this.currentProjectID}`,
+          `/project/id/${this.currentProjectID}`,
           this.currentProject
         )).data;
         this.$toast.add({

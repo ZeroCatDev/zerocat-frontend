@@ -1,8 +1,8 @@
 import request from "@/axios/axios";
 
-export function getUserInfo(userId) {
+export function getUserById(userId) {
   return request({
-    url: `/api/getuserInfo?id=${userId}`,
+    url: `/api/getUserById?id=${userId}`,
     method: "get",
   });
 }

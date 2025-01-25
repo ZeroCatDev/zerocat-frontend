@@ -92,8 +92,8 @@
 import openEditor from "../../../stores/openEdit";
 import { localuser } from "@/middleware/userMiddleware";
 import { useHead } from "@unhead/vue";
-import { fetchProjectDetailsFromCloud } from "../../../stores/cache/project.js";
-import { fetchUserDetails, refreshUserCache } from "../../../stores/cache/user.js";
+import { getProjectInfo } from "../../../stores/cache/project.js";
+import { getUserById } from "../../../stores/cache/user.js";
 import request from "../../../axios/axios";
 
 export default {
@@ -146,8 +146,7 @@ export default {
     if (this.localuser.isLogin == false) {
       this.$router.push("/app/account/login");
     }
-    await this.refreshProject();
-    await this.refreshAuthor();
+    this.fetchProjectAndAuthorDetails();
   },
   setup() {
     useHead({
@@ -155,15 +154,12 @@ export default {
     });
   },
   methods: {
-    async refreshProject() {
-      this.project = await fetchProjectDetailsFromCloud(this.$route.params.id);
+    async fetchProjectAndAuthorDetails() {
+      this.project = await getProjectInfo(this.$route.params.id);
       useHead({
         title: "分叉" + this.project.title,
       });
-    },
-    async refreshAuthor() {
-      this.author = await fetchUserDetails(this.project.authorid);
-      await refreshUserCache(this.project.authorid);
+      this.author = await getUserById(this.project.authorid);
     },
     async forkproject(id) {
       await request({

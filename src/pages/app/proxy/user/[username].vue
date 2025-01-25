@@ -129,10 +129,10 @@ export default {
   },
 
   async created() {
-    await this.getuserinfo();
+    await this.getUserById();
   },
   methods: {
-    async getuserinfo() {
+    async getUserById() {
       try {
         const res = await request.get(this.scratch_proxy + "/users/" + this.$route.params.username);
         this.userinfo = res.data;
