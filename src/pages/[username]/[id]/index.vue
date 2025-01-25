@@ -81,8 +81,8 @@ import ProjectStar from "../../../components/project/ProjectStar.vue";
 import Comment from "../../../components/Comment.vue";
 import TimeAgo from "@/components/TimeAgo.vue";
 import { useHead } from "@unhead/vue";
-import {  refreshProjectCache,getProjectDetailsFromCache, fetchProjectDetailsFromCloud } from "../../../stores/cache/project.js";
-import {  refreshUserCache ,getUserDetailsFromCache, fetchUserDetailsFromCloud } from "../../../stores/cache/user.js";
+import {  refreshProjectCache, fetchProjectDetailsFromCloud } from "../../../stores/cache/project.js";
+import {  refreshUserCache , fetchUserDetailsFromCloud } from "../../../stores/cache/user.js";
 
 
 export default {
@@ -126,10 +126,6 @@ export default {
     async fetchProjectAndAuthorDetails() {
       const projectId = Number(this.$route.params.id);
 
-      // 先获取本地缓存
-      this.project = await getProjectDetailsFromCache(projectId);
-      useHead({ title: this.project.title });
-      this.author = await getUserDetailsFromCache(this.project.authorid);
 
       // 再强制获取云端数据
       const projectFromCloud = await fetchProjectDetailsFromCloud(projectId);
