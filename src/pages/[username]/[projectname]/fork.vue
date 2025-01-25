@@ -92,52 +92,23 @@
 import openEditor from "../../../stores/openEdit";
 import { localuser } from "@/middleware/userMiddleware";
 import { useHead } from "@unhead/vue";
-import { getProjectInfo } from "../../../stores/cache/project.js";
+import { getProjectInfoByNamespace } from "../../../stores/cache/project.js";
 import { getUserById } from "../../../stores/cache/user.js";
 import request from "../../../axios/axios";
 
 export default {
   data() {
     return {
-      project: {
-        id: 0,
-        type: "scratch",
-        licence: "加载中",
-        authorid: 89,
-        state: "public",
-        view_count: 119,
-        time: "2000-01-01T00:00:00.000Z",
-        title: "加载中",
-        description: "加载中",
-        tags: "",
-        source: "",
-      },
-      author: {
-        id: 89,
-        username: "加载中",
-        display_name: "加载中",
-        state: 0,
-        regTime: "2000-01-01T00:00:00.000Z",
-        motto: "加载中",
-        images: "加载中",
-      },
+      project: {},
+      author: {},
       openEditor: openEditor,
       localuser: localuser,
       checktext: "",
       checkknow: false,
       checklicense: false,
-
       textRules: [
-        (value) => {
-          if (value) return true;
-
-          return "记得输入内容哦~";
-        },
-        (value) => {
-          if (value != "我保证会好好对待改编的作品") {
-            return "输的不太对~";
-          }
-        },
+        (value) => value ? true : "记得输入内容哦~",
+        (value) => value === "我保证会好好对待改编的作品" ? true : "输的不太对~",
       ],
     };
   },
@@ -155,7 +126,10 @@ export default {
   },
   methods: {
     async fetchProjectAndAuthorDetails() {
-      this.project = await getProjectInfo(this.$route.params.id);
+      const username = this.$route.params.username;
+      const projectname = this.$route.params.projectname;
+      this.project = await getProjectInfoByNamespace(username, projectname);
+      this.projectid = this.project.id; // 更新 projectid
       useHead({
         title: "分叉" + this.project.title,
       });

@@ -5,43 +5,40 @@
         <v-text-field
           label="标题"
           required
-          v-model="currentProject.title"
+          v-model="project.title"
           hint="将会在首页展示"
         ></v-text-field>
       </v-col>
-
       <v-col cols="12">
         <v-textarea
           hint="介绍作品类型，玩法，并向对这个作品有帮助的人致谢！"
           label="简介"
-          v-model="currentProject.description"
+          v-model="project.description"
         ></v-textarea>
       </v-col>
-
       <v-col cols="12" sm="6">
         <v-select
           :items="['scratch', 'python', 'text']"
           label="类型"
           required
           hint="不建议你改"
-          v-model="currentProject.type"
+          v-model="project.type"
         ></v-select>
       </v-col>
       <v-col cols="12" sm="6">
         <v-select
-          v-model="currentProject.state"
-          :items="projectstates"
+          v-model="project.state"
+          :items="states"
           item-title="state"
           item-value="abbr"
           label="项目状态"
           hint="我们鼓励开源"
         ></v-select>
       </v-col>
-
       <v-col cols="12">
         <v-combobox
-          v-model="aboutTags.chips"
-          :items="aboutTags.items"
+          v-model="tags.chips"
+          :items="tags.items"
           label="标签"
           prepend-icon="mdi-tag"
           variant="solo"
@@ -54,7 +51,7 @@
               :model-value="selected"
               closable
               @click="select"
-              @click:close="removetag(item)"
+              @click:close="removeTag(item)"
             >
               <strong>{{ item.name }}</strong
               >&nbsp;
@@ -67,13 +64,12 @@
         <v-expansion-panel>
           <v-expansion-panel-title>详细数据</v-expansion-panel-title>
           <v-expansion-panel-text>
-            {{ currentProject }}
+            {{ project }}
           </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
     </v-row>
     <v-divider></v-divider>
-
     <v-card-actions>
       <v-btn
         color="error"
@@ -81,18 +77,34 @@
         variant="tonal"
         @click="confirmDelete = true"
       ></v-btn>
-
       <v-spacer></v-spacer>
-
       <v-btn text="取消" variant="plain" @click="cancel"></v-btn>
       <v-btn
         color="primary"
         text="保存"
         variant="tonal"
-        @click="SaveProjectsInfo"
+        @click="saveProject"
       ></v-btn>
     </v-card-actions>
-
+    <v-divider></v-divider>
+    <v-row>
+      <v-col cols="12">
+        <v-text-field
+          label="项目名称"
+          required
+          v-model="newProjectName"
+          hint="修改项目名称"
+        ></v-text-field>
+      </v-col>
+      <v-col cols="12">
+        <v-btn
+          color="primary"
+          text="修改名称"
+          variant="tonal"
+          @click="renameProject"
+        ></v-btn>
+      </v-col>
+    </v-row>
     <v-dialog v-model="confirmDelete" max-width="500px">
       <v-card>
         <v-card-title class="headline">确认删除</v-card-title>
@@ -113,22 +125,20 @@
 import request from "../../../axios/axios";
 import { localuser } from "@/middleware/userMiddleware";
 import { useHead } from "@unhead/vue";
-import {
-  getProjectInfo,
-  cacheProjectInfo,
-} from "@/stores/cache/project";
+import { getProjectInfoByNamespace } from "@/stores/cache/project";
 
 export default {
   data() {
     return {
-      localuser: localuser,
-      projectstates: [
+      localuser,
+      states: [
         { state: "私密", abbr: "private" },
         { state: "开源", abbr: "public" },
       ],
-      currentProjectID: this.$route.params.id,
-      currentProject: {},
-      aboutTags: {
+      projectID: this.$route.params.id,
+      project: {},
+      newProjectName: "",
+      tags: {
         items: ["动画", "故事", "音乐", "硬核", "艺术", "水"],
         chips: [],
       },
@@ -136,26 +146,25 @@ export default {
     };
   },
   async created() {
-    if (this.localuser.isLogin == false) {
+    if (!this.localuser.isLogin) {
       this.$router.push("/app/account/login");
     }
     await this.fetchProject();
   },
   setup() {
-    useHead({
-      title: "项目设置",
-    });
+    useHead({ title: "项目设置" });
   },
   methods: {
-    removetag(item) {
-      this.aboutTags.chips.splice(this.aboutTags.chips.indexOf(item), 1);
+    removeTag(item) {
+      this.tags.chips.splice(this.tags.chips.indexOf(item), 1);
     },
     async fetchProject() {
       try {
-        this.currentProject = await getProjectInfo(
-          this.currentProjectID
-        );
-        this.aboutTags.chips = this.currentProject.tags.map((tag) => tag.name);
+        const { username, projectname } = this.$route.params;
+        this.project = await getProjectInfoByNamespace(username, projectname);
+        this.projectID = this.project.id;
+        this.newProjectName = this.project.name;
+        this.tags.chips = this.project.tags.map((tag) => tag.name);
       } catch (error) {
         console.error(error);
         this.$toast.add({
@@ -168,7 +177,7 @@ export default {
     },
     async deleteProject() {
       try {
-        await request.delete(`/project/${this.currentProjectID}`);
+        await request.delete(`/project/${this.projectID}`);
         this.$toast.add({
           severity: "info",
           summary: "成功",
@@ -186,13 +195,12 @@ export default {
         });
       }
     },
-    async SaveProjectsInfo() {
-      this.currentProject.tags = this.aboutTags.chips.map((name) => name);
+    async saveProject() {
+      this.project.tags = this.tags.chips.map((name) => name);
       try {
-        const response = (await request.put(
-          `/project/id/${this.currentProjectID}`,
-          this.currentProject
-        )).data;
+        const response = (
+          await request.put(`/project/id/${this.projectID}`, this.project)
+        ).data;
         this.$toast.add({
           severity: response.status,
           summary: response.message,
@@ -205,6 +213,29 @@ export default {
           severity: "error",
           summary: "错误",
           detail: "保存项目失败",
+          life: 3000,
+        });
+      }
+    },
+    async renameProject() {
+      try {
+        const response = (
+          await request.put(`/project/rename/${this.projectID}`, {
+            newName: this.newProjectName,
+          })
+        ).data;
+        this.$toast.add({
+          severity: response.status,
+          summary: response.message,
+          detail: response.message,
+          life: 3000,
+        });
+      } catch (error) {
+        console.error(error);
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: "修改项目名称失败",
           life: 3000,
         });
       }

@@ -33,3 +33,13 @@ export async function getProjectInfo(ids) {
     }
   }
 }
+
+// 使用 [username]/[projectname] 获取项目信息函数
+export async function getProjectInfoByNamespace(username, projectname) {
+  try {
+    const { data } = await request.get(`/project/namespace/${username}/${projectname}`);
+    return data;
+  } catch (error) {
+    return defaultProject(0); // 返回默认项目对象
+  }
+}

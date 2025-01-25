@@ -244,7 +244,7 @@ export default {
           title: "加入我们/合作/拉赞助",
           subtitle: "欢迎",
           avatar: "https://langs.ink/jacopo-logo.webp",
-          link: "https://langsteam.feishu.cn/share/base/form/shrcn5jhvy96A93Gx9JWaEAofac",
+          link: "https://1r.ink/join",
         },
       ],
       stats: ref([

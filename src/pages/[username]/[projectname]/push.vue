@@ -49,6 +49,7 @@
 import request from "../../../axios/axios";
 import { localuser } from "@/middleware/userMiddleware";
 import { useHead } from "@unhead/vue";
+import { getProjectInfoByNamespace } from "@/stores/cache/project";
 export default {
   data() {
     return {
@@ -63,14 +64,11 @@ export default {
     });
   },
   async created() {
-    if (this.localuser.isLogin == false) {
+    if (!this.localuser.isLogin) {
       this.$router.push("/app/account/login");
     }
     await this.getproject();
-    if (
-      !this.localuser.user &&
-      this.project.authorid != this.localuser.user.id
-    ) {
+    if (this.project.authorid !== this.localuser.user.id) {
       this.$toast.add({
         severity: "error",
         summary: "错误",
@@ -83,10 +81,10 @@ export default {
 
   methods: {
     async getproject() {
-      this.project = (await request({
-        url: "/project/" + this.$route.params.id,
-        method: "get",
-      })).data;
+      const username = this.$route.params.username;
+      const projectname = this.$route.params.projectname;
+      this.project = await getProjectInfoByNamespace(username, projectname);
+      this.projectid = this.project.id; // 更新 projectid
       useHead({
         title: "分叉" + this.project.title,
       });

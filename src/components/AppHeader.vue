@@ -264,20 +264,20 @@ export default {
         { title: "评论", link: `/${userId}/?tab=comment`, name: "comment" },
       ];
     },
-    getProjectSubNavItems(projectId, authorname) {
+    getProjectSubNavItems(projectname, authorname) {
       const isAuthor = this.localuser.user.username == authorname;
       return [
-        { title: "代码", link: `/${authorname}/${projectId}`, name: "home" },
+        { title: "代码", link: `/${authorname}/${projectname}`, name: "home" },
         ...(isAuthor
           ? [
               {
                 title: "推送",
-                link: `/${authorname}/${projectId}/push`,
+                link: `/${authorname}/${projectname}/push`,
                 name: "push",
               },
               {
                 title: "设置",
-                link: `/${authorname}/${projectId}/settings`,
+                link: `/${authorname}/${projectname}/settings`,
                 name: "settings",
               },
             ]

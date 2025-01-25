@@ -15,21 +15,34 @@
               <v-avatar start>
                 <v-img
                   :src="'https://s4-1.wuyuan.1r.ink/user/' + author.images"
-                ></v-img>
-              </v-avatar>{{ author.display_name }}
+                ></v-img> </v-avatar
+              >{{ author.display_name }}
             </v-chip>
           </div>
           <div class="px-4 d-flex ga-2 mb-2">
-            <v-chip pill prepend-icon="mdi-eye">{{ project.view_count }}浏览</v-chip>
-            <v-chip pill prepend-icon="mdi-star">{{ communityinfo.stars }} Star</v-chip>
+            <v-chip pill prepend-icon="mdi-eye"
+              >{{ project.view_count }}浏览</v-chip
+            >
+            <v-chip pill prepend-icon="mdi-star"
+              >{{ communityinfo.stars }} Star</v-chip
+            >
             <v-chip pill prepend-icon="mdi-clock">
               <TimeAgo :date="project.time" />
             </v-chip>
           </div>
           <div class="px-4 d-flex ga-2 mb-2">
-            <v-chip pill prepend-icon="mdi-xml" v-if="project.state == 'public'">开源作品</v-chip>
-            <v-chip pill prepend-icon="mdi-xml" v-if="project.state == 'private'">私密作品</v-chip>
-            <v-chip pill prepend-icon="mdi-application">{{ project.type }}</v-chip>
+            <v-chip pill prepend-icon="mdi-xml" v-if="project.state == 'public'"
+              >开源作品</v-chip
+            >
+            <v-chip
+              pill
+              prepend-icon="mdi-xml"
+              v-if="project.state == 'private'"
+              >私密作品</v-chip
+            >
+            <v-chip pill prepend-icon="mdi-application">{{
+              project.type
+            }}</v-chip>
           </div>
           <div class="px-4 d-flex ga-2 mb-2">
             <div v-for="tag in project.tags">
@@ -38,8 +51,15 @@
           </div>
           <div class="px-4 d-flex ga-2 mb-2">
             <ProjectStar />
-            <v-btn @click="openEditor(project.id, project.type)" variant="text">打开创造页</v-btn>
-            <v-btn v-if="project.authorid != localuser.user.id" :to="`${project.authorid}/${projectid}/fork`" variant="text">改编</v-btn>
+            <v-btn @click="openEditor(project.id, project.type)" variant="text"
+              >打开创造页</v-btn
+            >
+            <v-btn
+              v-if="project.authorid != localuser.user.id"
+              :to="`${project.authorid}/${projectid}/fork`"
+              variant="text"
+              >改编</v-btn
+            >
           </div>
           <div class="px-4">
             <v-card hover :to="'/' + author.username" border>
@@ -52,8 +72,12 @@
                     ></v-img>
                   </v-avatar>
                 </template>
-                <v-card-title class="text-white">{{ author.display_name }}</v-card-title>
-                <v-card-subtitle class="text-white">{{ author.motto }}</v-card-subtitle>
+                <v-card-title class="text-white">{{
+                  author.display_name
+                }}</v-card-title>
+                <v-card-subtitle class="text-white">{{
+                  author.motto
+                }}</v-card-subtitle>
               </v-card-item>
             </v-card>
           </div>
@@ -80,7 +104,7 @@ import ProjectStar from "../../../components/project/ProjectStar.vue";
 import Comment from "../../../components/Comment.vue";
 import TimeAgo from "@/components/TimeAgo.vue";
 import { useHead } from "@unhead/vue";
-import { getProjectInfo } from "../../../stores/cache/project.js";
+import { getProjectInfoByNamespace } from "../../../stores/cache/project.js";
 import { getUserById } from "../../../stores/cache/user.js";
 
 export default {
@@ -88,28 +112,8 @@ export default {
   data() {
     return {
       projectid: this.$route.params.id,
-      project: {
-        id: 1,
-        authorid: 1,
-        time: "2000-01-01T00:00:00.000Z",
-        view_count: 0,
-        like_count: 0,
-        type: "text",
-        favo_count: 0,
-        title: "",
-        state: "public",
-        description: "",
-        license: "",
-        tags: "",
-        likeid: "",
-        favoid: "",
-      },
-      author: {
-        id: 1,
-        display_name: "",
-        motto: "",
-        images: "",
-      },
+      project: {},
+      author: {},
       communityinfo: { stars: "" },
       openEditor: openEditor,
       localuser: localuser,
@@ -120,11 +124,13 @@ export default {
   },
   methods: {
     async fetchProjectAndAuthorDetails() {
-      const projectId = Number(this.$route.params.id);
+      const username = this.$route.params.username;
+      const projectname = this.$route.params.projectname;
 
       // 获取云端数据
-      const projectFromCloud = await getProjectInfo(projectId);
+      const projectFromCloud = await getProjectInfoByNamespace(username, projectname);
       this.project = projectFromCloud;
+      this.projectid = this.project.id; // 更新 projectid
       useHead({ title: this.project.title });
       this.author = await getUserById(this.project.authorid);
     },
