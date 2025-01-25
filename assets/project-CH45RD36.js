@@ -1,0 +1,1 @@
+import{J as o}from"./index-CobhglhN.js";const r=t=>({id:t,title:"未知项目",description:"项目信息未缓存",authorid:0,type:"scratch",licence:"unknow",state:"unknow",view_count:0,time:0,tags:[],source:"unknow"});async function n(t){try{const{data:e}=await o.get(`/project/${t}`);return e}catch{return r(t)}}export{n as f};
