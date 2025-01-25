@@ -24,13 +24,14 @@
       如何？
     </p>
     <br />
-    <v-text-field
+    <v-textarea
+    counter="1000"
       label="简介（不必填）"
       required
       v-model="projectinfo.description"
       active
       variant="outlined"
-    ></v-text-field
+    ></v-textarea
     ><v-divider></v-divider><br />
     <v-radio-group v-model="projectinfo.state" row>
       <v-radio value="public">
@@ -64,7 +65,7 @@
       许可证告诉其他人他们可以和不能使用您的代码。<a
         href="https://docs.github.com/zh/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository"
         >了解有关许可证的更多信息</a
-      >或<a href="https://creativecommons.org/">选择一个许可证</a>。
+      >或<a href="https://choosealicense.com/">选择一个许可证</a>。
     </p>
     <br /><v-divider></v-divider><br />
 
