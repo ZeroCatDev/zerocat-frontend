@@ -4,10 +4,6 @@ import request from "../axios/axios";
 const USER_INFO_KEY = 'userInfo';
 const TOKEN_KEY = 'token';
 
-const token = ref(localStorage.getItem(TOKEN_KEY));
-const user = ref(JSON.parse(localStorage.getItem(USER_INFO_KEY)) || DEFAULT_USER);
-const isLogin = ref(true);
-
 const DEFAULT_USER = {
   id: 0,
   display_name: "未登录",
@@ -17,6 +13,11 @@ const DEFAULT_USER = {
   sex: "0",
   username: "virtual"
 };
+
+const token = ref(localStorage.getItem(TOKEN_KEY));
+const user = ref(JSON.parse(localStorage.getItem(USER_INFO_KEY)) || DEFAULT_USER);
+const isLogin = ref(true);
+
 
 const loadUser = async (force) => {
   if (user.value.id===0 || force===true) {

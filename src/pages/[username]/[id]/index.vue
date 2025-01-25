@@ -81,8 +81,8 @@ import ProjectStar from "../../../components/project/ProjectStar.vue";
 import Comment from "../../../components/Comment.vue";
 import TimeAgo from "@/components/TimeAgo.vue";
 import { useHead } from "@unhead/vue";
-import { liveFetchProjectDetails, refreshProjectCache,getProjectDetailsFromCache, fetchProjectDetailsFromCloud } from "../../../stores/cache/project.js";
-import { fetchUserDetails, refreshUserCache,liveFetchUserDetails ,getUserDetailsFromCache, fetchUserDetailsFromCloud } from "../../../stores/cache/user.js";
+import {  refreshProjectCache,getProjectDetailsFromCache, fetchProjectDetailsFromCloud } from "../../../stores/cache/project.js";
+import {  refreshUserCache ,getUserDetailsFromCache, fetchUserDetailsFromCloud } from "../../../stores/cache/user.js";
 
 
 export default {

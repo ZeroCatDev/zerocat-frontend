@@ -98,7 +98,7 @@ export default {
     },
     async fetchAuthors() {
       const response = await request({
-        url: "/user/batch",
+        url: "/user/batch/id",
         method: "post",
         data: {
           userIds: this.authorIds,

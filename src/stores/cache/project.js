@@ -1,11 +1,8 @@
-import { liveQuery } from "dexie";
 import request from "../../axios/axios.js";
-import { db } from "../db.js";
 
 // 通用项目对象模板
 const defaultProject = (id) => ({
   id,
-  cached: false,
   title: "未知项目",
   description: "项目信息未缓存",
   authorid: 0,
@@ -18,93 +15,27 @@ const defaultProject = (id) => ({
   source: "unknow",
 });
 
-// 获取用户信息函数
+// 获取项目详情函数
 export async function fetchProjectDetails(ids) {
   if (!Array.isArray(ids)) ids = [ids];
   return Promise.all(
-    ids.map((id) =>
-      db.projects.get(Number(id)).then((project) => project || defaultProject(id))
-    )
+    ids.map(async (id) => {
+      try {
+        const { data } = await request.get(`/project/${id}`);
+        return data;
+      } catch (error) {
+        return defaultProject(id);
+      }
+    })
   ).then((projects) => (ids.length === 1 ? projects[0] : projects));
 }
 
-// 缓存用户信息函数
-export async function cacheProjectInfo(project) {
-  project.id = Number(project.id); // 确保 id 类型为 number
-  const existingProject = await db.projects.get(project.id);
-  if (existingProject) {
-    await db.projects.put(project);
-    return `项目 ${project.title} 更新成功.`;
-  } else {
-    const id = await db.projects.add(project);
-    return `项目 ${project.title} 成功缓存. 获取到id为 ${id}`;
-  }
-}
-
-// 添加用户缓存函数
-export async function addProjectCache(data) {
-  try {
-    if (!Array.isArray(data)) data = [data];
-    const results = await Promise.all(data.map(cacheProjectInfo));
-    return results.join("\n");
-  } catch (error) {
-    return `添加缓存失败: ${error}`;
-  }
-}
-
-// 删除缓存函数
-export async function removeProjectCache(ProjectID) {
-  try {
-    const existingProject = await db.projects.get(Number(ProjectID));
-    if (existingProject) {
-      await db.projects.delete(Number(ProjectID));
-      return `项目 ${existingProject.title} 删除成功.`;
-    } else {
-      return `删除 ${ProjectID} 失败: Project not found`;
-    }
-  } catch (error) {
-    return `删除 ${ProjectID} 失败: ${error}`;
-  }
-}
-
-// 刷新缓存函数
-export async function refreshProjectCache(ProjectIDs) {
-  if (!Array.isArray(ProjectIDs)) ProjectIDs = [ProjectIDs];
-  try {
-    const results = await Promise.all(
-      ProjectIDs.map(async (ProjectID) => {
-        const data = await request.get(`/project/${ProjectID}`).data;
-        const project = { ...data };
-        return await cacheProjectInfo(project);
-      })
-    );
-    return results.join("\n");
-  } catch (error) {
-    return `刷新失败: ${error}`;
-  }
-}
-
-// 实时查询并更新项目信息函数
-export function liveFetchProjectDetails(ids, callback) {
-  if (!Array.isArray(ids)) ids = [ids];
-  return liveQuery(() => db.projects.where("id").anyOf(ids).toArray()).subscribe(callback);
-}
-
-// 实时查询并更新项目信息函数
-export function DebugliveFetchAllProjectDetails(callback) {
-  return liveQuery(() => db.projects.toArray()).subscribe(callback);
-}
-
-// 直接读取数据库中指定id的数据，不使用实时查询
-export function getProjectDetailsFromCache(id) {
-  return db.projects.get(Number(id)).then((project) => project || defaultProject(id));
-}
-
-// 从云端获取数据，返回，并存入数据库中
+// 从云端获取数据，返回项目详情
 export async function fetchProjectDetailsFromCloud(id) {
-  const data = (await request.get(`/project/${id}`)).data;
-  console.log(data);
-  const project = { ...data };
-  await cacheProjectInfo(project);
-  return project;
+  try {
+    const { data } = await request.get(`/project/${id}`);
+    return data;
+  } catch (error) {
+    return defaultProject(id);
+  }
 }

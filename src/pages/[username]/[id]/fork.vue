@@ -92,9 +92,10 @@
 import openEditor from "../../../stores/openEdit";
 import { localuser } from "@/middleware/userMiddleware";
 import { useHead } from "@unhead/vue";
-import { liveFetchProjectDetails, refreshProjectCache } from "../../../stores/cache/project.js";
-import { fetchUserDetails, refreshUserCache, liveFetchUserDetails } from "../../../stores/cache/user.js";
+import { fetchProjectDetailsFromCloud } from "../../../stores/cache/project.js";
+import { fetchUserDetails, refreshUserCache } from "../../../stores/cache/user.js";
 import request from "../../../axios/axios";
+
 export default {
   data() {
     return {
@@ -145,7 +146,6 @@ export default {
     if (this.localuser.isLogin == false) {
       this.$router.push("/app/account/login");
     }
-    this.startLiveFetch();
     await this.refreshProject();
     await this.refreshAuthor();
   },
@@ -155,27 +155,14 @@ export default {
     });
   },
   methods: {
-    startLiveFetch() {
-      liveFetchProjectDetails([Number(this.$route.params.id)], (projects) => {
-        if (projects.length > 0) {
-          this.project = projects[0];
-          useHead({
-            title: "分叉" + this.project.title,
-          });
-        }
-      });
-      liveFetchUserDetails([Number(this.project.authorid)], async (users) => {
-        if (users.length > 0) {
-          this.author = users[0];
-        }
-        await refreshUserCache(this.project.authorid);
-
-      });
-    },
     async refreshProject() {
-      await refreshProjectCache(this.$route.params.id);
+      this.project = await fetchProjectDetailsFromCloud(this.$route.params.id);
+      useHead({
+        title: "分叉" + this.project.title,
+      });
     },
     async refreshAuthor() {
+      this.author = await fetchUserDetails(this.project.authorid);
       await refreshUserCache(this.project.authorid);
     },
     async forkproject(id) {
