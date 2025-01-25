@@ -82,7 +82,7 @@
 </template>
 
 <script>
-import openEdit from "../../../stores/openEdit";
+import openEdit from "../../stores/openEdit";
 import request from "@/axios/axios";
 import { useHead } from "@unhead/vue";
 import { localuser } from "@/middleware/userMiddleware";
@@ -126,9 +126,6 @@ export default {
         { text: "The Unlicense", value: "unlicense" },
       ],
       examplename: generate(Math.floor(Math.random() * 2) + 2).join("-"),
-      created: false,
-      newid: 0,
-      openEdit,
     };
   },
 
@@ -142,15 +139,16 @@ export default {
       this.projectinfo.title = this.projectinfo.name;
       await request.post("/project/", this.projectinfo).then((res) => {
         console.log(res.data);
-        this.$toast.add({
-          severity: "info",
-          summary: "info",
-          detail: res.data,
-          life: 3000,
-        });
+        if (res.data.status == "error") {
+          this.$toast.add({
+            severity: "error",
+            life: 3000,
+            summary: "创建失败",
+            detail: res.data.message,
+          });
+        }
         if (res.data.status == "success") {
-          this.created = true;
-          this.newid = res.data.id;
+          this.$router.push("/" + this.localuser.user.username + "/" + this.projectinfo.name);
         }
       });
     },

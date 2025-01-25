@@ -5,7 +5,7 @@
     </template>
     <v-app-bar-title><strong>ZeroCat</strong>Next</v-app-bar-title>
     <template #append>
-      <v-btn icon="mdi-plus" to="/app/explore/new"></v-btn>
+      <v-btn icon="mdi-plus" to="/app/new"></v-btn>
 
       <v-menu>
         <template #activator="{ props }">
