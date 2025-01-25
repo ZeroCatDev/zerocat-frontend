@@ -23,9 +23,7 @@
             <v-chip pill prepend-icon="mdi-eye"
               >{{ project.view_count }}浏览</v-chip
             >
-            <v-chip pill prepend-icon="mdi-star"
-              >{{ communityinfo.stars }} Star</v-chip
-            >
+
             <v-chip pill prepend-icon="mdi-clock">
               <TimeAgo :date="project.time" />
             </v-chip>
@@ -50,7 +48,7 @@
             </div>
           </div>
           <div class="px-4 d-flex ga-2 mb-2">
-            <ProjectStar />
+            <ProjectStar :projectId="project.id" />
             <v-btn @click="openEditor(project.id, project.type)" variant="text"
               >打开创造页</v-btn
             >
@@ -85,11 +83,11 @@
         </v-card>
         <br />
         <v-card hover border>
-          <AddTolist></AddTolist>
+          <AddTolist :projectId="project.id"></AddTolist>
         </v-card>
       </v-col>
       <v-col xxl="8" xl="8" lg="8" md="8" sm="12" xs="12" cols="12">
-        <Comment :url="'project-' + $route.params.id" name="项目"></Comment>
+        <Comment :url="'project-' + project.id" name="项目"></Comment>
       </v-col>
     </v-row>
   </v-container>
@@ -114,7 +112,6 @@ export default {
       projectid: this.$route.params.id,
       project: {},
       author: {},
-      communityinfo: { stars: "" },
       openEditor: openEditor,
       localuser: localuser,
     };

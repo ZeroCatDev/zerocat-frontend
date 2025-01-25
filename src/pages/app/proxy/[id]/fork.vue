@@ -64,6 +64,7 @@ export default {
       checkknow: false,
       checklicense: false,
       scratch_proxy: import.meta.env.VITE_APP_SCRATCH_PROXY,
+      projectid: this.$route.params.id,
 
       textRules: [
         (value) => {
@@ -87,7 +88,7 @@ export default {
   methods: {
     async getproject() {
       try {
-        const res = await request.get(`${this.scratch_proxy}/projects/${this.$route.params.id}`);
+        const res = await request.get(`${this.scratch_proxy}/projects/${this.projectid}`);
         this.project = res.data;
       } catch (err) {
         console.log(err);
@@ -119,7 +120,7 @@ export default {
     async getProjectFile() {
       try {
         await this.getproject();
-        const projectFileRes = await request.get(`${this.scratch_proxy}/projects/source/${this.$route.params.id}?token=${this.project.project_token}`);
+        const projectFileRes = await request.get(`${this.scratch_proxy}/projects/source/${this.projectid}?token=${this.project.project_token}`);
         this.projectfile = projectFileRes.data;
         this.$toast.add({
           severity: "success",

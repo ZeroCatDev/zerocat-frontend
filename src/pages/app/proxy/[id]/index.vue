@@ -131,7 +131,7 @@
     </v-row>
 
     <Comment
-      :url="'scratchmiteduproject-' + this.$route.params.id"
+      :url="'scratchmiteduproject-' + project.id"
       name="Scratch官网项目"
     ></Comment>
   </v-container>
@@ -201,6 +201,7 @@ export default {
         },
         project_token: "",
       },
+      projectid: this.$route.params.id,
       openEditor: openEditor,
       localuser: localuser,
       embedurl: "",

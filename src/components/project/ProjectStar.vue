@@ -1,5 +1,5 @@
 <template>
-  <v-btn @click="ToggleStarProject()" :color="star ? 'yellow' : ''" prepend-icon="mdi-star" variant="tonal">Star</v-btn
+  <v-btn @click="ToggleStarProject()" :color="star ? 'yellow' : ''" prepend-icon="mdi-star" variant="tonal">Star {{ starinfo.count }}</v-btn
   >{{ projectLists }}
 </template>
 <script>
@@ -10,6 +10,12 @@ export default {
   components: { NewProjectList },
 
   name: "addtolist",
+  props: {
+    projectId: {
+      type: Number,
+      required: true,
+    },
+  },
   data() {
     return {
       localuser: localuser,
@@ -17,15 +23,25 @@ export default {
       newProjectListDialog: false,
       projectLists: "",
       star: false,
+      starinfo: {},
     };
   },
+  watch: {
+    projectId: {
+      immediate: true,
+      handler(newVal) {
+        this.getStarStatus(newVal);
+      },
+    },
+  },
   methods: {
-    getStarStatus() {
+    getStarStatus(projectId) {
       request({
-        url: `/projectlist/checkstar?projectid=${this.$route.params.id}`,
+        url: `/projectlist/checkstar?projectid=${projectId}`,
         method: "get",
       }).then((res) => {
         this.star = res.data.star;
+        this.starinfo = res.data;
       });
     },
     ToggleStarProject() {
@@ -34,26 +50,26 @@ export default {
           url: `/projectlist/star`,
           method: "post",
           data: {
-            projectid: this.$route.params.id,
+            projectid: this.projectId,
           },
         }).then((res) => {
           this.star = res.data.star;
+          this.starinfo.count = Number(this.starinfo.count) + 1;
+
         });
       } else {
         request({
           url: `/projectlist/unstar`,
           method: "post",
           data: {
-            projectid: this.$route.params.id,
+            projectid: this.projectId,
           },
         }).then((res) => {
           this.star = res.data.star;
+          this.starinfo.count = Number(this.starinfo.count) - 1;
         });
       }
     },
-  },
-  mounted() {
-    this.getStarStatus();
   },
 };
 </script>

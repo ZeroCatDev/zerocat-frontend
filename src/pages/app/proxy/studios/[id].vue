@@ -194,7 +194,7 @@
     </div>
 
     <Comment
-      :url="'scratchmitedustudio-' + this.$route.params.id"
+      :url="'scratchmitedustudio-' + studioinfo.id"
       name="Scratch官网工作室"
     ></Comment>
   </v-container>

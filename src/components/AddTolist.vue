@@ -36,8 +36,12 @@ import { localuser } from "@/middleware/userMiddleware";
 import request from "../axios/axios";
 export default {
   components: { NewProjectList },
-
-  name: "addtolist",
+  props: {
+    projectId: {
+      type: Number,
+      required: true,
+    },
+  },
   data() {
     return {
       localuser: localuser,
@@ -46,11 +50,19 @@ export default {
       projectLists: [],
     };
   },
+  watch: {
+    projectId: {
+      immediate: true,
+      handler(newVal) {
+        this.getProjectList(newVal);
+      },
+    },
+  },
   methods: {
-    async getProjectList() {
+    async getProjectList(projectId) {
       this.projectLists = (
         await request({
-          url: "/projectlist/check?projectid=" + this.$route.params.id,
+          url: "/projectlist/check?projectid=" + projectId,
           method: "get",
         })
       ).data.data;
@@ -60,7 +72,7 @@ export default {
         url: "/projectlist/add",
         data: {
           userid: this.userinfo.id,
-          projectid: this.$route.params.id,
+          projectid: this.projectId,
           listid: id,
         },
         method: "post",
@@ -71,14 +83,14 @@ export default {
           detail: res.data.message,
           life: 3000,
         });
-        this.getProjectList();
+        this.getProjectList(this.projectId);
       });
     },
     async removeProjectFromList(id) {
       await request({
         url: "/projectlist/remove",
         data: {
-          projectid: this.$route.params.id,
+          projectid: this.projectId,
           listid: id,
         },
         method: "post",
@@ -89,12 +101,9 @@ export default {
           detail: res.data.message,
           life: 3000,
         });
-        this.getProjectList();
+        this.getProjectList(this.projectId);
       });
     },
-  },
-  mounted() {
-    this.getProjectList();
   },
 };
 </script>

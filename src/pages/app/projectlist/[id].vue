@@ -37,7 +37,7 @@
     <showProjects :projectIds="projectlist.projects"></showProjects><br />
 
     <Comment
-      :url="'projectlist-' + this.$route.params.id"
+      :url="'projectlist-' + projectlist.id"
       name="列表"
     ></Comment>
   </v-container>
@@ -55,6 +55,7 @@ export default {
   data() {
     return {
       localuser: localuser,
+      projectid: this.$route.params.id,
       projectlist: {
         status: "1",
         message: "加载中",

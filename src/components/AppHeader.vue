@@ -104,7 +104,7 @@
       <transition name="fade">
         <v-tabs align-tabs="center" v-model="activeTab">
           <div v-for="item in subNavItems" :key="item.name">
-            <v-tab :to="item.link" :value="item.name">
+            <v-tab :to="item.link" :value="item.name" :disabled="item.disabled" rounded="lg">
               {{ item.title }}
             </v-tab>
           </div>
@@ -274,6 +274,7 @@ export default {
                 title: "推送",
                 link: `/${authorname}/${projectname}/push`,
                 name: "push",
+                disabled: true,
               },
               {
                 title: "设置",
