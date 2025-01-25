@@ -1,55 +1,83 @@
 <template>
   <v-container>
-    <v-card hover border title="新建作品">
-      <v-card-text>
-        作品是你存储代码的地方，你可以选择你喜欢的类型以从模板创建，作品信息可以随时修改。
-      </v-card-text>
-    </v-card>
+    <h1>创建一个新的作品</h1>
+    <p>作品包含你的代码文件，包括修订历史记录。作品信息可以随时修改。</p>
     <br />
-    <v-card hover border>
-      <v-card-text>
-        <v-row dense>
-          <v-col cols="12" md="12" sm="12">
-            <v-text-field
-              label="标题"
-              required
-              hint="将会在首页展示"
-              v-model="projectinfo.title"
-            ></v-text-field>
-          </v-col>
 
-          <v-col cols="12" sm="6">
-            <v-select
-              :items="['scratch', 'python', 'text']"
-              label="类型"
-              required
-              hint="可以随时修改"
-              v-model="projectinfo.type"
-            ></v-select>
-          </v-col>
-        </v-row>
-      </v-card-text>
-      <v-divider></v-divider>
-      <v-card-actions>
-        <v-btn
-          text="打开"
-          variant="plain"
-          @click="openEdit(newid, projectinfo.type)"
-          :disabled="!created"
-        ></v-btn>
+    <v-text-field
+      width="40%"
+      label="项目名称"
+      required
+      :prefix="localuser.user.username + '/'"
+      v-model="projectinfo.name"
+      active
+      variant="outlined"
+    ></v-text-field>
+    <p>
+      优秀的项目名称简短而令人难忘。需要灵感吗？<a
+        style="text-decoration: none"
+        color="primary"
+        @click.native="projectinfo.name = examplename"
+        href="javascript:void(0)"
+        >{{ examplename }}</a
+      >
+      如何？
+    </p>
+    <br />
+    <v-text-field
+      label="简介（不必填）"
+      required
+      v-model="projectinfo.description"
+      active
+      variant="outlined"
+    ></v-text-field
+    ><v-divider></v-divider><br />
+    <v-radio-group v-model="projectinfo.state" row>
+      <v-radio value="public">
+        <template v-slot:label>
+          <div>
+            <strong>公开</strong><br />互联网上的任何人都可以看到这个作品。
+          </div>
+        </template></v-radio
+      >
+      <v-radio value="private">
+        <template v-slot:label>
+          <div><strong>私密</strong><br />只有你可以看到这个作品。</div>
+        </template></v-radio
+      > </v-radio-group
+    ><v-divider></v-divider><br />
+    <v-select
+      :items="['scratch', 'python', 'text']"
+      label="使用以下类型初始化此作品："
+      required
+      v-model="projectinfo.type"
+    ></v-select>
 
-        <v-spacer></v-spacer>
+    <v-select
+      label="选择许可证"
+      :items="licence"
+      item-title="text"
+      item-value="value"
+      v-model="projectinfo.licence"
+    ></v-select>
+    <p class="text-caption text-medium-emphasis">
+      许可证告诉其他人他们可以和不能使用您的代码。<a
+        href="https://docs.github.com/zh/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository"
+        >了解有关许可证的更多信息</a
+      >或<a href="https://creativecommons.org/">选择一个许可证</a>。
+    </p>
+    <br /><v-divider></v-divider><br />
 
-        <v-btn
-          border
-          color="primary"
-          text="创建"
-          variant="tonal"
-          @click="newProject()"
-          :disabled="created"
-        ></v-btn>
-      </v-card-actions>
-    </v-card>
+    <div class="d-flex justify-end">
+      <v-btn
+        border
+        color="primary"
+        text="创建"
+        variant="tonal"
+        @click="newProject()"
+        :disabled="created"
+      ></v-btn>
+    </div>
   </v-container>
 </template>
 
@@ -58,6 +86,8 @@ import openEdit from "../../../stores/openEdit";
 import request from "@/axios/axios";
 import { useHead } from "@unhead/vue";
 import { localuser } from "@/middleware/userMiddleware";
+import { generate } from "random-words";
+
 export default {
   setup() {
     useHead({
@@ -71,7 +101,31 @@ export default {
       projectinfo: {
         title: "新建作品",
         type: "scratch",
+        name: "",
+        state: "public",
+        description: "",
+        licence: "None",
       },
+      licence: [
+        { text: "None", value: "" },
+        { text: "Apache License 2.0", value: "apache-2.0" },
+        { text: "GNU General Public License v3.0", value: "gpl-3.0" },
+        { text: "MIT License", value: "mit" },
+        { text: 'BSD 2-Clause "Simplified" License', value: "bsd-2-clause" },
+        {
+          text: 'BSD 3-Clause "New" or "Revised" License',
+          value: "bsd-3-clause",
+        },
+        { text: "Boost Software License 1.0", value: "bsl-1.0" },
+        { text: "Creative Commons Zero v1.0 Universal", value: "cc0-1.0" },
+        { text: "Eclipse Public License 2.0", value: "epl-2.0" },
+        { text: "GNU Affero General Public License v3.0", value: "agpl-3.0" },
+        { text: "GNU General Public License v2.0", value: "gpl-2.0" },
+        { text: "GNU Lesser General Public License v2.1", value: "lgpl-2.1" },
+        { text: "Mozilla Public License 2.0", value: "mpl-2.0" },
+        { text: "The Unlicense", value: "unlicense" },
+      ],
+      examplename: generate(Math.floor(Math.random() * 2) + 2).join("-"),
       created: false,
       newid: 0,
       openEdit,
@@ -85,6 +139,7 @@ export default {
   },
   methods: {
     async newProject() {
+      this.projectinfo.title = this.projectinfo.name;
       await request.post("/project/", this.projectinfo).then((res) => {
         console.log(res.data);
         this.$toast.add({

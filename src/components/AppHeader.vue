@@ -5,6 +5,8 @@
     </template>
     <v-app-bar-title><strong>ZeroCat</strong>Next</v-app-bar-title>
     <template #append>
+      <v-btn icon="mdi-plus" to="/app/explore/new"></v-btn>
+
       <v-menu>
         <template #activator="{ props }">
           <v-btn icon="mdi-dots-vertical" v-bind="props"></v-btn>
@@ -66,7 +68,7 @@
             <v-list-item
               to="/app/account"
               prepend-icon="mdi-cog"
-              title="账户设置"
+              title="设置"
               rounded="xl"
               color="primary"
             ></v-list-item>
@@ -195,7 +197,6 @@ export default {
             { title: "首页", link: "/", icon: "mdi-home" },
             { title: "项目", link: "/app/explore", icon: "mdi-xml" },
             { title: "搜索", link: "/app/algolia", icon: "mdi-earth" },
-            { title: "新作品", link: "/app/explore/new", icon: "mdi-plus" },
           ],
         },
         mirror: {

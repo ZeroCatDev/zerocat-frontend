@@ -13,7 +13,7 @@
     >
       <v-card rounded="lg" border>
         <v-card
-          :to="`/${project.author.username}/${project.id}`"
+          :to="`/${project.author.username}/${project.name}`"
           style="aspect-ratio: 4/3"
           rounded="lg"
         >
