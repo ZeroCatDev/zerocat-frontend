@@ -81,10 +81,7 @@
           </div>
           <br />
         </v-card>
-        <br />
-        <v-card hover border>
-          <AddTolist :projectId="project.id"></AddTolist>
-        </v-card>
+
       </v-col>
       <v-col xxl="8" xl="8" lg="8" md="8" sm="12" xs="12" cols="12">
         <Comment :url="'project-' + project.id" name="项目"></Comment>
@@ -97,7 +94,6 @@
 import openEditor from "../../../stores/openEdit";
 import ProjectRunner from "../../../components/project/ProjectRunner.vue";
 import { localuser } from "@/middleware/userMiddleware";
-import AddTolist from "../../../components/AddTolist.vue";
 import ProjectStar from "../../../components/project/ProjectStar.vue";
 import Comment from "../../../components/Comment.vue";
 import TimeAgo from "@/components/TimeAgo.vue";
@@ -106,7 +102,7 @@ import { getProjectInfoByNamespace } from "../../../stores/cache/project.js";
 import { getUserById } from "../../../stores/cache/user.js";
 
 export default {
-  components: { ProjectRunner, TimeAgo, Comment, AddTolist, ProjectStar },
+  components: { ProjectRunner, TimeAgo, Comment, ProjectStar },
   data() {
     return {
       projectid: this.$route.params.id,
