@@ -84,7 +84,7 @@
           min-height="440"
           position="left"
           :rounded="$vuetify.display.smAndDown ? true : 'e-lg'"
-          src="../../src/assets/屏幕截图_27-8-2024_112550_github.com.jpeg"
+          src="../../src/assets/ZeroCatLogo.svg"
         />
       </v-col>
     </v-row>
