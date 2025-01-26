@@ -96,10 +96,7 @@
 
     <Projects
       :url="url"
-      :actions="[
-        { name: '信息', function: openinfo },
-        { name: '编辑', function: openedit },
-      ]"
+
     >
     </Projects>
     <v-dialog

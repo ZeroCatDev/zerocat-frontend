@@ -7,7 +7,6 @@
           <v-tabs v-model="tab" bg-color="primary">
             <v-tab value="readme">README</v-tab>
             <v-tab value="license">LICENSE</v-tab>
-            <v-tab value="three">Item Three</v-tab>
           </v-tabs>
 
           <v-card-text>
@@ -18,10 +17,6 @@
 
               <v-tabs-window-item value="license">
                 <License :licenseKey="project.license || 'none'" />
-              </v-tabs-window-item>
-
-              <v-tabs-window-item value="three">
-                Three
               </v-tabs-window-item>
             </v-tabs-window>
           </v-card-text>

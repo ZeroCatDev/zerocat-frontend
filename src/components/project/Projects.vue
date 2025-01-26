@@ -20,7 +20,7 @@
         </p>
       </v-col>
     </v-row>
-    <show-projects :projectIds="projectIds" :actions="actions"></show-projects>
+    <show-projects :projectIds="projectIds"></show-projects>
     <br />
     <v-pagination
       v-if="hasTotalCount"
@@ -43,9 +43,7 @@ export default {
       type: String,
       required: true,
     },
-    actions: {
-      type: Array,
-    },
+
   },
   data() {
     return {

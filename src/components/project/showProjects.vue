@@ -33,13 +33,7 @@
         </v-card>
         <!-- <v-card-title>{{ project.author.display_name || "未知用户" }}</v-card-title>
         <v-card-subtitle>{{ project.created_at || "未知时间" }}</v-card-subtitle>-->
-        <v-card-actions v-if="actions">
-          <div v-for="action in actions" :key="action.name">
-            <v-btn @click="action.function(project.id, project)">{{
-              action.name
-            }}</v-btn>
-          </div>
-        </v-card-actions>
+
       </v-card>
     </v-col>
   </v-row>
@@ -55,9 +49,7 @@ export default {
       type: Array,
       required: true,
     },
-    actions: {
-      type: Array,
-    },
+
   },
   data() {
     return {
