@@ -64,11 +64,11 @@ export default {
     });
   },
   async created() {
-    if (!this.localuser.isLogin) {
+    if (!localuser.isLogin.value) {
       this.$router.push("/app/account/login");
     }
     await this.getproject();
-    if (this.project.authorid !== this.localuser.user.id) {
+    if (this.project.authorid !== localuser.user.value.id) {
       this.$toast.add({
         severity: "error",
         summary: "错误",

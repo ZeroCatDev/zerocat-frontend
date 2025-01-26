@@ -14,27 +14,21 @@ const DEFAULT_USER = {
   username: "virtual",
 };
 
-const token = ref(localStorage.getItem(TOKEN_KEY));
-const user = ref(
-  JSON.parse(localStorage.getItem(USER_INFO_KEY)) || DEFAULT_USER
-);
-const isLogin = ref(true);
+var token = ref(localStorage.getItem(TOKEN_KEY));
+var user = ref(DEFAULT_USER);
+var isLogin = ref(false);
 
 const loadUser = async (force) => {
   if (user.value.id === 0 || force === true) {
     await fetchUserInfo();
+  } else {
+    if (localStorage.getItem(USER_INFO_KEY) !== null) {
+      isLogin.value = true;
+      user.value = JSON.parse(localStorage.getItem(USER_INFO_KEY));
+    } else {
+      fetchUserInfo();
+    }
   }
-};
-
-const getToken = () => localStorage.getItem(TOKEN_KEY);
-
-const getCachedUserInfo = () => {
-  const userInfo = localStorage.getItem(USER_INFO_KEY);
-  return userInfo ? JSON.parse(userInfo) : null;
-};
-
-const cacheUserInfo = (userInfo) => {
-  localStorage.setItem(USER_INFO_KEY, JSON.stringify(userInfo));
 };
 
 const fetchUserInfo = async () => {
@@ -58,17 +52,8 @@ const fetchUserInfo = async () => {
     sex: data.info.sex,
     username: data.info.username,
   };
-  cacheUserInfo(user.value);
+  localStorage.setItem(USER_INFO_KEY, JSON.stringify(user.value));
   isLogin.value = true;
-};
-
-const getUserById = async () => {
-  let userInfo = getCachedUserInfo();
-  if (!userInfo) {
-    userInfo = await fetchUserInfo();
-    cacheUserInfo(userInfo);
-  }
-  return userInfo;
 };
 
 const setUser = async (data) => {
@@ -77,26 +62,20 @@ const setUser = async (data) => {
   await loadUser(true);
 };
 
-const resetUser = () => {
-  user.value = DEFAULT_USER;
-  isLogin.value = false;
-};
-
 const logout = () => {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_INFO_KEY);
   token.value = null;
-  resetUser();
+  user.value = DEFAULT_USER;
+  isLogin.value = false;
 };
-
+loadUser();
 watch(token, loadUser);
 
 export const localuser = {
-  token,
   user,
   isLogin,
   loadUser,
   setUser,
-  getUserById,
   logout,
 };

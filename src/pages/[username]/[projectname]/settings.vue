@@ -233,7 +233,7 @@ export default {
     };
   },
   async created() {
-    if (!this.localuser.isLogin) {
+    if (!localuser.isLogin.value) {
       this.$router.push("/app/account/login");
     }
     await this.fetchProject();
@@ -350,7 +350,7 @@ export default {
           detail: response.message,
           life: 3000,
         });
-this.$router.push(`/explore/${this.localuser.user.username}/${this.project.name}`);
+this.$router.push(`/explore/${localuser.user.value.username}/${this.project.name}`);
       } catch (error) {
         console.error(error);
         this.$toast.add({

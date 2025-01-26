@@ -131,7 +131,7 @@ export default {
   },
 
   async created() {
-    if (this.localuser.isLogin == false) {
+    if (localuser.isLogin.value === false) {
       this.$router.push("/app/account/login");
     }
   },
@@ -149,7 +149,7 @@ export default {
           });
         }
         if (res.data.status == "success") {
-          this.$router.push("/" + this.localuser.user.username + "/" + this.projectinfo.name);
+          this.$router.push("/" + localuser.user.value.username + "/" + this.projectinfo.name);
         }
       });
     },

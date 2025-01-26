@@ -215,7 +215,7 @@ export default {
     useHead({ title: '账户' });
   },
   async created() {
-    if (!this.localuser.isLogin) {
+    if (!localuser.isLogin.value) {
       this.$router.push("/app/account/login");
     } else {
       await this.getUserById();
@@ -266,7 +266,7 @@ export default {
     async getUserById() {
       this.userCardLoading = true;
       try {
-        const response = await getUserById(this.localuser.user.id);
+        const response = await getUserById(localuser.user.value.id);
         this.userInfo = response.data.info.user;
         this.select = this.items.find(item => item.abbr == this.userInfo.sex);
       } catch (error) {

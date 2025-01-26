@@ -150,7 +150,6 @@ export default {
     return {
       BASE_API: import.meta.env.VITE_APP_BASE_API,
       localuser,
-
       drawer: true,
       drawerRail: true,
       isLogin: localuser.isLogin,
@@ -266,7 +265,7 @@ export default {
       ];
     },
     getProjectSubNavItems(projectname, authorname) {
-      const isAuthor = this.localuser.user.username == authorname;
+      const isAuthor = localuser.user.value.username == authorname;
       return [
         { title: "代码", link: `/${authorname}/${projectname}`, name: "home" },
         ...(isAuthor

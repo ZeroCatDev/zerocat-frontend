@@ -85,7 +85,7 @@ export default {
   },
 
   async created() {
-    if (this.localuser.isLogin == false) {
+    if (localuser.isLogin.value === false) {
       this.$router.push("/app/account/login");
     }
   },

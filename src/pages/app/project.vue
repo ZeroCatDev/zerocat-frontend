@@ -285,7 +285,7 @@ export default {
   },
 
   async created() {
-    if (this.localuser.isLogin == false) {
+    if (localuser.isLogin.value === false) {
       this.$router.push("/app/account/login");
     }
     await this.onPageChange();
@@ -308,7 +308,7 @@ export default {
     },
 
     async onPageChange(page = 1) {
-      this.url=`/searchapi?search_userid=${this.localuser.user.id}&search_type=${this.search.type}&search_title=${this.search.title}&search_source=${this.search.source}&search_description=${this.search.description}&search_orderby=${this.search.order}&search_state=${this.search.state}&search_tag=${this.search.tag}`
+      this.url=`/searchapi?search_userid=${localuser.user.value.id}&search_type=${this.search.type}&search_title=${this.search.title}&search_source=${this.search.source}&search_description=${this.search.description}&search_orderby=${this.search.order}&search_state=${this.search.state}&search_tag=${this.search.tag}`
     },
     resetSearch() {
       this.search = {

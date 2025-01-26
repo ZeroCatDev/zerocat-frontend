@@ -120,7 +120,7 @@ export default {
       password: "",
       tryinguser: {},
       loading: false,
-      localuser: localuser,
+      localuser,
       show1: ref(false),
       emailRules: [
         (value) => {
