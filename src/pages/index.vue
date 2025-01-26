@@ -186,7 +186,7 @@
       size="small"
       text="访问作品"
       variant="flat"
-      to="/projects"
+      to="/app/explore"
     />
 
     <v-btn
