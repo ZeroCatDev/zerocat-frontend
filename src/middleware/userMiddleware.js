@@ -1,8 +1,8 @@
 import { ref, watch } from "vue";
 import request from "../axios/axios";
 
-const USER_INFO_KEY = 'userInfo';
-const TOKEN_KEY = 'token';
+const USER_INFO_KEY = "userInfo";
+const TOKEN_KEY = "token";
 
 const DEFAULT_USER = {
   id: 0,
@@ -11,16 +11,17 @@ const DEFAULT_USER = {
   images: "",
   regTime: "",
   sex: "0",
-  username: "virtual"
+  username: "virtual",
 };
 
 const token = ref(localStorage.getItem(TOKEN_KEY));
-const user = ref(JSON.parse(localStorage.getItem(USER_INFO_KEY)) || DEFAULT_USER);
+const user = ref(
+  JSON.parse(localStorage.getItem(USER_INFO_KEY)) || DEFAULT_USER
+);
 const isLogin = ref(true);
 
-
 const loadUser = async (force) => {
-  if (user.value.id===0 || force===true) {
+  if (user.value.id === 0 || force === true) {
     await fetchUserInfo();
   }
 };
@@ -37,23 +38,15 @@ const cacheUserInfo = (userInfo) => {
 };
 
 const fetchUserInfo = async () => {
-  const token = getToken();
-  if (!token) {
-    resetUser();
-    return;
-  }
-
   const response = await request({
     url: "/user/me",
     method: "get",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
 
   const data = response.data;
-  if (data.status !== 'success') {
-    throw new Error('Failed to fetch user info');
+  if (data.status !== "success") {
+    alert(data.message);
+    return;
   }
 
   user.value = {
@@ -63,7 +56,7 @@ const fetchUserInfo = async () => {
     images: data.info.images,
     regTime: data.info.regTime,
     sex: data.info.sex,
-    username: data.info.username
+    username: data.info.username,
   };
   cacheUserInfo(user.value);
   isLogin.value = true;
@@ -81,7 +74,7 @@ const getUserById = async () => {
 const setUser = async (data) => {
   localStorage.setItem(TOKEN_KEY, data);
   token.value = data;
-  await loadUser();
+  await loadUser(true);
 };
 
 const resetUser = () => {
@@ -105,5 +98,5 @@ export const localuser = {
   loadUser,
   setUser,
   getUserById,
-  logout
+  logout,
 };
