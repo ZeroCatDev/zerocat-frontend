@@ -55,7 +55,7 @@
                 >{{ project.history.modified }}更新</v-chip
               >
               <v-chip pill prepend-icon="mdi-clock"
-                >{{ project.history.shared }}开源</v-chip
+                >{{ project.history.shared }}公开</v-chip
               >
             </v-card-item>
           </v-card-list>

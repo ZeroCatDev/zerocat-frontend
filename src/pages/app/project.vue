@@ -236,7 +236,7 @@ export default {
       localuser: localuser,
       projectstates: [
         { state: "私密", abbr: "private" },
-        { state: "开源", abbr: "public" },
+        { state: "公开", abbr: "public" },
       ],
       projecthistory: [
         { state: "关闭", abbr: "0" },
@@ -245,7 +245,7 @@ export default {
       searchstates: [
         { state: "所有", abbr: "" },
         { state: "私密", abbr: "private" },
-        { state: "开源", abbr: "public" },
+        { state: "公开", abbr: "public" },
       ],
       typeitems: [
         { name: "所有", type: "" },
