@@ -11,8 +11,8 @@
             href="https://www.rainyun.com/wuyuan_?s=zerocat"
             append-icon="mdi-arrow-right"
           >
-            <span class="hidden-sm-and-down">使用</span>
-            <span class="hidden-md-and-up">由</span>雨云的优质云计算服务
+            <span class="hidden-sm-and-down">ZeroCat使用</span>
+            <span class="hidden-md-and-up">由</span>雨云提供计算服务
           </v-chip>
           <br />
           <h1 class="text-h4 text-md-h2 font-weight-bold my-6">

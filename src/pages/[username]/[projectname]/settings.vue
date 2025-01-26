@@ -1,6 +1,6 @@
 <template>
   <v-container
-    >{{ project }}
+    >
     <v-row>
       <v-col cols="12"><h1>常规</h1></v-col>
       <v-col cols="7">
