@@ -30,7 +30,7 @@
 <script>
 import { jwtDecode } from "jwt-decode";
 import { localuser } from "@/middleware/userMiddleware";
-import { validateMagicLink } from "@/services/userService";
+import { validateMagicLink } from "@/services/accountService";
 import { useHead } from "@unhead/vue";
 
 export default {

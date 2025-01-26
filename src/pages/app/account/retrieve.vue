@@ -87,7 +87,7 @@ import { localuser } from "@/middleware/userMiddleware";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
 import { useHead } from "@unhead/vue";
-import { retrievePassword } from "@/services/userService";
+import { retrievePassword } from "@/services/accountService";
 
 export default {
   components: { LoadingDialog, Recaptcha },

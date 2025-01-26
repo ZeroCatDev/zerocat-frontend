@@ -107,7 +107,7 @@ import request from "../../../axios/axios";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
 import { useHead } from "@unhead/vue";
-import { loginUser } from "@/services/userService";
+import { loginUser } from "@/services/accountService";
 import { ref } from "vue";
 
 export default {

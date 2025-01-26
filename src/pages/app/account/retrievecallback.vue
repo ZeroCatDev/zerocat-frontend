@@ -90,7 +90,7 @@ import request from "../../../axios/axios";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
 import { useHead } from "@unhead/vue";
-import { resetPassword } from "@/services/userService";
+import { resetPassword } from "@/services/accountService";
 
 export default {
   components: { LoadingDialog, Recaptcha },

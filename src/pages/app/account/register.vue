@@ -204,7 +204,7 @@
 
 <script>
 import { localuser } from "@/middleware/userMiddleware";
-import { registerUser } from "@/services/userService";
+import { registerUser } from "@/services/accountService";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
 import { useHead } from "@unhead/vue";

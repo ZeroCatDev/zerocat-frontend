@@ -83,7 +83,13 @@
                   <Recaptcha recaptchaId="recaptcha-div1" ref="recaptcha1" />
                 </v-col>-->
                 <v-col cols="12">
-                  <v-btn @click="submit" :disabled="!valid" color="primary" class="mt-4">提交</v-btn>
+                  <v-btn
+                    @click="submit"
+                    :disabled="!valid"
+                    color="primary"
+                    class="mt-4"
+                    >提交</v-btn
+                  >
                 </v-col>
               </v-row>
             </v-form>
@@ -104,7 +110,13 @@
                   <Recaptcha recaptchaId="recaptcha-div2" ref="recaptcha2" />
                 </v-col>-->
                 <v-col cols="12">
-                  <v-btn @click="changeusername" :disabled="!usernamevalid" color="primary" class="mt-4">提交</v-btn>
+                  <v-btn
+                    @click="changeusername"
+                    :disabled="!usernamevalid"
+                    color="primary"
+                    class="mt-4"
+                    >提交</v-btn
+                  >
                 </v-col>
               </v-row>
             </v-form>
@@ -128,11 +140,17 @@
                     required
                   ></v-text-field>
                 </v-col>
-               <!-- <v-col cols="12">
+                <!-- <v-col cols="12">
                   <Recaptcha recaptchaId="recaptcha-div3" ref="recaptcha3" />
                 </v-col>-->
                 <v-col cols="12">
-                  <v-btn @click="changepassword" :disabled="!passwordvalid" color="primary" class="mt-4">提交</v-btn>
+                  <v-btn
+                    @click="changepassword"
+                    :disabled="!passwordvalid"
+                    color="primary"
+                    class="mt-4"
+                    >提交</v-btn
+                  >
                 </v-col>
               </v-row>
             </v-form>
@@ -148,13 +166,24 @@
                     placeholder="头像会被压缩"
                     prepend-icon="mdi-account-circle"
                   ></v-file-input>
-                  <v-img v-if="previewImage" :src="previewImage" max-height="200" max-width="200"></v-img>
+                  <v-img
+                    v-if="previewImage"
+                    :src="previewImage"
+                    max-height="200"
+                    max-width="200"
+                  ></v-img>
                 </v-col>
                 <!--<v-col cols="12">
                   <Recaptcha recaptchaId="recaptcha-div4" ref="recaptcha4" />
                 </v-col>-->
                 <v-col cols="12">
-                  <v-btn @click="uploadAvatar" :disabled="!avatarvalid" color="primary" class="mt-4">提交</v-btn>
+                  <v-btn
+                    @click="uploadAvatar"
+                    :disabled="!avatarvalid"
+                    color="primary"
+                    class="mt-4"
+                    >提交</v-btn
+                  >
                 </v-col>
               </v-row>
             </v-form>
@@ -171,7 +200,13 @@ import "https://static.geetest.com/v4/gt4.js";
 import Compressor from "compressorjs";
 import { useHead } from "@unhead/vue";
 //import Recaptcha from "@/components/Recaptcha.vue";
-import { getUserById, updateUserInfo, updateUsername, updatePassword, uploadUserAvatar } from "@/services/userService";
+import {
+  getAccount,
+  updateUserInfo,
+  updateUsername,
+  updatePassword,
+  uploadUserAvatar,
+} from "@/services/accountService";
 
 export default {
   //components: { Recaptcha },
@@ -190,17 +225,28 @@ export default {
       ],
       valid: false,
       nameRules: [
-        (value) => value ? true : "Name is required.",
-        (value) => value?.length <= 10 ? true : "Name must be less than 10 characters.",
-        (value) => /^[a-z]+$/.test(value) ? true : "仅小写字母",
+        (value) => (value ? true : "Name is required."),
+        (value) =>
+          value?.length <= 10 ? true : "Name must be less than 10 characters.",
+        (value) => (/^[a-z]+$/.test(value) ? true : "仅小写字母"),
       ],
       passwordRules: [
-        (value) => value ? true : "password is required.",
-        (value) => value?.length <= 10 ? true : "Name must be less than 10 characters.",
-        (value) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&\.])[A-Za-z\d$@$!%*?&\.]{8,}/.test(value) ? true : "密码必须由数字、大小写字母和特殊字符组成，且长度至少为8位",
+        (value) => (value ? true : "password is required."),
+        (value) =>
+          value?.length <= 10 ? true : "Name must be less than 10 characters.",
+        (value) =>
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&\.])[A-Za-z\d$@$!%*?&\.]{8,}/.test(
+            value
+          )
+            ? true
+            : "密码必须由数字、大小写字母和特殊字符组成，且长度至少为8位",
       ],
       avatarrules: [
-        (value) => !value || !value.length || value[0].size < 2000000 || "Avatar size should be less than 2 MB!",
+        (value) =>
+          !value ||
+          !value.length ||
+          value[0].size < 2000000 ||
+          "Avatar size should be less than 2 MB!",
       ],
       oldPassword: "",
       newPassword: "",
@@ -212,7 +258,7 @@ export default {
     };
   },
   setup() {
-    useHead({ title: '账户' });
+    useHead({ title: "账户" });
   },
   async created() {
     if (!localuser.isLogin.value) {
@@ -241,12 +287,22 @@ export default {
           },
           error: (err) => {
             console.error("图片压缩出错：", err.message);
-            this.$toast.add({ severity: "error", summary: "错误", detail: err.message, life: 3000 });
+            this.$toast.add({
+              severity: "error",
+              summary: "错误",
+              detail: err.message,
+              life: 3000,
+            });
           },
         });
       } else {
         console.error("请选择有效的图片文件");
-        this.$toast.add({ severity: "error", summary: "错误", detail: "请选择有效的图片文件", life: 3000 });
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: "请选择有效的图片文件",
+          life: 3000,
+        });
       }
     },
     async uploadAvatar() {
@@ -256,9 +312,9 @@ export default {
         //const responseData = await this.$refs.recaptcha4.getResponse();
         //const queryParams = new URLSearchParams(responseData).toString();
         //await uploadUserAvatar(queryParams, formData);
-        await uploadUserAvatar('' , formData);
+       const response= await uploadUserAvatar("", formData);
 
-        this.showToast("info", "上传头像成功", "头像已更新");
+        this.showToast(response.data.status|| "info", "修改头像", response.data.message);
       } catch (error) {
         this.showToast("error", "错误", error.message);
       }
@@ -266,9 +322,10 @@ export default {
     async getUserById() {
       this.userCardLoading = true;
       try {
-        const response = await getUserById(localuser.user.value.id);
-        this.userInfo = response.data.info.user;
-        this.select = this.items.find(item => item.abbr == this.userInfo.sex);
+        const response = await getAccount(localuser.user.value.id);
+        this.userInfo = response.data.info;
+        console.log(this.userInfo);
+        this.select = this.items.find((item) => item.abbr == this.userInfo.sex);
       } catch (error) {
         this.showToast("error", "错误", error.message);
       } finally {
@@ -284,7 +341,11 @@ export default {
           aboutme: this.userInfo.motto,
           sex: this.select.abbr,
         });
-        this.showToast("info", "修改个人信息", response.status);
+        this.showToast(
+          response.data.status || "info",
+          "修改个人信息",
+          response.data.message
+        );
         await this.getUserById();
       } catch (error) {
         this.showToast("error", "错误", error.message);
@@ -299,7 +360,11 @@ export default {
           //captcha: this.$refs.recaptcha2.getResponse() || "",
           username: this.userInfo.username,
         });
-        this.showToast("info", "修改用户名", response.status);
+        this.showToast(
+          response.data.status || "info",
+          "修改用户名",
+          response.data.message
+        );
         await this.getUserById();
       } catch (error) {
         this.showToast("error", "错误", error.message);
@@ -315,7 +380,7 @@ export default {
           oldpw: this.oldPassword,
           newpw: this.newPassword,
         });
-        this.showToast("info", "修改密码", response.message);
+        this.showToast(response.data.status|| "info", "修改密码", response.data.message);
         await this.getUserById();
       } catch (error) {
         this.showToast("error", "错误", error.message);

@@ -99,7 +99,7 @@ import request from "../../../../axios/axios";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
 import { useHead } from "@unhead/vue";
-import { generateMagicLink } from "@/services/userService";
+import { generateMagicLink } from "@/services/accountService";
 
 export default {
   components: { LoadingDialog, Recaptcha },
