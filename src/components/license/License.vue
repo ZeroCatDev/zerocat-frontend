@@ -56,8 +56,7 @@
         >
         <v-card title="许可证原文">
           <template v-slot:text
-            ><v-textarea disabled v-model="license.body"></v-textarea>
-            <p>{{ license.body }}</p>
+            ><pre>{{ license.body }}</pre>
           </template></v-card
         >
       </v-card-text>
