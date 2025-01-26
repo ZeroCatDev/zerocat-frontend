@@ -86,7 +86,7 @@
 import openEdit from "../../stores/openEdit";
 import request from "@/axios/axios";
 import { useHead } from "@unhead/vue";
-import { localuser } from "@/middleware/userMiddleware";
+import { localuser } from "@/services/localAccount";
 import { generate } from "random-words";
 
 export default {

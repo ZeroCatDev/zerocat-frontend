@@ -64,7 +64,7 @@
 <script>
 import NewProjectList from "@/components/projectlist/NewProjectList.vue";
 import EditProjectListConfig from "@/components/projectlist/EditProjectListConfig.vue";
-import { localuser } from "@/middleware/userMiddleware";
+import { localuser } from "@/services/localAccount";
 import request from "../../../axios/axios";
 import { useHead } from "@unhead/vue";
 export default {

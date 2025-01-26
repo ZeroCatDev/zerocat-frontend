@@ -19,14 +19,19 @@ var user = ref(DEFAULT_USER);
 var isLogin = ref(false);
 
 const loadUser = async (force) => {
-  if (user.value.id === 0 || force === true) {
+  if (localStorage.getItem(TOKEN_KEY) === null) {
+    isLogin.value = false;
+    user.value = DEFAULT_USER;
+    return;
+  }
+  if (force === true) {
     await fetchUserInfo();
   } else {
     if (localStorage.getItem(USER_INFO_KEY) !== null) {
       isLogin.value = true;
       user.value = JSON.parse(localStorage.getItem(USER_INFO_KEY));
     } else {
-      fetchUserInfo();
+      await fetchUserInfo();
     }
   }
 };

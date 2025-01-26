@@ -19,7 +19,7 @@
 
 <script>
 import { jwtDecode } from "jwt-decode";
-import { localuser } from "@/middleware/userMiddleware";
+import { localuser } from "@/services/localAccount";
 import { useHead } from "@unhead/vue";
 
 import request from "../../../axios/axios";

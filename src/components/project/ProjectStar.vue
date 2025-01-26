@@ -49,7 +49,7 @@
 </template>
 <script>
 import NewProjectList from "@/components/projectlist/NewProjectList.vue";
-import { localuser } from "@/middleware/userMiddleware";
+import { localuser } from "@/services/localAccount";
 import request from "../../axios/axios";
 export default {
   components: { NewProjectList },

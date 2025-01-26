@@ -51,7 +51,7 @@
 import openEditor from "../../../../stores/openEdit";
 
 import request from "../../../../axios/axios";
-import { localuser } from "@/middleware/userMiddleware";
+import { localuser } from "@/services/localAccount";
 export default {
   data() {
     return {

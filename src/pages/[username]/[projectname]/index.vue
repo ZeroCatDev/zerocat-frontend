@@ -116,7 +116,7 @@
 <script>
 import openEditor from "../../../stores/openEdit";
 import ProjectRunner from "../../../components/project/ProjectRunner.vue";
-import { localuser } from "@/middleware/userMiddleware";
+import { localuser } from "@/services/localAccount";
 import ProjectStar from "../../../components/project/ProjectStar.vue";
 import Comment from "../../../components/Comment.vue";
 import TimeAgo from "@/components/TimeAgo.vue";

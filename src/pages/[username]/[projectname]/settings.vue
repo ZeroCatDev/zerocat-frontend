@@ -207,7 +207,7 @@
 
 <script>
 import request from "../../../axios/axios";
-import { localuser } from "@/middleware/userMiddleware";
+import { localuser } from "@/services/localAccount";
 import { useHead } from "@unhead/vue";
 import { getProjectInfoByNamespace } from "@/stores/cache/project";
 

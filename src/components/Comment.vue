@@ -266,7 +266,7 @@ import Markdown from "./Markdown.vue";
 import TimeAgo from "./TimeAgo.vue";
 
 import request from "../axios/axios";
-import { localuser } from "@/middleware/userMiddleware";
+import { localuser } from "@/services/localAccount";
 import { UAParser } from "ua-parser-js";
 
 export default {

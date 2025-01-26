@@ -83,7 +83,7 @@
 </template>
 
 <script>
-import { localuser } from "@/middleware/userMiddleware";
+import { localuser } from "@/services/localAccount";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
 import { useHead } from "@unhead/vue";

@@ -195,7 +195,7 @@
 </template>
 
 <script>
-import { localuser } from "@/middleware/userMiddleware";
+import { localuser } from "@/services/localAccount";
 import "https://static.geetest.com/v4/gt4.js";
 import Compressor from "compressorjs";
 import { useHead } from "@unhead/vue";

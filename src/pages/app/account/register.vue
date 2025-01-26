@@ -203,7 +203,7 @@
 </template>
 
 <script>
-import { localuser } from "@/middleware/userMiddleware";
+import { localuser } from "@/services/localAccount";
 import { registerUser } from "@/services/accountService";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";

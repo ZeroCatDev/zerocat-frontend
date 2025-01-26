@@ -226,7 +226,7 @@ import openEditor from "../../stores/openEdit";
 
 import request from "../../axios/axios";
 import Projects from "../../components/project/Projects.vue";
-import { localuser } from "@/middleware/userMiddleware";
+import { localuser } from "@/services/localAccount";
 import { useHead } from "@unhead/vue";
 export default {
   components: { Projects },

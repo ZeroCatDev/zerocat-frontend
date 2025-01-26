@@ -46,7 +46,7 @@
 <script>
 import Comment from "../../../components/Comment.vue";
 import request from "../../../axios/axios";
-import { localuser } from "@/middleware/userMiddleware";
+import { localuser } from "@/services/localAccount";
 import { useHead } from "@unhead/vue";
 import showProjects from "../../../components/project/showProjects.vue";
 export default {

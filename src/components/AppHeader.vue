@@ -143,7 +143,7 @@
 </template>
 
 <script>
-import { localuser } from "@/middleware/userMiddleware";
+import { localuser } from "@/services/localAccount";
 
 export default {
   data() {
