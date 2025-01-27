@@ -82,6 +82,7 @@ export default {
   },
   methods: {
     getStarStatus(projectId) {
+      if (!projectId) return;
       request({
         url: `/projectlist/checkstar?projectid=${projectId}`,
         method: "get",
@@ -116,6 +117,7 @@ export default {
       }
     },
     async getProjectList(projectId) {
+      if (!projectId) return;
       this.projectLists = (
         await request({
           url: "/projectlist/check?projectid=" + projectId,
