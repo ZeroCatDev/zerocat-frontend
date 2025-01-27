@@ -1,16 +1,19 @@
 <template>
-  <v-container>{{ embedurl }}<v-text-field v-model="projectbranch" label="分支" />
+  <v-container
+    >
+
+
     <v-row>
       <v-col xs="12" sm="12" md="8" lg="8" xl="8" xxl="8" cols="12">
-        <v-card hover border  style="aspect-ratio: 4 / 3">
-      <iframe
-        :src="embedurl"
-        scrolling="no"
-        frameborder="0"
-        style="width: 100%; height: 100%"
-      ></iframe>
-  </v-card><br/>
-     <v-card>
+        <v-card hover border style="aspect-ratio: 4 / 3">
+          <iframe
+            :src="embedurl"
+            scrolling="no"
+            frameborder="0"
+            style="width: 100%; height: 100%"
+          ></iframe> </v-card
+        ><br />
+        <v-card>
           <v-tabs v-model="tab" bg-color="primary">
             <v-tab value="readme">README</v-tab>
             <v-tab value="license">LICENSE</v-tab>
@@ -106,12 +109,30 @@
           </div>
           <br />
         </v-card>
-
       </v-col>
       <v-col xxl="8" xl="8" lg="8" md="8" sm="12" xs="12" cols="12">
         <Comment :url="'project-' + project.id" name="项目"></Comment>
       </v-col>
-    </v-row>
+    </v-row>   <v-list dense>
+      <v-list-item
+        v-for="item in projectbranchs"
+        :key="item"
+        :title="item.name"
+        :value="item.name"
+        :active="item.name === player.branch"
+        @click="player.branch = item.name"
+      ></v-list-item>
+    </v-list><br/>
+    <v-list dense>
+      <v-list-item
+        v-for="item in projectbranchhistory"
+        :key="item"
+        :title="item.commit_message"
+        :subtitle="item.commit_author"
+        :active="item.id === player.commit.id"
+        @click="player.commit.id = item.id"
+      ></v-list-item>
+    </v-list>
   </v-container>
 </template>
 
@@ -123,12 +144,24 @@ import ProjectStar from "../../../components/project/ProjectStar.vue";
 import Comment from "../../../components/Comment.vue";
 import TimeAgo from "@/components/TimeAgo.vue";
 import { useHead } from "@unhead/vue";
-import { getProjectInfoByNamespace } from "../../../stores/cache/project.js";
-import { getUserById } from "../../../stores/cache/user.js";
+import { getProjectInfoByNamespace } from "../../../stores/project.js";
+import { getUserById } from "../../../stores/user.js";
 import Markdown from "@/components/Markdown.vue";
 import License from "@/components/license/License.vue";
+import {
+  getBranchs,
+  getBranchHistory,
+  getBranchInfo,
+} from "@/services/projectService";
 export default {
-  components: { ProjectRunner, TimeAgo, Comment, ProjectStar,Markdown ,License},
+  components: {
+    ProjectRunner,
+    TimeAgo,
+    Comment,
+    ProjectStar,
+    Markdown,
+    License,
+  },
   data() {
     return {
       projectid: this.$route.params.id,
@@ -138,7 +171,14 @@ export default {
       localuser: localuser,
       tab: "readme",
       embedurl: "",
-      projectbranch: "",
+      projectbranchs: [],
+      projectbranchhistory: [],
+      player: {
+        branch: "main",
+        commit: {
+          id: "latest",
+        },
+      },
     };
   },
   async mounted() {
@@ -150,20 +190,42 @@ export default {
       const projectname = this.$route.params.projectname;
 
       // 获取云端数据
-      const projectFromCloud = await getProjectInfoByNamespace(username, projectname);
+      const projectFromCloud = await getProjectInfoByNamespace(
+        username,
+        projectname
+      );
       this.project = projectFromCloud;
       this.projectid = this.project.id; // 更新 projectid
+      this.player.branch = this.project.default_branch;
+      getBranchs(this.projectid).then((res) => {
+        this.projectbranchs = res.data;
+      });
       this.loadProjectPlayer();
+      this.loadBranchHistory();
+      getBranchInfo(this.projectid, this.player.branch, "latest").then(
+        (res) => {
+          this.player.commit = res.commit;
+        }
+      );
       useHead({ title: this.project.title });
       this.author = await getUserById(this.project.authorid);
     },
     loadProjectPlayer() {
-      this.embedurl = `/scratch/embed.html?id=${this.projectid}&branch=${this.projectbranch===''?this.project.default_branch:this.projectbranch}&ref=latest&embed=true`;
+      this.embedurl = `/scratch/embed.html?id=${this.projectid}&branch=${this.player.branch}&ref=${this.player.commit.id}&embed=true`;
+    },
+    loadBranchHistory() {
+      getBranchHistory(this.projectid, this.player.branch).then((res) => {
+        this.projectbranchhistory = res.data;
+      });
     },
   },
   watch: {
-    projectbranch: function (newVal, oldVal) {
-      this.loadProjectPlayer();
+    player: {
+      handler: function (newVal, oldVal) {
+        this.loadProjectPlayer();
+        this.loadBranchHistory();
+      },
+      deep: true,
     },
   },
 };

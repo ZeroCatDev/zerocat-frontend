@@ -13,7 +13,7 @@
     <v-btn @click="commit()">提交</v-btn>
 <br/><br/>
     <!-- 获取信息 -->
-    <v-btn @click="getbranchinfo()">获取branch信息</v-btn><v-btn @click="branches=[]">清空</v-btn>
+    <v-btn @click="getBranchs()">获取branch信息</v-btn><v-btn @click="branches=[]">清空</v-btn>
 
     <!-- 分支列表 -->
     <v-list>
@@ -27,6 +27,7 @@
     <br />
 
     <!-- 分支历史 -->
+    <v-text-field v-model="branchhistorybranch" label="分支"></v-text-field>
     <v-btn @click="getbranchhistory()">获取分支提交记录信息</v-btn><v-btn @click="branchhistory=[]">清空</v-btn>
     <v-list>
       <v-list-item
@@ -48,6 +49,8 @@
     <v-text-field v-model="projectplayerfileid" label="项目文件ID"></v-text-field>
     <v-text-field v-model="projectplayerfileak" label="项目文件Token"></v-text-field>
     <v-textarea v-model="projectplayer"></v-textarea>
+    <v-textarea v-model="projectplayerbranchinfo"></v-textarea>
+
 
     <!-- 调试日志 -->
      <v-btn @click="debuglog=''">清空</v-btn>
@@ -59,14 +62,15 @@
 </template>
 
 <script>
-import { getProjectInfo } from "@/stores/cache/project.js";
+import { getProjectInfo } from "@/stores/project.js";
 
 import {
   saveFile,
   commit,
-  getBranchInfo,
+  getBranchs,
   getProjectFile,
   getBranchHistory,
+
 } from "@/services/projectService.js";
 
 export default {
@@ -89,8 +93,10 @@ export default {
       projectplayerfile: "",
       projectplayerfileid: "",
       projectplayerfileak: "",
+      projectplayerbranchinfo: "",
       branches: [],
       projectplayer: `/scratch/embed.html?id=[id]&branch=main&ref=latest&embed=true`,
+      branchhistorybranch: "main",
       branchhistory: [],
     };
   },
@@ -105,7 +111,7 @@ export default {
       this.debuglog = this.debuglog + JSON.stringify(res) + "\n";
       this.projectplayerbranchid = res.data.id;
     },
-    async getbranchinfo() {
+    async getBranchs() {
       const res = await getBranchInfo(this.project.id);
       this.debuglog = this.debuglog + JSON.stringify(res) + "\n";
       this.branches = res.data;
@@ -126,9 +132,10 @@ export default {
       this.projectplayerfileak = res.projectFileData.accessFileToken;
       this.debuglog = this.debuglog + JSON.stringify(res.fileData) + "\n";
       this.projectplayer = JSON.stringify(res.fileData);
+      this.projectplayerbranchinfo=JSON.stringify(res.branchInfo.data);
     },
     async getbranchhistory() {
-      const res = await getBranchHistory(this.project.id, this.commitinfo.branch);
+      const res = await getBranchHistory(this.project.id, this.branchhistorybranch);
       this.debuglog = this.debuglog + JSON.stringify(res) + "\n";
       this.branchhistory = res.data;
     },

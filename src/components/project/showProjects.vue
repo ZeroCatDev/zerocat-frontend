@@ -40,8 +40,8 @@
 </template>
 
 <script>
-import { getProjectInfo } from "@/stores/cache/project.js";
-import { getUserById } from "@/stores/cache/user.js";
+import { getProjectInfo } from "@/stores/project.js";
+import { getUserById } from "@/stores/user.js";
 
 export default {
   props: {

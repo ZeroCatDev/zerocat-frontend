@@ -92,8 +92,8 @@
 import openEditor from "../../../stores/openEdit";
 import { localuser } from "@/services/localAccount";
 import { useHead } from "@unhead/vue";
-import { getProjectInfoByNamespace } from "../../../stores/cache/project.js";
-import { getUserById } from "../../../stores/cache/user.js";
+import { getProjectInfoByNamespace } from "../../../stores/project.js";
+import { getUserById } from "../../../stores/user.js";
 import request from "../../../axios/axios";
 
 export default {

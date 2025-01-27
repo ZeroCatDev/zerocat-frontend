@@ -1,4 +1,4 @@
-import request from "../../axios/axios.js";
+import request from "../axios/axios.js";
 
 // 通用项目对象模板
 const defaultProject = (id) => ({

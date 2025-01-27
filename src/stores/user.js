@@ -1,4 +1,4 @@
-import request from "../../axios/axios.js";
+import request from "../axios/axios.js";
 
 // 通用用户对象模板
 const defaultUser = (id) => ({

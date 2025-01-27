@@ -27,9 +27,9 @@ export const commit = async (projectId, commitInfo) => {
   return response.data;
 };
 
-export const getBranchInfo = async (projectId) => {
+export const getBranchs = async (projectId) => {
   const response = await request({
-    url: "/project/branches/" + projectId,
+    url: `/project/branches?projectid=${projectId}`,
     method: "get",
   });
   return response.data;
@@ -37,9 +37,9 @@ export const getBranchInfo = async (projectId) => {
 
 
 
-export const getProjectFile = async (projectId, branch, branchId) => {
+export const getProjectFile = async (projectId, branch, commitid) => {
   const response = await request({
-    url: `/project/${projectId}/${branch}/${branchId}`,
+    url: `/project/${projectId}/${branch}/${commitid}`,
     method: "get",
   });
   const projectFileData = response.data;
@@ -50,9 +50,19 @@ export const getProjectFile = async (projectId, branch, branchId) => {
   return {
     projectFileData,
     fileData: fileResponse.data.file,
+    branchInfo:response,
   };
 };
 
+
+export const getBranchInfo = async (projectId, branch, commitid) => {
+  const response = await request({
+    url: `/project/${projectId}/${branch}/${commitid}`,
+    method: "get",
+  });
+
+  return response.data;
+};
 export const getBranchHistory = async (projectId, branch) => {
   const response = await request({
     url: `/project/commits?projectid=${projectId}&branch=${branch}`,

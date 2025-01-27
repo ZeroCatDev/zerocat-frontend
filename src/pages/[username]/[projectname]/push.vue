@@ -49,7 +49,7 @@
 import request from "../../../axios/axios";
 import { localuser } from "@/services/localAccount";
 import { useHead } from "@unhead/vue";
-import { getProjectInfoByNamespace } from "@/stores/cache/project";
+import { getProjectInfoByNamespace } from "@/stores/project";
 export default {
   data() {
     return {
