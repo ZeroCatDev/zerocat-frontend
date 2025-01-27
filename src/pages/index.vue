@@ -1,6 +1,6 @@
-<template>
-  <v-layout>
-    <v-main height="90vh">
+<template><div class="bg-primary-plus">
+  <v-layout >
+    <v-main height="90vh" >
       <v-container class="h-100 d-flex align-center justify-center">
         <div class="w-100 w-md-50 text-center">
           <v-chip
@@ -42,7 +42,6 @@
             />
           </div>
         </div>
-
       </v-container>
     </v-main>
   </v-layout>
@@ -196,7 +195,7 @@
       text="了解更多"
       variant="text"
     />
-  </v-container>
+  </v-container></div>
 </template>
 
 <script>
@@ -281,3 +280,10 @@ export default {
   },
 };
 </script>
+<style scoped>
+.bg-primary-plus {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f3f5f7' fill-opacity='0.27'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+         background-size: 100px 100px;
+  background-repeat: repeat;
+}
+</style>
