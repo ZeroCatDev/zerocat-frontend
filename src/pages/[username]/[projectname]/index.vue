@@ -1,9 +1,16 @@
 <template>
-  <v-container>
+  <v-container>{{ embedurl }}<v-text-field v-model="projectbranch" label="分支" />
     <v-row>
       <v-col xs="12" sm="12" md="8" lg="8" xl="8" xxl="8" cols="12">
-        <ProjectRunner :type="project.type" :id="project.id" /><br/>
-        <v-card>
+        <v-card hover border  style="aspect-ratio: 4 / 3">
+      <iframe
+        :src="embedurl"
+        scrolling="no"
+        frameborder="0"
+        style="width: 100%; height: 100%"
+      ></iframe>
+  </v-card><br/>
+     <v-card>
           <v-tabs v-model="tab" bg-color="primary">
             <v-tab value="readme">README</v-tab>
             <v-tab value="license">LICENSE</v-tab>
@@ -130,6 +137,8 @@ export default {
       openEditor: openEditor,
       localuser: localuser,
       tab: "readme",
+      embedurl: "",
+      projectbranch: "",
     };
   },
   async mounted() {
@@ -144,8 +153,17 @@ export default {
       const projectFromCloud = await getProjectInfoByNamespace(username, projectname);
       this.project = projectFromCloud;
       this.projectid = this.project.id; // 更新 projectid
+      this.loadProjectPlayer();
       useHead({ title: this.project.title });
       this.author = await getUserById(this.project.authorid);
+    },
+    loadProjectPlayer() {
+      this.embedurl = `/scratch/embed.html?id=${this.projectid}&branch=${this.projectbranch===''?this.project.default_branch:this.projectbranch}&ref=latest&embed=true`;
+    },
+  },
+  watch: {
+    projectbranch: function (newVal, oldVal) {
+      this.loadProjectPlayer();
     },
   },
 };
