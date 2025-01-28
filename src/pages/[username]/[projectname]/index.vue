@@ -1,18 +1,91 @@
 <template>
-  <v-container
-    >
-
-
+  <v-container>
     <v-row>
       <v-col xs="12" sm="12" md="8" lg="8" xl="8" xxl="8" cols="12">
-        <v-card hover border style="aspect-ratio: 4 / 3">
+
+            <div style="display: flex; justify-content: space-between;" class="mb-2">
+              <div>
+                <v-menu :close-on-content-click="false">
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      rounded="lg"
+                      variant="tonal"
+                      class="text-none"
+                      prepend-icon="mdi-git"
+                      append-icon="mdi-menu-down"
+                      v-bind="props"
+                      ><template v-slot:prepend><v-icon /></template
+                      >{{ player.branch }}</v-btn
+                    >
+                  </template>
+
+                  <v-list dense>
+                    <v-list-item
+                      v-for="item in projectbranchs"
+                      :key="item"
+                      :title="item.name"
+                      :value="item.name"
+                      :active="item.name === player.branch"
+                      @click="player.branch = item.name"
+                    ></v-list-item>
+                  </v-list>
+                </v-menu>
+                <v-btn class="ml-2" variant="text">{{ projectbranchs.length }}个分支</v-btn>
+              </div>
+              <v-menu :close-on-content-click="false">
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    variant="tonal"
+                    class="text-none"
+                    prepend-icon="mdi-history"
+                    rounded="lg"
+                    append-icon="mdi-menu-down"
+                    v-bind="props"
+                    ><template v-slot:prepend><v-icon /></template
+                    >{{ projectbranchhistory.length }} 次提交</v-btn
+                  >
+                </template>
+
+                <v-list dense>
+                  <v-list-item
+                    v-for="item in projectbranchhistory"
+                    :key="item"
+                    :title="item.commit_message"
+                    :subtitle="`${item.commit_date} - #${item.author_id}`"
+                    :active="item.id === player.commit.id"
+                    @click="player.commit.id = item.id"
+                  ></v-list-item>
+                </v-list>
+              </v-menu>
+            </div>
+
+        <v-card
+          hover
+          border
+          style="aspect-ratio: 4 / 3"
+          v-if="showplayer == true"
+        >
           <iframe
             :src="embedurl"
             scrolling="no"
             frameborder="0"
             style="width: 100%; height: 100%"
-          ></iframe> </v-card
-        ><br />
+          ></iframe>
+        </v-card>
+
+        <v-card
+          v-if="!showplayer"
+          hover
+          border
+          :title="player.commit.error_code"
+        >
+          <v-card-actions>
+            <v-btn @click="initProject(project.id)"
+              >以Scratch模板初始化项目</v-btn
+            >
+          </v-card-actions>
+        </v-card>
+        <br />
         <v-card>
           <v-tabs v-model="tab" bg-color="primary">
             <v-tab value="readme">README</v-tab>
@@ -82,7 +155,7 @@
             >
             <v-btn
               v-if="project.authorid != localuser.user.id"
-              :to="`${project.authorid}/${projectid}/fork`"
+              :to="`${project.authorid}/${project.id}/fork`"
               variant="text"
               >改编</v-btn
             >
@@ -113,7 +186,8 @@
       <v-col xxl="8" xl="8" lg="8" md="8" sm="12" xs="12" cols="12">
         <Comment :url="'project-' + project.id" name="项目"></Comment>
       </v-col>
-    </v-row>   <v-list dense>
+    </v-row>
+    <v-list dense>
       <v-list-item
         v-for="item in projectbranchs"
         :key="item"
@@ -121,8 +195,8 @@
         :value="item.name"
         :active="item.name === player.branch"
         @click="player.branch = item.name"
-      ></v-list-item>
-    </v-list><br/>
+      ></v-list-item> </v-list
+    ><br />
     <v-list dense>
       <v-list-item
         v-for="item in projectbranchhistory"
@@ -144,7 +218,10 @@ import ProjectStar from "../../../components/project/ProjectStar.vue";
 import Comment from "../../../components/Comment.vue";
 import TimeAgo from "@/components/TimeAgo.vue";
 import { useHead } from "@unhead/vue";
-import { getProjectInfoByNamespace } from "../../../stores/project.js";
+import {
+  getProjectInfoByNamespace,
+  initProject,
+} from "../../../stores/project.js";
 import { getUserById } from "../../../stores/user.js";
 import Markdown from "@/components/Markdown.vue";
 import License from "@/components/license/License.vue";
@@ -164,28 +241,29 @@ export default {
   },
   data() {
     return {
-      projectid: this.$route.params.id,
       project: {},
       author: {},
       openEditor: openEditor,
-      localuser: localuser,
+      localuser,
       tab: "readme",
       embedurl: "",
       projectbranchs: [],
       projectbranchhistory: [],
+      showplayer: true,
       player: {
         branch: "main",
         commit: {
           id: "latest",
         },
       },
+      initProject,
     };
   },
   async mounted() {
-    this.fetchProjectAndAuthorDetails();
+    this.initlizeProject();
   },
   methods: {
-    async fetchProjectAndAuthorDetails() {
+    async initlizeProject() {
       const username = this.$route.params.username;
       const projectname = this.$route.params.projectname;
 
@@ -195,15 +273,18 @@ export default {
         projectname
       );
       this.project = projectFromCloud;
-      this.projectid = this.project.id; // 更新 projectid
+      this.project.id = this.project.id; // 更新 projectid
       this.player.branch = this.project.default_branch;
-      getBranchs(this.projectid).then((res) => {
+      getBranchs(this.project.id).then((res) => {
         this.projectbranchs = res.data;
       });
       this.loadProjectPlayer();
       this.loadBranchHistory();
-      getBranchInfo(this.projectid, this.player.branch, "latest").then(
+      getBranchInfo(this.project.id, this.player.branch, "latest").then(
         (res) => {
+          if (res.status == "error") {
+            this.showplayer = false;
+          }
           this.player.commit = res.commit;
         }
       );
@@ -211,10 +292,10 @@ export default {
       this.author = await getUserById(this.project.authorid);
     },
     loadProjectPlayer() {
-      this.embedurl = `/scratch/embed.html?id=${this.projectid}&branch=${this.player.branch}&ref=${this.player.commit.id}&embed=true`;
+      this.embedurl = `/scratch/embed.html?id=${this.project.id}&branch=${this.player.branch}&ref=${this.player.commit.id}&embed=true`;
     },
     loadBranchHistory() {
-      getBranchHistory(this.projectid, this.player.branch).then((res) => {
+      getBranchHistory(this.project.id, this.player.branch).then((res) => {
         this.projectbranchhistory = res.data;
       });
     },

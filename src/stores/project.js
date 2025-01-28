@@ -43,3 +43,11 @@ export async function getProjectInfoByNamespace(username, projectname) {
     return defaultProject(0); // 返回默认项目对象
   }
 }
+export async function initProject(projectid) {
+  try {
+    const { data } = await request.post(`/project/initlize?projectid=${projectid}`);
+    return data;
+  } catch (error) {
+    return defaultProject(0); // 返回默认项目对象
+  }
+}
