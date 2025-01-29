@@ -209,7 +209,7 @@
 import request from "../../../axios/axios";
 import { localuser } from "@/services/localAccount";
 import { useHead } from "@unhead/vue";
-import { getProjectInfoByNamespace } from "@/stores/project";
+import { getProjectInfoByNamespace } from "@/services/projectService";
 
 export default {
   data() {

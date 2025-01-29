@@ -92,7 +92,7 @@
 import openEditor from "../../../stores/openEdit";
 import { localuser } from "@/services/localAccount";
 import { useHead } from "@unhead/vue";
-import { getProjectInfoByNamespace } from "../../../stores/project.js";
+import { getProjectInfoByNamespace } from "../../../services/projectService";
 import { getUserById } from "../../../stores/user.js";
 import request from "../../../axios/axios";
 

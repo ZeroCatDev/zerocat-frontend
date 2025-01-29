@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import { getProjectInfo } from "@/stores/project.js";
+import { getProjectInfo } from "@/services/projectService";
 
 import {
   saveFile,

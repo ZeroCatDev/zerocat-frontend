@@ -24,6 +24,7 @@
                       v-for="item in projectbranchs"
                       :key="item"
                       :title="item.name"
+                      :subtitle="item.description"
                       :value="item.name"
                       :active="item.name === player.branch"
                       @click="player.branch = item.name"
@@ -221,7 +222,7 @@ import { useHead } from "@unhead/vue";
 import {
   getProjectInfoByNamespace,
   initProject,
-} from "../../../stores/project.js";
+} from "../../../services/projectService";
 import { getUserById } from "../../../stores/user.js";
 import Markdown from "@/components/Markdown.vue";
 import License from "@/components/license/License.vue";

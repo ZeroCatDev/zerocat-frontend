@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { getProjectInfo } from "@/stores/project.js";
+import { getProjectInfo } from "@/services/projectService";
 import { getUserById } from "@/stores/user.js";
 
 export default {
