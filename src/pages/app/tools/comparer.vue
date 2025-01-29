@@ -296,11 +296,11 @@ export default {
     },
 
     async compareCode(project0, project1) {
-      let total = 0;
+      const codeTrees0 = await this.makeCodeTree(project0);
+      const codeTrees1 = await this.makeCodeTree(project1);
+      const total = codeTrees0.length + codeTrees1.length;
       let cur = 0;
 
-      const codeTrees0 = await this.makeCodeTree(project0, total);
-      const codeTrees1 = await this.makeCodeTree(project1, total);
       prettydiff.options.diff_format = "json";
       const result = {
         code0length: codeTrees0.length,
@@ -311,7 +311,7 @@ export default {
       return result;
     },
 
-    async makeCodeTree(project, total) {
+    async makeCodeTree(project) {
       const array = [];
       for (const target of project.targets) {
         for (const id in target.blocks) {
@@ -327,10 +327,9 @@ export default {
                 id,
                 code: this.fixBlock(block, target.blocks).toFormatedString(),
               });
-              total++;
               await this.updateProgress({
-                text: `正在构建伪代码 (${total})`,
-                progress: 50 + total * 0.02,
+                text: `正在构建伪代码 (${array.length})`,
+                progress: 50 + array.length * 0.02,
               });
             } else if (block.opcode) {
               switch (block.opcode) {
@@ -338,15 +337,11 @@ export default {
                 case "control_start_as_clone":
                   array.push({
                     id,
-                    code: this.fixBlock(
-                      block,
-                      target.blocks
-                    ).toFormatedString(),
+                    code: this.fixBlock(block, target.blocks).toFormatedString(),
                   });
-                  total++;
                   await this.updateProgress({
-                    text: `正在构建伪代码 (${total})`,
-                    progress: 50 + total * 0.02,
+                    text: `正在构建伪代码 (${array.length})`,
+                    progress: 50 + array.length * 0.02,
                   });
                   break;
                 default:
