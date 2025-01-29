@@ -31,7 +31,7 @@
                     ></v-list-item>
                   </v-list>
                 </v-menu>
-                <v-btn class="ml-2" variant="text">{{ projectbranchs.length }}个分支</v-btn>
+                <v-btn class="ml-2" variant="text" :to="`/${$route.params.username}/${$route.params.projectname}/branches`">{{ projectbranchs.length }}个分支</v-btn>
               </div>
               <v-menu :close-on-content-click="false">
                 <template v-slot:activator="{ props }">
