@@ -96,7 +96,7 @@
           <br />
         </v-card>
         <br />
-        <v-card subtitle="此项目可以被存储到ZeroCat服务器" title="存储此项目">
+        <!--<v-card subtitle="此项目可以被存储到ZeroCat服务器" title="存储此项目">
           <v-card-text class="bg-surface-light pt-4">
             此项目可以被存储到ZeroCat服务器
           </v-card-text>
@@ -106,7 +106,7 @@
             >
           </template>
         </v-card>
-        <br />
+        <br />-->
         <v-card subtitle="这是Scratch上的内容" title="ZeroCatScratchMirror" border>
           <v-card-text class="bg-surface-light pt-4">
             我们使用这种方式促进Scratch及其社区的发展，这些内容是按照<a
