@@ -192,27 +192,6 @@
         <Comment :url="'project-' + project.id" name="项目"></Comment>
       </v-col>
     </v-row>
-    {{projectbranchs}} {{ player }} {{ projectbranchhistory }}
-    <v-list dense>
-      <v-list-item
-        v-for="item in projectbranchs"
-        :key="item"
-        :title="item.name"
-        :value="item.name"
-        :active="item.name === player.branch"
-        @click="player.branch = item.name"
-      ></v-list-item> </v-list
-    ><br />
-    <v-list dense>
-      <v-list-item
-        v-for="item in projectbranchhistory"
-        :key="item"
-        :title="item.commit_message"
-        :subtitle="item.commit_author"
-        :active="item.id === player.commit.id"
-        @click="player.commit.id = item.id"
-      ></v-list-item>
-    </v-list>
   </v-container>
 </template>
 

@@ -113,13 +113,6 @@ export const getCommitInfo = async (projectId, commitid) => {
   });
   return response.data;
 };
-export const getBranchHistory = async (projectId, branch) => {
-  const response = await request({
-    url: `/project/commits?projectid=${projectId}&branch=${branch}`,
-    method: "get",
-  });
-  return response.data;
-};
 export const getBranchHistoryByCommit = async (projectId, commitid) => {
   console.log(`Fetching commits for projectId: ${projectId}`);
   const response = await request({
