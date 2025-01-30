@@ -55,7 +55,45 @@
           {{ userinfo.profile.bio }}
         </v-card-text>
       </v-card>
-      <v-card subtitle="这是Scratch上的内容" title="ZeroCatScratchMirror" border>
+
+      <v-progress-linear
+        :active="ProjectsLoading"
+        height="4"
+        indeterminate
+      ></v-progress-linear>
+      <div class="mb-2">
+        <v-chip
+          ><v-icon icon="mdi-clock" start></v-icon>本页加载用时{{
+            Math.abs(usetime / 1000)
+          }}秒
+        </v-chip>
+      </div>
+      <v-row>
+        <v-col cols="4" md="2" v-for="info in projects" :key="info">
+          <v-card :to="'/app/proxy/' + info.id">
+            <v-img
+              :src="`${scratch_proxy}/thumbnails/${info.id}`"
+              cover
+              lazy-src="../../../../assets/43-lazyload.png"
+            ></v-img
+            ><v-card-item>
+              <template v-slot:prepend>
+                <v-avatar
+                  :image="`${this.scratch_proxy}/avatars/${info.actor_id}`"
+                ></v-avatar> </template
+              ><v-card-title>{{ info.title }}</v-card-title>
+
+              <v-card-subtitle>{{ info.username }}</v-card-subtitle>
+            </v-card-item>
+          </v-card>
+        </v-col></v-row
+      ><br />
+      <v-btn @click="onPageChange(curPage + 1, false)">继续加载</v-btn>
+      <v-card
+        subtitle="这是Scratch上的内容"
+        title="ZeroCatScratchMirror"
+        border
+      >
         <v-card-text class="bg-surface-light pt-4">
           我们使用这种方式促进Scratch及其社区的发展，这些内容是按照<a
             >署名-相同方式共享 2.0 通用</a
@@ -91,6 +129,8 @@ export default {
   data() {
     return {
       UserCardLoading: true,
+      ProjectsLoading: true,
+
       userid: this.$route.params.id,
       userinfo: {
         id: 1,
@@ -120,6 +160,7 @@ export default {
       },
       projects: [],
       scratchcount: 0,
+      usetime: 0,
       curPage: 1,
       totalPage: 1,
       limit: 8,
@@ -130,11 +171,35 @@ export default {
 
   async created() {
     await this.getUserById();
+    await this.onPageChange(1, false);
   },
   methods: {
+    async onPageChange(page, clean) {
+      if (clean) {
+        this.projects = [];
+      }
+      this.usetime = Date.now();
+      this.ProjectsLoading = true;
+      try {
+        const res = await request.get(
+          `${this.scratch_proxy}/users/${
+            this.$route.params.username
+          }/projects?&offset=${page * 16 - 16}&limit=${this.limit}`
+        );
+        this.projects = this.projects.concat(res.data);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        this.ProjectsLoading = false;
+        this.usetime = Date.now() - this.usetime;
+      }
+      this.curPage = page;
+    },
     async getUserById() {
       try {
-        const res = await request.get(this.scratch_proxy + "/users/" + this.$route.params.username);
+        const res = await request.get(
+          this.scratch_proxy + "/users/" + this.$route.params.username
+        );
         this.userinfo = res.data;
       } catch (err) {
         console.log(err);
