@@ -257,10 +257,9 @@ export default {
       const projectname = this.$route.params.projectname;
 
       // 遗留问题
-      if (this.$route.params.username=='proxy') {
+      if (this.$route.params.username == "proxy") {
         this.$router.replace(`/app${this.$route.path}`);
       }
-
 
       // 获取云端数据
       const projectFromCloud = await getProjectInfoByNamespace(
