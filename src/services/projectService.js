@@ -106,14 +106,13 @@ export const getProjectFile = async (projectId, branch, commitid) => {
   };
 };
 
-export const getBranchInfo = async (projectId, branch, commitid) => {
+export const getCommitInfo = async (projectId, commitid) => {
   const response = await request({
-    url: `/project/${projectId}/${branch}/${commitid}`,
+    url: `/project/commit?projectid=${projectId}&commitid=${commitid}`,
     method: "get",
   });
   return response.data;
 };
-
 export const getBranchHistory = async (projectId, branch) => {
   const response = await request({
     url: `/project/commits?projectid=${projectId}&branch=${branch}`,
@@ -121,3 +120,39 @@ export const getBranchHistory = async (projectId, branch) => {
   });
   return response.data;
 };
+export const getBranchHistoryByCommit = async (projectId, commitid) => {
+  console.log(`Fetching commits for projectId: ${projectId}`);
+  const response = await request({
+    url: `/project/commits?projectid=${projectId}`,
+    method: "get",
+  });
+
+  const commits = response.data.data;
+  console.log(`Fetched ${commits.length} commits`);
+
+  const findCommitById = (id) => {
+    console.log(`Finding commit by id: ${id}`);
+    return commits.find(commit => commit.id === id);
+  };
+
+  const getCommitHistory = (commitid) => {
+    console.log(`Building commit history starting from commitid: ${commitid}`);
+    const commitHistory = [];
+    let currentCommit = findCommitById(commitid);
+
+    while (currentCommit) {
+      console.log(`Adding commit to history: ${currentCommit.id}`);
+      commitHistory.push(currentCommit);
+      if (!currentCommit.parent_commit_id) {
+        console.log(`No parent commit found for commitid: ${currentCommit.id}`);
+        break;
+      }
+      currentCommit = findCommitById(currentCommit.parent_commit_id);
+    }
+
+    return commitHistory;
+  };
+
+  return getCommitHistory(commitid);
+};
+
