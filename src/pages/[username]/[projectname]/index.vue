@@ -26,7 +26,7 @@
                   :subtitle="item.description"
                   :value="item.name"
                   :active="item.name === player.branch"
-                  @click="player.branch = item.name;player.commit.id=item.latest_commit_hash"
+                  @click="player.branch = item.name;player.commit.id=item.latest_commit_hash;player.latest_commit_hash=item.latest_commit_hash;"
                 ></v-list-item>
               </v-list>
             </v-menu>
@@ -240,6 +240,7 @@ export default {
         commit: {
           id: "latest",
         },
+        latest_commit_hash: "latest",
       },
       initProject,
     };
@@ -270,6 +271,7 @@ export default {
       console.log(currentBranch);
       if (currentBranch) {
         this.player.commit.id = currentBranch.latest_commit_hash;
+        this.player.latest_commit_hash = currentBranch.latest_commit_hash;
       }
       this.loadProjectPlayer();
       this.loadBranchHistory();
@@ -280,7 +282,7 @@ export default {
       this.embedurl = `/scratch/embed.html?id=${this.project.id}&branch=${this.player.branch}&ref=${this.player.commit.id}&embed=true`;
     },
     loadBranchHistory() {
-      getBranchHistoryByCommit(this.project.id, this.player.commit.id).then((res) => {
+      getBranchHistoryByCommit(this.project.id, this.player.latest_commit_hash).then((res) => {
         this.projectbranchhistory = res;
       });
     },
