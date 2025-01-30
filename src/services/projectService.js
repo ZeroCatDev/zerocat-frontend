@@ -1,4 +1,3 @@
-// 文件已删除
 import request from "../axios/axios.js";
 
 // 通用项目对象模板

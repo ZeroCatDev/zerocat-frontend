@@ -201,14 +201,11 @@
 </template>
 
 <script>
-import request from "../../../../axios/axios";
-import Projects from "../../../../components/project/Projects.vue";
+import { getStudioInfo, getStudioProjects, getStudioCurators, getStudioManagers } from "@/services/proxy/studioService";
 import Comment from "../../../../components/Comment.vue";
 
-import { ref } from "vue";
 export default {
-  components: { Projects, Comment },
-
+  components: { Comment },
   data() {
     return {
       tab: ref(null),
@@ -254,10 +251,20 @@ export default {
   },
 
   async created() {
-    await this.getstudioinfo();
+    await this.fetchStudioInfo();
     await this.onPageChange(1, false);
   },
   methods: {
+    async fetchStudioInfo() {
+      try {
+        const res = await getStudioInfo(this.$route.params.id);
+        this.studioinfo = res.data;
+      } catch (err) {
+        console.log(err);
+      } finally {
+        this.UserCardLoading = false;
+      }
+    },
     async onPageChange(page, clean) {
       if (clean) {
         this.projects = [];
@@ -265,7 +272,7 @@ export default {
       this.usetime = Date.now();
       this.ProjectsLoading = true;
       try {
-        const res = await request.get(`${this.scratch_proxy}/studios/${this.$route.params.id}/projects?&offset=${page * 16 - 16}&limit=${this.limit}`);
+        const res = await getStudioProjects(this.$route.params.id, page, this.limit);
         this.projects = this.projects.concat(res.data);
       } catch (err) {
         console.log(err);
@@ -277,7 +284,7 @@ export default {
     },
     async onCuratorsPageChange(page) {
       try {
-        const res = await request.get(`${this.scratch_proxy}/studios/${this.$route.params.id}/curators?&offset=${page * 16 - 16}&limit=${this.limit}`);
+        const res = await getStudioCurators(this.$route.params.id, page, this.limit);
         if (res.data.length === 0) {
           this.curatorscanload = false;
         }
@@ -289,7 +296,7 @@ export default {
     },
     async onManagersPageChange(page) {
       try {
-        const res = await request.get(`${this.scratch_proxy}/studios/${this.$route.params.id}/managers?&offset=${page * 16 - 16}&limit=${this.limit}`);
+        const res = await getStudioManagers(this.$route.params.id, page, this.limit);
         if (res.data.length === 0) {
           this.managerscanload = false;
         }
@@ -298,16 +305,6 @@ export default {
         console.log(err);
       }
       this.managerspage = page;
-    },
-    async getstudioinfo() {
-      try {
-        const res = await request.get(`${this.scratch_proxy}/studios/${this.$route.params.id}`);
-        this.studioinfo = res.data;
-      } catch (err) {
-        console.log(err);
-      } finally {
-        this.UserCardLoading = false;
-      }
     },
   },
 };

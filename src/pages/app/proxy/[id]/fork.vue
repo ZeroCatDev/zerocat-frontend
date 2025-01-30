@@ -48,10 +48,10 @@
 </template>
 
 <script>
+import { getProjectById, getProjectFileById, forkProject } from "@/services/proxy/projectService";
 import openEditor from "../../../../stores/openEdit";
-
-import request from "../../../../axios/axios";
 import { localuser } from "@/services/localAccount";
+
 export default {
   data() {
     return {
@@ -82,16 +82,40 @@ export default {
   },
 
   async created() {
-    await this.getproject();
+    await this.fetchProjectData();
   },
 
   methods: {
-    async getproject() {
+    async fetchProjectData() {
       try {
-        const res = await request.get(`${this.scratch_proxy}/projects/${this.projectid}`);
+        const res = await getProjectById(this.projectid);
         this.project = res.data;
       } catch (err) {
         console.log(err);
+      }
+    },
+    async getProjectFile() {
+      try {
+        await this.fetchProjectData();
+        const projectFileRes = await getProjectFileById(this.projectid, this.project.project_token);
+        this.projectfile = projectFileRes.data;
+        this.$toast.add({
+          severity: "success",
+          summary: "成功",
+          detail: "获取项目文件成功",
+          life: 3000,
+        });
+        const createProjectRes = await forkProject(this.project.title, this.projectfile);
+        this.newid = createProjectRes.data.id;
+        this.$router.push(`/projects/${this.newid}`);
+      } catch (error) {
+        console.error(error);
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: "操作失败，请稍后再试",
+          life: 3000,
+        });
       }
     },
     async forkproject(id) {
@@ -113,47 +137,6 @@ export default {
           severity: "error",
           summary: "错误",
           detail: err,
-          life: 3000,
-        });
-      }
-    },
-    async getProjectFile() {
-      try {
-        await this.getproject();
-        const projectFileRes = await request.get(`${this.scratch_proxy}/projects/source/${this.projectid}?token=${this.project.project_token}`);
-        this.projectfile = projectFileRes.data;
-        this.$toast.add({
-          severity: "success",
-          summary: "成功",
-          detail: "获取项目文件成功",
-          life: 3000,
-        });
-        const createProjectRes = await request.post("/project/", {
-          title: this.project.title,
-          type: "scratch",
-          state: "public",
-        });
-        this.newid = createProjectRes.data.id;
-        const uploadRes = await request.put(`/project/${this.newid}/source`, this.projectfile);
-        this.$toast.add({
-          severity: "info",
-          summary: "信息",
-          detail: uploadRes.data,
-          life: 3000,
-        });
-        const pushRes = await request.post(`/project/${this.newid}/push`);
-        this.$toast.add({
-          severity: "info",
-          summary: "信息",
-          detail: pushRes.data,
-          life: 3000,
-        });
-      } catch (error) {
-        console.error(error);
-        this.$toast.add({
-          severity: "error",
-          summary: "错误",
-          detail: "操作失败，请稍后再试",
           life: 3000,
         });
       }

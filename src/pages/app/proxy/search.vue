@@ -88,7 +88,7 @@
 </template>
 
 <script>
-import request from "../../../axios/axios";
+import { searchProjects } from "@/services/proxy/projectService";
 
 export default {
   data() {
@@ -125,7 +125,7 @@ export default {
       this.usetime = Date.now();
       this.ProjectsLoading = true;
       try {
-        const res = await request.get(`${this.scratch_proxy}/projects/search/projects?mode=${this.search.order}&q=${this.search.text}&offset=${page * 16 - 16}&limit=${this.search.limit}&language=zh-cn`);
+        const res = await searchProjects(this.search.order, this.search.text, page, this.search.limit);
         this.projects = this.projects.concat(res.data);
       } catch (err) {
         console.log(err);

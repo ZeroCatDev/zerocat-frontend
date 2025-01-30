@@ -138,14 +138,11 @@
 </template>
 
 <script>
-import openEditor from "../../../../stores/openEdit";
+import { getProjectById } from "@/services/proxy/projectService";
 import Comment from "../../../../components/Comment.vue";
 
-import request from "../../../../axios/axios";
-import ProjectRunner from "../../../../components/project/ProjectRunner.vue";
-import { localuser } from "@/services/localAccount";
 export default {
-  components: { ProjectRunner, Comment },
+  components: { Comment },
   data() {
     return {
       project: {
@@ -202,8 +199,6 @@ export default {
         project_token: "",
       },
       projectid: this.$route.params.id,
-      openEditor: openEditor,
-      localuser: localuser,
       embedurl: "",
       scratch_proxy: import.meta.env.VITE_APP_SCRATCH_PROXY,
       scratch_proxy_gui: import.meta.env.VITE_APP_SCRATCH_PROXY_GUI,
@@ -211,12 +206,12 @@ export default {
   },
 
   async created() {
-    await this.getproject();
+    await this.fetchProjectData();
   },
   methods: {
-    async getproject() {
+    async fetchProjectData() {
       try {
-        const res = await request.get(`${this.scratch_proxy}/projects/${this.$route.params.id}`);
+        const res = await getProjectById(this.$route.params.id);
         this.project = res.data;
         this.embedurl = `${this.scratch_proxy_gui}/embed.html#${this.$route.params.id}`;
       } catch (err) {

@@ -119,12 +119,11 @@
 </template>
 
 <script>
-import request from "../../../../axios/axios";
-import Projects from "../../../../components/project/Projects.vue";
+import { getUserById, getUserProjects } from "@/services/proxy/userService";
 import Comment from "../../../../components/Comment.vue";
 
 export default {
-  components: { Projects, Comment },
+  components: { Comment },
 
   data() {
     return {
@@ -163,17 +162,27 @@ export default {
       usetime: 0,
       curPage: 1,
       totalPage: 1,
-      limit: 8,
+      limit: 40,
 
       scratch_proxy: import.meta.env.VITE_APP_SCRATCH_PROXY,
     };
   },
 
   async created() {
-    await this.getUserById();
+    await this.fetchUserData();
     await this.onPageChange(1, false);
   },
   methods: {
+    async fetchUserData() {
+      try {
+        const res = await getUserById(this.$route.params.username);
+        this.userinfo = res.data;
+      } catch (err) {
+        console.log(err);
+      } finally {
+        this.UserCardLoading = false;
+      }
+    },
     async onPageChange(page, clean) {
       if (clean) {
         this.projects = [];
@@ -181,10 +190,10 @@ export default {
       this.usetime = Date.now();
       this.ProjectsLoading = true;
       try {
-        const res = await request.get(
-          `${this.scratch_proxy}/users/${
-            this.$route.params.username
-          }/projects?&offset=${page * 16 - 16}&limit=${this.limit}`
+        const res = await getUserProjects(
+          this.$route.params.username,
+          page,
+          this.limit
         );
         this.projects = this.projects.concat(res.data);
       } catch (err) {
@@ -194,18 +203,6 @@ export default {
         this.usetime = Date.now() - this.usetime;
       }
       this.curPage = page;
-    },
-    async getUserById() {
-      try {
-        const res = await request.get(
-          this.scratch_proxy + "/users/" + this.$route.params.username
-        );
-        this.userinfo = res.data;
-      } catch (err) {
-        console.log(err);
-      } finally {
-        this.UserCardLoading = false;
-      }
     },
   },
 };

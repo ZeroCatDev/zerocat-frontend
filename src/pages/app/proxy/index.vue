@@ -44,7 +44,7 @@
             </v-card-item>
           </v-card>
           <v-card
-            :to="'/proxy/studios/' + info.id"
+            :to="'/app/proxy/studios/' + info.id"
             v-if="info.type == 'gallery'"
           >
             <v-card-item>
@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import request from "../../../axios/axios";
+import { getFeaturedProjects } from "@/services/proxy/projectService";
 import { useHead } from "@unhead/vue";
 
 export default {
@@ -119,7 +119,7 @@ export default {
       this.usetime = Date.now();
       this.ProjectsLoading = true;
       try {
-        const res = await request.get(`${this.scratch_proxy}/proxy/featured`);
+        const res = await getFeaturedProjects();
         this.projects = res.data;
       } catch (err) {
         console.log(err);
