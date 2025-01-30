@@ -26,7 +26,11 @@
                   :subtitle="item.description"
                   :value="item.name"
                   :active="item.name === player.branch"
-                  @click="player.branch = item.name;player.commit.id=item.latest_commit_hash;player.latest_commit_hash=item.latest_commit_hash;"
+                  @click="
+                    player.branch = item.name;
+                    player.commit.id = item.latest_commit_hash;
+                    player.latest_commit_hash = item.latest_commit_hash;
+                  "
                 ></v-list-item>
               </v-list>
             </v-menu>
@@ -213,7 +217,6 @@ import License from "@/components/license/License.vue";
 import {
   getBranchs,
   getBranchHistoryByCommit,
-
 } from "@/services/projectService";
 export default {
   components: {
@@ -253,6 +256,12 @@ export default {
       const username = this.$route.params.username;
       const projectname = this.$route.params.projectname;
 
+      // 遗留问题
+      if (this.$route.params.username=='proxy') {
+        this.$router.replace(`/app${this.$route.path}`);
+      }
+
+
       // 获取云端数据
       const projectFromCloud = await getProjectInfoByNamespace(
         username,
@@ -261,8 +270,8 @@ export default {
       this.project = projectFromCloud;
       this.project.id = this.project.id; // 更新 projectid
       this.player.branch = this.project.default_branch;
-      var res = await getBranchs(this.project.id)
-        this.projectbranchs = res.data;
+      var res = await getBranchs(this.project.id);
+      this.projectbranchs = res.data;
       const currentBranch = this.projectbranchs.find(
         (item) => item.name === this.player.branch
       );
@@ -282,7 +291,10 @@ export default {
       this.embedurl = `/scratch/embed.html?id=${this.project.id}&branch=${this.player.branch}&ref=${this.player.commit.id}&embed=true`;
     },
     loadBranchHistory() {
-      getBranchHistoryByCommit(this.project.id, this.player.latest_commit_hash).then((res) => {
+      getBranchHistoryByCommit(
+        this.project.id,
+        this.player.latest_commit_hash
+      ).then((res) => {
         this.projectbranchhistory = res;
       });
     },
