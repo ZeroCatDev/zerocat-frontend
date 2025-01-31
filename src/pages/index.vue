@@ -78,15 +78,7 @@
         </v-responsive>
       </v-col>
 
-      <v-col cols="12" lg="6">
-        <v-img
-          cover
-          min-height="440"
-          position="left"
-          :rounded="$vuetify.display.smAndDown ? true : 'e-lg'"
-          src="../../src/assets/ZeroCatLogo.svg"
-        />
-      </v-col>
+
     </v-row>
   </v-container>
   <v-container class="pa-md-12 pa-sm-6">
