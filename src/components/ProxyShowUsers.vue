@@ -1,5 +1,5 @@
 <template>
-  <v-card :title="title" border>
+  <v-card :title="title" border hover>
     <v-list v-for="user in users" :key="user.id">
       <v-list-item :to="'/app/proxy/user/' + user.username">
         <template v-slot:prepend>
@@ -26,8 +26,12 @@ export default {
     },
     title: {
       type: String,
-      required: true,
+      required: false,
     },
+    subtitle: {
+      type: String,
+      required: false,
+    }
   },
   data() {
     return {

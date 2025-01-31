@@ -15,7 +15,13 @@
         <v-card>
           <v-card-title>备注与鸣谢</v-card-title>
           <v-card-text>{{ project.description }}</v-card-text></v-card
-        >
+        > <br /><br /><ProxyShowProjects
+        :showUserInfo="true"
+        title="forks"
+        subtitle="对此项目的fork"
+        :url="`/projects/${project.id}/remixes?`"
+        autoload="false"
+      ></ProxyShowProjects>
       </v-col>
 
       <v-col cols="4">
@@ -107,26 +113,7 @@
           </template>
         </v-card>
         <br />-->
-        <v-card subtitle="这是Scratch上的内容" title="ZeroCatScratchMirror" border>
-          <v-card-text class="bg-surface-light pt-4">
-            我们使用这种方式促进Scratch及其社区的发展，这些内容是按照<a
-              >署名-相同方式共享 2.0 通用</a
-            >协议传播的，您可以在<a
-              href="https://creativecommons.org/licenses/by-sa/2.0/"
-              >creativecommons.org</a
-            >查看协议全文。
-          </v-card-text>
-          <template v-slot:actions>
-            <v-btn
-              :href="'https://scratch.mit.edu/projects/' + project.id"
-              target="_blank"
-              >Scratch上的作品页</v-btn
-            >
-            <v-btn href="https://scratch.mit.edu/terms_of_use" target="_blank"
-              >Scratch使用条款</v-btn
-            >
-          </template>
-        </v-card>
+        <license :url="'https://scratch.mit.edu/projects/' + project.id"></license>
       </v-col>
     </v-row>
 
@@ -140,9 +127,11 @@
 <script>
 import { getProjectById } from "@/services/proxy/projectService";
 import Comment from "../../../../components/Comment.vue";
+import ProxyShowUsers from "../../../../components/ProxyShowUsers.vue";
+import ProxyShowProjects from "../../../../components/ProxyShowProjects.vue";
 
 export default {
-  components: { Comment },
+  components: { Comment ,ProxyShowProjects},
   data() {
     return {
       project: {

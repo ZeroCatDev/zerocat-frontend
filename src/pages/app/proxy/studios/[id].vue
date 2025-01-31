@@ -85,112 +85,39 @@
         <v-card-text>
           <v-tabs-window v-model="tab">
             <v-tabs-window-item value="description">
-              {{ studioinfo.description }}
+              <pre>{{ studioinfo.description }}</pre>
             </v-tabs-window-item>
 
             <v-tabs-window-item value="members">
-              <h1>管理员</h1>
-              <v-row>
-                <v-col cols=" 12" md="3" v-for="info in managers" :key="info">
-                  <v-card :to="'/app/proxy/user/' + info.username">
-                    <v-card-item>
-                      <template v-slot:prepend>
-                        <v-avatar
-                          :image="`${this.scratch_proxy}/avatars/${info.profile.id}`"
-                        ></v-avatar> </template
-                      ><v-card-title>{{ info.username }}</v-card-title>
 
-                      <v-card-subtitle>{{
-                        info.profile.country
-                      }}</v-card-subtitle>
-                    </v-card-item>
-                  </v-card>
-                </v-col></v-row
-              >
-              <br /><v-btn
-                @click="onManagersPageChange(managerspage + 1)"
-                :disabled="!managerscanload"
-                >继续加载</v-btn
-              >
-              <br /><br />
-              <h1>成员</h1>
-              <v-row>
-                <v-col cols=" 12" md="3" v-for="info in curators" :key="info">
-                  <v-card :to="'/app/proxy/user/' + info.username">
-                    <v-card-item>
-                      <template v-slot:prepend>
-                        <v-avatar
-                          :image="`${this.scratch_proxy}/avatars/${info.profile.id}`"
-                        ></v-avatar> </template
-                      ><v-card-title>{{ info.username }}</v-card-title>
+              <ProxyShowUsers
+              title="管理员"
+              subtitle="用户列表"
+                :url="`/studios/${studioinfo.id}/managers?`"
+                :autoload="true"
+              ></ProxyShowUsers>
+<br/>
 
-                      <v-card-subtitle>{{
-                        info.profile.country
-                      }}</v-card-subtitle>
-                    </v-card-item>
-                  </v-card>
-                </v-col></v-row
-              ><br />
-              <v-btn
-                @click="onCuratorsPageChange(curatorspage + 1)"
-                :disabled="!curatorscanload"
-                >继续加载</v-btn
-              >
+              <ProxyShowUsers
+                title="成员"
+                subtitle="用户列表"
+                :url="`/studios/${studioinfo.id}/curators?`"
+                :autoload="true"
+              ></ProxyShowUsers>
             </v-tabs-window-item>
           </v-tabs-window>
         </v-card-text>
       </v-card>
-      <v-progress-linear
-        :active="ProjectsLoading"
-        height="4"
-        indeterminate
-      ></v-progress-linear>
-      <div class="mb-2">
-        <v-chip
-          ><v-icon icon="mdi-clock" start></v-icon>本页加载用时{{
-            Math.abs(usetime / 1000)
-          }}秒
-        </v-chip>
-      </div>
-      <v-row>
-        <v-col cols="4" md="2" v-for="info in projects" :key="info">
-          <v-card :to="'/app/proxy/' + info.id">
-            <v-img
-              :src="`${scratch_proxy}/thumbnails/${info.id}`"
-              cover
-              lazy-src="../../../../assets/43-lazyload.png"
-            ></v-img
-            ><v-card-item>
-              <template v-slot:prepend>
-                <v-avatar
-                  :image="`${this.scratch_proxy}/avatars/${info.actor_id}`"
-                ></v-avatar> </template
-              ><v-card-title>{{ info.title }}</v-card-title>
 
-              <v-card-subtitle>{{ info.username }}</v-card-subtitle>
-            </v-card-item>
-          </v-card>
-        </v-col></v-row
-      ><br />
-      <v-btn @click="onPageChange(curPage + 1, false)">继续加载</v-btn>
-      <br /><br />
-      <v-card subtitle="这是Scratch上的内容" title="ZeroCatScratchMirror" border>
-        <v-card-text class="bg-surface-light pt-4">
-          我们使用这种方式促进Scratch及其社区的发展，这些内容是按照<a
-            >署名-相同方式共享 2.0 通用</a
-          >协议传播的，您可以在<a>https://creativecommons.org/licenses/by-sa/2.0/</a>查看协议全文。
-        </v-card-text>
-        <template v-slot:actions>
-          <v-btn
-            :href="'https://scratch.mit.edu/studios/' + studioinfo.id"
-            target="_blank"
-            >Scratch上的工作室主页</v-btn
-          >
-          <v-btn href="https://scratch.mit.edu/terms_of_use" target="_blank"
-            >Scratch使用条款</v-btn
-          >
-        </template>
-      </v-card>
+      <ProxyShowProjects
+        :url="`/studios/${studioinfo.id}/projects?`"
+        :autoload="true"
+        title="项目"
+        subtitle="项目列表"
+        :showUserInfo="true"
+      ></ProxyShowProjects>
+      <license :url="'https://scratch.mit.edu/studios/' + studioinfo.id"></license>
+
     </div>
 
     <Comment
@@ -203,9 +130,10 @@
 <script>
 import { getStudioInfo, getStudioProjects, getStudioCurators, getStudioManagers } from "@/services/proxy/studioService";
 import Comment from "../../../../components/Comment.vue";
-
+import ProxyShowProjects from "@/components/ProxyShowProjects.vue";
+import ProxyShowUsers from "@/components/ProxyShowUsers.vue";
 export default {
-  components: { Comment },
+  components: { Comment,ProxyShowUsers,ProxyShowProjects },
   data() {
     return {
       tab: ref(null),

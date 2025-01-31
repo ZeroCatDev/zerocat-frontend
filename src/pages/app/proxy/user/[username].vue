@@ -56,9 +56,10 @@
         </v-card-text>
       </v-card>
 
-
-
       <ProxyShowProjects
+      autoload="true"
+ title="作品"
+        subtitle="此用户的作品"
         :url="`/users/${userinfo.username}/projects?`"
       ></ProxyShowProjects>
       <br />
@@ -73,28 +74,9 @@
         :url="`/users/${userinfo.username}/followers?`"
       ></ProxyShowUsers>
       <br />
-
-      <v-card
-        subtitle="这是Scratch上的内容"
-        title="ZeroCatScratchMirror"
-        border
-      >
-        <v-card-text class="bg-surface-light pt-4">
-          我们使用这种方式促进Scratch及其社区的发展，这些内容是按照<a
-            >署名-相同方式共享 2.0 通用</a
-          >协议传播的，您可以在<a>https://creativecommons.org/licenses/by-sa/2.0/</a>查看协议全文。
-        </v-card-text>
-        <template v-slot:actions>
-          <v-btn
-            :href="'https://scratch.mit.edu/users/' + userinfo.username"
-            target="_blank"
-            >Scratch上的用户主页</v-btn
-          >
-          <v-btn href="https://scratch.mit.edu/terms_of_use" target="_blank"
-            >Scratch使用条款</v-btn
-          >
-        </template>
-      </v-card>
+      <license
+        :url="'https://scratch.mit.edu/users/' + userinfo.username"
+      ></license>
     </div>
     <Comment
       :url="'scratchmiteduuser-' + userinfo.id"

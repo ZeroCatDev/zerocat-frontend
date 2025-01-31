@@ -203,9 +203,11 @@ export default {
           icon: "mdi-link-variant",
           login: true,
           list: [
-            { title: "首页", link: "/app/proxy/", icon: "mdi-home" },
+            { title: "首页", link: "/app/proxy", icon: "mdi-home" },
             { title: "探索", link: "/app/proxy/explore", icon: "mdi-earth" },
             { title: "搜索", link: "/app/proxy/search", icon: "mdi-xml" },
+            { title: "新闻", link: "/app/proxy/news", icon: "mdi-newspaper" },
+
             { title: "打开", link: "/app/proxy/open", icon: "mdi-link" },
           ],
         },
