@@ -99,7 +99,7 @@
 
       <v-row dense justify="center">
         <v-col v-for="(stat, i) in stats" :key="i" cols="12" lg="3" md="6">
-          <v-sheet class="pa-6" rounded="lg" variant="flat">
+          <v-sheet class="pa-6" rounded="lg" variant="flat" border>
             <v-list-item class="text-center" :subtitle="stat.subtitle">
               <template #title>
                 <p class="text-h4 font-weight-bold pb-2">
