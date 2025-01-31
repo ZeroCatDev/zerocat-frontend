@@ -116,7 +116,7 @@
         subtitle="项目列表"
         :showUserInfo="true"
       ></ProxyShowProjects>
-      <license :url="'https://scratch.mit.edu/studios/' + studioinfo.id"></license>
+      <proxylicense :url="'https://scratch.mit.edu/studios/' + studioinfo.id"></proxylicense>
 
     </div>
 

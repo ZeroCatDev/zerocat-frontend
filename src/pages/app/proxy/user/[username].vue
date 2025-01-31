@@ -74,9 +74,9 @@
         :url="`/users/${userinfo.username}/followers?`"
       ></ProxyShowUsers>
       <br />
-      <license
+      <proxylicense
         :url="'https://scratch.mit.edu/users/' + userinfo.username"
-      ></license>
+      ></proxylicense>
     </div>
     <Comment
       :url="'scratchmiteduuser-' + userinfo.id"

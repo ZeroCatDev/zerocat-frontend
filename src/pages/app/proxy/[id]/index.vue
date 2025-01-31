@@ -113,7 +113,7 @@
           </template>
         </v-card>
         <br />-->
-        <license :url="'https://scratch.mit.edu/projects/' + project.id"></license>
+        <proxylicense :url="'https://scratch.mit.edu/projects/' + project.id"></proxylicense>
       </v-col>
     </v-row>
 

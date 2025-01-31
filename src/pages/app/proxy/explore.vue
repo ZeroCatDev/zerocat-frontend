@@ -1,5 +1,5 @@
 <template>
-  <v-container><license url="https://scratch.mit.edu/explore/projects/all"></license>
+  <v-container><proxylicense url="https://scratch.mit.edu/explore/projects/all"></proxylicense>
    <br />
     <v-row>
       <v-col cols="3"

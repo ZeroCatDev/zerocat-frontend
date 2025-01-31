@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <license url="https://scratch.mit.edu/explore/projects/all"></license><br />
+    <proxylicense url="https://scratch.mit.edu/explore/projects/all"></proxylicense><br />
     <v-text-field
       label="输入Scratch作品ID"
       variant="outlined"
