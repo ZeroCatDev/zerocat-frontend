@@ -45,7 +45,7 @@
                 item-title="text"
                 item-value="value"
               ></v-select
-              >{{ editItemData }}
+              >
             </v-card-text>
             <v-card-actions>
               <v-btn @click="confirmDeleteItem(item)" color="error">删除</v-btn>
