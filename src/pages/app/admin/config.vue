@@ -1,7 +1,7 @@
 <template>
   <v-container>
-    <v-btn @click="loadData">刷新</v-btn>
-    <v-btn @click="openCreateDialog">创建配置</v-btn><br /><br />
+
+    <v-btn @click="openCreateDialog" color="primary">创建配置</v-btn>    <v-btn @click="loadData" variant="text">刷新</v-btn><br /><br />
     <v-text-field
       v-model="searchKey"
       label="搜索"
@@ -15,6 +15,8 @@
         :title="item.key"
         :subtitle="infomation[item.key] || item.key"
         @click="toggleEdit(item)"
+        :color="item.is_public == true ? 'success' : ''"
+        :variant="item.is_public == true ? 'tonal' : ''"
       >
         <div class="d-flex align-center">
           <v-card-text>{{ item.value }}</v-card-text>
@@ -59,15 +61,42 @@
 
     <!-- 创建配置对话框 -->
     <v-dialog v-model="createDialog" max-width="500px">
-      <v-card>
+      <v-card :color="newConfig.is_public == true ? 'success' : ''">
         <v-card-title>创建配置</v-card-title>
         <v-card-text>
-          <v-text-field v-model="newConfig.key" label="名称"></v-text-field>
-          <v-text-field v-model="newConfig.value" label="值"></v-text-field>
+          <v-text-field
+            v-model="newConfig.key"
+            label="名称"
+            variant="outlined"
+          ></v-text-field>
+          <v-text-field
+            v-model="newConfig.value"
+            label="值"
+            variant="outlined"
+          ></v-text-field>
+          <v-select
+            v-model="newConfig.is_public"
+            :items="[
+              { text: '公开', value: true },
+              { text: '内部', value: false },
+            ]"
+            label="可见性"
+            item-title="text"
+            item-value="value"
+          ></v-select>{{ newConfig }}
         </v-card-text>
         <v-card-actions>
           <v-btn @click="createDialog = false">取消</v-btn>
-          <v-btn @click="createConfig" color="primary">创建</v-btn>
+          <v-btn
+            @click="createConfig"
+            :color="newConfig.is_public == true ? 'on-success' : 'primary'"
+            :disabled="
+              !newConfig.key ||
+              !newConfig.value ||
+              configs.find((item) => item.key === newConfig.key)
+            "
+            >创建</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -103,10 +132,11 @@
 
 <script>
 import request from "@/axios/axios";
-
+import {localuser} from '@/services/localAccount';
 export default {
   data() {
     return {
+      localuser,
       configs: [],
       searchKey: "",
       createDialog: false,
@@ -115,6 +145,7 @@ export default {
       newConfig: {
         key: "",
         value: "",
+        is_public: false,
       },
       deleteItemData: {},
       deleteItemId: null,
@@ -193,10 +224,20 @@ export default {
           this.editItemData
         );
         if (response.data.status === "success") {
+          this.$toast.add({
+            severity: "success",
+            summary: "成功",
+            detail: "保存配置成功",
+          })
           this.loadData();
           this.editItemData = {};
         }
       } catch (error) {
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: "保存配置失败",
+        })
         console.error("保存配置失败", error);
       }
     },
@@ -212,15 +253,25 @@ export default {
       try {
         const response = await request.delete(`/api/admin/config/${id}`);
         if (response.data.status === "success") {
+          this.$toast.add({
+            severity: "success",
+            summary: "成功",
+            detail: "保存配置成功",
+          })
           this.loadData();
           this.deleteDialog = false;
         }
       } catch (error) {
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: "保存配置失败",
+        })
         console.error("删除配置失败", error);
       }
     },
     openCreateDialog() {
-      this.newConfig = { key: "", value: "" };
+      this.newConfig = { key: "", value: "", is_public: false };
       this.createDialog = true;
     },
     async createConfig() {
@@ -230,15 +281,28 @@ export default {
           this.newConfig
         );
         if (response.data.status === "success") {
+          this.$toast.add({
+            severity: "success",
+            summary: "成功",
+            detail: "创建配置成功",
+          })
           this.loadData();
           this.createDialog = false;
         }
       } catch (error) {
         console.error("创建配置失败", error);
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: "创建配置失败",
+        })
       }
     },
   },
   created() {
+    if (localuser.isLogin.value === false || localuser.user.value.id!==1) {
+      this.$router.push("/");
+    }
     this.loadData();
   },
 };
