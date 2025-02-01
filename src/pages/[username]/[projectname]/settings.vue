@@ -84,7 +84,25 @@
             @click="saveProject"
           ></v-btn> </v-card-actions
       ></v-col>
-
+      <v-col cols="12"><h1>图片</h1></v-col>
+      <v-col cols="12">
+        <v-file-input
+          ref="fileInput"
+          label="上传封面"
+          variant="outlined"
+          accept="image/*"
+          prepend-icon="mdi-image"
+          @change="onFileChange"
+        ></v-file-input>
+        <v-img v-if="thumbnail" :src="thumbnail" max-width="200"></v-img>
+        <v-btn
+          color="primary"
+          text="上传封面"
+          variant="tonal"
+          @click="uploadThumbnail"
+          :disabled="!thumbnail"
+        ></v-btn>
+      </v-col>
       <v-col cols="12"><h1>危险</h1></v-col>
       <v-col cols="12"
         ><v-card>
@@ -230,6 +248,7 @@ export default {
       changeVisibilityText: "",
       confirmDelete: false,
       confirmDeleteText: "",
+      thumbnail: null,
     };
   },
   async created() {
@@ -363,6 +382,42 @@ this.$router.push(`/explore/${localuser.user.value.username}/${this.project.name
     },
     cancel() {
       this.$router.push("/explore/my");
+    },
+    onFileChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.thumbnail = URL.createObjectURL(file);
+      }
+    },
+    async uploadThumbnail() {
+      const formData = new FormData();
+      formData.append("file", this.$refs.fileInput.$el.querySelector('input').files[0]);
+      try {
+        await request.post(
+          `/scratch/thumbnail/${this.projectID}`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localuser.token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        this.$toast.add({
+          severity: "success",
+          summary: "成功",
+          detail: "封面上传成功",
+          life: 3000,
+        });
+      } catch (error) {
+        console.error(error);
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: "封面上传失败",
+          life: 3000,
+        });
+      }
     },
   },
 };
