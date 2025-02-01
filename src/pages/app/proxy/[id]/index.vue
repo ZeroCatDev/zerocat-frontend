@@ -121,7 +121,7 @@
           ><v-img
             :src="`${scratch_proxy}/thumbnails/${parentProject.id}`"
             cover
-            lazy-src="../assets/43-lazyload.png"
+            lazy-src="../../../../assets/43-lazyload.png"
           ></v-img>
           <v-card-item>
             <v-card-title>{{ parentProject.title }}</v-card-title>
@@ -141,7 +141,7 @@
           ><v-img
             :src="`${scratch_proxy}/thumbnails/${rootProject.id}`"
             cover
-            lazy-src="../assets/43-lazyload.png"
+            lazy-src="../../../../assets/43-lazyload.png"
           ></v-img>
           <v-card-title>{{ rootProject.title }}</v-card-title>
           <v-card-subtitle>{{ rootProject.description }}</v-card-subtitle>
