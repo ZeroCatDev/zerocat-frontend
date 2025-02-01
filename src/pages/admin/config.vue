@@ -1,18 +1,23 @@
 <template>
   <v-container>
-
-        <v-btn @click="loadData">刷新</v-btn> <v-btn @click="openCreateDialog">创建配置</v-btn><br/><br/>
-
-    <div v-for="item in configs" :key="item.id">
+    <v-btn @click="loadData">刷新</v-btn>
+    <v-btn @click="openCreateDialog">创建配置</v-btn><br /><br />
+    <v-text-field
+      v-model="searchKey"
+      label="搜索"
+      clearable
+      @keyup.enter="loadData()"
+      variant="outlined"
+    ></v-text-field>
+    <div v-for="item in filteredConfigs" :key="item.id">
       <v-card
         class="d-flex justify-space-between align-center"
-        :title="infomation[item.key] || item.key"
-        :subtitle="item.key"
+        :title="item.key"
+        :subtitle="infomation[item.key] || item.key"
         @click="toggleEdit(item)"
       >
         <div class="d-flex align-center">
           <v-card-text>{{ item.value }}</v-card-text>
-
         </div>
       </v-card>
       <v-expand-transition>
@@ -28,13 +33,23 @@
                 v-model="editItemData.value"
                 label="值"
               ></v-text-field>
+              <v-select
+                v-model="editItemData.is_public"
+                :items="[
+                  { text: '公开', value: true },
+                  { text: '内部', value: false },
+                ]"
+                label="可见性"
+                item-title="text"
+                item-value="value"
+              ></v-select
+              >{{ editItemData }}
             </v-card-text>
             <v-card-actions>
               <v-btn @click="confirmDeleteItem(item)" color="error">删除</v-btn>
               <v-spacer></v-spacer>
               <v-btn @click="cancelEdit">取消</v-btn>
               <v-btn @click="saveEdit" color="primary">保存</v-btn>
-
             </v-card-actions>
           </v-card>
         </div>
@@ -65,7 +80,6 @@
           >您确定要删除此配置吗？
           <v-list
             ><v-list-item
-              border
               :title="deleteItemData.key"
               :subtitle="deleteItemData.value"
             ></v-list-item
@@ -94,6 +108,7 @@ export default {
   data() {
     return {
       configs: [],
+      searchKey: "",
       createDialog: false,
       deleteDialog: false,
       editItemData: {},
@@ -144,6 +159,14 @@ export default {
         "theme.mdui.color.primary": "MDUI主题颜色",
       },
     };
+  },
+  computed: {
+    filteredConfigs() {
+      const searchKey = this.searchKey.toLowerCase();
+      return this.configs.filter((config) =>
+        config.key.toLowerCase().includes(searchKey)
+      );
+    },
   },
   methods: {
     async loadData() {
@@ -220,12 +243,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.v-card {
-  margin-bottom: 0;
-}
-.v-divider {
-  height: auto;
-}
-</style>
