@@ -273,10 +273,9 @@ export default {
         ...(isAuthor
           ? [
               {
-                title: "推送",
-                link: `/${authorname}/${projectname}/push`,
-                name: "push",
-                disabled: true,
+                title: "分叉",
+                link: `/${authorname}/${projectname}/furk`,
+                name: "fork",
               },
               {
                 title: "设置",
