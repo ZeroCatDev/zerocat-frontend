@@ -1,46 +1,46 @@
 <template>
   <v-container>
-    <v-row>
-      <v-col cols="12">
-        <v-btn @click="loadData">加载配置</v-btn>
-        <v-btn @click="openCreateDialog">创建配置</v-btn>
-      </v-col> </v-row
-    ><v-divider></v-divider>
-    <div v-for="item in configs">
+
+        <v-btn @click="loadData">刷新</v-btn> <v-btn @click="openCreateDialog">创建配置</v-btn><br/><br/>
+
+    <div v-for="item in configs" :key="item.id">
       <v-card
-        :key="item.id"
         class="d-flex justify-space-between align-center"
         :title="infomation[item.key] || item.key"
         :subtitle="item.key"
+        @click="toggleEdit(item)"
       >
         <div class="d-flex align-center">
           <v-card-text>{{ item.value }}</v-card-text>
-          <v-card-actions>
-            <v-btn @click="editItem(item)" color="primary">编辑</v-btn>
-            <!-- <v-btn @click="deleteItem(item)" color="error">删除</v-btn>-->
-          </v-card-actions>
-        </div> </v-card
-      >
-  <v-divider></v-divider>
-    </div>
-    <!-- 单个编辑对话框 -->
-    <v-dialog v-model="editDialog" max-width="500px">
-      <v-card>
-        <v-card-title>编辑配置</v-card-title>
-        <v-card-text>
-          <v-text-field v-model="editItemData.key" label="名称"></v-text-field>
-          <v-text-field v-model="editItemData.value" label="值"></v-text-field>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn @click="confirmDeleteItem(editItemData)" color="error"
-            >删除</v-btn
-          >
-          <v-spacer></v-spacer>
-          <v-btn @click="editDialog = false">取消</v-btn>
-          <v-btn @click="saveEdit" color="primary">保存</v-btn>
-        </v-card-actions>
+
+        </div>
       </v-card>
-    </v-dialog>
+      <v-expand-transition>
+        <div v-if="editItemData.id === item.id">
+          <v-card flat>
+            <v-card-text>
+              <v-text-field
+                v-model="editItemData.key"
+                label="名称"
+                disabled
+              ></v-text-field>
+              <v-text-field
+                v-model="editItemData.value"
+                label="值"
+              ></v-text-field>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn @click="confirmDeleteItem(item)" color="error">删除</v-btn>
+              <v-spacer></v-spacer>
+              <v-btn @click="cancelEdit">取消</v-btn>
+              <v-btn @click="saveEdit" color="primary">保存</v-btn>
+
+            </v-card-actions>
+          </v-card>
+        </div>
+      </v-expand-transition>
+      <v-divider></v-divider>
+    </div>
 
     <!-- 创建配置对话框 -->
     <v-dialog v-model="createDialog" max-width="500px">
@@ -94,7 +94,6 @@ export default {
   data() {
     return {
       configs: [],
-      editDialog: false,
       createDialog: false,
       deleteDialog: false,
       editItemData: {},
@@ -157,9 +156,12 @@ export default {
         console.error("加载配置失败", error);
       }
     },
-    editItem(item) {
-      this.editItemData = { ...item };
-      this.editDialog = true;
+    toggleEdit(item) {
+      if (this.editItemData.id === item.id) {
+        this.editItemData = {};
+      } else {
+        this.editItemData = { ...item };
+      }
     },
     async saveEdit() {
       try {
@@ -169,11 +171,14 @@ export default {
         );
         if (response.data.status === "success") {
           this.loadData();
-          this.editDialog = false;
+          this.editItemData = {};
         }
       } catch (error) {
         console.error("保存配置失败", error);
       }
+    },
+    cancelEdit() {
+      this.editItemData = {};
     },
     confirmDeleteItem(item) {
       this.deleteItemId = item.id;
