@@ -268,8 +268,10 @@ export default {
       );
       this.project = projectFromCloud;
       this.project.id = this.project.id; // 更新 projectid
+      if(this.project.default_branch == null) this.showplayer = false;
       this.player.branch = this.project.default_branch;
       var res = await getBranchs(this.project.id);
+      if (res.data.length == 0) this.showplayer = false;
       this.projectbranchs = res.data;
       const currentBranch = this.projectbranchs.find(
         (item) => item.name === this.player.branch

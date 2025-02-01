@@ -10,7 +10,9 @@
       </template>
 
       <template v-slot:subtitle>
-        作者{{ author.display_name }}，发布于：{{ project.time }}，{{ project.view_count }}次浏览
+        作者{{ author.display_name }}，发布于：{{ project.time }}，{{
+          project.view_count
+        }}次浏览
       </template>
 
       <template v-slot:text>
@@ -72,6 +74,13 @@
       variant="outlined"
       clearable
     ></v-text-field>
+    <v-text-field
+      v-model="forkprojectinfo.name"
+      variant="outlined"
+      label="分叉后项目名称"
+      @keyup.enter="verifyname()"
+      :color="checkname ? 'success' : 'error'"
+    ></v-text-field>
     <br />
     <v-btn
       class="text-none"
@@ -103,13 +112,18 @@ export default {
       author: {},
       openEditor: openEditor,
       localuser: localuser,
-      checktext: "",
-      checkknow: false,
-      checklicense: false,
+      checktext: "我保证会好好对待改编的作品",
+      checkknow: true,
+      checklicense: true,
+      checkname: false,
       textRules: [
-        (value) => value ? true : "记得输入内容哦~",
-        (value) => value === "我保证会好好对待改编的作品" ? true : "输的不太对~",
+        (value) => (value ? true : "记得输入内容哦~"),
+        (value) =>
+          value === "我保证会好好对待改编的作品" ? true : "输的不太对~",
       ],
+      forkprojectinfo: {
+        name: "",
+      },
     };
   },
 
@@ -130,22 +144,40 @@ export default {
       const projectname = this.$route.params.projectname;
       this.project = await getProjectInfoByNamespace(username, projectname);
       this.projectid = this.project.id; // 更新 projectid
+      this.forkprojectinfo.name = this.project.name;
+      verifyname();
       useHead({
         title: "分叉" + this.project.title,
       });
       this.author = await getUserById(this.project.authorid);
     },
+    async verifyname() {
+      getProjectInfoByNamespace(
+        localuser.user.value.username,
+        this.forkprojectinfo.name
+      ).then((res) => {
+        console.log(res)
+        if (res.id===0) {
+          this.checkname = true;
+        }
+      });
+    },
     async forkproject(id) {
       await request({
-        url: "/project/" + id + "/fork",
+        url: "/project/fork",
         method: "post",
+        data: {
+          projectid: id,
+          branch: this.project.default_branch,
+          name: this.forkprojectinfo.name,
+        },
       })
         .then((res) => {
           console.log(res.data);
           this.$toast.add({
-            severity: "success",
-            summary: "成功",
-            detail: "分叉成功",
+            severity: res.data.status,
+            summary: res.data.message,
+            detail: res.data.message,
             life: 3000,
           });
           if (res.data.id) {
