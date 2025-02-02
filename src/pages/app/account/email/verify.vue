@@ -96,7 +96,11 @@ const verifyEmail = async () => {
       token: token.value
     })
 
-    showMessage(response.data.message || '邮箱验证成功！', 'success')
+    if (response.data.state==='success') {
+      showMessage(response.data.message || '邮箱验证成功！', 'success')
+    }else {
+      showMessage(response.data.message || '邮箱验证失败！', 'error')
+    }
   } catch (error) {
     showMessage(error.response?.data?.message || '验证失败，请重试', 'error')
   } finally {
