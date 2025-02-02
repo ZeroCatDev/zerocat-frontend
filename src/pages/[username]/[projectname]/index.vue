@@ -82,12 +82,7 @@
           ></iframe>
         </v-card>
 
-        <v-card
-          v-if="!showplayer"
-          hover
-          border
-          :title="player.commit.error_code"
-        >
+        <v-card v-if="!showplayer" hover border title="项目尚未初始化">
           <v-card-actions>
             <v-btn @click="initProject(project.id)"
               >以Scratch模板初始化项目</v-btn
@@ -158,15 +153,9 @@
             </div>
           </div>
           <div class="px-4 d-flex ga-2 mb-2">
-            <ProjectStar :projectId="project.id" />
+            <ProjectStar :projectId="project.id" :starcount="project.star_count" />
             <v-btn @click="openEditor(project.id, project.type)" variant="text"
               >打开创造页</v-btn
-            >
-            <v-btn
-              v-if="project.authorid != localuser.user.id"
-              :to="`${project.authorid}/${project.id}/fork`"
-              variant="text"
-              >改编</v-btn
             >
           </div>
           <div class="px-4">
@@ -266,9 +255,13 @@ export default {
         username,
         projectname
       );
+      if (projectFromCloud.id == 0) {
+        this.$router.replace("/404");
+        return;
+      }
       this.project = projectFromCloud;
       this.project.id = this.project.id; // 更新 projectid
-      if(this.project.default_branch == null) this.showplayer = false;
+      if (this.project.default_branch == null) this.showplayer = false;
       this.player.branch = this.project.default_branch;
       var res = await getBranchs(this.project.id);
       if (res.data.length == 0) this.showplayer = false;
@@ -276,9 +269,6 @@ export default {
       const currentBranch = this.projectbranchs.find(
         (item) => item.name === this.player.branch
       );
-      console.log(currentBranch);
-      console.log(currentBranch);
-      console.log(currentBranch);
       if (currentBranch) {
         this.player.commit.id = currentBranch.latest_commit_hash;
         this.player.latest_commit_hash = currentBranch.latest_commit_hash;

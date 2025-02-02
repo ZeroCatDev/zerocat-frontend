@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import ProxyShowProjects from "@/components/ProxyShowProjects.vue";
+import ProxyShowProjects from "@/components/proxy/ProxyShowProjects.vue";
 
 export default {
   components: { ProxyShowProjects },

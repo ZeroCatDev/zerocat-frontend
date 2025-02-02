@@ -180,8 +180,8 @@ export default {
             detail: res.data.message,
             life: 3000,
           });
-          if (res.data.id) {
-            this.$router.push(`${localuser.user.id}/${res.data.id}`);
+          if ( res.data.status=='success') {
+            this.$router.push(`/${localuser.user.value.username}/${this.forkprojectinfo.name}`);
           }
         })
         .catch((err) => {

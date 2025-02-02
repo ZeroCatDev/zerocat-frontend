@@ -174,8 +174,8 @@
 <script>
 import { getProjectById } from "@/services/proxy/projectService";
 import Comment from "../../../../components/Comment.vue";
-import ProxyShowUsers from "../../../../components/ProxyShowUsers.vue";
-import ProxyShowProjects from "../../../../components/ProxyShowProjects.vue";
+import ProxyShowUsers from "../../../../components/proxy/ProxyShowUsers.vue";
+import ProxyShowProjects from "../../../../components/proxy/ProxyShowProjects.vue";
 
 export default {
   components: { Comment, ProxyShowProjects },

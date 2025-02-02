@@ -106,7 +106,12 @@
       <transition name="fade">
         <v-tabs align-tabs="center" v-model="activeTab">
           <div v-for="item in subNavItems" :key="item.name">
-            <v-tab :to="item.link" :value="item.name" :disabled="item.disabled" rounded="lg">
+            <v-tab
+              :to="item.link"
+              :value="item.name"
+              :disabled="item.disabled"
+              rounded="lg"
+            >
               {{ item.title }}
             </v-tab>
           </div>
@@ -270,13 +275,13 @@ export default {
       const isAuthor = localuser.user.value.username == authorname;
       return [
         { title: "代码", link: `/${authorname}/${projectname}`, name: "home" },
+        {
+          title: "分叉",
+          link: `/${authorname}/${projectname}/fork`,
+          name: "fork",
+        },
         ...(isAuthor
           ? [
-              {
-                title: "分叉",
-                link: `/${authorname}/${projectname}/furk`,
-                name: "fork",
-              },
               {
                 title: "设置",
                 link: `/${authorname}/${projectname}/settings`,
