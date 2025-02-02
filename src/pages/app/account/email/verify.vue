@@ -1,63 +1,37 @@
 <template>
-  <v-container class="fill-height">
-    <v-row justify="center" align="center">
-      <v-col cols="12" sm="8" md="6" lg="4">
-        <v-card class="pa-6">
-          <v-card-title class="text-center text-h4 font-weight-bold">
-            邮箱验证
-          </v-card-title>
-          <v-card-subtitle class="text-center mt-2">
-            请输入您的邮箱和验证码
-          </v-card-subtitle>
+  <div class="auth-wrapper d-flex align-center justify-center pa-4">
+    <v-card class="auth-card pa-4 pt-7" max-width="448" border rounded="lg">
+      <v-row>
+        <v-col cols="12">
+          <v-cardtext>
+            <h5 class="text-h5 font-weight-semibold mb-1">
+              欢迎来到ZeroCatNext！ 👋🏻
+            </h5>
+            <p class="mb-0">验证你的邮箱</p>
+          </v-cardtext>
+        </v-col></v-row>
 
-          <v-form @submit.prevent="verifyEmail" class="mt-6">
-            <v-text-field
-              v-model="email"
-              label="邮箱地址"
-              type="email"
-              required
-              :rules="[rules.required, rules.email]"
-              placeholder="请输入邮箱地址"
-              variant="outlined"
-            ></v-text-field>
+      <v-cardtext>
+        <v-row>
+            <!-- email -->
+            <v-col cols="12">
+        <v-form @submit.prevent="verifyEmail">
+          <v-text-field v-model="email" label="邮箱地址" type="email" required :rules="[rules.required, rules.email]"
+            placeholder="请输入邮箱地址" variant="outlined"></v-text-field>
 
-            <v-text-field
-              v-model="token"
-              label="验证码"
-              type="text"
-              required
-              :rules="[rules.required, rules.length]"
-              maxlength="6"
-              placeholder="请输入6位验证码"
-              variant="outlined"
-              class="mt-4"
-            ></v-text-field>
+          <v-text-field v-model="token" label="验证码" type="text" required :rules="[rules.required, rules.length]"
+            maxlength="6" placeholder="请输入6位验证码" variant="outlined" class="mt-4"></v-text-field>
 
-            <v-btn
-              type="submit"
-              :loading="isLoading"
-              :disabled="isLoading"
-              color="primary"
-              block
-              class="mt-6"
-              size="large"
-            >
-              {{ isLoading ? '验证中...' : '验证' }}
-            </v-btn>
-          </v-form>
-
-          <v-alert
-            v-if="message"
-            :type="messageType"
-            class="mt-4"
-            variant="tonal"
-          >
-            {{ message }}
-          </v-alert>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+          <v-btn type="submit" :loading="isLoading" :disabled="isLoading" color="primary" size="large">
+            {{ isLoading ? '验证中...' : '验证' }}
+          </v-btn>
+        </v-form></v-col></v-row></v-cardtext>
+<br/>
+      <v-alert v-if="message" :type="messageType" variant="tonal">
+        {{ message }}
+      </v-alert>
+    </v-card>
+  </div>
 </template>
 
 <script setup>
@@ -85,7 +59,7 @@ onMounted(() => {
   // 从 URL query 参数中获取邮箱和验证码
   const queryEmail = route.query.email
   const queryToken = route.query.token
-  
+
   if (queryEmail) {
     email.value = queryEmail
   }
