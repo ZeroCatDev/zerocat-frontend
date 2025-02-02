@@ -72,17 +72,7 @@
                 clearable
               ></v-select>
             </v-col>
-            <v-col cols="4">
-              <v-select
-                v-model="search.state"
-                :items="searchstates"
-                item-title="state"
-                item-value="abbr"
-                label="项目状态"
-                prepend-inner-icon="mdi-state-machine"
-                clearable
-              ></v-select>
-            </v-col>
+
           </v-row>
         </v-expand-transition>
       </v-col>
@@ -130,7 +120,6 @@ export default {
         limit: 20,
       },
       showAdvancedSearch: false,
-      searchstates: [{ state: "所有", abbr: "public" }],
       typeitems: [
         { name: "所有", type: "" },
         { name: "Scratch", type: "scratch" },
