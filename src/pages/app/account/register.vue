@@ -35,6 +35,15 @@
                 :rules="usernameRules"
               >
               </v-text-field>
+              <v-text-field
+                label="密码"
+                type="text"
+                v-model="password"
+                variant="outlined"
+                required
+                :rules="passwordRules"
+              >
+              </v-text-field>
             </v-col>
             <v-col cols="9">
               <Recaptcha ref="recaptcha" recaptchaId="recaptcha-div" />
@@ -217,6 +226,7 @@ export default {
       BASE_API: import.meta.env.VITE_APP_BASE_API,
       email: "",
       username: "",
+      password: "",
       tryinguser: {},
       loading: false,
       agreement: {
@@ -244,7 +254,18 @@ export default {
           return "必须填写用户名";
         },
       ],
-    };
+      passwordRules: [
+        (value) => {
+          if (value) return true;
+
+          return "必须填写密码";
+        },
+        (value) => {
+          if (/^(?:\d+|[a-zA-Z]+|[!@#$%^&*]+){6,16}$/.test(value)) return true;
+
+          return "不符合格式";
+        },
+      ],    };
   },
 
   created() {
@@ -276,8 +297,9 @@ export default {
       try {
         const response = await registerUser({
           captcha: this.$refs.recaptcha.getResponse(),
-          un: this.email,
-          pw: this.username,
+          username: this.username,
+          password: this.password,
+          email: this.email,
         });
         this.tryinguser = response.data;
         if (this.tryinguser.status == "success") {
