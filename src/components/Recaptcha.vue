@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div :id="recaptchaId"></div>
-    <v-btn @click="resetCaptcha" variant="text">刷新</v-btn>
+    <div v-if="showNormal" :id="recaptchaId"></div>
+    <v-btn v-if="showNormal" @click="resetCaptcha" variant="text">刷新</v-btn>
   </div>
 </template>
 
@@ -18,9 +18,21 @@ export default {
       type: String,
       default: "popup",
     },
+    showNormal: {
+      type: Boolean,
+      default: true,
+    }
+  },
+  data() {
+    return {
+      captchaObj: null,
+      bindCaptchaObj: null,
+    };
   },
   mounted() {
-    this.initRecaptcha();
+    if (this.showNormal) {
+      this.initRecaptcha();
+    }
   },
   methods: {
     initRecaptcha() {
@@ -31,6 +43,7 @@ export default {
           product: this.product,
         },
         (captchaObj) => {
+          this.captchaObj = captchaObj;
           window.gt4 = captchaObj;
           captchaObj.appendTo(`#${this.recaptchaId}`);
           captchaObj
@@ -46,11 +59,52 @@ export default {
         }
       );
     },
+    initBindRecaptcha() {
+      initGeetest4(
+        {
+          captchaId: import.meta.env.VITE_APP_GEEID,
+          product: 'bind',
+          mask: {
+            outside: true,
+            bgColor: "#0000004d",
+          },
+        },
+        (captchaObj) => {
+          this.bindCaptchaObj = captchaObj;
+          captchaObj
+            .onReady(() => {
+              console.log(`Bind Challenge Ready`);
+            })
+            .onSuccess(() => {
+              console.log(`Bind Challenge Success`);
+              this.$emit('bindVerified', this.getBindResponse());
+            })
+            .onError(() => {
+              console.log(`Bind Challenge Error`);
+              this.$emit('bindError');
+            })
+            .onClose(() => {
+              console.log(`Bind Challenge Closed`);
+              this.$emit('bindClose');
+            });
+        }
+      );
+    },
     resetCaptcha() {
-      window.gt4.reset();
+      this.captchaObj?.reset();
     },
     getResponse() {
-      return window.gt4.getValidate();
+      return this.captchaObj?.getValidate();
+    },
+    getBindResponse() {
+      return this.bindCaptchaObj?.getValidate();
+    },
+    showBindCaptcha() {
+      if (!this.bindCaptchaObj) {
+        this.initBindRecaptcha();
+      } else {
+        this.bindCaptchaObj.showBox();
+      }
     },
   },
 };
