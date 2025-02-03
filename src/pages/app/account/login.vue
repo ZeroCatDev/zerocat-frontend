@@ -17,14 +17,14 @@
           <v-row>
             <!-- 登录方式切换 -->
             <v-col cols="12">
-              <v-btn-toggle v-model="loginType" mandatory color="primary" rounded="lg" class="mb-4">
-                <v-btn value="password" variant="text">密码登录</v-btn>
-                <v-btn value="code" variant="text">验证码登录</v-btn>
-              </v-btn-toggle>
-            </v-col>
-
-            <!-- email -->
-            <v-col cols="12">
+              <v-tabs
+      v-model="loginType"
+       class="mb-4"
+    >
+      <v-tab value="password" variant="text">密码登录</v-tab>
+      <v-tab value="code" variant="text">验证码登录</v-tab>
+    </v-tabs>
+      
               <v-text-field label="邮箱" type="text" v-model="username" variant="outlined"
                 :rules="emailRules"></v-text-field>
 
@@ -63,7 +63,7 @@
             <v-col cols="12">
               <!--<v-btn @click="loginWithOAuth('google')" color="red">使用 Google 登录</v-btn>-->
               <!--<v-btn @click="loginWithOAuth('microsoft')" color="blue">使用 Microsoft 登录</v-btn>-->
-              <v-btn @click="loginWithOAuth('github')" color="black">使用 GitHub 登录</v-btn>
+              <v-btn @click="loginWithOAuth('github')" color="black" prepend-icon="mdi-github">使用 GitHub 登录</v-btn>
             </v-col>
           </v-row>
         </v-form>

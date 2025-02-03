@@ -34,6 +34,13 @@ export default {
       this.initRecaptcha();
     }
   },
+  watch: {
+    showNormal(newValue) {
+      if (newValue) {
+        this.initRecaptcha(); // 当 showNormal 变为 true 时重新初始化验证码
+      }
+    }
+  },
   methods: {
     initRecaptcha() {
       console.log(import.meta.env.VITE_APP_GEEID);
@@ -91,7 +98,11 @@ export default {
       );
     },
     resetCaptcha() {
-      this.captchaObj?.reset();
+      if (this.captchaObj) {
+        this.captchaObj.reset();
+      } else {
+        this.initRecaptcha(); // 重新加载验证码作为后备策略
+      }
     },
     getResponse() {
       return this.captchaObj?.getValidate();

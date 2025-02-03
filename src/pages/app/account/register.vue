@@ -1,6 +1,6 @@
 <template>
   <div class="auth-wrapper d-flex align-center justify-center pa-4">
-    <v-card class="auth-card pa-4 pt-7" max-width="448" border  rounded="lg">
+    <v-card class="auth-card pa-4 pt-7" max-width="448" border rounded="lg">
       <v-row>
         <v-col cols="12">
           <v-cardtext>
@@ -9,40 +9,20 @@
             </h5>
             <p class="mb-0">创建你的账户</p>
           </v-cardtext>
-        </v-col></v-row
-      >
+        </v-col></v-row>
 
       <v-cardtext>
         <v-form>
           <v-row>
             <!-- email -->
             <v-col cols="12">
-              <v-text-field
-                label="邮箱"
-                type="email"
-                v-model="email"
-                variant="outlined"
-                required
-                :rules="emailRules"
-              >
+              <v-text-field label="邮箱" type="email" v-model="email" variant="outlined" required :rules="emailRules">
               </v-text-field>
-              <v-text-field
-                label="用户名"
-                type="text"
-                v-model="username"
-                variant="outlined"
-                required
-                :rules="usernameRules"
-              >
+              <v-text-field label="用户名" type="text" v-model="username" variant="outlined" required
+                :rules="usernameRules">
               </v-text-field>
-              <v-text-field
-                label="密码"
-                type="text"
-                v-model="password"
-                variant="outlined"
-                required
-                :rules="passwordRules"
-              >
+              <v-text-field label="密码" type="text" v-model="password" variant="outlined" required
+                :rules="passwordRules">
               </v-text-field>
             </v-col>
             <v-col cols="9">
@@ -59,33 +39,19 @@
 
               <v-dialog persistent>
                 <template v-slot:activator="{ props: activatorProps }">
-                  <v-btn
-                    v-bind="activatorProps"
-                    class="text-none"
-                    color="primary"
-                    rounded="xl"
-                    text="注册"
-                    variant="flat"
-                    size="large"
-                    append-icon="mdi-arrow-right"
-                  ></v-btn>
+                  <v-btn v-bind="activatorProps" class="text-none" color="primary" rounded="xl" text="注册" variant="flat"
+                    size="large" append-icon="mdi-arrow-right"></v-btn>
                 </template>
 
                 <template v-slot:default="{ isActive }">
-                  <v-card
-                    title="您正在使用由厚浪(及孙悟元)提供的服务
-"
-                  >
+                  <v-card title="您正在使用由厚浪(及孙悟元)提供的服务
+">
                     <v-card-text>
                       我们可能会收集您的个人信息,具体参见
                       <v-tooltip location="bottom">
                         <template v-slot:activator="{ props }">
-                          <a
-                            href="https://wuyuan.dev/privacy-policy/privacy-policy.html"
-                            target="_blank"
-                            v-bind="props"
-                            @click.stop
-                          >
+                          <a href="https://wuyuan.dev/privacy-policy/privacy-policy.html" target="_blank" v-bind="props"
+                            @click.stop>
                             隐私策略
                           </a>
                         </template>
@@ -94,8 +60,7 @@
                       <v-checkbox v-model="agreement.privacy">
                         <template v-slot:label>
                           <div>我已阅读并同意隐私策略</div>
-                        </template> </v-checkbox
-                      >我们将在中国大陆安全的存储您的数据，我们暂不提供自助删除您的个人数据，如果您希望删除您的数据，您需要优先选择联系我们
+                        </template> </v-checkbox>我们将在中国大陆安全的存储您的数据，我们暂不提供自助删除您的个人数据，如果您希望删除您的数据，您需要优先选择联系我们
                       <v-checkbox v-model="agreement.datadelete">
                         <template v-slot:label>
                           <div>
@@ -106,12 +71,8 @@
                       在 ZeroCatNext 上,你需要遵守
                       <v-tooltip location="bottom">
                         <template v-slot:activator="{ props }">
-                          <a
-                            href="https://scratch.mit.edu/community_guidelines"
-                            target="_blank"
-                            v-bind="props"
-                            @click.stop
-                          >
+                          <a href="https://scratch.mit.edu/community_guidelines" target="_blank" v-bind="props"
+                            @click.stop>
                             社区行为准则(第三方站点)
                           </a>
                         </template>
@@ -124,12 +85,8 @@
                       </v-checkbox>
                       你需要同意<v-tooltip location="bottom">
                         <template v-slot:activator="{ props }">
-                          <a
-                            href="https://wuyuan.dev/privacy-policy/terms-of-service.html"
-                            target="_blank"
-                            v-bind="props"
-                            @click.stop
-                          >
+                          <a href="https://wuyuan.dev/privacy-policy/terms-of-service.html" target="_blank"
+                            v-bind="props" @click.stop>
                             用户协议
                           </a>
                         </template>
@@ -140,16 +97,8 @@
                           <div>我已阅读并同意用户协议</div>
                         </template>
                       </v-checkbox>
-                      <v-btn
-                        class="text-none"
-                        color="primary"
-                        rounded="xl"
-                        text="注册"
-                        variant="flat"
-                        size="large"
-                        @click="register"
-                        append-icon="mdi-arrow-right"
-                      ></v-btn>
+                      <v-btn class="text-none" color="primary" rounded="xl" text="注册" variant="flat" size="large"
+                        @click="register" append-icon="mdi-arrow-right"></v-btn>
                       <br />
                       <br />
                       对于技术手段绕过此页面的行为视为对 ZeroCat
@@ -159,18 +108,15 @@
                     <v-card-actions>
                       <v-spacer></v-spacer>
 
-                      <v-btn
-                        text="取消"
-                        @click="
-                          isActive.value = false;
-                          agreement = {
-                            privacy: false,
-                            terms: false,
-                            rules: false,
-                            datadelete: false,
-                          };
-                        "
-                      ></v-btn>
+                      <v-btn text="取消" @click="
+                        isActive.value = false;
+                      agreement = {
+                        privacy: false,
+                        terms: false,
+                        rules: false,
+                        datadelete: false,
+                      };
+                      "></v-btn>
                     </v-card-actions>
                   </v-card>
                 </template>
@@ -178,27 +124,11 @@
             </v-col>
 
             <v-col cols="12">
-              <v-btn
-                class="text-none"
-                color="white"
-                rounded="xl"
-                text="登录"
-                variant="text"
-                size="large"
-                append-icon="mdi-arrow-right"
-                to="/app/account/login"
-              ></v-btn>
+              <v-btn class="text-none" color="white" rounded="xl" text="登录" variant="text" size="large"
+                append-icon="mdi-arrow-right" to="/app/account/login"></v-btn>
               <!-- login button -->
-              <v-btn
-                class="text-none"
-                color="white"
-                rounded="xl"
-                text="找回密码"
-                variant="text"
-                size="large"
-                append-icon="mdi-arrow-right"
-                to="/app/account/retrieve"
-              ></v-btn>
+              <v-btn class="text-none" color="white" rounded="xl" text="找回密码" variant="text" size="large"
+                append-icon="mdi-arrow-right" to="/app/account/retrieve"></v-btn>
               <!-- login button -->
             </v-col>
 
@@ -271,7 +201,8 @@ export default {
 
           return "不符合格式";
         },
-      ],    };
+      ],
+    };
   },
 
   created() {

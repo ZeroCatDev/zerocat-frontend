@@ -32,7 +32,7 @@
                 <h2>可绑定的 OAuth 提供商</h2>
             </v-card-title>
             <v-card-text>
-                绑定提供商是按照邮箱验证的，也就是说你需要先将你的邮箱绑定到账户才会将这个登录提供商的 OAuth 绑定到账户。
+                不论怎样，你都需要确保对绑定账户内邮箱完全的控制。
                 <v-list>
                     <v-list-item v-for="(provider, index) in availableProviders" :key="index">
                         <v-list-item-content>
@@ -170,7 +170,7 @@ const confirmUnlink = async (code) => {
 
 // 绑定 OAuth 提供商
 const bindProvider = (providerId) => {
-    window.location.href = `${BASE_API}/account/oauth/${providerId}?token=${localuser.getToken()}`;
+    window.location.href = `${BASE_API}/account/oauth/bind/${providerId}?token=${localuser.getToken()}`;
 };
 
 // 获取提供商样式
