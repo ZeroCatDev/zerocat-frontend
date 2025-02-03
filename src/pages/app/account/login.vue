@@ -62,7 +62,7 @@
 
             <v-col cols="12">
               <!--<v-btn @click="loginWithOAuth('google')" color="red">使用 Google 登录</v-btn>-->
-              <!--<v-btn @click="loginWithOAuth('microsoft')" color="blue">使用 Microsoft 登录</v-btn>-->
+              <v-btn @click="loginWithOAuth('microsoft')" color="blue">使用 Microsoft 登录</v-btn>
               <v-btn @click="loginWithOAuth('github')" color="black" prepend-icon="mdi-github">使用 GitHub 登录</v-btn>
             </v-col>
           </v-row>

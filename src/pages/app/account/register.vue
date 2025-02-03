@@ -134,7 +134,7 @@
 
             <v-col cols="12">
               <!--<v-btn @click="registerWithOAuth('google')" color="red">使用 Google 注册</v-btn>-->
-              <!--<v-btn @click="registerWithOAuth('microsoft')" color="blue">使用 Microsoft 注册</v-btn>-->
+              <v-btn @click="registerWithOAuth('microsoft')" color="blue">使用 Microsoft 注册</v-btn>
               <v-btn @click="registerWithOAuth('github')" color="black">使用 GitHub 注册</v-btn>
             </v-col>
           </v-row>
