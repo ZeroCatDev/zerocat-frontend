@@ -17,10 +17,10 @@
             <v-col cols="12">
         <v-form @submit.prevent="verifyEmail">
           <v-text-field v-model="email" label="邮箱地址" type="email" required :rules="[rules.required, rules.email]"
-            placeholder="请输入邮箱地址" variant="outlined"></v-text-field>
+            placeholder="请输入邮箱地址" variant="outlined" :disabled="route.query.email"></v-text-field>
 
           <v-text-field v-model="token" label="验证码" type="text" required :rules="[rules.required, rules.length]"
-            maxlength="6" placeholder="请输入6位验证码" variant="outlined" class="mt-4"></v-text-field>
+            maxlength="6" placeholder="请输入6位验证码" variant="outlined"  :disabled="route.query.token"></v-text-field>
 
           <v-btn type="submit" :loading="isLoading" :disabled="isLoading" color="primary" size="large">
             {{ isLoading ? '验证中...' : '验证' }}

@@ -47,6 +47,8 @@
         <v-tab value="username">用户名</v-tab>
         <v-tab value="password">密码</v-tab>
         <v-tab value="avatar">头像</v-tab>
+        <v-tab value="email" @click="$router.push('/app/account/email')">邮箱</v-tab>
+
       </v-tabs>
       <v-card-text>
         <v-tabs-window v-model="tab">
