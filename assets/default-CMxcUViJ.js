@@ -1,0 +1,1 @@
+import{c as o,r,o as n,w as e,a as t,V as s,b as _}from"./index-DdjmTCxy.js";const f={__name:"default",setup(c){return(l,u)=>{const a=r("router-view");return n(),o(_,null,{default:e(()=>[t(s,null,{default:e(()=>[t(a)]),_:1})]),_:1})}}};export{f as default};
