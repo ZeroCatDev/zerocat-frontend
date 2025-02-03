@@ -153,7 +153,7 @@
                       <br />
                       <br />
                       对于技术手段绕过此页面的行为视为对 ZeroCat
-                      的基础设施进行攻击，涉嫌非法入侵计算机系统，我们将保留追究法律责任的权利，违规获得的账户不被授权访问网站，账户将不受保护，如果您同意以上内容，请点击“复选框”以完成注册流程.
+                      的基础设施进行攻击，涉嫌非法入侵计算机系统，我们将保留追究法律责任的权利，违规获得的账户不被授权访问网站，账户将不受保护，如果您同意以上内容，请点击"复选框"以完成注册流程.
                     </v-card-text>
 
                     <v-card-actions>
@@ -200,6 +200,12 @@
                 to="/app/account/retrieve"
               ></v-btn>
               <!-- login button -->
+            </v-col>
+
+            <v-col cols="12">
+              <v-btn @click="registerWithOAuth('google')" color="red">使用 Google 注册</v-btn>
+              <v-btn @click="registerWithOAuth('microsoft')" color="blue">使用 Microsoft 注册</v-btn>
+              <v-btn @click="registerWithOAuth('github')" color="black">使用 GitHub 注册</v-btn>
             </v-col>
           </v-row>
         </v-form>
@@ -327,6 +333,10 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+    registerWithOAuth(provider) {
+      const token = localuser.getToken(); // 获取用户的 token
+      window.location.href = `${import.meta.env.VITE_APP_BASE_API}/account/oauth/${provider}?token=${token}`;
     },
   },
 };

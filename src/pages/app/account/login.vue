@@ -59,6 +59,12 @@
               <v-btn class="text-none" color="white" rounded="xl" text="找回密码" variant="text" size="large"
                 append-icon="mdi-arrow-right" to="/app/account/retrieve"></v-btn>
             </v-col>
+
+            <v-col cols="12">
+              <v-btn @click="loginWithOAuth('google')" color="red">使用 Google 登录</v-btn>
+              <v-btn @click="loginWithOAuth('microsoft')" color="blue">使用 Microsoft 登录</v-btn>
+              <v-btn @click="loginWithOAuth('github')" color="black">使用 GitHub 登录</v-btn>
+            </v-col>
           </v-row>
         </v-form>
       </v-cardtext>
@@ -270,6 +276,11 @@ export default {
         detail: error.response?.data?.message || error.message,
         life: 3000,
       });
+    },
+
+    loginWithOAuth(provider) {
+      const token = localuser.getToken(); // 获取用户的 token
+      window.location.href = `${import.meta.env.VITE_APP_BASE_API}/account/oauth/${provider}?token=${token}`;
     },
   },
 };

@@ -32,15 +32,19 @@
                 <h2>可绑定的 OAuth 提供商</h2>
             </v-card-title>
             <v-card-text>
-                绑定提供商是按照邮箱验证的，也就是说你需要先将你的邮箱绑定到账户才会将这个登录提供商的oauth绑定到账户。
+                绑定提供商是按照邮箱验证的，也就是说你需要先将你的邮箱绑定到账户才会将这个登录提供商的 OAuth 绑定到账户。
                 <v-list>
                     <v-list-item v-for="(provider, index) in availableProviders" :key="index">
                         <v-list-item-content>
-                            <v-list-item-title>{{ provider.name }}</v-list-item-title>
+                            <v-list-item-title>
+                                <v-btn
+                                    :style="getProviderStyle(provider.id)"
+                                    @click="bindProvider(provider.id)"
+                                >
+                                    {{ provider.name }}
+                                </v-btn>
+                            </v-list-item-title>
                         </v-list-item-content>
-                        <v-list-item-action>
-                            <v-btn @click="bindProvider(provider.id)" color="primary">绑定</v-btn>
-                        </v-list-item-action>
                     </v-list-item>
                 </v-list>
             </v-card-text>
@@ -62,6 +66,27 @@ const primaryEmail = ref('');
 const providerToUnlink = ref('');
 const availableProviders = ref([]);
 const BASE_API = import.meta.env.VITE_APP_BASE_API
+
+// 定义提供商样式
+const providerStyles = {
+    google: {
+        backgroundColor: '#4285F4',
+        color: '#FFFFFF',
+    },
+    microsoft: {
+        backgroundColor: '#F25022',
+        color: '#FFFFFF',
+    },
+    github: {
+        backgroundColor: '#333333',
+        color: '#FFFFFF',
+    },
+    default: {
+        backgroundColor: '#CCCCCC',
+        color: '#000000',
+    },
+};
+
 // 获取用户绑定的 OAuth 账号
 const fetchOAuthAccounts = async () => {
     try {
@@ -146,6 +171,11 @@ const confirmUnlink = async (code) => {
 // 绑定 OAuth 提供商
 const bindProvider = (providerId) => {
     window.location.href = `${BASE_API}/account/oauth/${providerId}?token=${localuser.getToken()}`;
+};
+
+// 获取提供商样式
+const getProviderStyle = (providerId) => {
+    return providerStyles[providerId] || providerStyles.default;
 };
 
 // 页面加载时获取 OAuth 账号和邮箱列表
