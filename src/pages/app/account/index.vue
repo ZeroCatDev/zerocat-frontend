@@ -35,6 +35,7 @@
         <v-tab value="password">密码</v-tab>
         <v-tab value="avatar">头像</v-tab>
         <v-tab value="email" @click="$router.push('/app/account/email')">邮箱</v-tab>
+        <v-tab value="email" @click="$router.push('/app/account/oauth')">OAuth</v-tab>
 
       </v-tabs>
       <v-card-text>

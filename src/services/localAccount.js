@@ -66,7 +66,9 @@ const setUser = async (data) => {
   token.value = data;
   await loadUser(true);
 };
-
+const getToken =()=>{
+  return localStorage.getItem('token')
+}
 const logout = () => {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_INFO_KEY);
@@ -83,4 +85,5 @@ export const localuser = {
   loadUser,
   setUser,
   logout,
+  getToken
 };

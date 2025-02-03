@@ -43,7 +43,7 @@ export default {
         localStorage.setItem("token", this.token); // 将JWT令牌存储到本地存储中
         this.user = jwtDecode(localStorage.getItem("token")); // 从本地存储中获取并解码JWT令牌
         console.log(this.user);
-        localuser.loaduser();
+        await localuser.loadUser();
         this.$router.push({ path: "/" });
       } catch (error) {
         this.user = error;
