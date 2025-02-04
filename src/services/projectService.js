@@ -33,6 +33,10 @@ export async function getProjectInfo(ids) {
     }
   }
 }
+export async function getProjectListById(id) {
+  const { data } = await request.get(`/projectlist/listid/${id}`);
+  return data.data;
+}
 
 // 使用 [username]/[projectname] 获取项目信息函数
 export async function getProjectInfoByNamespace(username, projectname) {
