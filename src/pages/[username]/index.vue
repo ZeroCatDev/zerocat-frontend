@@ -298,7 +298,7 @@ export default {
             return `/${user.username}`;
           }
           case 'projectlist': {
-            return `/projectlist/${targetId}`;
+            return `/app/projectlist/${targetId}`;
           }
           default:
             return null;
@@ -320,6 +320,8 @@ export default {
             return this.getProjectTargetContent(target, eventType);
           case 'user':
             return this.getUserTargetContent(target, eventType);
+          case 'projectlist':
+            return `项目列表 #${target.id}`;
           default:
             return `未知目标类型 #${target?.id || '未知'}`;
         }
