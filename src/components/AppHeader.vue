@@ -269,6 +269,8 @@ export default {
       return [
         { title: "主页", link: `/${userId}`, name: "home" },
         { title: "评论", link: `/${userId}/?tab=comment`, name: "comment" },
+        { title: "时间线", link: `/${userId}/?tab=timeline`, name: "timeline" },
+
       ];
     },
     getProjectSubNavItems(projectname, authorname) {
