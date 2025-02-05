@@ -98,6 +98,20 @@
             </v-card>
           </v-timeline-item>
         </v-timeline>
+
+        <div class="d-flex justify-center mt-4 mb-4">
+          <v-btn
+            v-if="hasMoreEvents"
+            :loading="isLoadingMore"
+            variant="tonal"
+            @click="loadMoreEvents"
+          >
+            加载更多
+          </v-btn>
+          <div v-else-if="timeline.events.length > 0" class="text-medium-emphasis">
+            没有更多内容了
+          </div>
+        </div>
       </v-tabs-window-item>
     </v-tabs-window> </v-container>
 
@@ -131,6 +145,9 @@ export default {
       },
       projectInfo: {},
       userInfo: {},
+      currentPage: 1,
+      isLoadingMore: false,
+      pageSize: 20,
     };
   },
   watch: {
@@ -143,6 +160,11 @@ export default {
     await this.getProjectList();
     await this.fetchTimeline();
     this.tab = this.$route.query.tab || 'home';
+  },
+  computed: {
+    hasMoreEvents() {
+      return this.timeline.events.length < this.timeline.pagination.total;
+    },
   },
   methods: {
     async fetchUser() {
@@ -160,11 +182,25 @@ export default {
         })
       ).data.data;
     },
-    async fetchTimeline() {
+    async fetchTimeline(page = 1) {
       try {
-        const response = await request.get(`/timeline/user/${this.user.id}`);
+        const response = await request.get(`/timeline/user/${this.user.id}`, {
+          params: {
+            page: page,
+            limit: this.pageSize
+          }
+        });
+
         if (response.data.status === 'success') {
-          this.timeline = response.data.data;
+          if (page === 1) {
+            this.timeline = response.data.data;
+          } else {
+            this.timeline.events = [
+              ...this.timeline.events,
+              ...response.data.data.events
+            ];
+            this.timeline.pagination = response.data.data.pagination;
+          }
           await this.fetchRelatedInfo();
         }
       } catch (error) {
@@ -175,9 +211,12 @@ export default {
       const projectIds = new Set();
       const userIds = new Set();
 
-      this.timeline.events.forEach(event => {
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      const events = this.timeline.events.slice(startIndex);
+
+      events.forEach(event => {
         try {
-          if (['project_create', 'project_delete', 'project_fork'].includes(event.type)) {
+          if (['project_create', 'project_delete', 'project_fork', 'project_publish'].includes(event.type)) {
             if (event.target?.id) {
               projectIds.add(event.target.id);
             }
@@ -315,6 +354,12 @@ export default {
     getProjectTargetContent(target, eventType) {
       const project = this.projectInfo[target.id];
       if (!project) return `项目 #${target.id}`;
+      
+      if (eventType === 'project_publish') {
+        const stateText = project.state === 'public' ? '公开' : '私有';
+        return `${project.title || project.name}（${stateText}）`;
+      }
+      
       return project.title || project.name;
     },
 
@@ -329,8 +374,10 @@ export default {
         'project_create': '新建项目',
         'project_delete': '删除项目',
         'project_fork': '复刻项目',
+        'project_publish': '发布项目',
         'comment_create': '评论',
-        'user_profile_update': '个人资料'
+        'user_profile_update': '个人资料',
+        'user_register': '用户注册'
       };
       return texts[type] || type;
     },
@@ -340,8 +387,10 @@ export default {
         'project_create': 'success',
         'project_delete': 'error',
         'project_fork': 'warning',
+        'project_publish': 'info',
         'comment_create': 'secondary',
-        'user_profile_update': 'info'
+        'user_profile_update': 'info',
+        'user_register': 'primary'
       };
       return colors[type] || 'primary';
     },
@@ -356,6 +405,8 @@ export default {
           return `${actor} 删除了项目`;
         case 'project_fork':
           return `${actor} 复刻了项目`;
+        case 'project_publish':
+          return `${actor} 发布了项目`;
         case 'comment_create':
           return `${actor} 发表了评论`;
         case 'user_profile_update': {
@@ -364,6 +415,8 @@ export default {
             .join('、');
           return `${actor} 更新了个人资料（${fields}）`;
         }
+        case 'user_register':
+          return `${actor} 加入了 ZeroCat`;
         default:
           return `${actor} 进行了操作`;
       }
@@ -387,6 +440,19 @@ export default {
       };
 
       return fieldMap[field] || field;
+    },
+    async loadMoreEvents() {
+      if (this.isLoadingMore || !this.hasMoreEvents) return;
+
+      try {
+        this.isLoadingMore = true;
+        this.currentPage += 1;
+        await this.fetchTimeline(this.currentPage);
+      } catch (error) {
+        console.error('Failed to load more events:', error);
+      } finally {
+        this.isLoadingMore = false;
+      }
     },
   },
 };
@@ -426,5 +492,9 @@ export default {
 
 .v-card[href] {
   cursor: pointer;
+}
+
+.v-btn {
+  min-width: 120px;
 }
 </style>
