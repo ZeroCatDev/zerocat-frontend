@@ -93,12 +93,7 @@
         </v-timeline>
 
         <div class="d-flex justify-center mt-4 mb-4">
-          <v-btn
-            v-if="hasMoreEvents"
-            :loading="isLoadingMore"
-            variant="tonal"
-            @click="loadMoreEvents"
-          >
+          <v-btn v-if="hasMoreEvents" :loading="isLoadingMore" variant="tonal" @click="loadMoreEvents">
             加载更多
           </v-btn>
           <div v-else-if="timeline.events.length > 0" class="text-medium-emphasis">
@@ -209,15 +204,16 @@ export default {
 
       events.forEach(event => {
         try {
-          if (['project_create', 'project_delete', 'project_fork', 'project_publish'].includes(event.type)) {
+          if (['project_create', 'project_delete', 'project_fork', 'project_publish', 'comment_create'].includes(event.type)) {
             if (event.target?.id) {
               projectIds.add(event.target.id);
             }
           }
+          if (event.type === 'comment_create' && event.event_data.page?.type === 'project') {
+            projectIds.add(event.event_data.page.id);
+          }
           if (event.type === 'comment_create') {
-            if (event.target?.page?.type === 'project' && event.target.page?.id) {
-              projectIds.add(event.target.page.id);
-            } else if (event.target?.page?.type === 'user' && event.target.page?.id) {
+            if (event.target?.page?.type === 'user' && event.target.page?.id) {
               userIds.add(event.target.page.id);
             }
           }
@@ -237,6 +233,8 @@ export default {
               if (project.authorid) {
                 authorIds.add(project.authorid);
               }
+            } else {
+              console.warn('Project data is missing for ID:', project.id);
             }
           });
 
@@ -355,12 +353,12 @@ export default {
     getProjectTargetContent(target, eventType) {
       const project = this.projectInfo[target.id];
       if (!project) return `项目 #${target.id}`;
-      
+
       if (eventType === 'project_publish') {
         const stateText = project.state === 'public' ? '公开' : '私有';
         return `${project.title || project.name}（${stateText}）`;
       }
-      
+
       return project.title || project.name;
     },
 
