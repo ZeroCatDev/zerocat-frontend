@@ -274,7 +274,12 @@ export default {
       if (!target) return null;
 
       try {
-        switch (target.type) {
+        const targetId = target.id || target.page?.id;
+        const targetType = target.type || target.page?.type;
+
+        if (!targetType || !targetId) return null;
+
+        switch (targetType) {
           case 'comment': {
             if (!target.page?.type || !target.page?.id) return null;
             const { type: pageType, id: pageId } = target.page;
@@ -292,14 +297,17 @@ export default {
             return null;
           }
           case 'project': {
-            const project = this.projectInfo[target.id];
+            const project = this.projectInfo[targetId];
             if (!project?.author_username || !project?.name) return null;
             return `/${project.author_username}/${project.name}`;
           }
           case 'user': {
-            const user = this.userInfo[target.id];
+            const user = this.userInfo[targetId];
             if (!user?.username) return null;
             return `/${user.username}`;
+          }
+          case 'projectlist': {
+            return `/projectlist/${targetId}`;
           }
           default:
             return null;
@@ -331,9 +339,9 @@ export default {
     },
 
     getCommentTargetContent(target, eventType) {
-      if (!target.page) return `评论 #${target.id}`;
+      if (!target.page && !target.page?.type) return `评论 #${target.id}`;
 
-      const { type: pageType, id: pageId } = target.page;
+      const { type: pageType, id: pageId } = target.page || {};
 
       switch (pageType) {
         case 'project': {
