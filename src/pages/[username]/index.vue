@@ -2,21 +2,17 @@
   <v-container>
     <v-tabs-window v-model="tab">
       <v-tabs-window-item value="home">
-
         <v-responsive class="mt-8">
           <v-row class="d-flex align-center">
             <v-col>
               <p class="font-weight-medium text-primary">ZeroCat 用户</p>
-
               <p class="font-weight-bold text-sm-h2 text-h4 mt-2 d-inline-flex align-center username">
                 {{ user.display_name }}
                 <v-avatar size="52" class="ma-2">
                   <v-img :src="'https://s4-1.wuyuan.1r.ink/user/' + user.images" />
                 </v-avatar>
               </p>
-
               <p class="mt-2 text-body-1 text-medium-emphasis">{{ user.motto }}</p>
-
               <p class="mt-2 text-medium-emphasis">
                 <v-chip>
                   <v-icon icon="mdi-account-circle" start></v-icon>
@@ -36,7 +32,6 @@
         </v-responsive>
         <br />
         <Projects :url="url"></Projects>
-
         <v-row>
           <v-col cols="12" xs="12" sm="6" md="4" lg="3" xl="2" xxl="2" v-for="item in lists" :key="item.id">
             <v-card rounded="lg">
@@ -48,11 +43,9 @@
         </v-row>
         <br />
         <Comment :url="'user-' + user.id" name="用户"></Comment>
-
       </v-tabs-window-item>
       <v-tabs-window-item value="comment">
         <Comment :url="'user-' + user.id" name="用户"></Comment>
-
       </v-tabs-window-item>
       <v-tabs-window-item value="timeline">
         <v-timeline side="end" align="start" class="mt-4">
@@ -113,8 +106,8 @@
           </div>
         </div>
       </v-tabs-window-item>
-    </v-tabs-window> </v-container>
-
+    </v-tabs-window>
+  </v-container>
 </template>
 
 <script>
@@ -429,6 +422,7 @@ export default {
           return `${actor} 进行了操作`;
       }
     },
+
     getFieldDisplayName(field) {
       const fieldMap = {
         'display_name': '昵称',
@@ -449,6 +443,7 @@ export default {
 
       return fieldMap[field] || field;
     },
+
     async loadMoreEvents() {
       if (this.isLoadingMore || !this.hasMoreEvents) return;
 
