@@ -85,7 +85,7 @@
               </v-card>
 
               <!-- Special Project Events -->
-              <template v-else-if="['project_rename', 'project_commit'].includes(event.type)">
+              <template v-else-if="['project_rename', 'project_commit', 'project_info_update'].includes(event.type)">
                 <!-- Rename Event -->
                 <template v-if="event.type === 'project_rename'">
                   <v-card class="rename-card mb-3" :to="`/app/link/project?id=${event.target?.id}`">
@@ -129,6 +129,43 @@
                       </div>
                       <div class="commit-hash text-caption text-medium-emphasis mt-1">
                         提交ID: {{ event.event_data?.commit_id.substring(0, 7) }}
+                      </div>
+                    </v-card-text>
+                  </v-card>
+                </template>
+
+                <!-- Project Info Update Event -->
+                <template v-else-if="event.type === 'project_info_update'">
+                  <v-card class="info-update-card mb-3" :to="`/app/link/project?id=${event.target?.id}`">
+                    <v-card-text>
+                      <div class="d-flex align-center mb-2">
+                        <v-icon icon="mdi-file-document-edit" color="info" class="mr-2" />
+                        <span class="font-weight-medium">{{ event.event_data?.project_title }}</span>
+                      </div>
+                      
+                      <div class="info-updates text-body-2">
+                        <template v-for="field in event.event_data?.updated_fields" :key="field">
+                          <div class="update-item mb-2">
+                            <div class="d-flex align-center">
+                              <v-chip size="x-small" color="info" class="mr-2">{{ getFieldDisplayName(field) }}</v-chip>
+                            </div>
+                            <div class="d-flex flex-column mt-1 field-changes">
+                              <div class="old-value">
+                                <span class="text-medium-emphasis">从：</span>
+                                <span class="ml-2">{{ event.event_data?.old_values[field] }}</span>
+                              </div>
+                              <div class="new-value">
+                                <span class="text-medium-emphasis">到：</span>
+                                <span class="ml-2 text-info">{{ event.event_data?.new_values[field] }}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </template>
+                      </div>
+
+                      <div class="project-meta text-caption text-medium-emphasis mt-2">
+                        <v-chip size="x-small" class="mr-1">{{ event.event_data?.project_type }}</v-chip>
+                        <v-chip size="x-small">{{ event.event_data?.project_state }}</v-chip>
                       </div>
                     </v-card-text>
                   </v-card>
@@ -264,7 +301,13 @@ export default {
           label: '重命名',
           color: 'warning',
           isProject: true
-        }
+        },
+        project_info_update: {
+          text: '更新了项目信息',
+          label: '更新信息',
+          color: 'info',
+          isProject: true
+        },
       },
       fieldDisplayNames: {
         display_name: '昵称',
@@ -392,6 +435,19 @@ export default {
         default:
           return `在 ${pageType} #${pageId} 下的评论`;
       }
+    },
+    getFieldDisplayName(field) {
+      const fieldNames = {
+        title: '标题',
+        description: '描述',
+        type: '类型',
+        state: '状态',
+        visibility: '可见性',
+        tags: '标签',
+        category: '分类',
+        // Add more field names as needed
+      };
+      return fieldNames[field] || field;
     },
   },
 };
@@ -547,5 +603,43 @@ export default {
 
 .project-meta {
   margin-top: 8px;
+}
+
+.info-update-card {
+  border-left: 3px solid var(--v-info-base);
+  background-color: var(--v-surface-variant);
+  transition: transform 0.2s;
+}
+
+.info-update-card:hover {
+  transform: translateY(-2px);
+}
+
+.info-updates {
+  padding: 8px;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+}
+
+.update-item {
+  padding: 8px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.field-changes {
+  margin-left: 8px;
+  padding: 4px 8px;
+  border-left: 2px solid var(--v-info-base);
+}
+
+.old-value, .new-value {
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.new-value {
+  font-weight: 500;
 }
 </style>
