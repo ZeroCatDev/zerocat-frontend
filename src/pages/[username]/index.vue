@@ -53,42 +53,122 @@
             <template v-slot:opposite>
               {{ new Date(event.created_at).toLocaleString() }}
             </template>
-
-            <v-card class="elevation-1" :to="getTargetLink(event.target)" v-if="getTargetLink(event.target)">
-              <v-card-title class="text-subtitle-1">
-                {{ getEventDisplayText(event) }}
-              </v-card-title>
-
-              <v-card-text>
-                <v-chip size="small" :color="getEventColor(event.type)" class="mr-2">
-                  {{ getEventChipText(event.type) }}
+            <template v-slot:icon>
+              <v-avatar :image="'https://s4-1.wuyuan.1r.ink/user/' + user.images"></v-avatar>
+            </template>
+            <div class="timeline-item-content">
+              <!-- Event Header -->
+              <div class="event-header mb-2">
+                <h3 class="text-h6">
+                  {{ event.actor.display_name }}
+                  {{ eventTypes[event.type]?.text || '进行了操作' }}
+                </h3>
+                <v-chip size="x-small" :color="eventTypes[event.type]?.color || 'primary'" class="ml-2">
+                  {{ eventTypes[event.type]?.label || event.type }}
                 </v-chip>
+              </div>
 
-                <div>{{ getTargetContent(event.target, event.type) }}</div>
+              <!-- Project Event Card -->
+              <v-card v-if="eventTypes[event.type]?.isProject && !['project_rename', 'project_commit'].includes(event.type)" 
+                class="mb-3 project-event"
+                :to="`/app/link/project?id=${event.target?.id}`">
+                <v-card-text>
+                  <div class="project-info">
+                    <v-icon icon="mdi-source-repository" color="primary" class="mr-2" />
+                    <span class="font-weight-medium">{{ event.event_data?.project_name || '未命名项目' }}</span>
 
-                <div v-if="event.event_data.comment_text" class="text-body-2 mt-1 text-grey">
-                  {{ event.event_data.comment_text }}
+                    <div class="mt-2 text-caption text-medium-emphasis">
+                      {{ event.event_data?.project_description}}
+                    </div>
+                  </div>
+                </v-card-text>
+              </v-card>
+
+              <!-- Special Project Events -->
+              <template v-else-if="['project_rename', 'project_commit'].includes(event.type)">
+                <!-- Rename Event -->
+                <template v-if="event.type === 'project_rename'">
+                  <v-card class="rename-card mb-3" :to="`/app/link/project?id=${event.target?.id}`">
+                    <v-card-text>
+                      <div class="d-flex align-center mb-2">
+                        <v-icon icon="mdi-rename-box" color="warning" class="mr-2" />
+                        <span class="font-weight-medium">{{ event.event_data?.project_title }}</span>
+                      </div>
+                      <div class="rename-details text-body-2">
+                        <div class="d-flex align-center">
+                          <span class="text-medium-emphasis">从</span>
+                          <v-chip size="small" class="mx-2" color="surface-variant">
+                            {{ event.event_data?.old_name }}
+                          </v-chip>
+                        </div>
+                        <div class="d-flex align-center mt-1">
+                          <span class="text-medium-emphasis">到</span>
+                          <v-chip size="small" class="mx-2" color="warning">
+                            {{ event.event_data?.new_name }}
+                          </v-chip>
+                        </div>
+                      </div>
+                      <div class="project-meta text-caption text-medium-emphasis mt-2">
+                        <v-chip size="x-small" class="mr-1">{{ event.event_data?.project_type }}</v-chip>
+                        <v-chip size="x-small">{{ event.event_data?.project_state }}</v-chip>
+                      </div>
+                    </v-card-text>
+                  </v-card>
+                </template>
+
+                <!-- Commit Event -->
+                <template v-else-if="event.type === 'project_commit'">
+                  <v-card class="commit-card mb-3" :to="`/app/link/project?id=${event.target?.id}`">
+                    <v-card-text>
+                      <div class="d-flex align-center mb-2">
+                        <v-icon icon="mdi-source-commit" color="info" class="mr-2" />
+                        <span class="font-weight-medium">分支: {{ event.event_data?.branch }}</span>
+                      </div>
+                      <div class="commit-message text-body-2">
+                        {{ event.event_data?.commit_message }}
+                      </div>
+                      <div class="commit-hash text-caption text-medium-emphasis mt-1">
+                        提交ID: {{ event.event_data?.commit_id.substring(0, 7) }}
+                      </div>
+                    </v-card-text>
+                  </v-card>
+                </template>
+              </template>
+
+              <!-- Simple Event Content -->
+              <div v-else class="event-content pa-2">
+                <!-- Comment Event -->
+                <template v-if="event.type === 'comment_create'">
+                  <template v-if="event.target?.type === 'project'">
+                    <a :href="`/app/link/project?id=${event.target.id}#comment-${event.target.id}`"
+                      class="text-decoration-none">
+                      在作品「{{ event.event_data?.project_name || `#${event.target.id}` }}」中
+                    </a>
+                  </template>
+                  <template v-else-if="event.target?.type === 'user'">
+                    <a :href="`/app/link/user?id=${event.target.id}#comment-${event.target.id}`"
+                      class="text-decoration-none">
+                      在用户「{{ event.event_data?.user_name || `#${event.target.id}` }}」主页中
+                    </a>
+                  </template>
+                  <p v-if="event.event_data?.comment_text" class="comment-text mt-2">
+                    {{ event.event_data.comment_text }}
+                  </p>
+                </template>
+
+                <!-- Profile Update Event -->
+                <template v-else-if="event.type === 'user_profile_update'">
+                  <div class="text-body-2">
+                    更新了：{{ getUpdatedFields(event.event_data?.updated_fields) }}
+                  </div>
+                </template>
+
+                <!-- Other Events -->
+                <div v-else class="text-body-2 text-medium-emphasis">
+                  {{ getTargetContent(event.target, event.type) }}
                 </div>
-              </v-card-text>
-            </v-card>
-
-            <v-card class="elevation-1" v-else>
-              <v-card-title class="text-subtitle-1">
-                {{ getEventDisplayText(event) }}
-              </v-card-title>
-
-              <v-card-text>
-                <v-chip size="small" :color="getEventColor(event.type)" class="mr-2">
-                  {{ getEventChipText(event.type) }}
-                </v-chip>
-
-                <div>{{ getTargetContent(event.target, event.type) }}</div>
-
-                <div v-if="event.event_data.comment_text" class="text-body-2 mt-1 text-grey">
-                  {{ event.event_data.comment_text }}
-                </div>
-              </v-card-text>
-            </v-card>
+              </div>
+            </div>
           </v-timeline-item>
         </v-timeline>
 
@@ -111,7 +191,6 @@ import Projects from "../../components/project/Projects.vue";
 import { useHead } from "@unhead/vue";
 import { getUserByUsername } from "../../stores/user.js";
 import request from "../../axios/axios.js";
-import { getProjectInfo } from "../../services/projectService";
 import { getUserById } from "../../stores/user";
 
 export default {
@@ -131,11 +210,78 @@ export default {
           total: 0
         }
       },
-      projectInfo: {},
-      userInfo: {},
       currentPage: 1,
       isLoadingMore: false,
       pageSize: 20,
+      eventTypes: {
+        project_create: {
+          text: '创建了新项目',
+          label: '新建',
+          color: 'success',
+          isProject: true
+        },
+        project_publish: {
+          text: '更新了项目',
+          label: '更新',
+          color: 'info',
+          isProject: true
+        },
+        project_fork: {
+          text: '复刻了项目',
+          label: '复刻',
+          color: 'warning',
+          isProject: true
+        },
+        project_delete: {
+          text: '删除了项目',
+          label: '删除',
+          color: 'error',
+          isProject: true
+        },
+        comment_create: {
+          text: '发表了评论',
+          label: '评论',
+          color: 'secondary'
+        },
+        user_profile_update: {
+          text: '更新了个人资料',
+          label: '更新',
+          color: 'info'
+        },
+        user_register: {
+          text: '加入了 ZeroCat',
+          label: '注册',
+          color: 'primary'
+        },
+        project_commit: {
+          text: '提交了项目更新',
+          label: '提交',
+          color: 'info',
+          isProject: true
+        },
+        project_rename: {
+          text: '重命名了项目',
+          label: '重命名',
+          color: 'warning',
+          isProject: true
+        }
+      },
+      fieldDisplayNames: {
+        display_name: '昵称',
+        motto: '个性签名',
+        sex: '性别',
+        birthday: '生日',
+        avatar: '头像',
+        background: '背景图片',
+        email: '邮箱',
+        phone: '手机号',
+        website: '个人网站',
+        bio: '个人简介',
+        social_links: '社交链接',
+        preferences: '偏好设置',
+        visibility: '可见性设置',
+        language: '语言设置'
+      }
     };
   },
   watch: {
@@ -189,261 +335,17 @@ export default {
             ];
             this.timeline.pagination = response.data.data.pagination;
           }
-          await this.fetchRelatedInfo();
         }
       } catch (error) {
         console.error('Failed to fetch timeline:', error);
       }
     },
-    async fetchRelatedInfo() {
-      const projectIds = new Set();
-      const userIds = new Set();
-
-      const startIndex = (this.currentPage - 1) * this.pageSize;
-      const events = this.timeline.events.slice(startIndex);
-
-      events.forEach(event => {
-        try {
-          if (['project_create', 'project_delete', 'project_fork', 'project_publish', 'comment_create'].includes(event.type)) {
-            if (event.target?.id) {
-              projectIds.add(event.target.id);
-            }
-          }
-          if (event.type === 'comment_create' && event.event_data.page?.type === 'project') {
-            projectIds.add(event.event_data.page.id);
-          }
-          if (event.type === 'comment_create') {
-            if (event.target?.page?.type === 'user' && event.target.page?.id) {
-              userIds.add(event.target.page.id);
-            }
-          }
-        } catch (error) {
-          console.warn('Error processing event:', event, error);
-        }
-      });
-
-      try {
-        if (projectIds.size > 0) {
-          const projectsData = await getProjectInfo(Array.from(projectIds));
-
-          const authorIds = new Set();
-          projectsData.forEach(project => {
-            if (project && project.id) {
-              this.projectInfo[project.id] = project;
-              if (project.authorid) {
-                authorIds.add(project.authorid);
-              }
-            } else {
-              console.warn('Project data is missing for ID:', project.id);
-            }
-          });
-
-          authorIds.forEach(id => {
-            if (id) userIds.add(id);
-          });
-        }
-
-        if (userIds.size > 0) {
-          const usersData = await getUserById(Array.from(userIds));
-          usersData.forEach(user => {
-            if (user && user.id) {
-              this.userInfo[user.id] = user;
-
-              Object.values(this.projectInfo).forEach(project => {
-                if (project && project.authorid === user.id) {
-                  project.author_username = user.username;
-                }
-              });
-            }
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching related info:', error);
-      }
+    getUpdatedFields(fields) {
+      if (!fields?.length) return '';
+      return fields
+        .map(field => this.fieldDisplayNames[field] || field)
+        .join('、');
     },
-    getTargetLink(target) {
-      if (!target) return null;
-
-      try {
-        const targetId = target.id || target.page?.id;
-        const targetType = target.type || target.page?.type;
-
-        if (!targetType || !targetId) return null;
-
-        switch (targetType) {
-          case 'comment': {
-            if (!target.page?.type || !target.page?.id) return null;
-            const { type: pageType, id: pageId } = target.page;
-
-            if (pageType === 'project') {
-              const project = this.projectInfo[pageId];
-              if (!project?.author_username || !project?.name) return null;
-              return `/${project.author_username}/${project.name}`;
-            }
-            if (pageType === 'user') {
-              const user = this.userInfo[pageId];
-              if (!user?.username) return null;
-              return `/${user.username}`;
-            }
-            return null;
-          }
-          case 'project': {
-            const project = this.projectInfo[targetId];
-            if (!project?.author_username || !project?.name) return null;
-            return `/${project.author_username}/${project.name}`;
-          }
-          case 'user': {
-            const user = this.userInfo[targetId];
-            if (!user?.username) return null;
-            return `/${user.username}`;
-          }
-          case 'projectlist': {
-            return `/app/projectlist/${targetId}`;
-          }
-          default:
-            return null;
-        }
-      } catch (error) {
-        console.warn('Error generating target link:', error);
-        return null;
-      }
-    },
-
-    getTargetContent(target, eventType) {
-      if (!target) return '';
-
-      try {
-        switch (target.type) {
-          case 'comment':
-            return this.getCommentTargetContent(target, eventType);
-          case 'project':
-            return this.getProjectTargetContent(target, eventType);
-          case 'user':
-            return this.getUserTargetContent(target, eventType);
-          case 'projectlist':
-            return `项目列表 #${target.id}`;
-          default:
-            return `未知目标类型 #${target?.id || '未知'}`;
-        }
-      } catch (error) {
-        console.warn('Error generating target content:', error);
-        return '内容获取失败';
-      }
-    },
-
-    getCommentTargetContent(target, eventType) {
-      if (!target.page && !target.page?.type) return `评论 #${target.id}`;
-
-      const { type: pageType, id: pageId } = target.page || {};
-
-      switch (pageType) {
-        case 'project': {
-          const project = this.projectInfo[pageId];
-          if (!project) return `在作品 #${pageId} 下的评论`;
-          return `在作品 ${project.title} 下的评论`;
-        }
-        case 'user': {
-          const user = this.userInfo[pageId];
-          if (!user) return `在用户 #${pageId} 主页下的评论`;
-          return `在用户 ${user.display_name} 主页下的评论`;
-        }
-        default:
-          return `在 ${pageType} #${pageId} 下的评论`;
-      }
-    },
-
-    getProjectTargetContent(target, eventType) {
-      const project = this.projectInfo[target.id];
-      if (!project) return `项目 #${target.id}`;
-
-      if (eventType === 'project_publish') {
-        const stateText = project.state === 'public' ? '公开' : '私有';
-        return `${project.title || project.name}（${stateText}）`;
-      }
-
-      return project.title || project.name;
-    },
-
-    getUserTargetContent(target, eventType) {
-      const user = this.userInfo[target.id];
-      if (!user) return `用户 #${target.id}`;
-      return user.display_name;
-    },
-
-    getEventChipText(type) {
-      const texts = {
-        'project_create': '新建项目',
-        'project_delete': '删除项目',
-        'project_fork': '复刻项目',
-        'project_publish': '发布项目',
-        'comment_create': '评论',
-        'user_profile_update': '个人资料',
-        'user_register': '用户注册'
-      };
-      return texts[type] || type;
-    },
-
-    getEventColor(type) {
-      const colors = {
-        'project_create': 'success',
-        'project_delete': 'error',
-        'project_fork': 'warning',
-        'project_publish': 'info',
-        'comment_create': 'secondary',
-        'user_profile_update': 'info',
-        'user_register': 'primary'
-      };
-      return colors[type] || 'primary';
-    },
-
-    getEventDisplayText(event) {
-      const actor = event.actor.display_name;
-
-      switch (event.type) {
-        case 'project_create':
-          return `${actor} 创建了新项目`;
-        case 'project_delete':
-          return `${actor} 删除了项目`;
-        case 'project_fork':
-          return `${actor} 复刻了项目`;
-        case 'project_publish':
-          return `${actor} 发布了项目`;
-        case 'comment_create':
-          return `${actor} 发表了评论`;
-        case 'user_profile_update': {
-          const fields = event.event_data.updated_fields
-            .map(field => this.getFieldDisplayName(field))
-            .join('、');
-          return `${actor} 更新了个人资料（${fields}）`;
-        }
-        case 'user_register':
-          return `${actor} 加入了 ZeroCat`;
-        default:
-          return `${actor} 进行了操作`;
-      }
-    },
-
-    getFieldDisplayName(field) {
-      const fieldMap = {
-        'display_name': '昵称',
-        'motto': '个性签名',
-        'sex': '性别',
-        'birthday': '生日',
-        'avatar': '头像',
-        'background': '背景图片',
-        'email': '邮箱',
-        'phone': '手机号',
-        'website': '个人网站',
-        'bio': '个人简介',
-        'social_links': '社交链接',
-        'preferences': '偏好设置',
-        'visibility': '可见性设置',
-        'language': '语言设置'
-      };
-
-      return fieldMap[field] || field;
-    },
-
     async loadMoreEvents() {
       if (this.isLoadingMore || !this.hasMoreEvents) return;
 
@@ -455,6 +357,40 @@ export default {
         console.error('Failed to load more events:', error);
       } finally {
         this.isLoadingMore = false;
+      }
+    },
+    getTargetContent(target, eventType) {
+      if (!target) return '';
+
+      switch (target.type) {
+        case 'project': {
+          return target.title || `项目 #${target.id}`;
+        }
+        case 'user': {
+          return target.display_name || `用户 #${target.id}`;
+        }
+        case 'comment':
+          return this.getCommentTargetContent(target, eventType);
+        case 'projectlist':
+          return `项目列表 #${target.id}`;
+        default:
+          return `${target.type} #${target.id}`;
+      }
+    },
+    getCommentTargetContent(target, eventType) {
+      if (!target.page && !target.page?.type) return `评论 #${target.id}`;
+
+      const { type: pageType, id: pageId } = target.page || {};
+
+      switch (pageType) {
+        case 'project': {
+          return `在作品 ${target.title} 下的评论`;
+        }
+        case 'user': {
+          return `在用户 ${target.display_name} 主页下的评论`;
+        }
+        default:
+          return `在 ${pageType} #${pageId} 下的评论`;
       }
     },
   },
@@ -499,5 +435,117 @@ export default {
 
 .v-btn {
   min-width: 120px;
+}
+
+.timeline-item-content {
+  width: 100%;
+}
+
+.project-card {
+  border-left: 3px solid var(--v-primary-base);
+  padding-left: 12px;
+}
+
+.comment-preview {
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-style: italic;
+}
+
+.v-timeline-item {
+  margin-bottom: 16px;
+}
+
+.simple-event {
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.simple-event:hover {
+  background-color: rgba(var(--v-theme-surface-variant), 0.06);
+}
+
+.comment-text {
+  font-style: italic;
+  color: var(--v-medium-emphasis-color);
+}
+
+.text-decoration-none {
+  color: var(--v-primary-base);
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.event-header {
+  display: flex;
+  align-items: center;
+}
+
+.project-event {
+  border-left: 3px solid var(--v-primary-base);
+  background-color: var(--v-surface-variant);
+}
+
+.project-info {
+  padding-left: 12px;
+}
+
+.event-content {
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.event-content:hover {
+  background-color: rgba(var(--v-theme-surface-variant), 0.06);
+}
+
+.comment-text {
+  font-style: italic;
+  color: var(--v-medium-emphasis-color);
+  padding: 8px 12px;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+}
+
+.commit-card {
+  border-left: 3px solid var(--v-info-base);
+  background-color: var(--v-surface-variant);
+  transition: transform 0.2s;
+}
+
+.commit-card:hover {
+  transform: translateY(-2px);
+}
+
+.commit-message {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.commit-hash {
+  font-family: monospace;
+}
+
+.rename-card {
+  border-left: 3px solid var(--v-warning-base);
+  background-color: var(--v-surface-variant);
+  transition: transform 0.2s;
+}
+
+.rename-card:hover {
+  transform: translateY(-2px);
+}
+
+.rename-details {
+  padding: 8px;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+}
+
+.project-meta {
+  margin-top: 8px;
 }
 </style>
