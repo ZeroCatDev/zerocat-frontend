@@ -69,16 +69,16 @@
               </div>
 
               <!-- Project Event Card -->
-              <v-card v-if="eventTypes[event.type]?.isProject && !['project_rename', 'project_commit'].includes(event.type)" 
-                class="mb-3 project-event"
-                :to="`/app/link/project?id=${event.target?.id}`">
+              <v-card
+                v-if="eventTypes[event.type]?.isProject && !['project_rename', 'project_commit'].includes(event.type)"
+                class="mb-3 project-event" :to="`/app/link/project?id=${event.target?.id}`">
                 <v-card-text>
                   <div class="project-info">
                     <v-icon icon="mdi-source-repository" color="primary" class="mr-2" />
                     <span class="font-weight-medium">{{ event.event_data?.project_name || '未命名项目' }}</span>
 
                     <div class="mt-2 text-caption text-medium-emphasis">
-                      {{ event.event_data?.project_description}}
+                      {{ event.event_data?.project_description }}
                     </div>
                   </div>
                 </v-card-text>
@@ -142,7 +142,7 @@
                         <v-icon icon="mdi-file-document-edit" color="info" class="mr-2" />
                         <span class="font-weight-medium">{{ event.event_data?.project_title }}</span>
                       </div>
-                      
+
                       <div class="info-updates text-body-2">
                         <template v-for="field in event.event_data?.updated_fields" :key="field">
                           <div class="update-item mb-2">
@@ -174,27 +174,10 @@
 
               <!-- Simple Event Content -->
               <div v-else class="event-content pa-2">
-                <!-- Comment Event -->
-                <template v-if="event.type === 'comment_create'">
-                  <template v-if="event.target?.type === 'project'">
-                    <a :href="`/app/link/project?id=${event.target.id}#comment-${event.target.id}`"
-                      class="text-decoration-none">
-                      在作品「{{ event.event_data?.project_name || `#${event.target.id}` }}」中
-                    </a>
-                  </template>
-                  <template v-else-if="event.target?.type === 'user'">
-                    <a :href="`/app/link/user?id=${event.target.id}#comment-${event.target.id}`"
-                      class="text-decoration-none">
-                      在用户「{{ event.event_data?.user_name || `#${event.target.id}` }}」主页中
-                    </a>
-                  </template>
-                  <p v-if="event.event_data?.comment_text" class="comment-text mt-2">
-                    {{ event.event_data.comment_text }}
-                  </p>
-                </template>
+
 
                 <!-- Profile Update Event -->
-                <template v-else-if="event.type === 'user_profile_update'">
+                <template v-if="event.type === 'user_profile_update'">
                   <div class="text-body-2">
                     更新了：{{ getUpdatedFields(event.event_data?.updated_fields) }}
                   </div>
@@ -274,11 +257,6 @@ export default {
           label: '删除',
           color: 'error',
           isProject: true
-        },
-        comment_create: {
-          text: '发表了评论',
-          label: '评论',
-          color: 'secondary'
         },
         user_profile_update: {
           text: '更新了个人资料',
@@ -633,7 +611,8 @@ export default {
   border-left: 2px solid var(--v-info-base);
 }
 
-.old-value, .new-value {
+.old-value,
+.new-value {
   font-family: monospace;
   white-space: pre-wrap;
   word-break: break-word;
