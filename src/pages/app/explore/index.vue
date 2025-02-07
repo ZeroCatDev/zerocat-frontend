@@ -128,6 +128,8 @@ export default {
       orderitems: [
         { name: "观看量升序", type: "view_up" },
         { name: "观看量降序", type: "view_down" },
+        { name: "星标升序", type: "star_up" },
+        { name: "星标降序", type: "star_down" },
         { name: "时间升序", type: "time_up" },
         { name: "时间降序", type: "time_down" },
         { name: "序号升序", type: "id_up" },

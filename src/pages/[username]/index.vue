@@ -58,7 +58,7 @@
             </template>
             <div class="timeline-item-content">
               <!-- Event Header -->
-              <div class="event-header mb-2">
+              <div class="event-header">
                 <h3 class="text-h6">
                   {{ event.actor.display_name }}
                   {{ eventTypes[event.type]?.text || '进行了操作' }}
@@ -66,8 +66,10 @@
                 <v-chip size="x-small" :color="eventTypes[event.type]?.color || 'primary'" class="ml-2">
                   {{ eventTypes[event.type]?.label || event.type }}
                 </v-chip>
-              </div>
-
+              </div> <router-link :to="`/app/link/project?id=${event.target?.id}`" class="text-decoration-none" v-if="eventTypes[event.type]?.isProject">
+                {{ event.event_data?.project_title }}
+              </router-link>
+              <div class=" mb-2"></div>
               <!-- Project Event Card -->
               <v-card
                 v-if="eventTypes[event.type]?.isProject && !['project_rename', 'project_commit'].includes(event.type)"
@@ -174,12 +176,20 @@
 
               <!-- Simple Event Content -->
               <div v-else class="event-content pa-2">
-
-
                 <!-- Profile Update Event -->
                 <template v-if="event.type === 'user_profile_update'">
                   <div class="text-body-2">
                     更新了：{{ getUpdatedFields(event.event_data?.updated_fields) }}
+                  </div>
+                </template>
+
+                <!-- Project Related Events -->
+                <template v-else-if="event.target?.type === 'project'">
+                  <div class="text-body-2">
+                    <span>{{ eventTypes[event.type]?.text || '操作了' }}</span>
+                    <router-link :to="`/app/link/project?id=${event.target.id}`" class="text-decoration-none ml-1">
+                      {{ event.event_data?.project_name || event.target.title || `项目 #${event.target.id}` }}
+                    </router-link>
                   </div>
                 </template>
 
@@ -390,28 +400,10 @@ export default {
         case 'user': {
           return target.display_name || `用户 #${target.id}`;
         }
-        case 'comment':
-          return this.getCommentTargetContent(target, eventType);
         case 'projectlist':
           return `项目列表 #${target.id}`;
         default:
           return `${target.type} #${target.id}`;
-      }
-    },
-    getCommentTargetContent(target, eventType) {
-      if (!target.page && !target.page?.type) return `评论 #${target.id}`;
-
-      const { type: pageType, id: pageId } = target.page || {};
-
-      switch (pageType) {
-        case 'project': {
-          return `在作品 ${target.title} 下的评论`;
-        }
-        case 'user': {
-          return `在用户 ${target.display_name} 主页下的评论`;
-        }
-        default:
-          return `在 ${pageType} #${pageId} 下的评论`;
       }
     },
     getFieldDisplayName(field) {
