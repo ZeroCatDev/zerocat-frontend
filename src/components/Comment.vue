@@ -13,7 +13,7 @@
         <v-avatar color="blue-darken-2">
           <v-img
             :src="
-              'https://s4-1.wuyuan.1r.ink/user/' + users[comment.user_id].images
+              VITE_APP_S3_BUCKET + '/user/' + users[comment.user_id].images
             "
           ></v-img>
         </v-avatar>
@@ -49,8 +49,7 @@
           <template v-slot:prepend>
             <v-img
               :src="
-                'https://s4-1.wuyuan.1r.ink/user/' +
-                users[children.user_id].images
+                VITE_APP_S3_BUCKET + '/user/' + users[children.user_id].images
               "
             ></v-img>
           </template>
@@ -111,8 +110,7 @@
               <v-avatar color="blue-darken-2">
                 <v-img
                   :src="
-                    'https://s4-1.wuyuan.1r.ink/user/' +
-                    users[moreComments.user_id].images
+                    VITE_APP_S3_BUCKET + '/user/' + users[moreComments.user_id].images
                   "
                 ></v-img>
               </v-avatar>
@@ -170,8 +168,7 @@
               <v-avatar color="blue-darken-2">
                 <v-img
                   :src="
-                    'https://s4-1.wuyuan.1r.ink/user/' +
-                    users[comment.user_id].images
+                    VITE_APP_S3_BUCKET + '/user/' + users[comment.user_id].images
                   "
                 ></v-img>
               </v-avatar>
@@ -314,6 +311,7 @@ export default {
       comment: "",
       replyId: "",
       UAParser,
+      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
     };
   },
   mounted() {

@@ -4,7 +4,7 @@
       <v-card hover border class="mx-auto" :disabled="userCardLoading" :loading="userCardLoading">
         <template v-slot:prepend>
           <v-avatar class="mb-2">
-            <v-img :alt="userInfo.display_name" :src="'https://s4-1.wuyuan.1r.ink/user/' + userInfo.images"></v-img>
+            <v-img :alt="userInfo.display_name" :src="VITE_APP_S3_BUCKET + '/user/' + userInfo.images"></v-img>
           </v-avatar>
         </template>
         <template v-slot:title>
@@ -180,6 +180,7 @@ export default {
       useravatarfile: null,
       previewImage: null,
       avatarvalid: false,
+      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
     };
   },
   setup() {

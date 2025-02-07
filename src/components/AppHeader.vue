@@ -32,7 +32,7 @@
             <v-btn icon v-bind="props">
               <v-avatar
                 :image="
-                  'https://s4-1.wuyuan.1r.ink/user/' + localuser.user.images
+                  VITE_APP_S3_BUCKET + '/user/' + localuser.user.images
                 "
               ></v-avatar>
             </v-btn>
@@ -54,7 +54,7 @@
             :title="localuser.user.display_name"
             :subtitle="localuser.user.username"
             :append-avatar="
-              'https://s4-1.wuyuan.1r.ink/user/' + localuser.user.avatar
+              VITE_APP_S3_BUCKET + '/user/' + localuser.user.avatar
             "
           ></v-card>
           <v-list>
@@ -163,6 +163,7 @@ export default {
       hideNavPaths: ["/app", "/404"],
       hideExactPaths: ["/", "/index.html"],
       activeTab: "1",
+      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
     };
   },
   created() {

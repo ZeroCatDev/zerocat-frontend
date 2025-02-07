@@ -119,7 +119,7 @@
             <v-chip pill>
               <v-avatar start>
                 <v-img
-                  :src="'https://s4-1.wuyuan.1r.ink/user/' + author.images"
+                  :src="VITE_APP_S3_BUCKET + '/user/' + author.images"
                 ></v-img> </v-avatar
               >{{ author.display_name }}
             </v-chip>
@@ -165,7 +165,7 @@
                   <v-avatar>
                     <v-img
                       :alt="author.display_name"
-                      :src="'https://s4-1.wuyuan.1r.ink/user/' + author.images"
+                      :src="VITE_APP_S3_BUCKET + '/user/' + author.images"
                     ></v-img>
                   </v-avatar>
                 </template>
@@ -235,6 +235,7 @@ export default {
         latest_commit_hash: "latest",
       },
       initProject,
+      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
     };
   },
   async mounted() {

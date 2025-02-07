@@ -47,6 +47,7 @@ jobs:
           VITE_APP_ALGOLIA_API_KEY: bb7a110561bf44209973e461d82987b9
           VITE_APP_ALGOLIA_INDEX_NAME: zerocat
           VITE_APP_CLARITY_PROJECT_ID: mp11rvtms0
+          VITE_APP_S3_BUCKET: https://zerocat-bitiful.houlangs.com	
       run: |
         git submodule update --init --recursive
         npm install

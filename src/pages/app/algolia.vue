@@ -41,7 +41,7 @@
                 rounded="lg"
               >
                 <v-img
-                  :src="'https://s4-1.wuyuan.1r.ink/scratch_slt/' + item.id"
+                  :src="VITE_APP_S3_BUCKET + '/scratch_slt/' + item.id"
                   class="align-end"
                   lazy-src="../../assets/43-lazyload.png"
                   height="100%"
@@ -130,6 +130,7 @@ export default {
         import.meta.env.VITE_APP_ALGOLIA_APP_ID,
         import.meta.env.VITE_APP_ALGOLIA_API_KEY
       ),
+      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
     };
   },
 };

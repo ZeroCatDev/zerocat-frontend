@@ -9,7 +9,7 @@
               <p class="font-weight-bold text-sm-h2 text-h4 mt-2 d-inline-flex align-center username">
                 {{ user.display_name }}
                 <v-avatar size="52" class="ma-2">
-                  <v-img :src="'https://s4-1.wuyuan.1r.ink/user/' + user.images" />
+                  <v-img :src="VITE_APP_S3_BUCKET + '/user/' + user.images" />
                 </v-avatar>
               </p>
               <p class="mt-2 text-body-1 text-medium-emphasis">{{ user.motto }}</p>
@@ -54,7 +54,7 @@
               {{ new Date(event.created_at).toLocaleString() }}
             </template>
             <template v-slot:icon>
-              <v-avatar :image="'https://s4-1.wuyuan.1r.ink/user/' + user.images"></v-avatar>
+              <v-avatar :image="VITE_APP_S3_BUCKET + '/user/' + user.images"></v-avatar>
             </template>
             <div class="timeline-item-content">
               <!-- Event Header -->
@@ -312,7 +312,8 @@ export default {
         preferences: '偏好设置',
         visibility: '可见性设置',
         language: '语言设置'
-      }
+      },
+      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
     };
   },
   watch: {

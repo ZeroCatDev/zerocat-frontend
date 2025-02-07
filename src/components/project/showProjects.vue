@@ -18,7 +18,7 @@
           rounded="lg"
         >
           <v-img
-            :src="'https://s4-1.wuyuan.1r.ink/scratch_slt/' + project.id"
+            :src="VITE_APP_S3_BUCKET + '/scratch_slt/' + project.id"
             class="align-end"
             lazy-src="../../assets/43-lazyload.png"
             height="100%"
@@ -56,6 +56,7 @@ export default {
       projects: [],
       authorIds: [],
       authors: {},
+      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
     };
   },
   watch: {
