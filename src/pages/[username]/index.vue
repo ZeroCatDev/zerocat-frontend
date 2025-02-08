@@ -16,15 +16,15 @@
               <p class="mt-2 text-medium-emphasis">
                 <v-chip>
                   <v-icon icon="mdi-account-circle" start></v-icon>
-                  ID:{{ user.id }}
+                  #{{ user.id }}
                 </v-chip>
                 <v-chip>
                   <v-icon icon="mdi-clock" start></v-icon>
-                  {{ user.regTime }}注册
+                  <TimeAgo :date="user.regTime"></TimeAgo> 注册
                 </v-chip>
                 <v-chip>
                   <v-icon icon="mdi-tag" start></v-icon>
-                  创作者
+                  {{ user.id===1?'社区管理员':'用户' }}
                 </v-chip>
               </p>
             </v-col>
@@ -233,9 +233,9 @@ import request from "../../axios/axios.js";
 import { getUserById } from "../../stores/user";
 import Markdown from "@/components/Markdown.vue";
 import "github-markdown-css";
-
+import TimeAgo from "@/components/TimeAgo.vue";
 export default {
-  components: { Projects, Comment, Markdown },
+  components: { Projects, Comment, Markdown,TimeAgo },
   data() {
     return {
       username: this.$route.params.username,

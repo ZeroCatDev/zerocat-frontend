@@ -96,7 +96,7 @@
             <v-tab value="license">LICENSE</v-tab>
           </v-tabs>
 
-          <v-card-text>
+          <v-card-text class="markdown-body">
             <v-tabs-window v-model="tab">
               <v-tabs-window-item value="readme">
                 <Markdown>{{ project.description }}</Markdown>
@@ -207,6 +207,8 @@ import {
   getBranchs,
   getBranchHistoryByCommit,
 } from "@/services/projectService";
+import "github-markdown-css";
+
 export default {
   components: {
     ProjectRunner,

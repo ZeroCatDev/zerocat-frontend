@@ -48,8 +48,10 @@ export default {
       const vDay = this.padWithZeros(date.getDate(), 2);
       const vMonth = this.padWithZeros(date.getMonth() + 1, 2);
       const vYear = this.padWithZeros(date.getFullYear(), 2);
-
-      return `${vYear}-${vMonth}-${vDay}`;
+      const vHour = this.padWithZeros(date.getHours(), 2);
+      const vMinute = this.padWithZeros(date.getMinutes(), 2);
+      const vSecond = this.padWithZeros(date.getSeconds(), 2);
+      return `${vYear}-${vMonth}-${vDay} ${vHour}:${vMinute}:${vSecond}`;
     },
     getTimeAgo(date, now) {
       // 获取相对时间描述（模糊时间）
