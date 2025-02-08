@@ -12,7 +12,7 @@
                   <v-img :src="VITE_APP_S3_BUCKET + '/user/' + user.images" />
                 </v-avatar>
               </p>
-              <p class="mt-2 text-body-1 text-medium-emphasis">{{ user.motto }}</p>
+              <p class="mt-2 text-body-1 text-medium-emphasis" style="word-break: break-word; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ user.motto }}</p>
               <p class="mt-2 text-medium-emphasis">
                 <v-chip>
                   <v-icon icon="mdi-account-circle" start></v-icon>
@@ -31,6 +31,14 @@
           </v-row>
         </v-responsive>
         <br />
+        <v-card title="关于我" subtitle="README.md">
+        
+         
+          <v-card-text   class="markdown-body"> <br/>
+            <Markdown>{{ user.motto }}</Markdown>
+          </v-card-text>
+
+        </v-card>
         <Projects :url="url"></Projects>
         <v-row>
           <v-col cols="12" xs="12" sm="6" md="4" lg="3" xl="2" xxl="2" v-for="item in lists" :key="item.id">
@@ -66,7 +74,8 @@
                 <v-chip size="x-small" :color="eventTypes[event.type]?.color || 'primary'" class="ml-2">
                   {{ eventTypes[event.type]?.label || event.type }}
                 </v-chip>
-              </div> <router-link :to="`/app/link/project?id=${event.target?.id}`" class="text-decoration-none" v-if="eventTypes[event.type]?.isProject">
+              </div> <router-link :to="`/app/link/project?id=${event.target?.id}`" class="text-decoration-none"
+                v-if="eventTypes[event.type]?.isProject">
                 {{ event.event_data?.project_title }}
               </router-link>
               <div class=" mb-2"></div>
@@ -222,9 +231,11 @@ import { useHead } from "@unhead/vue";
 import { getUserByUsername } from "../../stores/user.js";
 import request from "../../axios/axios.js";
 import { getUserById } from "../../stores/user";
+import Markdown from "@/components/Markdown.vue";
+import "github-markdown-css";
 
 export default {
-  components: { Projects, Comment },
+  components: { Projects, Comment, Markdown },
   data() {
     return {
       username: this.$route.params.username,

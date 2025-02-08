@@ -1,6 +1,6 @@
 <template>
   <!-- 使用默认插槽传入的内容 -->
-  <div v-html="sanitizedHtmlContent"></div>
+  <div v-html="sanitizedHtmlContent" ></div>
 </template>
 
 <script>
@@ -9,7 +9,6 @@ import hljs from "highlight.js";
 import "highlight.js/styles/atom-one-dark.css";
 import createDOMPurify from "dompurify";
 import { full as emojiPlugin } from "markdown-it-emoji";
-
 // 初始化并配置 MarkdownIt 实例
 function createMarkdownInstance() {
   const md = new MarkdownIt({
