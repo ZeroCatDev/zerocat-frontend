@@ -1,1 +1,0 @@
-import{Q as e}from"./index-erK443x5.js";function a(){return e.get("https://scratch.192325.xyz/proxy/featured")}function n(t,r,o,s){return e.get(`https://scratch.192325.xyz/projects/explore/projects?mode=${t}&q=${r}&offset=${o*16-16}&limit=${s}&language=zh-cn`)}function p(t){return e.get(`https://scratch.192325.xyz/projects/${t}`)}export{p as a,n as e,a as g};
