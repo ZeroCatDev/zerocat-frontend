@@ -1,0 +1,1 @@
+.md3-enter-active,.md3-leave-active{transition:opacity .3s cubic-bezier(.4,0,.2,1),transform .3s cubic-bezier(.4,0,.2,1)}.md3-enter-from{opacity:0;transform:translate(.5vw)}.md3-leave-to{opacity:0;transform:translate(-.5vw)}.v-checkbox.v-input{flex:0 1 auto}.v-checkbox .v-selection-control{min-height:var(--v-input-control-height)}
