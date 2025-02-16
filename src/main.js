@@ -20,6 +20,7 @@ import App from "./App.vue";
 import { createApp } from "vue";
 
 import Clarity from "@microsoft/clarity";
+import './styles/settings.scss'
 
 if (!import.meta.env.VITE_APP_BASE_API.includes("localhost")) {
   const projectId = import.meta.env.VITE_APP_CLARITY_PROJECT_ID;

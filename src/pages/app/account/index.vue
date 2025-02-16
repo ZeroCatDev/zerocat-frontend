@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <div class="mb-2">
-      <v-card hover border class="mx-auto" :disabled="userCardLoading" :loading="userCardLoading">
+      <v-card hover border class="mx-auto" variant="" :disabled="userCardLoading" :loading="userCardLoading">
         <template v-slot:prepend>
           <v-avatar class="mb-2">
             <v-img :alt="userInfo.display_name" :src="VITE_APP_S3_BUCKET + '/user/' + userInfo.images"></v-img>
@@ -23,99 +23,103 @@
             创作者
           </v-chip>
         </template>
-        <v-card-text class="bg-surface-light pt-4">
-          {{ userInfo }}
-        </v-card-text>
+
       </v-card>
     </div>
-    <v-card hover border>
-      <v-tabs v-model="tab">
-        <v-tab value="userInfo">用户信息</v-tab>
-        <v-tab value="username">用户名</v-tab>
-        <v-tab value="password">密码</v-tab>
-        <v-tab value="avatar">头像</v-tab>
-        <v-tab value="email" @click="$router.push('/app/account/email')">邮箱</v-tab>
-        <v-tab value="email" @click="$router.push('/app/account/oauth')">OAuth</v-tab>
+    <div  border class="d-flex flex-row">
+      <v-tabs v-model="tab" direction="vertical">
+        <v-tab value="userInfo" prepend-icon="mdi-account-circle">用户信息</v-tab>
+        <v-tab value="username" prepend-icon="mdi-cog">账户</v-tab>
+        <v-tab value="password" prepend-icon="mdi-lock">密码</v-tab>
+        <v-tab value="avatar" prepend-icon="mdi-image">头像</v-tab>
+        <v-tab value="email" prepend-icon="mdi-email">邮箱</v-tab>
+        <v-tab value="oauth" prepend-icon="mdi-account-circle">OAuth</v-tab>
 
       </v-tabs>
       <v-card-text>
-        <v-tabs-window v-model="tab">
-          <v-tabs-window-item value="userInfo">
-            <v-form v-model="valid">
-              <v-row>
-                <v-col cols="12" md="4">
-                  <v-text-field v-model="userInfo.display_name" :counter="10" label="显示名称" required></v-text-field>
-                </v-col>
-                <v-col cols="12" md="12">
-                  <v-textarea label="显示简介" v-model="userInfo.motto" :counter="500"></v-textarea>
-                </v-col>
-                <v-col cols="12" md="4">
-                  <v-select v-model="select" :items="items" item-title="state" item-value="abbr" label="性别"
-                    persistent-hint return-object></v-select>
-                </v-col>
-                <!--<v-col cols="12">
+          <v-tabs-window v-model="tab" direction="horizontal">
+            <v-tabs-window-item value="userInfo">
+              <v-form v-model="valid">
+                <v-row>
+                  <v-col cols="12" md="4">
+                    <v-text-field v-model="userInfo.display_name" :counter="10" label="显示名称" required></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="12">
+                    <v-textarea label="显示简介" v-model="userInfo.motto" :counter="500"></v-textarea>
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-select v-model="select" :items="items" item-title="state" item-value="abbr" label="性别"
+                      persistent-hint return-object></v-select>
+                  </v-col>
+                  <!--<v-col cols="12">
                   <Recaptcha recaptchaId="recaptcha-div1" ref="recaptcha1" />
                 </v-col>-->
-                <v-col cols="12">
-                  <v-btn @click="submit" :disabled="!valid" color="primary" class="mt-4">提交</v-btn>
-                </v-col>
-              </v-row>
-            </v-form>
-          </v-tabs-window-item>
-          <v-tabs-window-item value="username">
-            <v-form v-model="usernamevalid">
-              <v-row>
-                <v-col cols="12" md="4">
-                  <v-text-field v-model="userInfo.username" :counter="10" :rules="nameRules" label="用户名"
-                    required></v-text-field>
-                </v-col>
-                <!--<v-col cols="12">
+                  <v-col cols="12">
+                    <v-btn @click="submit" :disabled="!valid" color="primary" class="mt-4">提交</v-btn>
+                  </v-col>
+                </v-row>
+              </v-form>
+            </v-tabs-window-item>
+            <v-tabs-window-item value="username">
+              <v-form v-model="usernamevalid">
+                <v-row>
+                  <v-col cols="12" md="4">
+                    <v-text-field v-model="userInfo.username" :counter="10" :rules="nameRules" label="用户名"
+                      required></v-text-field>
+                  </v-col>
+                  <!--<v-col cols="12">
                   <Recaptcha recaptchaId="recaptcha-div2" ref="recaptcha2" />
                 </v-col>-->
-                <v-col cols="12">
-                  <v-btn @click="changeusername" :disabled="!usernamevalid" color="primary" class="mt-4">提交</v-btn>
-                </v-col>
-              </v-row>
-            </v-form>
-          </v-tabs-window-item>
-          <v-tabs-window-item value="password">
-            <v-form v-model="passwordvalid">
-              <v-row>
-                <v-col cols="12" md="8">
-                  <v-text-field v-model="oldPassword" hint="此框不验证输入值" label="原密码" required></v-text-field>
-                </v-col>
-                <v-col cols="12" md="8">
-                  <v-text-field v-model="newPassword" :rules="passwordRules" label="新密码" required></v-text-field>
-                </v-col>
-                <!-- <v-col cols="12">
+                  <v-col cols="12">
+                    <v-btn @click="changeusername" :disabled="!usernamevalid" color="primary" class="mt-4">提交</v-btn>
+                  </v-col>
+                </v-row>
+              </v-form>
+            </v-tabs-window-item>
+            <v-tabs-window-item value="password">
+              <v-form v-model="passwordvalid">
+                <v-row>
+                  <v-col cols="12" md="8">
+                    <v-text-field v-model="oldPassword" hint="此框不验证输入值" label="原密码" required></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="8">
+                    <v-text-field v-model="newPassword" :rules="passwordRules" label="新密码" required></v-text-field>
+                  </v-col>
+                  <!-- <v-col cols="12">
                   <Recaptcha recaptchaId="recaptcha-div3" ref="recaptcha3" />
                 </v-col>-->
-                <v-col cols="12">
-                  <v-btn @click="changepassword" :disabled="!passwordvalid" color="primary" class="mt-4">提交</v-btn>
-                </v-col>
-              </v-row>
-            </v-form>
-          </v-tabs-window-item>
-          <v-tabs-window-item value="avatar">
-            <v-form v-model="avatarvalid">
-              <v-row>
-                <v-col cols="12" md="8">
-                  <v-file-input label="上传头像" accept="image/*" @change="onFileChange" placeholder="头像会被压缩"
-                    prepend-icon="mdi-account-circle"></v-file-input>
-                  <v-img v-if="previewImage" :src="previewImage" max-height="200" max-width="200"></v-img>
-                </v-col>
-                <!--<v-col cols="12">
+                  <v-col cols="12">
+                    <v-btn @click="changepassword" :disabled="!passwordvalid" color="primary" class="mt-4">提交</v-btn>
+                  </v-col>
+                </v-row>
+              </v-form>
+            </v-tabs-window-item>
+            <v-tabs-window-item value="avatar">
+              <v-form v-model="avatarvalid">
+                <v-row>
+                  <v-col cols="12" md="8">
+                    <v-file-input label="上传头像" accept="image/*" @change="onFileChange" placeholder="头像会被压缩"
+                      prepend-icon="mdi-account-circle"></v-file-input>
+                    <v-img v-if="previewImage" :src="previewImage" max-height="200" max-width="200"></v-img>
+                  </v-col>
+                  <!--<v-col cols="12">
                   <Recaptcha recaptchaId="recaptcha-div4" ref="recaptcha4" />
                 </v-col>-->
-                <v-col cols="12">
-                  <v-btn @click="uploadAvatar" :disabled="!avatarvalid" color="primary" class="mt-4">提交</v-btn>
-                </v-col>
-              </v-row>
-            </v-form>
-          </v-tabs-window-item>
-        </v-tabs-window>
+                  <v-col cols="12">
+                    <v-btn @click="uploadAvatar" :disabled="!avatarvalid" color="primary" class="mt-4">提交</v-btn>
+                  </v-col>
+                </v-row>
+              </v-form>
+            </v-tabs-window-item>
+            <v-tabs-window-item value="email">
+              <email-manager ref="emailManager" />
+            </v-tabs-window-item>
+            <v-tabs-window-item value="oauth">
+              <OAuthManager />
+            </v-tabs-window-item>
+          </v-tabs-window>
       </v-card-text>
-    </v-card>
+    </div>
   </v-container>
 </template>
 
@@ -132,9 +136,15 @@ import {
   updatePassword,
   uploadUserAvatar,
 } from "@/services/accountService";
+import EmailManager from '@/components/EmailManager.vue'
+import OAuthManager from '@/components/OAuthManager.vue'
 
 export default {
   //components: { Recaptcha },
+  components: {
+    EmailManager,
+    OAuthManager,
+  },
   data() {
     return {
       userCardLoading: false,

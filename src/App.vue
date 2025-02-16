@@ -90,22 +90,3 @@ useHead({
   ],
 });
 </script>
-
-<style scoped>
-.md3-enter-active,
-.md3-leave-active {
-  transition: opacity 0.3s cubic-bezier(0.4, 0.0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-}
-
-/* 页面进入的初始状态 */
-.md3-enter-from {
-  opacity: 0;
-  transform: translateX(0.5vw); /* 从右侧滑入 */
-}
-
-/* 页面离开状态 */
-.md3-leave-to {
-  opacity: 0;
-  transform: translateX(-0.5vw); /* 向左滑出 */
-}
-</style>
