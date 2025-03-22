@@ -124,7 +124,7 @@ export default {
     getStarStatus(projectId) {
       if (!projectId) return;
       request({
-        url: `/projectlist/checkstar?projectid=${projectId}`,
+        url: `/projectlist/stars/checkstar?projectid=${projectId}`,
         method: "get",
       }).then((res) => {
         this.star = res.data.star;
@@ -135,7 +135,7 @@ export default {
     ToggleStarProject() {
       if (this.star == 0) {
         request({
-          url: `/projectlist/star`,
+          url: `/projectlist/stars/star`,
           method: "post",
           data: {
             projectid: this.projectId,
@@ -146,7 +146,7 @@ export default {
         });
       } else {
         request({
-          url: `/projectlist/unstar`,
+          url: `/projectlist/stars/unstar`,
           method: "post",
           data: {
             projectid: this.projectId,
@@ -159,16 +159,26 @@ export default {
     },
     async getProjectList(projectId) {
       if (!projectId) return;
-      this.projectLists = (
-        await request({
-          url: "/projectlist/check?projectid=" + projectId,
-          method: "get",
-        })
-      ).data.data;
+      const response = await request({
+        url: "/projectlist/lists/check?projectid=" + projectId,
+        method: "get",
+      });
+      
+      // 确保我们正确处理响应数据
+      if (response.data && response.data.data) {
+        // 将 hasProject 映射为 include 属性
+        this.projectLists = response.data.data.map(list => ({
+          ...list,
+          include: list.hasProject
+        }));
+      } else {
+        console.error("Unexpected response format:", response.data);
+        this.projectLists = [];
+      }
     },
     async addProjectToList(id) {
       await request({
-        url: "/projectlist/add",
+        url: "/projectlist/lists/add",
         data: {
           userid: this.userinfo.id,
           projectid: this.projectId,
@@ -187,7 +197,7 @@ export default {
     },
     async removeProjectFromList(id) {
       await request({
-        url: "/projectlist/remove",
+        url: "/projectlist/lists/remove",
         data: {
           projectid: this.projectId,
           listid: id,
@@ -205,7 +215,7 @@ export default {
     },
     async newProjectList() {
       await request
-        .post("/projectlist/create", this.projectlistInfo)
+        .post("/projectlist/lists/create", this.projectlistInfo)
         .then((res) => {
           this.$toast.add({
             severity: "info",

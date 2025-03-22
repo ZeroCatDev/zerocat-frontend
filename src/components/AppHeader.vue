@@ -3,7 +3,30 @@
     <template #prepend>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
     </template>
-    <v-app-bar-title><strong>ZeroCat</strong>Next</v-app-bar-title>
+    <v-app-bar-title>
+      <template v-if="isProjectPath">
+        <div class="d-flex align-center">
+          <v-btn
+            variant="text"
+            :to="`/${getPathSegments[0]}`"
+            class="text-none "
+          >
+            {{ getPathSegments[0] }}
+          </v-btn>
+          <span class="mx-1">/</span>
+          <v-btn
+            variant="text"
+            :to="`/${getPathSegments[0]}/${getPathSegments[1]}`"
+            class="text-none "
+          >
+            {{ getPathSegments[1] }}
+          </v-btn>
+        </div>
+      </template>
+      <template v-else>
+        <strong>ZeroCat</strong>Next
+      </template>
+    </v-app-bar-title>
     <template #append>
       <v-btn icon="mdi-plus" to="/app/new"></v-btn>
 
@@ -293,6 +316,15 @@ export default {
             ]
           : []),
       ];
+    },
+  },
+  computed: {
+    getPathSegments() {
+      return this.$route.path.split('/').filter(Boolean);
+    },
+    isProjectPath() {
+      const pathSegments = this.getPathSegments;
+      return pathSegments.length >= 2 && !this.hideNavPaths.some(path => this.$route.path.startsWith(path));
     },
   },
 };
