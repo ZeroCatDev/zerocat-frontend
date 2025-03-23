@@ -67,7 +67,7 @@
                 :title="project.title"
                 :subtitle="project.description || '无描述'"
                 class="h-100"
-                :to="`/app/project/${project.id}`"
+                :to="`/app/link/project?id=${project.id}`"
               >
                 <v-card-text>
                   <div class="d-flex align-center">
