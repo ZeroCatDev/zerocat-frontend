@@ -104,7 +104,7 @@
             ></v-list-item>
             <v-list-item
               to="/app/projectlist"
-              prepend-icon="mdi-xml"
+              prepend-icon="mdi-format-list-bulleted"
               title="列表"
               rounded="xl"
               color="primary"

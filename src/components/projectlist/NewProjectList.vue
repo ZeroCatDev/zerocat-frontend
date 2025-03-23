@@ -1,33 +1,45 @@
 <template>
-  <v-card prepend-icon="mdi-xml" title="新建列表" border>
+  <v-card prepend-icon="mdi-format-list-bulleted" title="新建列表" border>
     <v-card-text>
       <v-row dense>
-        <v-col cols="12" md="12" sm="12">
+        <v-col cols="12">
           <v-text-field
             label="标题"
             required
             hint="将便于查找"
             v-model="projectInfo.title"
-            disabled
+            :rules="[v => !!v || '标题不能为空']"
           ></v-text-field>
+        </v-col>
+        <v-col cols="12">
+          <v-text-field
+            label="简介"
+            hint="简要描述列表内容"
+            v-model="projectInfo.description"
+          ></v-text-field>
+        </v-col>
+        <v-col cols="12">
+          <v-select
+            v-model="projectInfo.state"
+            :items="listStates"
+            item-title="state"
+            item-value="abbr"
+            label="列表状态"
+          ></v-select>
         </v-col>
       </v-row>
     </v-card-text>
     <v-divider></v-divider>
     <v-card-actions>
       <v-spacer></v-spacer>
-
       <v-btn text="关闭" variant="plain" @click="close()"></v-btn>
-
       <v-btn
         color="primary"
         text="创建"
         variant="tonal"
-        @click="
-          newProjectList();
-          close();
-        "
-        :disabled="created"
+        @click="newProjectList"
+        :loading="loading"
+        :disabled="!projectInfo.title"
       ></v-btn>
     </v-card-actions>
   </v-card>
@@ -40,48 +52,69 @@ export default {
   data() {
     return {
       projectInfo: {
-        title: "新建项目列表",
+        title: "",
+        description: "",
+        state: "private"
       },
-      created: false,
+      listStates: [
+        { state: "私密", abbr: "private" },
+        { state: "公开", abbr: "public" },
+      ],
+      loading: false,
       newId: 0,
-      isVisibleDialog: false,
       openEdit,
     };
   },
   props: {
     callback: {
       type: Function,
-      required: false, // 可以根据需要设置为 true
+      required: false,
     },
     close: {
       type: Function,
-      required: false, // 可以根据需要设置为 true
+      required: false,
     },
   },
   methods: {
     show() {
-      (this.projectInfo = {
-        title: "新建项目列表",
-      }),
-        (this.created = false);
+      this.projectInfo = {
+        title: "",
+        description: "",
+        state: "private"
+      };
+      this.loading = false;
       this.newId = 0;
-      this.isVisibleDialog = true;
     },
     async newProjectList() {
-      await request.post("/projectlist/create", this.projectInfo).then((res) => {
-        console.log(res);
+      if (!this.projectInfo.title) return;
+      
+      this.loading = true;
+      try {
+        const res = await request.post("/projectlist/lists/create", this.projectInfo);
+        
         this.$toast.add({
           severity: "info",
-          summary: "info",
-          detail: res.data,
+          summary: res.data.status === "success" ? "成功" : "错误",
+          detail: res.data.message || "创建项目列表",
           life: 3000,
         });
-        if (res.data.status == "success") {
-          //this.created = true
-          this.newId = res.data.id;
+        
+        if (res.data.status === "success") {
+          this.newId = res.data.data.id;
+          if (this.callback) this.callback();
+          if (this.close) this.close();
         }
-      });
-      this.callback();
+      } catch (error) {
+        console.error("创建项目列表失败:", error);
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: "创建项目列表失败",
+          life: 3000,
+        });
+      } finally {
+        this.loading = false;
+      }
     },
   },
 };

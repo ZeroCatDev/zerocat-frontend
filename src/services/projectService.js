@@ -34,8 +34,13 @@ export async function getProjectInfo(ids) {
   }
 }
 export async function getProjectListById(id) {
-  const { data } = await request.get(`/projectlist/listid/${id}`);
-  return data.data;
+  try {
+    const { data } = await request.get(`/projectlist/lists/listid/${id}`);
+    return data.data;
+  } catch (error) {
+    console.error("获取项目列表失败:", error);
+    return { projects: [] };
+  }
 }
 
 // 使用 [username]/[projectname] 获取项目信息函数
