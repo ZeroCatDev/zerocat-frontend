@@ -38,8 +38,7 @@
             <Markdown>{{ user.motto }}</Markdown>
           </v-card-text>
 
-        </v-card>
-        <Projects :url="url"></Projects>
+        </v-card> <Projects :url="url"></Projects>
         <v-row>
           <v-col cols="12" xs="12" sm="6" md="4" lg="3" xl="2" xxl="2" v-for="item in lists" :key="item.id">
             <v-card rounded="lg">
@@ -48,7 +47,8 @@
               </v-card>
             </v-card>
           </v-col>
-        </v-row>
+        </v-row><br/>
+        <user-project-lists :user-id="user.id" :project-lists="lists" />
         <br />
         <Comment :url="'user-' + user.id" name="用户"></Comment>
       </v-tabs-window-item>
@@ -226,7 +226,6 @@
 
 <script>
 import Comment from "../../components/Comment.vue";
-import Projects from "../../components/project/Projects.vue";
 import { useHead } from "@unhead/vue";
 import { getUserByUsername } from "../../stores/user.js";
 import request from "../../axios/axios.js";
@@ -234,8 +233,15 @@ import { getUserById } from "../../stores/user";
 import Markdown from "@/components/Markdown.vue";
 import "github-markdown-css";
 import TimeAgo from "@/components/TimeAgo.vue";
+import UserProjectLists from "@/components/projectlist/UserProjectLists.vue";
+
 export default {
-  components: { Projects, Comment, Markdown,TimeAgo },
+  components: { 
+    Comment, 
+    Markdown,
+    TimeAgo,
+    UserProjectLists
+  },
   data() {
     return {
       username: this.$route.params.username,
@@ -352,12 +358,18 @@ export default {
       this.url = `/searchapi?search_userid=${this.user.id}&search_type=&search_title=&search_source=&search_description=&search_orderby=view_up&search_state=public&search_tag=`;
     },
     async getProjectList() {
-      this.lists = (
-        await request({
+      try {
+        const response = await request({
           url: `/projectlist/userid/${this.user.id}/public`,
           method: "get",
-        })
-      ).data.data;
+        });
+        if (response.data && response.data.data) {
+          this.lists = response.data.data;
+        }
+      } catch (error) {
+        console.error("获取用户项目列表失败:", error);
+        this.lists = [];
+      }
     },
     async fetchTimeline(page = 1) {
       try {

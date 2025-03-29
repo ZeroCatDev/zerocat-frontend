@@ -63,31 +63,11 @@
               :key="project.id"
               cols="12" sm="6" md="4" lg="3"
             >
-              <v-card
-                :title="project.title"
-                :subtitle="project.description || '无描述'"
-                class="h-100"
-                :to="`/app/link/project?id=${project.id}`"
-              >
-                <v-card-text>
-                  <div class="d-flex align-center">
-                    <v-chip :color="project.state === 'public' ? 'success' : 'warning'" size="small" class="mr-2">
-                      {{ project.state === 'public' ? '公开' : '私密' }}
-                    </v-chip>
-                    <span class="text-caption">{{ formatDate(project.time) }}</span>
-                  </div>
-                  <div class="mt-2 d-flex align-center">
-                    <span class="text-caption">浏览: {{ project.view_count || 0 }}</span>
-                    <v-spacer></v-spacer>
-                    <span class="text-caption">
-                      <v-avatar size="16" class="mr-1">
-                        <v-img :src="getAvatarUrl(getUserInfo(project.authorid))" alt="用户头像"></v-img>
-                      </v-avatar>
-                      {{ getUserInfo(project.authorid).username || getUserInfo(project.authorid).display_name || `用户${project.authorid}` }}
-                    </span>
-                  </div>
-                </v-card-text>
-              </v-card>
+              <project-card 
+                :project-data="project" 
+                :author-data="getUserInfo(project.authorid)" 
+                :show-author="true"
+              />
             </v-col>
           </v-row>
         </v-col>
@@ -109,6 +89,7 @@ import request from "../../axios/axios";
 import EditProjectListConfig from "./EditProjectListConfig.vue";
 import { localuser } from "../../services/localAccount";
 import { getUserById } from "../../stores/user";
+import ProjectCard from "../project/ProjectCard.vue";
 
 export default {
   props: {
@@ -118,7 +99,8 @@ export default {
     },
   },
   components: {
-    EditProjectListConfig
+    EditProjectListConfig,
+    ProjectCard
   },
   data() {
     return {
