@@ -48,6 +48,10 @@
         ></v-select>
       </v-col>
 
+      <v-col cols="12" sm="6">
+        <LicenseSelector v-model="project.license" />
+      </v-col>
+
       <v-col cols="12">
         <v-combobox
           v-model="tags.chips"
@@ -228,8 +232,12 @@ import request from "../../../axios/axios";
 import { localuser } from "@/services/localAccount";
 import { useHead } from "@unhead/vue";
 import { getProjectInfoByNamespace } from "@/services/projectService";
+import LicenseSelector from "@/components/LicenseSelector.vue";
 
 export default {
+  components: {
+    LicenseSelector
+  },
   data() {
     return {
       localuser,
@@ -314,6 +322,7 @@ export default {
               description: this.project.description,
               type: this.project.type,
               tags: this.project.tags,
+              license: this.project.license,
             }
           )
         ).data;
