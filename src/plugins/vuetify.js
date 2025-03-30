@@ -18,7 +18,7 @@ export default createVuetify({
     VNumberInput,
   },
   theme: {
-    defaultTheme: "dark",
+    defaultTheme: localStorage.getItem("theme") || "dark",
     themes: {
       light: {
         colors: {

@@ -22,6 +22,8 @@
     <template #append>
       <v-btn icon="mdi-plus" to="/app/new"></v-btn>
 
+      <v-btn :icon="isDarkTheme ? 'mdi-weather-sunny' : 'mdi-weather-night'" @click="toggleTheme"></v-btn>
+
       <v-menu>
         <template #activator="{ props }">
           <v-btn icon="mdi-dots-vertical" v-bind="props"></v-btn>
@@ -97,6 +99,7 @@
 
 <script>
 import { localuser } from "@/services/localAccount";
+import { useTheme } from 'vuetify';
 
 export default {
   data() {
@@ -112,15 +115,23 @@ export default {
       hideExactPaths: ["/", "/index.html"],
       activeTab: "1",
       VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
+      isDarkTheme: false,
+      theme: null,
     };
   },
   created() {
     const drawerStatus = localStorage.getItem("drawerStatus");
     const drawerRailStatus = localStorage.getItem("drawerRailStatus");
+    const savedTheme = localStorage.getItem("theme");
 
     this.drawer = drawerStatus === "true";
     this.drawerRail = drawerRailStatus === "true";
     this.updateSubNavItems(this.$route);
+    
+    // Initialize theme
+    this.theme = useTheme();
+    this.isDarkTheme = savedTheme === "dark";
+    this.applyTheme();
   },
   watch: {
     userInfo() {
@@ -140,6 +151,18 @@ export default {
     },
   },
   methods: {
+    toggleTheme() {
+      this.isDarkTheme = !this.isDarkTheme;
+      localStorage.setItem("theme", this.isDarkTheme ? "dark" : "light");
+      this.applyTheme();
+    },
+    
+    applyTheme() {
+      if (this.theme) {
+        this.theme.global.name = this.isDarkTheme ? 'dark' : 'light';
+      }
+    },
+    
     initializeNavItems() {
       return {
         main: {

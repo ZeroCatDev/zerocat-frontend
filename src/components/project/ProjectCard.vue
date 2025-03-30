@@ -1,5 +1,5 @@
 <template>
-  <v-card rounded="lg" border>
+  <v-card rounded="lg"  class="box-shadow">
     <v-card
       :to="getProjectLink()"
       style="aspect-ratio: 4/3"
@@ -153,4 +153,15 @@ export default {
     }
   }
 };
-</script> 
+</script>
+<style scoped>
+.box-shadow {
+  box-shadow: 
+    0px 0px 0px 1px rgba(14, 63, 126, 0.04),
+    0px 1px 1px -0.5px rgba(42, 51, 70, 0.04),
+    0px 3px 3px -1.5px rgba(42, 51, 70, 0.04),
+    0px 6px 6px -3px rgba(42, 51, 70, 0.04),
+    0px 12px 12px -6px rgba(14, 63, 126, 0.04),
+    0px 24px 24px -12px rgba(14, 63, 126, 0.04);}
+</style>
+
