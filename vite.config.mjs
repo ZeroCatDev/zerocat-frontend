@@ -7,6 +7,7 @@ import Vue from "@vitejs/plugin-vue";
 import VueRouter from "unplugin-vue-router/vite";
 import Vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 //import copyPlugin from "rollup-plugin-copy";
 
 // Utilities
@@ -47,6 +48,14 @@ export default defineConfig({
       vueTemplate: true,
     }),
     PrimeVueResolver(),
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'node_modules/monaco-editor/min/vs',
+          dest: 'monaco-editor/min'
+        }
+      ]
+    }),
     /*copyPlugin(
       {
         targets: [{ src: "scratch-gui/build", dest: "dist" }],

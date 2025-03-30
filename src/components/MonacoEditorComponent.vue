@@ -38,7 +38,7 @@ export default {
       // 配置 require
       window.require.config({
         paths: {
-          vs: '/node_modules/monaco-editor/min/vs'
+          vs: '/monaco-editor/min/vs'  // 修改路径指向public目录
         },
         'vs/nls': {
           availableLanguages: {
@@ -170,7 +170,7 @@ export default {
       if (!window.require) {
         // 如果没有加载，创建script标签加载
         const loaderScript = document.createElement('script');
-        loaderScript.src = '/node_modules/monaco-editor/min/vs/loader.js';
+        loaderScript.src = '/monaco-editor/min/vs/loader.js';  // 修改路径指向public目录
         loaderScript.onload = initMonaco;
         document.head.appendChild(loaderScript);
       } else {
