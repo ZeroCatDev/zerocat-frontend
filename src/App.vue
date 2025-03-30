@@ -1,21 +1,32 @@
 <template>
-  <v-app>
-    <Toast />
-    <AppHeader />
-    <v-main>
-      <router-view v-slot="{ Component, route }">
-        <transition name="md3" mode="out-in">
-          <component :is="Component" :key="route.path" />
-        </transition>
-      </router-view>
-    </v-main>
-    <AppFooter />
-  </v-app>
+  <component :is="layout">
+    <router-view />
+  </component>
 </template>
 
 <script setup>
-import Toast from "primevue/toast";
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { useHead } from "@unhead/vue";
+
+// 导入布局
+import DefaultLayout from '@/layouts/DefaultLayout.vue';
+import SimpleLayout from '@/layouts/SimpleLayout.vue';
+
+const route = useRoute();
+
+// 根据路由元数据确定使用哪个布局
+const layout = computed(() => {
+  const layoutName = route.meta.layout || 'default';
+  return layouts[layoutName];
+});
+
+// 可用布局映射
+const layouts = {
+  'default': DefaultLayout,
+  'simple': SimpleLayout,
+};
+
 useHead({
   titleTemplate: (title) => (!title ? "ZeroCat社区" : `${title} - ZeroCat社区`),
   htmlAttrs: {
@@ -90,3 +101,16 @@ useHead({
   ],
 });
 </script>
+
+<style>
+.md3-enter-active,
+.md3-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.md3-enter-from,
+.md3-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+</style>

@@ -1,6 +1,6 @@
 <template>
-  <v-footer height="40" app>
-    <a
+<v-footer height="40" app>
+      <a
       v-for="item in items"
       :key="item.title"
       :href="item.href"
