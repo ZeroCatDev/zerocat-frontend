@@ -1,38 +1,32 @@
 <template>
   <v-container fluid class="pa-4">
     <v-row>
-      <v-col cols="12" md="10" lg="8" class="mx-auto">
+      <v-col cols="12" md="10" lg="8" class="mx-auto ">
         <!-- User Profile Card -->
-        <v-card hover class="mb-6 elevation-2" :disabled="userCardLoading" :loading="userCardLoading">
-          <v-row no-gutters align="center">
-            <v-col cols="12" sm="4" md="3" class="pa-4 text-center">
-              <v-avatar size="120" class="mb-2 elevation-2">
-                <v-img :alt="userInfo.display_name" :src="VITE_APP_S3_BUCKET + '/user/' + userInfo.images" cover></v-img>
-              </v-avatar>
-            </v-col>
-            <v-col cols="12" sm="8" md="9" class="pa-4">
-              <h2 class="text-h4 font-weight-bold mb-2">{{ userInfo.display_name }}</h2>
-              <div class="d-flex flex-wrap gap-2 mb-2">
-                <v-chip color="primary" variant="outlined">
-                  <v-icon start icon="mdi-account-circle"></v-icon>
-                  ID: {{ userInfo.id }}
-                </v-chip>
-                <v-chip color="success" variant="outlined">
-                  <v-icon start icon="mdi-tag"></v-icon>
-                  创作者
-                </v-chip>
-              </div>
-              <v-expand-transition>
-                <div v-if="userInfo.motto" class="mt-3 text-body-1 text-medium-emphasis">
-                  {{ userInfo.motto }}
-                </div>
-              </v-expand-transition>
-            </v-col>
-          </v-row>
-          <template v-slot:loader="{ isActive }">
-            <v-progress-linear :active="isActive" height="4" indeterminate color="primary"></v-progress-linear>
-          </template>
-        </v-card>
+        <v-card hover border class="mx-auto mb-4" variant="" :disabled="userCardLoading" :loading="userCardLoading">
+        <template v-slot:prepend>
+          <v-avatar class="mb-2">
+            <v-img :alt="userInfo.display_name" :src="VITE_APP_S3_BUCKET + '/user/' + userInfo.images"></v-img>
+          </v-avatar>
+        </template>
+        <template v-slot:title>
+          <span class="font-weight-black">{{ userInfo.display_name }}</span>
+        </template>
+        <template v-slot:loader="{ isActive }">
+          <v-progress-linear :active="isActive" height="4" indeterminate></v-progress-linear>
+        </template>
+        <template v-slot:subtitle>
+          <v-chip>
+            <v-icon icon="mdi-account-circle" start></v-icon>
+            ID:{{ userInfo.id }}
+          </v-chip>
+          <v-chip>
+            <v-icon icon="mdi-tag" start></v-icon>
+            创作者
+          </v-chip>
+        </template>
+
+      </v-card>
 
         <!-- Account Settings Section -->
         <v-card class="elevation-2">
