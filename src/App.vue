@@ -1,6 +1,10 @@
 <template>
   <component :is="layout" :key="route.path">
-    <router-view />
+    <router-view v-slot="{ Component }">
+      <transition name="md3" mode="out-in">
+        <component :is="Component" :key="route.path" />
+      </transition>
+    </router-view>
   </component>
 </template>
 

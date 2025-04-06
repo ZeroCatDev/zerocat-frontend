@@ -4,11 +4,7 @@
     <Toast />
     <AppHeader />
     <v-main>
-      <router-view v-slot="{ Component, route }">
-        <transition name="md3" mode="out-in">
-          <component :is="Component" :key="route.path" />
-        </transition>
-      </router-view>
+      <router-view />
     </v-main>
 
   </v-app>
@@ -38,22 +34,10 @@ onMounted(() => {
 
 
 });
-  
+
 // 监听主题变化并保存到本地存储
 watch(() => theme.global.name.value, (newTheme) => {
   localStorage.setItem('theme', newTheme);
 });
 </script>
 
-<style>
-.md3-enter-active,
-.md3-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.md3-enter-from,
-.md3-leave-to {
-  opacity: 0;
-  transform: translateY(10px);
-}
-</style>
