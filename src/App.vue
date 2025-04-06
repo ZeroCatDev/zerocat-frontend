@@ -1,5 +1,5 @@
 <template>
-  <component :is="layout">
+  <component :is="layout" :key="route.path">
     <router-view />
   </component>
 </template>
