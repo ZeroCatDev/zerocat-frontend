@@ -3,6 +3,9 @@ import request from "../axios/axios";
 
 const USER_INFO_KEY = "userInfo";
 const TOKEN_KEY = "token";
+const REFRESH_TOKEN_KEY = "refreshToken";
+const TOKEN_EXPIRES_AT_KEY = "tokenExpiresAt";
+const REFRESH_TOKEN_EXPIRES_AT_KEY = "refreshTokenExpiresAt";
 
 const DEFAULT_USER = {
   id: 0,
@@ -15,8 +18,14 @@ const DEFAULT_USER = {
 };
 
 var token = ref(localStorage.getItem(TOKEN_KEY));
+var refreshToken = ref(localStorage.getItem(REFRESH_TOKEN_KEY));
+var tokenExpiresAt = ref(localStorage.getItem(TOKEN_EXPIRES_AT_KEY));
+var refreshTokenExpiresAt = ref(localStorage.getItem(REFRESH_TOKEN_EXPIRES_AT_KEY));
 var user = ref(DEFAULT_USER);
 var isLogin = ref(false);
+var devices = ref([]);
+var activeTokens = ref([]);
+var currentTokenDetails = ref(null);
 
 const loadUser = async (force) => {
   if (localStorage.getItem(TOKEN_KEY) === null) {
@@ -24,6 +33,21 @@ const loadUser = async (force) => {
     user.value = DEFAULT_USER;
     return;
   }
+
+  // Check if token is expired
+  const now = new Date();
+  const expiresAt = new Date(localStorage.getItem(TOKEN_EXPIRES_AT_KEY));
+
+  if (expiresAt && expiresAt <= now) {
+    // Token expired, try to refresh
+    const refreshSuccessful = await refreshAccessToken();
+    if (!refreshSuccessful) {
+      // If refresh failed, logout
+      logout();
+      return;
+    }
+  }
+
   if (force === true) {
     await fetchUserInfo();
   } else {
@@ -61,21 +85,229 @@ const fetchUserInfo = async () => {
   isLogin.value = true;
 };
 
+const refreshAccessToken = async () => {
+  try {
+    const storedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+    if (!storedRefreshToken) {
+      return false;
+    }
+
+    const response = await request({
+      url: "/account/refresh-token",
+      method: "post",
+      data: {
+        refresh_token: storedRefreshToken
+      }
+    });
+
+    const data = response.data;
+    if (data.status !== "success") {
+      return false;
+    }
+
+    // Update only token and expires_at (refresh token no longer updated)
+    localStorage.setItem(TOKEN_KEY, data.token);
+    localStorage.setItem(TOKEN_EXPIRES_AT_KEY, data.expires_at);
+    token.value = data.token;
+    tokenExpiresAt.value = data.expires_at;
+
+    return true;
+  } catch (error) {
+    console.error("Token refresh failed:", error);
+    return false;
+  }
+};
+
 const setUser = async (data) => {
-  localStorage.setItem(TOKEN_KEY, data);
-  token.value = data;
+  localStorage.setItem(TOKEN_KEY, data.token);
+  localStorage.setItem(REFRESH_TOKEN_KEY, data.refresh_token);
+  localStorage.setItem(TOKEN_EXPIRES_AT_KEY, data.expires_at);
+  localStorage.setItem(REFRESH_TOKEN_EXPIRES_AT_KEY, data.refresh_expires_at);
+
+  token.value = data.token;
+  refreshToken.value = data.refresh_token;
+  tokenExpiresAt.value = data.expires_at;
+  refreshTokenExpiresAt.value = data.refresh_expires_at;
+
   await loadUser(true);
 };
-const getToken =()=>{
-  return localStorage.getItem('token')
-}
-const logout = () => {
+
+const getToken = () => {
+  return localStorage.getItem(TOKEN_KEY);
+};
+
+const getRefreshToken = () => {
+  return localStorage.getItem(REFRESH_TOKEN_KEY);
+};
+
+const logout = async (logoutFromServer = true) => {
+  if (logoutFromServer && isLogin.value) {
+    try {
+      await request({
+        url: "/account/logout",
+        method: "post"
+      });
+    } catch (error) {
+      console.error("Error during server logout:", error);
+      // Continue with local logout even if server logout fails
+    }
+  }
+
   localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_KEY);
+  localStorage.removeItem(TOKEN_EXPIRES_AT_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_EXPIRES_AT_KEY);
   localStorage.removeItem(USER_INFO_KEY);
+
   token.value = null;
+  refreshToken.value = null;
+  tokenExpiresAt.value = null;
+  refreshTokenExpiresAt.value = null;
   user.value = DEFAULT_USER;
   isLogin.value = false;
+  devices.value = [];
+  activeTokens.value = [];
 };
+
+const logoutAllDevices = async () => {
+  try {
+    const response = await request({
+      url: "/account/logout-all-devices",
+      method: "post"
+    });
+
+    if (response.data.status === "success") {
+      // Perform local logout after successful server logout
+      await logout(false);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("Error during logout from all devices:", error);
+    return false;
+  }
+};
+
+const getDevices = async () => {
+  try {
+    const response = await request({
+      url: "/account/devices",
+      method: "get"
+    });
+
+    if (response.data.status === "success") {
+      devices.value = response.data.data;
+      return response.data.data;
+    }
+    return [];
+  } catch (error) {
+    console.error("Error fetching devices:", error);
+    return [];
+  }
+};
+
+const getActiveTokens = async (includeLocation = true) => {
+  try {
+    const response = await request({
+      url: `/account/active-tokens${includeLocation ? '?include_location=true' : ''}`,
+      method: "get"
+    });
+
+    if (response.data.status === "success") {
+      activeTokens.value = response.data.data;
+      return response.data.data;
+    }
+    return [];
+  } catch (error) {
+    console.error("Error fetching active tokens:", error);
+    return [];
+  }
+};
+
+const getTokenDetails = async (tokenId, includeLocation = true) => {
+  try {
+    const response = await request({
+      url: `/account/token-details/${tokenId}${includeLocation ? '?include_location=true' : ''}`,
+      method: "get"
+    });
+
+    if (response.data.status === "success") {
+      currentTokenDetails.value = response.data.data;
+      return response.data.data;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching token details:", error);
+    return null;
+  }
+};
+
+const revokeToken = async (tokenId) => {
+  try {
+    const response = await request({
+      url: "/account/revoke-token",
+      method: "post",
+      data: {
+        token_id: tokenId
+      }
+    });
+
+    if (response.data.status === "success") {
+      // Refresh the active tokens list
+      await getActiveTokens();
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("Error revoking token:", error);
+    return false;
+  }
+};
+
+const trustDevice = async (deviceId) => {
+  try {
+    const response = await request({
+      url: "/account/trust-device",
+      method: "post",
+      data: {
+        device_id: deviceId
+      }
+    });
+
+    if (response.data.status === "success") {
+      // Refresh the devices list
+      await getDevices();
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("Error trusting device:", error);
+    return false;
+  }
+};
+
+const untrustDevice = async (deviceId) => {
+  try {
+    const response = await request({
+      url: "/account/untrust-device",
+      method: "post",
+      data: {
+        device_id: deviceId
+      }
+    });
+
+    if (response.data.status === "success") {
+      // Refresh the devices list
+      await getDevices();
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("Error untrusting device:", error);
+    return false;
+  }
+};
+
 loadUser();
 watch(token, loadUser);
 
@@ -85,5 +317,17 @@ export const localuser = {
   loadUser,
   setUser,
   logout,
-  getToken
+  getToken,
+  getRefreshToken,
+  refreshAccessToken,
+  logoutAllDevices,
+  getDevices,
+  getActiveTokens,
+  getTokenDetails,
+  revokeToken,
+  trustDevice,
+  untrustDevice,
+  devices,
+  activeTokens,
+  currentTokenDetails
 };

@@ -24,7 +24,7 @@
       <v-tab value="password" variant="text">密码登录</v-tab>
       <v-tab value="code" variant="text">验证码登录</v-tab>
     </v-tabs>
-      
+
               <v-text-field label="邮箱" type="text" v-model="username" variant="outlined"
                 :rules="emailRules"></v-text-field>
 
@@ -256,9 +256,22 @@ export default {
     async handleLoginResponse(response) {
       this.tryinguser = response.data;
       if (this.tryinguser.status === "success") {
-        await localuser.setUser(this.tryinguser.token);
-        this.$router.push("/");
+        // 使用新的认证系统响应格式
+        await localuser.setUser({
+          token: this.tryinguser.token,
+          refresh_token: this.tryinguser.refresh_token,
+          expires_at: this.tryinguser.expires_at,
+          refresh_expires_at: this.tryinguser.refresh_expires_at
+        });
 
+        this.$toast.add({
+          severity: "success",
+          summary: "登录成功",
+          detail: "欢迎回来，" + this.tryinguser.display_name,
+          life: 3000,
+        });
+
+        this.$router.push("/");
       } else {
         this.$toast.add({
           severity: "info",

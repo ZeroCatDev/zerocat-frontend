@@ -86,3 +86,73 @@ export function resetPassword(data) {
     data,
   });
 }
+
+// New authentication API functions
+
+export function refreshToken(refreshToken) {
+  return request({
+    url: "/account/refresh-token",
+    method: "post",
+    data: {
+      refresh_token: refreshToken
+    },
+  });
+}
+
+export function logout() {
+  return request({
+    url: "/account/logout",
+    method: "post",
+  });
+}
+
+export function logoutAllDevices() {
+  return request({
+    url: "/account/logout-all-devices",
+    method: "post",
+  });
+}
+
+export function getDevices() {
+  return request({
+    url: "/account/devices",
+    method: "get",
+  });
+}
+
+export function getActiveTokens() {
+  return request({
+    url: "/account/active-tokens",
+    method: "get",
+  });
+}
+
+export function revokeToken(tokenId) {
+  return request({
+    url: "/account/revoke-token",
+    method: "post",
+    data: {
+      token_id: tokenId
+    },
+  });
+}
+
+export function trustDevice(deviceId) {
+  return request({
+    url: "/account/trust-device",
+    method: "post",
+    data: {
+      device_id: deviceId
+    },
+  });
+}
+
+export function untrustDevice(deviceId) {
+  return request({
+    url: "/account/untrust-device",
+    method: "post",
+    data: {
+      device_id: deviceId
+    },
+  });
+}

@@ -27,19 +27,22 @@ export default {
     });
   },
   async created() {
-    this.log="正在退出账户";
+    this.log = "正在退出账户...";
 
     try {
-      this.log="正在退出";
-      localuser.logout();
-      this.titlemessage="已退出";
+      // 使用新的异步注销方法
+      await localuser.logout(true);
+      this.titlemessage = "已成功退出";
+      this.log = "您已安全退出账户。请关闭此标签页并刷新其他标签页。";
 
-      this.log="请关闭此标签页并刷新其他标签页";
+      // 3秒后跳转到登录页面
+      setTimeout(() => {
+        this.$router.push('/app/account/login');
+      }, 3000);
     } catch (error) {
-      this.titlemessage="出现错误";
-      this.log=error;
+      this.titlemessage = "退出时发生错误";
+      this.log = error.message || "未知错误，请稍后重试";
     }
   },
-
 };
 </script>
