@@ -16,7 +16,7 @@
         </div>
       </template>
       <template v-else>
-        <strong>ZeroCat</strong>Next
+        <strong>Zero</strong>Cat
       </template>
     </v-app-bar-title>
     <template #append>
@@ -127,7 +127,7 @@ export default {
     this.drawer = drawerStatus === "true";
     this.drawerRail = drawerRailStatus === "true";
     this.updateSubNavItems(this.$route);
-    
+
     // Initialize theme
     this.theme = useTheme();
     this.isDarkTheme = savedTheme === "dark";
@@ -156,13 +156,13 @@ export default {
       localStorage.setItem("theme", this.isDarkTheme ? "dark" : "light");
       this.applyTheme();
     },
-    
+
     applyTheme() {
       if (this.theme) {
         this.theme.global.name = this.isDarkTheme ? 'dark' : 'light';
       }
     },
-    
+
     initializeNavItems() {
       return {
         main: {
