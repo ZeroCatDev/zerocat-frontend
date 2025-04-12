@@ -1,1 +1,0 @@
-import{_ as o}from"./404-B4OsrVJa.js";import{T as r,o as t}from"./index-sOByCu58.js";import"./VRow-0uApXze6.js";/* empty css              */import"./VContainer-CUBMfCuZ.js";const n={__name:"404",setup(_){return(a,e)=>(t(),r(o))}};export{n as default};
