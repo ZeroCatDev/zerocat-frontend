@@ -136,23 +136,3 @@ export function revokeToken(tokenId) {
     },
   });
 }
-
-export function trustDevice(deviceId) {
-  return request({
-    url: "/account/trust-device",
-    method: "post",
-    data: {
-      device_id: deviceId
-    },
-  });
-}
-
-export function untrustDevice(deviceId) {
-  return request({
-    url: "/account/untrust-device",
-    method: "post",
-    data: {
-      device_id: deviceId
-    },
-  });
-}

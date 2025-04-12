@@ -271,8 +271,9 @@ export default {
           life: 3000,
         });
 
-        this.$router.push("/");
-      } else {
+
+        window.location.replace('/app/explore')
+        } else {
         this.$toast.add({
           severity: "info",
           summary: "info",

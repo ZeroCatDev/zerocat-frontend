@@ -13,29 +13,30 @@
 </template>
 
 <script setup>
-import Toast from "primevue/toast";
-import AppHeader from "@/components/AppHeader.vue";
 import { onMounted, watch } from "vue";
 import { useTheme } from "vuetify";
-// 引入Monaco编辑器的语言和主题配置
-import * as monaco from "monaco-editor";
+import AppHeader from "@/components/AppHeader.vue";
+import Toast from "primevue/toast";
 
 const theme = useTheme();
 
-// 从本地存储中获取主题设置
-onMounted(() => {
+/**
+ * 主题管理
+ */
+const initTheme = () => {
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme) {
     theme.global.name.value = savedTheme;
   } else {
     // 检测系统主题偏好
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     theme.global.name.value = prefersDark ? "dark" : "light";
     localStorage.setItem("theme", theme.global.name.value);
   }
-});
+};
+
+// 初始化主题
+onMounted(initTheme);
 
 // 监听主题变化并保存到本地存储
 watch(

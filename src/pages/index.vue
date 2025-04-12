@@ -1,7 +1,7 @@
 <template>
   <div class="landing-page">
     <!-- 顶部导航 -->
-    <v-app-bar flat color="surface" class="px-4 px-sm-10">
+    <v-toolbar flat color="surface" class="px-4 px-sm-10">
       <template v-slot:prepend>
         <div class="d-flex align-center">
           <span class="font-weight-bold primary--text">ZeroCat</span>
@@ -35,7 +35,7 @@
       >
         立即开始
       </v-btn>
-    </v-app-bar>
+    </v-toolbar>
 
     <!-- 主要内容 -->
 
@@ -103,7 +103,7 @@
 
           <v-row>
             <v-col v-for="(feature, i) in features" :key="i" cols="12" sm="6" md="4">
-              <v-card variant="flat" class="h-100 pa-4">
+              <v-card class="h-100 pa-4 card-glass">
                 <v-icon :color="feature.color" size="36" class="mb-4">{{ feature.icon }}</v-icon>
                 <div class="font-weight-medium mb-2">{{ feature.title }}</div>
                 <p class="text-caption text-medium-emphasis">{{ feature.text }}</p>
@@ -118,7 +118,7 @@
         <v-container>
           <v-row justify="center">
             <v-col v-for="(stat, i) in stats" :key="i" cols="6" sm="4" lg="3">
-              <v-card variant="flat" class="text-center py-6">
+              <v-card variant="flat" class="text-center py-6 card-glass">
                 <div class="text-primary font-weight-bold mb-1">{{ stat.title }}</div>
                 <div class="text-caption text-medium-emphasis">{{ stat.subtitle }}</div>
               </v-card>
@@ -166,7 +166,7 @@
 
           <v-row>
             <v-col v-for="(member, i) in teamMembers" :key="i" cols="6" sm="3">
-              <v-card variant="flat" class="text-center pa-4" :href="member.link" target="_blank">
+              <v-card variant="flat" class="text-center pa-4 card-glass" :href="member.link" target="_blank">
                 <v-avatar size="80" class="mb-3">
                   <v-img :src="member.avatar" alt="团队成员"></v-img>
                 </v-avatar>
@@ -648,6 +648,22 @@ onMounted(() => {
 </script>
 
 <style scoped>
+
+
+.card-glass {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s ease;
+  border-radius: 16px;
+}
+
+.card-glass:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(var(--v-theme-primary), 0.15);
+  border-color: rgba(var(--v-theme-primary), 0.3);
+}
 .landing-page {
   --section-spacing: 4rem;
   scroll-behavior: smooth;
@@ -719,17 +735,6 @@ onMounted(() => {
   z-index: 0;
 }
 
-.features-section .v-card {
-  transition: all 0.3s ease;
-  backdrop-filter: blur(5px);
-  position: relative;
-  z-index: 1;
-}
-
-.features-section .v-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-}
 
 .team-section {
   position: relative;
@@ -748,17 +753,6 @@ onMounted(() => {
   z-index: 0;
 }
 
-.team-section .v-card {
-  transition: all 0.3s ease;
-  backdrop-filter: blur(5px);
-  position: relative;
-  z-index: 1;
-}
-
-.team-section .v-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-}
 
 .cta-section {
   position: relative;

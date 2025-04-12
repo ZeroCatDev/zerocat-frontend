@@ -264,49 +264,6 @@ const revokeToken = async (tokenId) => {
   }
 };
 
-const trustDevice = async (deviceId) => {
-  try {
-    const response = await request({
-      url: "/account/trust-device",
-      method: "post",
-      data: {
-        device_id: deviceId
-      }
-    });
-
-    if (response.data.status === "success") {
-      // Refresh the devices list
-      await getDevices();
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.error("Error trusting device:", error);
-    return false;
-  }
-};
-
-const untrustDevice = async (deviceId) => {
-  try {
-    const response = await request({
-      url: "/account/untrust-device",
-      method: "post",
-      data: {
-        device_id: deviceId
-      }
-    });
-
-    if (response.data.status === "success") {
-      // Refresh the devices list
-      await getDevices();
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.error("Error untrusting device:", error);
-    return false;
-  }
-};
 
 loadUser();
 watch(token, loadUser);
@@ -325,8 +282,6 @@ export const localuser = {
   getActiveTokens,
   getTokenDetails,
   revokeToken,
-  trustDevice,
-  untrustDevice,
   devices,
   activeTokens,
   currentTokenDetails
