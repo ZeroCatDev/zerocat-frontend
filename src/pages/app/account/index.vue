@@ -18,6 +18,7 @@
           :value="item.value"
           @click="tab = item.value"
           :prepend-icon="item.icon"
+          :to="item.to"
         >
 
           </v-tab>
@@ -81,6 +82,12 @@
             <h3 class="text-h5 mb-4">安全管理</h3>
             <security-manager />
           </v-window-item>
+
+          <!-- Relationships Tab -->
+          <v-window-item value="relationships">
+
+
+          </v-window-item>
         </v-window>
       </v-card-text>
     </v-card>
@@ -103,6 +110,9 @@ import ProfileEditor from "@/components/account/ProfileEditor.vue";
 import UsernameEditor from "@/components/account/UsernameEditor.vue";
 import PasswordEditor from "@/components/account/PasswordEditor.vue";
 import AvatarEditor from "@/components/account/AvatarEditor.vue";
+import UserFollowing from "@/components/user/UserFollowing.vue";
+import UserFollowers from "@/components/user/UserFollowers.vue";
+import UserBlocked from "@/components/user/UserBlocked.vue";
 
 export default {
   components: {
@@ -114,6 +124,9 @@ export default {
     UsernameEditor,
     PasswordEditor,
     AvatarEditor,
+    UserFollowing,
+    UserFollowers,
+    UserBlocked,
   },
   data() {
     return {
@@ -129,6 +142,7 @@ export default {
         { title: "邮箱", value: "email", icon: "mdi-email" },
         { title: "OAuth", value: "oauth", icon: "mdi-link-variant" },
         { title: "安全", value: "security", icon: "mdi-security" },
+        { title: "关系", value: "relationships", icon: "mdi-account-group", to: "/app/account/relationships" },
       ],
       VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
     };

@@ -175,6 +175,14 @@
                 <v-card-subtitle class="text-white">{{
                   author.motto
                 }}</v-card-subtitle>
+
+                <template v-slot:append v-if="localuser.id && localuser.id !== author.id">
+                  <user-relation-controls
+                    :user-id="author.id"
+                    :username="author.username"
+                    :display-name="author.display_name"
+                  />
+                </template>
               </v-card-item>
             </v-card>
           </div>
@@ -203,6 +211,7 @@ import {
 import { getUserById } from "../../../stores/user.js";
 import Markdown from "@/components/Markdown.vue";
 import License from "@/components/license/License.vue";
+import UserRelationControls from "@/components/user/UserRelationControls.vue";
 import {
   getBranchs,
   getBranchHistoryByCommit,
@@ -217,6 +226,7 @@ export default {
     ProjectStar,
     Markdown,
     License,
+    UserRelationControls,
   },
   data() {
     return {

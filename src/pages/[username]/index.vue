@@ -1,5 +1,13 @@
 <template>
   <v-container>
+   <!-- <v-tabs align="center" v-model="tab" bg-color="primary">
+      <v-tab value="home">首页</v-tab>
+      <v-tab value="comment">评论</v-tab>
+      <v-tab value="followers">关注者</v-tab>
+      <v-tab value="following">关注的人</v-tab>
+      <v-tab value="timeline">时间线</v-tab>
+    </v-tabs>-->
+
     <v-tabs-window v-model="tab">
       <v-tabs-window-item value="home">
         <v-responsive class="mt-8">
@@ -26,14 +34,21 @@
                   <v-icon icon="mdi-tag" start></v-icon>
                   {{ user.id===1?'社区管理员':'用户' }}
                 </v-chip>
+
               </p>
+              <user-relation-controls
+                  :user-id="user.id"
+                  :username="username"
+                  :display-name="user.display_name"
+                />
+              <follow-stats :user-id="user.id" :username="username" class="mt-3" />
             </v-col>
           </v-row>
         </v-responsive>
         <br />
         <v-card title="关于我" subtitle="README.md">
-        
-         
+
+
           <v-card-text   class="markdown-body"> <br/>
             <Markdown>{{ user.motto }}</Markdown>
           </v-card-text>
@@ -54,6 +69,18 @@
       </v-tabs-window-item>
       <v-tabs-window-item value="comment">
         <Comment :url="'user-' + user.id" name="用户"></Comment>
+      </v-tabs-window-item>
+      <v-tabs-window-item value="followers">
+        <v-container>
+          <h2 class="text-h5 mb-4">关注者</h2>
+          <user-followers :user-id="user.id" :show-all="false" />
+        </v-container>
+      </v-tabs-window-item>
+      <v-tabs-window-item value="following">
+        <v-container>
+          <h2 class="text-h5 mb-4">正在关注</h2>
+          <user-following :user-id="user.id" :show-all="false" />
+        </v-container>
       </v-tabs-window-item>
       <v-tabs-window-item value="timeline">
         <v-timeline side="end" align="start" class="mt-4">
@@ -234,13 +261,22 @@ import Markdown from "@/components/Markdown.vue";
 import "github-markdown-css";
 import TimeAgo from "@/components/TimeAgo.vue";
 import UserProjectLists from "@/components/projectlist/UserProjectLists.vue";
+import UserRelationControls from "@/components/user/UserRelationControls.vue";
+import FollowStats from "@/components/user/FollowStats.vue";
+import { localuser } from "@/services/localAccount";
+import UserFollowers from "@/components/user/UserFollowers.vue";
+import UserFollowing from "@/components/user/UserFollowing.vue";
 
 export default {
-  components: { 
-    Comment, 
+  components: {
+    Comment,
     Markdown,
     TimeAgo,
-    UserProjectLists
+    UserProjectLists,
+    UserRelationControls,
+    FollowStats,
+    UserFollowers,
+    UserFollowing
   },
   data() {
     return {
@@ -260,6 +296,7 @@ export default {
       currentPage: 1,
       isLoadingMore: false,
       pageSize: 20,
+      localuser,
       eventTypes: {
         project_create: {
           text: '创建了新项目',

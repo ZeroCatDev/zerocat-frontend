@@ -33,6 +33,20 @@
           <v-list-item :href="BASE_API" prepend-icon="mdi-web" title="本站后端" rounded="xl"></v-list-item>
         </v-list>
       </v-menu>
+
+      <!-- Notification Menu -->
+      <v-menu v-if="localuser.isLogin" :close-on-content-click="false" location="bottom">
+        <template #activator="{ props, isActive }">
+          <v-btn icon v-bind="props">
+            <v-badge color="error" dot :model-value="hasUnreadNotifications">
+              <v-icon>mdi-bell</v-icon>
+            </v-badge>
+          </v-btn>
+        </template>
+        <notification-menu :menu-open="true" @update:unread-count="updateUnreadCount" />
+      </v-menu>
+
+      <!-- User Menu -->
       <v-menu :close-on-content-click="false">
         <template #activator="{ props }">
           <template v-if="localuser.isLogin">
@@ -100,8 +114,14 @@
 <script>
 import { localuser } from "@/services/localAccount";
 import { useTheme } from 'vuetify';
+import { ref, onMounted } from 'vue';
+import { getNotifications } from '@/services/notificationService';
+import NotificationMenu from '@/components/NotificationMenu.vue';
 
 export default {
+  components: {
+    NotificationMenu
+  },
   data() {
     return {
       BASE_API: import.meta.env.VITE_APP_BASE_API,
@@ -117,6 +137,8 @@ export default {
       VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
       isDarkTheme: false,
       theme: null,
+      hasUnreadNotifications: false,
+      unreadNotificationsCount: 0,
     };
   },
   created() {
@@ -132,6 +154,11 @@ export default {
     this.theme = useTheme();
     this.isDarkTheme = savedTheme === "dark";
     this.applyTheme();
+
+    // Check for unread notifications if user is logged in
+    if (this.localuser.isLogin) {
+      this.checkUnreadNotifications();
+    }
   },
   watch: {
     userInfo() {
@@ -149,8 +176,29 @@ export default {
     activeTab(newVal) {
       this.setSubNavItems(this.$route);
     },
+    'localuser.isLogin'(newVal) {
+      if (newVal) {
+        this.checkUnreadNotifications();
+      }
+    }
   },
   methods: {
+    updateUnreadCount(count) {
+      this.unreadNotificationsCount = count;
+      this.hasUnreadNotifications = count > 0;
+    },
+
+    async checkUnreadNotifications() {
+      try {
+        const data = await getNotifications();
+        const unreadCount = data.notifications.filter(n => !n.read).length;
+        this.hasUnreadNotifications = unreadCount > 0;
+        this.unreadNotificationsCount = unreadCount;
+      } catch (error) {
+        console.error('Error checking unread notifications:', error);
+      }
+    },
+
     toggleTheme() {
       this.isDarkTheme = !this.isDarkTheme;
       localStorage.setItem("theme", this.isDarkTheme ? "dark" : "light");
@@ -241,6 +289,8 @@ export default {
       return [
         { title: "主页", link: `/${userId}`, name: "home" },
         { title: "评论", link: `/${userId}/?tab=comment`, name: "comment" },
+        { title: "关注", link: `/${userId}/?tab=following`, name: "following" },
+        { title: "关注者", link: `/${userId}/?tab=followers`, name: "followers" },
         { title: "时间线", link: `/${userId}/?tab=timeline`, name: "timeline" },
 
       ];
