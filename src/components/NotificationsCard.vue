@@ -1,0 +1,119 @@
+<template>
+  <v-card>
+    <!-- 卡片标题和控制区 -->
+    <template v-if="showHeader">
+      <v-card-title class="d-flex align-center justify-space-between">
+        <div>
+          <v-icon start>mdi-bell</v-icon>
+          我的通知
+          <v-badge
+            v-if="unreadCount > 0"
+            :content="unreadCount"
+            color="error"
+            inline
+            class="ml-2"
+          ></v-badge>
+        </div>
+        <v-btn
+          variant="text"
+          @click="contentRef?.markAllAsRead"
+          :disabled="!hasUnread"
+        >
+          标记全部已读
+        </v-btn>
+      </v-card-title>
+      <v-divider></v-divider>
+    </template>
+
+    <!-- 选项卡 (仅在menuMode=true时显示) -->
+    <template v-if="menuMode">
+      <NotificationsCardContent
+        ref="contentRef"
+        :maxHeight="'420px'"
+        :autoFetch="autoFetch"
+        @update:unread-count="updateUnreadCount"
+      />
+    </template>
+
+    <!-- 仅通知内容 (menuMode=false) -->
+    <template v-else>
+      <v-card-text>
+        <NotificationsCardContent
+          ref="contentRef"
+          :maxHeight="'auto'"
+          :showPagination="showPagination"
+          :autoFetch="autoFetch"
+          @update:unread-count="updateUnreadCount"
+        />
+      </v-card-text>
+    </template>
+  </v-card>
+</template>
+
+<script>
+import { ref } from "vue";
+import NotificationsCardContent from "./NotificationsCardContent.vue";
+
+export default {
+  name: "NotificationsCard",
+  components: {
+    NotificationsCardContent,
+  },
+  props: {
+    autoFetch: {
+      type: Boolean,
+      default: true,
+    },
+    menuMode: {
+      type: Boolean,
+      default: false,
+    },
+    showHeader: {
+      type: Boolean,
+      default: true,
+    },
+    maxHeight: {
+      type: String,
+      default: "auto",
+    },
+    showPagination: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  setup() {
+    const activeTab = ref("notifications");
+    const contentRef = ref(null);
+    const unreadCount = ref(0);
+    const hasUnread = ref(false);
+
+    const updateUnreadCount = (count) => {
+      unreadCount.value = count;
+      hasUnread.value = count > 0;
+    };
+
+    const checkUnreadNotifications = () => {
+      if (contentRef.value) {
+        return contentRef.value.checkUnreadNotifications();
+      }
+      return 0;
+    };
+
+    const fetchNotifications = () => {
+      if (contentRef.value) {
+        contentRef.value.fetchNotifications();
+      }
+    };
+
+    return {
+      activeTab,
+      contentRef,
+      unreadCount,
+      hasUnread,
+      updateUnreadCount,
+      checkUnreadNotifications,
+      fetchNotifications,
+    };
+  },
+};
+</script>

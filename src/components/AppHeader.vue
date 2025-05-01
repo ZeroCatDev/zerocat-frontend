@@ -1,90 +1,163 @@
 <template>
-  <v-app-bar :elevation="2" fixed >
+  <v-app-bar :elevation="2" fixed>
     <template #prepend>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
     </template>
     <v-app-bar-title>
       <template v-if="isProjectPath">
         <div class="d-flex align-center">
-          <v-btn variant="text" :to="`/${getPathSegments[0]}`" class="text-none ">
+          <v-btn
+            variant="text"
+            :to="`/${getPathSegments[0]}`"
+            class="text-none"
+          >
             {{ getPathSegments[0] }}
           </v-btn>
           <span class="mx-1">/</span>
-          <v-btn variant="text" :to="`/${getPathSegments[0]}/${getPathSegments[1]}`" class="text-none ">
+          <v-btn
+            variant="text"
+            :to="`/${getPathSegments[0]}/${getPathSegments[1]}`"
+            class="text-none"
+          >
             {{ getPathSegments[1] }}
           </v-btn>
         </div>
       </template>
-      <template v-else>
-        <strong>Zero</strong>Cat
-      </template>
+      <template v-else> <strong>Zero</strong>Cat </template>
     </v-app-bar-title>
     <template #append>
       <v-btn icon="mdi-plus" to="/app/new"></v-btn>
 
-      <v-btn :icon="isDarkTheme ? 'mdi-weather-sunny' : 'mdi-weather-night'" @click="toggleTheme"></v-btn>
 
-      <v-menu>
-        <template #activator="{ props }">
-          <v-btn icon="mdi-dots-vertical" v-bind="props"></v-btn>
-        </template>
-        <v-list>
-          <v-list-item to="/" prepend-icon="mdi-home" title="首页" rounded="xl"></v-list-item>
-          <v-list-item :href="BASE_API" prepend-icon="mdi-web" title="本站后端" rounded="xl"></v-list-item>
-        </v-list>
-      </v-menu>
-
-      <!-- Notification Menu -->
-      <v-menu v-if="localuser.isLogin" :close-on-content-click="false" location="bottom">
-        <template #activator="{ props, isActive }">
-          <v-btn icon v-bind="props">
-            <v-badge color="error" dot :model-value="hasUnreadNotifications">
-              <v-icon>mdi-bell</v-icon>
-            </v-badge>
-          </v-btn>
-        </template>
-        <notification-menu :menu-open="true" @update:unread-count="updateUnreadCount" />
-      </v-menu>
-
-      <!-- User Menu -->
-      <v-menu :close-on-content-click="false">
-        <template #activator="{ props }">
-          <template v-if="localuser.isLogin">
-            <v-btn icon v-bind="props">
-              <v-avatar :image="VITE_APP_S3_BUCKET + '/user/' + localuser.user.images
-                "></v-avatar>
+      <v-menu
+        v-if="localuser.isLogin"
+        :close-on-content-click="false"
+        location="bottom"
+      >
+        <template #activator="{ props, isActive }"
+          ><template v-if="localuser.isLogin">
+            <v-btn
+              icon
+              v-bind="props"
+              @click="notificationsCard?.fetchNotifications()"
+            >
+              <v-avatar
+                :image="VITE_APP_S3_BUCKET + '/user/' + localuser.user.value.images"
+              ></v-avatar>
             </v-btn>
           </template>
           <template v-else>
             <v-btn to="/app/account/login" text="登录" rounded="xl"></v-btn>
-            <v-btn to="/app/account/register" text="注册" rounded="xl" color="primary" variant="tonal"></v-btn>
+            <v-btn
+              to="/app/account/register"
+              text="注册"
+              rounded="xl"
+              color="primary"
+              variant="tonal"
+            ></v-btn>
           </template>
         </template>
-        <v-card border style="padding: 10px">
-          <v-card @click="localuser.loadUser(true)" :title="localuser.user.display_name"
-            :subtitle="localuser.user.username" :append-avatar="VITE_APP_S3_BUCKET + '/user/' + localuser.user.images
-              "></v-card>
-          <v-list>
-            <v-list-item :to="`/${localuser.user.username}`" prepend-icon="mdi-account" title="个人主页" rounded="xl"
-              color="primary"></v-list-item>
-            <v-list-item to="/app/account" prepend-icon="mdi-cog" title="设置" rounded="xl" color="primary"></v-list-item>
-            <v-list-item to="/app/project" prepend-icon="mdi-xml" title="项目" rounded="xl" color="primary"></v-list-item>
-            <v-list-item to="/app/projectlist" prepend-icon="mdi-format-list-bulleted" title="列表" rounded="xl"
-              color="primary"></v-list-item>
-          </v-list>
-          <v-divider></v-divider>
-          <v-list>
-            <v-list-item to="/app/account/logout" prepend-icon="mdi-logout" title="退出" color="error" active
-              variant="plain" rounded="xl"></v-list-item>
-          </v-list>
-        </v-card>
+        <v-card border min-width="300px">
+          <v-tabs v-model="userTab" grow>
+            <v-tab value="notifications">
+              <v-icon start>mdi-bell</v-icon>
+              通知
+              <v-badge
+                v-if="unreadCount > 0"
+                :content="unreadCount"
+                color="error"
+                floating
+                dot
+              ></v-badge>
+            </v-tab>
+            <v-tab value="profile">
+              <v-icon start>mdi-account</v-icon>
+              我的
+            </v-tab>
+          </v-tabs>
+
+          <v-card-text class="pa-0">
+            <v-window v-model="userTab">
+              <!-- 通知选项卡内容 -->
+              <v-window-item value="notifications">
+                <NotificationsCard
+                  ref="notificationsCard"
+                  :autoFetch="true"
+                  :menuMode="true"
+                  :showHeader="false"
+                  :maxHeight="'auto'"
+                >
+                </NotificationsCard>
+              </v-window-item>
+
+              <!-- 个人资料选项卡内容 -->
+              <v-window-item value="profile">
+                <v-card
+
+                  @click="localuser.loadUser(true)"
+                  :title="localuser.user.value.display_name"
+                  :subtitle="localuser.user.value.username"
+                  :append-avatar="
+                    VITE_APP_S3_BUCKET + '/user/' + localuser.user.value.images
+                  "
+                ></v-card>
+                <v-list>
+                  <v-list-item
+                    :to="`/${localuser.user.value.username}`"
+                    prepend-icon="mdi-account"
+                    title="个人主页"
+                    rounded="xl"
+                    color="primary"
+                  ></v-list-item>
+                  <v-list-item
+                    to="/app/account"
+                    prepend-icon="mdi-cog"
+                    title="设置"
+                    rounded="xl"
+                    color="primary"
+                  ></v-list-item>
+                  <v-list-item
+                    to="/app/project"
+                    prepend-icon="mdi-xml"
+                    title="项目"
+                    rounded="xl"
+                    color="primary"
+                  ></v-list-item>
+                  <v-list-item
+                    to="/app/projectlist"
+                    prepend-icon="mdi-format-list-bulleted"
+                    title="列表"
+                    rounded="xl"
+                    color="primary"
+                  ></v-list-item>
+                </v-list>
+                <v-divider></v-divider>
+                <v-list>
+                  <v-list-item
+                    to="/app/account/logout"
+                    prepend-icon="mdi-logout"
+                    title="退出"
+                    color="error"
+                    active
+                    variant="plain"
+                    rounded="xl"
+                  ></v-list-item>
+                </v-list>
+              </v-window-item>
+            </v-window> </v-card-text
+        ></v-card>
       </v-menu>
     </template>
     <template v-slot:extension v-if="subNavItems.length">
       <transition name="fade">
         <v-tabs align-tabs="center" v-model="activeTab">
           <div v-for="item in subNavItems" :key="item.name">
-            <v-tab :to="item.link" :value="item.name" :disabled="item.disabled" rounded="lg">
+            <v-tab
+              :to="item.link"
+              :value="item.name"
+              :disabled="item.disabled"
+              rounded="lg"
+            >
               {{ item.title }}
             </v-tab>
           </div>
@@ -92,40 +165,71 @@
       </transition>
     </template>
   </v-app-bar>
-  <v-navigation-drawer v-model="drawer" :rail="drawerRail" expand-on-hover >
+  <v-navigation-drawer v-model="drawer" :rail="drawerRail" expand-on-hover>
     <v-list v-for="lists in items" :key="lists.title">
       <div v-if="lists.login === false || lists.login === isLogin">
         <v-list-subheader>
           <v-icon :icon="lists.icon" size="small"></v-icon>
           {{ lists.title }}
         </v-list-subheader>
-        <v-list-item v-for="item in lists.list" :key="item.title" :prepend-icon="item.icon" :title="item.title"
-          :to="item.link" rounded="xl"></v-list-item>
+        <v-list-item
+          v-for="item in lists.list"
+          :key="item.title"
+          :prepend-icon="item.icon"
+          :title="item.title"
+          :to="item.link"
+          rounded="xl"
+        ></v-list-item>
       </div>
+
+
     </v-list>
     <v-divider></v-divider>
-    <v-list>
-      <v-list-item @click="drawerRail = !drawerRail"
-        :prepend-icon="drawerRail ? 'mdi-chevron-right' : 'mdi-chevron-left'" rounded="xl"></v-list-item>
+    <v-list> <v-list-item
+        @click="toggleTheme"
+        :prepend-icon="isDarkTheme ? 'mdi-weather-sunny' : 'mdi-weather-night'"
+        rounded="xl"
+      ></v-list-item>
+      <v-list-item
+        @click="drawerRail = !drawerRail"
+        :prepend-icon="drawerRail ? 'mdi-chevron-right' : 'mdi-chevron-left'"
+        rounded="xl"
+      ></v-list-item>
     </v-list>
   </v-navigation-drawer>
 </template>
 
 <script>
 import { localuser } from "@/services/localAccount";
-import { useTheme } from 'vuetify';
-import { ref, onMounted } from 'vue';
-import { getNotifications } from '@/services/notificationService';
-import NotificationMenu from '@/components/NotificationMenu.vue';
+import { useTheme } from "vuetify";
+import { ref, onMounted, watch, nextTick } from "vue";
+import NotificationsCard from "@/components/NotificationsCard.vue";
 
 export default {
   components: {
-    NotificationMenu
+    NotificationsCard,
+  },
+  setup() {
+    const notificationsCard = ref(null);
+
+    onMounted(async () => {
+      // 如果用户已登录，等待组件实例化后检查未读通知
+      if (localuser.isLogin) {
+        await nextTick();
+        if (notificationsCard.value) {
+          notificationsCard.value.checkUnreadNotifications();
+        }
+      }
+    });
+
+    return {
+      notificationsCard,
+      localuser,
+    };
   },
   data() {
     return {
       BASE_API: import.meta.env.VITE_APP_BASE_API,
-      localuser,
       drawer: true,
       drawerRail: true,
       isLogin: localuser.isLogin,
@@ -133,12 +237,11 @@ export default {
       subNavItems: [],
       hideNavPaths: ["/app", "/404"],
       hideExactPaths: ["/", "/index.html"],
-      activeTab: "1",
+      activeTab: "notifications",
       VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
       isDarkTheme: false,
       theme: null,
-      hasUnreadNotifications: false,
-      unreadNotificationsCount: 0,
+      userTab: "profile",
     };
   },
   created() {
@@ -154,11 +257,6 @@ export default {
     this.theme = useTheme();
     this.isDarkTheme = savedTheme === "dark";
     this.applyTheme();
-
-    // Check for unread notifications if user is logged in
-    if (this.localuser.isLogin) {
-      this.checkUnreadNotifications();
-    }
   },
   watch: {
     userInfo() {
@@ -176,26 +274,16 @@ export default {
     activeTab(newVal) {
       this.setSubNavItems(this.$route);
     },
-    'localuser.isLogin'(newVal) {
-      if (newVal) {
-        this.checkUnreadNotifications();
+    "localuser.isLogin"(newVal) {
+      if (newVal && this.notificationsCard) {
+        this.notificationsCard.checkUnreadNotifications();
       }
-    }
+    },
   },
   methods: {
-    updateUnreadCount(count) {
-      this.unreadNotificationsCount = count;
-      this.hasUnreadNotifications = count > 0;
-    },
-
-    async checkUnreadNotifications() {
-      try {
-        const data = await getNotifications();
-        const unreadCount = data.notifications.filter(n => !n.read).length;
-        this.hasUnreadNotifications = unreadCount > 0;
-        this.unreadNotificationsCount = unreadCount;
-      } catch (error) {
-        console.error('Error checking unread notifications:', error);
+    checkNotifications() {
+      if (this.notificationsCard) {
+        this.notificationsCard.notificationsHandler.fetchNotifications();
       }
     },
 
@@ -207,7 +295,7 @@ export default {
 
     applyTheme() {
       if (this.theme) {
-        this.theme.global.name = this.isDarkTheme ? 'dark' : 'light';
+        this.theme.global.name = this.isDarkTheme ? "dark" : "light";
       }
     },
 
@@ -290,9 +378,12 @@ export default {
         { title: "主页", link: `/${userId}`, name: "home" },
         { title: "评论", link: `/${userId}/?tab=comment`, name: "comment" },
         { title: "关注", link: `/${userId}/?tab=following`, name: "following" },
-        { title: "关注者", link: `/${userId}/?tab=followers`, name: "followers" },
+        {
+          title: "关注者",
+          link: `/${userId}/?tab=followers`,
+          name: "followers",
+        },
         { title: "时间线", link: `/${userId}/?tab=timeline`, name: "timeline" },
-
       ];
     },
     getProjectSubNavItems(projectname, authorname) {
@@ -306,23 +397,26 @@ export default {
         },
         ...(isAuthor
           ? [
-            {
-              title: "设置",
-              link: `/${authorname}/${projectname}/settings`,
-              name: "settings",
-            },
-          ]
+              {
+                title: "设置",
+                link: `/${authorname}/${projectname}/settings`,
+                name: "settings",
+              },
+            ]
           : []),
       ];
     },
   },
   computed: {
     getPathSegments() {
-      return this.$route.path.split('/').filter(Boolean);
+      return this.$route.path.split("/").filter(Boolean);
     },
     isProjectPath() {
       const pathSegments = this.getPathSegments;
-      return pathSegments.length >= 2 && !this.hideNavPaths.some(path => this.$route.path.startsWith(path));
+      return (
+        pathSegments.length >= 2 &&
+        !this.hideNavPaths.some((path) => this.$route.path.startsWith(path))
+      );
     },
   },
 };

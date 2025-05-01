@@ -162,7 +162,7 @@ export default {
       this.userCardLoading = true;
       try {
         const response = await getAccount(localuser.user.value.id);
-        this.userInfo = response.data.info;
+        this.userInfo = response.data.data;
       } catch (error) {
         this.handleError(error);
       } finally {

@@ -99,7 +99,7 @@ export default {
       this.loading = true;
       try {
         const response = await getAccount(localuser.user.value.id);
-        this.userInfo = response.data.info;
+        this.userInfo = response.data.data;
       } catch (error) {
         this.showToast("error", "获取用户信息失败", error.message);
       } finally {
