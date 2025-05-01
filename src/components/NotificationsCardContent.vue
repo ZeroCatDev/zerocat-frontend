@@ -15,31 +15,26 @@
     <template v-else>
       <div
         ref="notificationsContainer"
-        :style="{ 'max-height': maxHeight, 'overflow-y': 'auto' }"
+        :style="{ 'overflow-y': 'auto' }"
         @scroll="handleScroll"
       >
         <v-list v-if="notifications.length > 0">
           <v-list-item
             v-for="notification in notifications"
             :key="notification.id"
-            :to="getRedirectUrl(notification)"
+            :to="notification.redirect_url"
             lines="three"
             color="primary"
             :active="!notification.read"
             @click="handleNotificationClick(notification)"
-            :class="{ 'clickable-item': !!getRedirectUrl(notification) }"
+            :class="{ 'clickable-item': !!notification.redirect_url }"
           >
             <template v-slot:prepend>
               <v-avatar
                 size="40"
-                v-if="notification.actor && notification.actor.acting_user_avatar_template"
+                v-if="notification.actor?.avatar_url"
               >
-                <v-img
-                  :src="notification.actor.acting_user_avatar_template"
-                ></v-img>
-              </v-avatar>
-              <v-avatar v-else-if="getActorForNotification(notification) && getActorForNotification(notification).images">
-                <v-img :src="S3_BUCKET + '/user/' + getActorForNotification(notification).images"></v-img>
+                <v-img :src="notification.actor.avatar_url"></v-img>
               </v-avatar>
               <v-avatar v-else-if="notification.template_info?.icon" color="primary" size="40">
                 <v-icon>{{ getIconForType(notification.template_info.icon) }}</v-icon>
@@ -53,9 +48,9 @@
               <span v-if="notification.template_info?.title">
                 {{ notification.template_info.title }}
               </span>
-              <span v-else-if="notification.acting_user_name">{{
-                notification.acting_user_name
-              }}</span>
+              <span v-else-if="notification.actor?.name">
+                {{ notification.actor.name }}
+              </span>
               <span v-else>系统消息</span>
             </v-list-item-title>
 
@@ -63,7 +58,7 @@
               <span v-if="notification.template_info?.template">
                 {{ renderTemplate(notification.template_info.template, notification) }}
               </span>
-              <span v-else>新的通知</span>
+              <span v-else>{{ notification.content || '新的通知' }}</span>
             </v-list-item-subtitle>
 
             <v-list-item-subtitle class="text-caption text-grey">
@@ -131,24 +126,17 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
 import {
   getNotifications,
   markNotificationAsRead,
   markAllNotificationsAsRead,
 } from "@/services/notificationService";
-import { getUserById } from "@/stores/user";
-import { getProjectInfo } from "@/services/projectService";
 
 export default {
   name: 'NotificationsCardContent',
   props: {
-    maxHeight: {
-      type: String,
-      default: 'auto'
-    },
     showPagination: {
       type: Boolean,
       default: false
@@ -174,72 +162,12 @@ export default {
     const loadMoreUrl = ref(null);
     const notificationsContainer = ref(null);
 
-    // 缓存用户和项目数据
-    const actorsCache = ref({});
-    const projectsCache = ref({});
-
     const hasUnread = computed(() => unreadCount.value > 0);
 
     // 处理API错误
     const handleApiError = (error, customMessage = "操作失败") => {
       console.error(error);
       return error.response?.data?.message || error.message || customMessage;
-    };
-
-    // 批量获取用户数据
-    const fetchActors = async (actorIds) => {
-      if (!actorIds.length) return;
-      try {
-        const actorsData = await getUserById(actorIds);
-        if (Array.isArray(actorsData)) {
-          actorsData.forEach(actor => {
-            actorsCache.value[actor.id] = actor;
-          });
-        } else if (actorsData?.id) {
-          actorsCache.value[actorsData.id] = actorsData;
-        }
-      } catch (error) {
-        console.error('Error fetching actors:', error);
-      }
-    };
-
-    // 批量获取项目数据
-    const fetchProjects = async (projectIds) => {
-      if (!projectIds.length) return;
-      try {
-        const projectsData = await getProjectInfo(projectIds);
-        if (Array.isArray(projectsData)) {
-          projectsData.forEach(project => {
-            projectsCache.value[project.id] = project;
-          });
-        } else if (projectsData?.id) {
-          projectsCache.value[projectsData.id] = projectsData;
-        }
-      } catch (error) {
-        console.error('Error fetching projects:', error);
-      }
-    };
-
-    // 提取需要获取的额外数据ID
-    const extractIds = (notifications) => {
-      const actorIds = new Set();
-      const projectIds = new Set();
-
-      notifications.forEach(notification => {
-        if (notification.actor_id && !actorsCache.value[notification.actor_id]) {
-          actorIds.add(notification.actor_id);
-        }
-        if (notification.target_type === 'project' &&
-            notification.target_id &&
-            !projectsCache.value[notification.target_id]) {
-          projectIds.add(notification.target_id);
-        }
-      });
-
-      return {
-        actorIds: Array.from(actorIds),
-        projectIds: Array.from(projectIds)
-      };
     };
 
     // 获取通知数据
@@ -252,15 +180,8 @@ export default {
       try {
         const data = await getNotifications();
         notifications.value = data.notifications || [];
-        loadMoreUrl.value = data.load_more_notifications || null;
+        loadMoreUrl.value = data.load_more_url || null;
         hasMoreNotifications.value = !!loadMoreUrl.value;
-
-        const { actorIds, projectIds } = extractIds(notifications.value);
-        await Promise.all([
-          fetchActors(actorIds),
-          fetchProjects(projectIds)
-        ]);
-
         updateUnreadCount();
       } catch (err) {
         error.value = handleApiError(err, "加载通知失败");
@@ -275,17 +196,10 @@ export default {
 
       loadingMore.value = true;
       try {
-        const { data } = await axios.get(loadMoreUrl.value);
-        const newNotifications = data.notifications || [];
-        notifications.value = [...notifications.value, ...newNotifications];
-        loadMoreUrl.value = data.load_more_notifications || null;
+        const data = await getNotifications({ url: loadMoreUrl.value });
+        notifications.value = [...notifications.value, ...(data.notifications || [])];
+        loadMoreUrl.value = data.load_more_url || null;
         hasMoreNotifications.value = !!loadMoreUrl.value;
-
-        const { actorIds, projectIds } = extractIds(newNotifications);
-        await Promise.all([
-          fetchActors(actorIds),
-          fetchProjects(projectIds)
-        ]);
       } catch (err) {
         error.value = handleApiError(err, "加载更多通知失败");
       } finally {
@@ -339,29 +253,10 @@ export default {
       emit('update:unread-count', unreadCount.value);
     };
 
-    // 检查未读通知
-    const checkUnreadNotifications = async () => {
-      try {
-        const data = await getNotifications();
-        const count = (data.notifications || []).filter(n => !n.read).length;
-        unreadCount.value = count;
-        emit('update:unread-count', count);
-        return count;
-      } catch (error) {
-        console.error('Error checking unread notifications:', error);
-        return 0;
-      }
-    };
-
     // 处理通知点击
     const handleNotificationClick = async (notification) => {
       if (!notification.read) {
         await markAsRead(notification.id);
-      }
-
-      const redirectUrl = getRedirectUrl(notification);
-      if (redirectUrl) {
-        router.push(redirectUrl);
       }
     };
 
@@ -382,39 +277,6 @@ export default {
       return date.toLocaleDateString();
     };
 
-    // 获取通知的actor数据
-    const getActorForNotification = (notification) => {
-      if (notification.actor?.id) return notification.actor;
-      return notification.actor_id ? actorsCache.value[notification.actor_id] : null;
-    };
-
-    // 获取通知相关的项目数据
-    const getProjectForNotification = (notification) => {
-      return (notification.target_type === 'project' && notification.target_id)
-        ? projectsCache.value[notification.target_id]
-        : null;
-    };
-
-    // 渲染通知模板
-    const renderTemplate = (template, notification) => {
-      if (!template) return '';
-
-      let result = template;
-      const actor = getActorForNotification(notification);
-      const project = getProjectForNotification(notification);
-
-      if (actor) {
-        const actorName = actor.acting_user_name || actor.display_name || actor.username;
-        result = result.replace(/{{actor_name}}/g, actorName);
-      }
-
-      if (project) {
-        result = result.replace(/{{project_title}}/g, project.title);
-      }
-
-      return result;
-    };
-
     // 根据通知类型获取图标
     const getIconForType = (iconType) => {
       const iconMap = {
@@ -431,32 +293,23 @@ export default {
       return iconMap[iconType] || 'mdi-bell';
     };
 
-    // 获取通知跳转URL
-    const getRedirectUrl = (notification) => {
-      if (!notification.target_type || !notification.target_id) {
-        return notification.redirect_url || '';
+    // 渲染通知模板
+    const renderTemplate = (template, notification) => {
+      if (!template) return '';
+
+      let result = template;
+      const { actor } = notification;
+
+      if (actor) {
+        result = result.replace(/{{actor_name}}/g, actor.name || '');
       }
 
-      const targetType = notification.target_type.toLowerCase();
+      // 替换其他可能的模板变量
+      Object.entries(notification.template_data || {}).forEach(([key, value]) => {
+        result = result.replace(new RegExp(`{{${key}}}`, 'g'), value);
+      });
 
-      if (targetType === 'user') {
-        const user = actorsCache.value[notification.target_id];
-        if (user?.username) return `/${user.username}`;
-
-        const actor = getActorForNotification(notification);
-        if (actor?.username) return `/${actor.username}`;
-      } else if (targetType === 'project') {
-        const project = projectsCache.value[notification.target_id];
-        if (project) {
-          const author = actorsCache.value[project.authorid];
-          if (author?.username) {
-            const projectPath = project.namespace || project.name || project.id;
-            return `/${author.username}/${projectPath}`;
-          }
-        }
-      }
-
-      return notification.redirect_url || '';
+      return result;
     };
 
     if (props.autoFetch) {
@@ -480,15 +333,10 @@ export default {
       markAsRead,
       markAllAsRead,
       updateUnreadCount,
-      checkUnreadNotifications,
       handleNotificationClick,
       formatDate,
-      getActorForNotification,
-      getProjectForNotification,
       renderTemplate,
-      getIconForType,
-      getRedirectUrl,
-      S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET
+      getIconForType
     };
   }
 };
