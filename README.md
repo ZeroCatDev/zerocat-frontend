@@ -1,4 +1,4 @@
-# ZeroCatNext
+# ZeroCat
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FZeroCatDev%2Fzerocat-frontend.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FZeroCatDev%2Fzerocat-frontend?ref=badge_shield)
 
 

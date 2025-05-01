@@ -1,10 +1,25 @@
 <template>
-  <v-card border style="min-width: 400px; max-width: 450px; max-height: 500px; overflow: hidden;">
+  {{ localuser }}
+  <v-card
+    border
+    style="
+      min-width: 400px;
+      max-width: 450px;
+      max-height: 500px;
+      overflow: hidden;
+    "
+  >
     <v-tabs v-model="activeTab" grow>
       <v-tab value="notifications">
         <v-icon start>mdi-bell</v-icon>
         通知
-        <v-badge v-if="unreadCount > 0" :content="unreadCount" color="error" floating dot></v-badge>
+        <v-badge
+          v-if="unreadCount > 0"
+          :content="unreadCount"
+          color="error"
+          floating
+          dot
+        ></v-badge>
       </v-tab>
       <v-tab value="profile">
         <v-icon start>mdi-account</v-icon>
@@ -16,7 +31,7 @@
       <v-window v-model="activeTab">
         <!-- Notifications Tab -->
         <v-window-item value="notifications">
-          <div style="max-height: 420px; overflow-y: auto;">
+          <div style="max-height: 420px; overflow-y: auto">
             <v-list v-if="notifications.length > 0">
               <v-list-item
                 v-for="notification in notifications"
@@ -28,8 +43,13 @@
                 @click="markAsRead(notification.id)"
               >
                 <template v-slot:prepend>
-                  <v-avatar size="40" v-if="notification.acting_user_avatar_template">
-                    <v-img :src="notification.acting_user_avatar_template"></v-img>
+                  <v-avatar
+                    size="40"
+                    v-if="notification.acting_user_avatar_template"
+                  >
+                    <v-img
+                      :src="notification.acting_user_avatar_template"
+                    ></v-img>
                   </v-avatar>
                   <v-avatar v-else color="primary" size="40">
                     <v-icon>mdi-bell</v-icon>
@@ -37,20 +57,40 @@
                 </template>
 
                 <v-list-item-title>
-                  <span v-if="notification.acting_user_name">{{ notification.acting_user_name }}</span>
+                  <span v-if="notification.acting_user_name">{{
+                    notification.acting_user_name
+                  }}</span>
                   <span v-else>系统消息</span>
                 </v-list-item-title>
 
                 <v-list-item-subtitle>
-                  <span v-if="notification.notification_type === 1">在项目 {{ notification.data.project_title }} 中评论了</span>
-                  <span v-else-if="notification.notification_type === 2">点赞了项目 {{ notification.data.project_title }}</span>
-                  <span v-else-if="notification.notification_type === 3">Fork了项目 {{ notification.data.project_title }}</span>
-                  <span v-else-if="notification.notification_type === 20">关注了你</span>
-                  <span v-else-if="notification.notification_type === 101">点赞了你的评论</span>
-                  <span v-else-if="notification.notification_type === 50">系统公告</span>
-                  <span v-else-if="notification.notification_type === 802">在话题中提到了你</span>
-                  <span v-else-if="notification.notification_type === 21">在项目中提到了你</span>
-                  <span v-else-if="notification.notification_type === 800">{{ notification.data.title }}</span>
+                  <span v-if="notification.notification_type === 1"
+                    >在项目 {{ notification.data.project_title }} 中评论了</span
+                  >
+                  <span v-else-if="notification.notification_type === 2"
+                    >点赞了项目 {{ notification.data.project_title }}</span
+                  >
+                  <span v-else-if="notification.notification_type === 3"
+                    >Fork了项目 {{ notification.data.project_title }}</span
+                  >
+                  <span v-else-if="notification.notification_type === 20"
+                    >关注了你</span
+                  >
+                  <span v-else-if="notification.notification_type === 101"
+                    >点赞了你的评论</span
+                  >
+                  <span v-else-if="notification.notification_type === 50"
+                    >系统公告</span
+                  >
+                  <span v-else-if="notification.notification_type === 802"
+                    >在话题中提到了你</span
+                  >
+                  <span v-else-if="notification.notification_type === 21"
+                    >在项目中提到了你</span
+                  >
+                  <span v-else-if="notification.notification_type === 800">{{
+                    notification.data.title
+                  }}</span>
                   <span v-else>新的通知</span>
                 </v-list-item-subtitle>
 
@@ -59,7 +99,12 @@
                 </v-list-item-subtitle>
 
                 <template v-slot:append>
-                  <v-icon v-if="notification.high_priority" color="error" size="small">mdi-alert-circle</v-icon>
+                  <v-icon
+                    v-if="notification.high_priority"
+                    color="error"
+                    size="small"
+                    >mdi-alert-circle</v-icon
+                  >
                 </template>
               </v-list-item>
             </v-list>
@@ -87,22 +132,55 @@
 
         <!-- Profile Tab -->
         <v-window-item value="profile">
-          <div class="pa-4">
-            <v-card @click="loadUser(true)" :title="user.display_name" :subtitle="user.username"
-                    :prepend-avatar="avatarUrl" class="mb-4">
+          <div class="pa-4">{{ localuser.user.display_name }}
+            <v-card
+              @click="localuser.loadUser(true)"
+              :title="localuser.user.display_name"
+              :subtitle="localuser.user.username"
+              :append-avatar="S3_BUCKET + '/user/' + localuser.user.images"
+            >
             </v-card>
             <v-list>
-              <v-list-item :to="`/${user.username}`" prepend-icon="mdi-account" title="个人主页" rounded="xl"
-                color="primary"></v-list-item>
-              <v-list-item to="/app/account" prepend-icon="mdi-cog" title="设置" rounded="xl" color="primary"></v-list-item>
-              <v-list-item to="/app/project" prepend-icon="mdi-xml" title="项目" rounded="xl" color="primary"></v-list-item>
-              <v-list-item to="/app/projectlist" prepend-icon="mdi-format-list-bulleted" title="列表" rounded="xl"
-                color="primary"></v-list-item>
+              <v-list-item
+                :to="`/${localuser.user.username}`"
+                prepend-icon="mdi-account"
+                title="个人主页"
+                rounded="xl"
+                color="primary"
+              ></v-list-item>
+              <v-list-item
+                to="/app/account"
+                prepend-icon="mdi-cog"
+                title="设置"
+                rounded="xl"
+                color="primary"
+              ></v-list-item>
+              <v-list-item
+                to="/app/project"
+                prepend-icon="mdi-xml"
+                title="项目"
+                rounded="xl"
+                color="primary"
+              ></v-list-item>
+              <v-list-item
+                to="/app/projectlist"
+                prepend-icon="mdi-format-list-bulleted"
+                title="列表"
+                rounded="xl"
+                color="primary"
+              ></v-list-item>
             </v-list>
             <v-divider class="my-2"></v-divider>
             <v-list>
-              <v-list-item to="/app/account/logout" prepend-icon="mdi-logout" title="退出" color="error" active
-                variant="plain" rounded="xl"></v-list-item>
+              <v-list-item
+                to="/app/account/logout"
+                prepend-icon="mdi-logout"
+                title="退出"
+                color="error"
+                active
+                variant="plain"
+                rounded="xl"
+              ></v-list-item>
             </v-list>
           </div>
         </v-window-item>
@@ -112,29 +190,26 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, watch } from 'vue';
-import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '@/services/notificationService';
-import { localuser } from '@/services/localAccount';
+import { ref, computed, onMounted, watch } from "vue";
+import {
+  getNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+} from "@/services/notificationService";
+import { localuser } from "@/services/localAccount";
 
 export default {
   props: {
     menuOpen: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   setup(props) {
-    const activeTab = ref('notifications');
+    const activeTab = ref("notifications");
     const notifications = ref([]);
     const loading = ref(false);
     const error = ref(null);
-
-    const user = computed(() => localuser.user);
-    const avatarUrl = computed(() => import.meta.env.VITE_APP_S3_BUCKET + '/user/' + user.value.avatar);
-
-    const loadUser = (force = false) => {
-      localuser.loadUser(force);
-    };
 
     const fetchNotifications = async () => {
       loading.value = true;
@@ -143,8 +218,8 @@ export default {
         const data = await getNotifications();
         notifications.value = data.notifications || [];
       } catch (err) {
-        error.value = err.message || 'Failed to load notifications';
-        console.error('Error loading notifications:', err);
+        error.value = err.message || "Failed to load notifications";
+        console.error("Error loading notifications:", err);
       } finally {
         loading.value = false;
       }
@@ -153,23 +228,23 @@ export default {
     const markAsRead = async (id) => {
       try {
         await markNotificationAsRead(id);
-        const notification = notifications.value.find(n => n.id === id);
+        const notification = notifications.value.find((n) => n.id === id);
         if (notification) {
           notification.read = true;
         }
       } catch (err) {
-        console.error('Error marking notification as read:', err);
+        console.error("Error marking notification as read:", err);
       }
     };
 
     const markAllAsRead = async () => {
       try {
         await markAllNotificationsAsRead();
-        notifications.value.forEach(notification => {
+        notifications.value.forEach((notification) => {
           notification.read = true;
         });
       } catch (err) {
-        console.error('Error marking all notifications as read:', err);
+        console.error("Error marking all notifications as read:", err);
       }
     };
 
@@ -183,7 +258,7 @@ export default {
       const diffDays = Math.floor(diffHours / 24);
 
       if (diffSecs < 60) {
-        return '刚刚';
+        return "刚刚";
       } else if (diffMins < 60) {
         return `${diffMins}分钟前`;
       } else if (diffHours < 24) {
@@ -196,21 +271,24 @@ export default {
     };
 
     const unreadCount = computed(() => {
-      return notifications.value.filter(n => !n.read).length;
+      return notifications.value.filter((n) => !n.read).length;
     });
 
     const hasUnread = computed(() => unreadCount.value > 0);
 
     // Fetch notifications when menu is opened
-    watch(() => props.menuOpen, (newVal) => {
-      if (newVal && activeTab.value === 'notifications') {
-        fetchNotifications();
+    watch(
+      () => props.menuOpen,
+      (newVal) => {
+        if (newVal && activeTab.value === "notifications") {
+          fetchNotifications();
+        }
       }
-    });
+    );
 
     // Watch for tab change to fetch notifications if needed
     watch(activeTab, (newVal) => {
-      if (newVal === 'notifications' && props.menuOpen) {
+      if (newVal === "notifications" && props.menuOpen) {
         fetchNotifications();
       }
     });
@@ -227,16 +305,15 @@ export default {
       notifications,
       loading,
       error,
-      user,
-      avatarUrl,
-      loadUser,
       markAsRead,
       markAllAsRead,
       formatDate,
       unreadCount,
-      hasUnread
+      hasUnread,
+      localuser,
+      S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
     };
-  }
+  },
 };
 </script>
 

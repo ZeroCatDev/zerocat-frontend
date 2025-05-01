@@ -5,7 +5,7 @@
         <v-col cols="12">
           <v-cardtext>
             <h5 class="text-h5 font-weight-semibold mb-1">
-              欢迎来到ZeroCatNext！ 👋🏻
+              欢迎来到ZeroCat！ 👋🏻
             </h5>
             <p class="mb-0">登录你的账户</p>
           </v-cardtext>

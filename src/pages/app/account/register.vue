@@ -5,7 +5,7 @@
         <v-col cols="12">
           <v-cardtext>
             <h5 class="text-h5 font-weight-semibold mb-1">
-              欢迎来到ZeroCatNext！ 👋🏻
+              欢迎来到ZeroCat！ 👋🏻
             </h5>
             <p class="mb-0">创建你的账户</p>
           </v-cardtext>
@@ -68,7 +68,7 @@
                           </div>
                         </template>
                       </v-checkbox>
-                      在 ZeroCatNext 上,你需要遵守
+                      在 ZeroCat 上,你需要遵守
                       <v-tooltip location="bottom">
                         <template v-slot:activator="{ props }">
                           <a href="https://scratch.mit.edu/community_guidelines" target="_blank" v-bind="props"

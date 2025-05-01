@@ -62,7 +62,7 @@
         </template>
         <v-card border style="padding: 10px">
           <v-card @click="localuser.loadUser(true)" :title="localuser.user.display_name"
-            :subtitle="localuser.user.username" :append-avatar="VITE_APP_S3_BUCKET + '/user/' + localuser.user.avatar
+            :subtitle="localuser.user.username" :append-avatar="VITE_APP_S3_BUCKET + '/user/' + localuser.user.images
               "></v-card>
           <v-list>
             <v-list-item :to="`/${localuser.user.username}`" prepend-icon="mdi-account" title="个人主页" rounded="xl"

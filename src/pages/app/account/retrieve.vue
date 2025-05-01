@@ -5,7 +5,7 @@
         <v-col cols="12">
           <v-cardtext>
             <h5 class="text-h5 font-weight-semibold mb-1">
-              欢迎来到ZeroCatNext！ 👋🏻
+              欢迎来到ZeroCat！ 👋🏻
             </h5>
             <p class="mb-0">重设密码</p>
           </v-cardtext>
@@ -204,7 +204,7 @@ export default {
 
     async sendVerificationCode() {
       if (this.countdown > 0) return;
-      
+
       this.loading = true;
       this.loadingText = "正在发送验证码...";
       try {

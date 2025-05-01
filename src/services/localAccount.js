@@ -73,13 +73,13 @@ const fetchUserInfo = async () => {
   }
 
   user.value = {
-    id: data.info.id,
-    display_name: data.info.display_name,
-    motto: data.info.motto,
-    images: data.info.images,
-    regTime: data.info.regTime,
-    sex: data.info.sex,
-    username: data.info.username,
+    id: data.data.id,
+    display_name: data.data.display_name,
+    motto: data.data.motto,
+    images: data.data.images,
+    regTime: data.data.regTime,
+    sex: data.data.sex,
+    username: data.data.username,
   };
   localStorage.setItem(USER_INFO_KEY, JSON.stringify(user.value));
   isLogin.value = true;

@@ -20,14 +20,14 @@
       <template v-slot:activator="{ props }">
         <v-btn class="px-5" icon="mdi-menu-down" v-bind="props" />
       </template>
-      
+
       <v-card min-width="300" max-width="400">
         <v-progress-linear
           v-if="listLoading"
           indeterminate
           color="primary"
         ></v-progress-linear>
-        
+
         <v-list>
           <div v-for="list in myLists" :key="list.id">
             <v-list-item
@@ -48,13 +48,13 @@
             <v-list-item-title>新建列表</v-list-item-title>
           </v-list-item>
         </v-list>
-        
+
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text="关闭" variant="text" @click="menu = false"></v-btn>
         </v-card-actions>
       </v-card>
-      
+
       <v-dialog v-model="isVisibleDialog" width="auto" min-width="400" @click:outside="isVisibleDialog = false">
         <v-card prepend-icon="mdi-format-list-bulleted" title="新建列表" border>
           <v-card-text>
@@ -102,10 +102,10 @@
 </template>
 
 <script>
-import { 
-  checkStarStatus, 
-  starProject, 
-  unstarProject, 
+import {
+  checkStarStatus,
+  starProject,
+  unstarProject,
   getProjectStarCount,
   getMyProjectLists,
   addProjectToList,
@@ -118,7 +118,13 @@ export default {
   props: {
     projectId: {
       type: [String, Number],
-      required: true
+      required: true,
+      validator: (value) => {
+        if (value === undefined || value === null) return false;
+        if (typeof value === 'string') return value.trim() !== '';
+        if (typeof value === 'number') return !isNaN(value) && value > 0;
+        return false;
+      }
     }
   },
   data() {
@@ -139,106 +145,171 @@ export default {
       listStates: [
         { state: "私密", abbr: "private" },
         { state: "公开", abbr: "public" },
-      ]
+      ],
+      error: null
     };
   },
+  computed: {
+    isValidProjectId() {
+      return this.projectId !== undefined &&
+             this.projectId !== null &&
+             (typeof this.projectId === 'string' ? this.projectId.trim() !== '' : !isNaN(this.projectId) && this.projectId > 0);
+    }
+  },
   async created() {
-    await this.checkStarStatus();
-    await this.getStarCount();
+    if (this.isValidProjectId) {
+      await this.checkStarStatus();
+      await this.getStarCount();
+    } else {
+      console.error('Invalid projectId provided:', this.projectId);
+      this.error = '无效的项目ID';
+    }
   },
   watch: {
     menu(val) {
-      if (val) {
+      if (val && this.isValidProjectId) {
         this.fetchMyLists();
+      }
+    },
+    projectId: {
+      immediate: true,
+      handler(newVal) {
+        if (this.isValidProjectId) {
+          this.checkStarStatus();
+          this.getStarCount();
+        }
       }
     }
   },
   methods: {
     async checkStarStatus() {
+      if (!this.isValidProjectId) return;
+
       try {
         const response = await checkStarStatus(this.projectId);
-        if (response.status === "success") {
+        if (response?.status === "success") {
           this.isStarred = response.star;
+        } else {
+          throw new Error(response?.message || '检查收藏状态失败');
         }
       } catch (error) {
         console.error("检查收藏状态失败:", error);
+        this.error = error.message || '检查收藏状态失败';
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: this.error,
+          life: 3000,
+        });
       }
     },
-    
+
     async getStarCount() {
+      if (!this.isValidProjectId) return;
+
       try {
         const response = await getProjectStarCount(this.projectId);
-        if (response.status === "success") {
+        if (response?.status === "success") {
           this.starCount = response.data;
+        } else {
+          throw new Error(response?.message || '获取收藏数失败');
         }
       } catch (error) {
         console.error("获取收藏数失败:", error);
+        this.error = error.message || '获取收藏数失败';
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: this.error,
+          life: 3000,
+        });
       }
       this.$emit('star-updated');
     },
-    
+
     async toggleStar() {
+      if (!this.isValidProjectId) {
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: "无效的项目ID",
+          life: 3000,
+        });
+        return;
+      }
+
       this.starLoading = true;
       try {
-        const response = this.isStarred 
+        const response = this.isStarred
           ? await unstarProject(this.projectId)
           : await starProject(this.projectId);
-        
-        if (response.status === "success") {
+
+        if (response?.status === "success") {
           this.isStarred = !this.isStarred;
           await this.getStarCount();
-          
+
           this.$toast.add({
             severity: "success",
             summary: "成功",
             detail: response.message,
             life: 2000,
           });
+        } else {
+          throw new Error(response?.message || '操作失败');
         }
       } catch (error) {
         console.error("切换收藏状态失败:", error);
+        this.error = error.message || '切换收藏状态失败';
         this.$toast.add({
           severity: "error",
           summary: "错误",
-          detail: "操作失败",
+          detail: this.error,
           life: 3000,
         });
       } finally {
         this.starLoading = false;
       }
     },
-    
+
     async fetchMyLists() {
+      if (!this.isValidProjectId) return;
+
       this.listLoading = true;
       try {
-        // 直接使用 check 接口获取列表和项目状态
         const response = await request.get(`/projectlist/lists/check?projectid=${this.projectId}`);
-        if (response.data.status === "success") {
+        if (response?.data?.status === "success") {
           this.myLists = response.data.data || [];
         } else {
-          console.error("获取列表状态失败:", response.data.message);
+          throw new Error(response?.data?.message || '获取列表状态失败');
         }
       } catch (error) {
         console.error("获取我的列表失败:", error);
+        this.error = error.message || '获取我的列表失败';
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: this.error,
+          life: 3000,
+        });
       } finally {
         this.listLoading = false;
       }
     },
-    
+
     async toggleListItem(listId) {
       // 不设置整体加载状态，避免菜单关闭
       const list = this.myLists.find(l => l.id === listId);
       if (!list) return;
-      
+
       // 只更新当前项的加载状态
       list.loading = true;
-      
+
       try {
         let response;
         if (list.hasProject) {
           // 如果已在列表中，则移除
           response = await removeProjectFromList(listId, this.projectId);
-          
+
           if (response.status === "success") {
             this.$toast.add({
               severity: "success",
@@ -252,7 +323,7 @@ export default {
         } else {
           // 如果不在列表中，则添加
           response = await addProjectToList(listId, this.projectId);
-          
+
           if (response.status === "success") {
             this.$toast.add({
               severity: "success",
@@ -277,14 +348,14 @@ export default {
         list.loading = false;
       }
     },
-    
+
     async createNewList() {
       if (!this.newListInfo.title) return;
-      
+
       this.creatingList = true;
       try {
         const response = await createProjectList(this.newListInfo);
-        
+
         if (response.status === "success") {
           this.$toast.add({
             severity: "success",
@@ -292,22 +363,22 @@ export default {
             detail: "列表创建成功",
             life: 3000,
           });
-          
+
           // 重置表单
           this.newListInfo = {
             title: "",
             description: "",
             state: "private"
           };
-          
+
           // 关闭对话框，但保持菜单打开
           this.isVisibleDialog = false;
-          
+
           // 如果创建成功，自动将当前项目添加到新列表
           if (response.data && response.data.id) {
             await addProjectToList(response.data.id, this.projectId);
           }
-          
+
           // 刷新列表
           await this.fetchMyLists();
         } else {

@@ -23,7 +23,9 @@
       </template>
       <v-list density="compact" width="150">
         <v-list-item
-          :prepend-icon="isBlocking ? 'mdi-account-cancel' : 'mdi-account-remove'"
+          :prepend-icon="
+            isBlocking ? 'mdi-account-cancel' : 'mdi-account-remove'
+          "
           :title="isBlocking ? '取消拉黑' : '拉黑用户'"
           :class="{ 'text-error': !isBlocking }"
           @click="toggleBlock"
@@ -51,14 +53,18 @@
     <v-dialog v-model="blockDialog" max-width="400px">
       <v-card>
         <v-card-title class="text-h5 text-center pa-4">
-          {{ isBlocking ? '取消拉黑用户' : '拉黑用户' }}
+          {{ isBlocking ? "取消拉黑用户" : "拉黑用户" }}
         </v-card-title>
         <v-card-text class="pa-4">
           <p v-if="isBlocking">
-            确定要取消拉黑 <strong>{{ targetUsername }}</strong> 吗？取消拉黑后，该用户可以查看您的内容并与您互动。
+            确定要取消拉黑
+            <strong>{{ targetUsername }}</strong>
+            吗？取消拉黑后，该用户可以查看您的内容并与您互动。
           </p>
           <p v-else>
-            确定要拉黑 <strong>{{ targetUsername }}</strong> 吗？拉黑后，该用户将无法关注您，也无法查看您的动态或与您互动。
+            确定要拉黑
+            <strong>{{ targetUsername }}</strong>
+            吗？拉黑后，该用户将无法关注您，也无法查看您的动态或与您互动。
           </p>
           <v-textarea
             v-if="!isBlocking"
@@ -73,37 +79,23 @@
         </v-card-text>
         <v-card-actions class="pa-4 pt-0">
           <v-spacer></v-spacer>
-          <v-btn
-            variant="text"
-            @click="blockDialog = false"
-          >
-            取消
-          </v-btn>
+          <v-btn variant="text" @click="blockDialog = false"> 取消 </v-btn>
           <v-btn
             :color="isBlocking ? 'primary' : 'error'"
             :loading="blockLoading"
             @click="confirmBlockAction"
             variant="tonal"
           >
-            {{ isBlocking ? '取消拉黑' : '拉黑' }}
+            {{ isBlocking ? "取消拉黑" : "拉黑" }}
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <v-snackbar
-      v-model="snackbar.show"
-      :color="snackbar.color"
-      :timeout="3000"
-    >
+    <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="3000">
       {{ snackbar.text }}
       <template v-slot:actions>
-        <v-btn
-          variant="text"
-          @click="snackbar.show = false"
-        >
-          关闭
-        </v-btn>
+        <v-btn variant="text" @click="snackbar.show = false"> 关闭 </v-btn>
       </template>
     </v-snackbar>
   </div>
@@ -118,16 +110,16 @@ export default {
   props: {
     userId: {
       type: Number,
-      required: true
+      required: true,
     },
     username: {
       type: String,
-      required: true
+      required: true,
     },
     displayName: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
@@ -142,8 +134,8 @@ export default {
       snackbar: {
         show: false,
         text: "",
-        color: "success"
-      }
+        color: "success",
+      },
     };
   },
   mounted() {
@@ -151,12 +143,22 @@ export default {
       this.checkRelationships();
     }
   },
+  watch: {
+    userId: {
+      handler() {
+        this.checkRelationships();
+      },
+      immediate: true,
+    },
+  },
   methods: {
     async checkRelationships() {
       if (!this.localuser.user.id) return;
 
       try {
-        const response = await request.get(`/follows/relationships/${this.userId}`);
+        const response = await request.get(
+          `/follows/relationships/${this.userId}`
+        );
         if (response.data.success) {
           const { isFollowing, isBlocking } = response.data.data;
           this.isFollowing = isFollowing;
@@ -168,7 +170,7 @@ export default {
     },
     async toggleFollow() {
       if (!this.localuser.user.id) {
-        this.$router.push('/login');
+        this.$router.push("/login");
         return;
       }
 
@@ -192,7 +194,7 @@ export default {
     },
     toggleBlock() {
       if (!this.localuser.user.id) {
-        this.$router.push('/login');
+        this.$router.push("/login");
         return;
       }
 
@@ -241,7 +243,7 @@ export default {
       this.snackbar.text = text;
       this.snackbar.color = color;
       this.snackbar.show = true;
-    }
-  }
+    },
+  },
 };
 </script>

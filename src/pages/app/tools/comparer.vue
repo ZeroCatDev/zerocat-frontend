@@ -112,7 +112,7 @@
           >Github</a
         >
         <br />在此感谢 Steve-xmh , 52black 以及这些项目的贡献者们
-        <br />此版本由孙悟元制作，同ZeroCatNext一同开源于<a
+        <br />此版本由孙悟元制作，同ZeroCat一同开源于<a
           href="https://github.com/zerocatdev/zerocat-frontend"
           >Github</a
         >

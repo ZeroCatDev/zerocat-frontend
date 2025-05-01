@@ -1,13 +1,13 @@
 <template>
   <v-row class="follow-stats">
     <v-col>
-      <v-btn variant="text" :to="`/${username}/followers`" class="stats-btn">
+      <v-btn variant="text" :to="`/${username}?tab=followers`" class="stats-btn">
         <span class="font-weight-bold">{{ followersCount }}</span>
         <span class="text-body-2 text-medium-emphasis">关注者</span>
       </v-btn>
     </v-col>
     <v-col>
-      <v-btn variant="text" :to="`/${username}/following`" class="stats-btn">
+      <v-btn variant="text" :to="`/${username}?tab=following`" class="stats-btn">
         <span class="font-weight-bold">{{ followingCount }}</span>
         <span class="text-body-2 text-medium-emphasis">正在关注</span>
       </v-btn>

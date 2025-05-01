@@ -23,7 +23,7 @@ export async function getUserById(ids) {
   } else {
     try {
       const { data } = await request.get(`/user/id/${ids}`);
-      return data.info;
+      return data.data;
     } catch (error) {
       return defaultUser(ids);
     }
@@ -40,7 +40,7 @@ export async function getUserByUsername(names) {
   } else {
     try {
       const { data } = await request.get(`/user/username/${names}`);
-      return data.info;
+      return data.data;
     } catch (error) {
       return defaultUser(names);
     }

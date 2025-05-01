@@ -201,7 +201,7 @@
     </v-row>
   </v-container>
 </template>
-<!-- ZeroCatNext中request会直接返回body的内容，所以代码不通用 -->
+<!-- ZeroCat中request会直接返回body的内容，所以代码不通用 -->
 <script>
 import request from "../../../axios/axios";
 import { useHead } from '@unhead/vue'
