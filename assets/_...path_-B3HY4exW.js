@@ -1,1 +1,0 @@
-import{_ as t}from"./404-CqL777wI.js";import{T as r,o}from"./index-BxEavA_P.js";import"./VRow-Cn2wrwA_.js";/* empty css              */import"./VContainer-DTlUtd82.js";const h={__name:"[...path]",setup(p){return this.$route.path.startsWith("/proxy")&&this.$router.replace(`/app${route.path}`),(a,e)=>(o(),r(t))}};export{h as default};
