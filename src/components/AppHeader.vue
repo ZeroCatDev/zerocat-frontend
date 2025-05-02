@@ -27,15 +27,12 @@
     </v-app-bar-title>
     <template #append>
       <v-btn icon="mdi-plus" to="/app/new"></v-btn>
-
-
       <v-menu
-        v-if="localuser.isLogin"
         :close-on-content-click="false"
         location="bottom"
       >
         <template #activator="{ props, isActive }"
-          ><template v-if="localuser.isLogin">
+          ><template v-if="localuser.isLogin.value">
             <v-btn
               icon
               v-bind="props"
