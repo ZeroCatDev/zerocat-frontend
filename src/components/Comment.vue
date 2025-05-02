@@ -23,15 +23,16 @@
         users[comment.user_id].display_name
       }}</v-card-title>
 
-      <v-card-subtitle>
-        <TimeAgo :date="comment.insertedAt" /> - ({{
+      <v-card-subtitle> <TimeAgo :date="comment.insertedAt" />
+        {{ comment.most_specific_country_or_region }}
+        {{
           UAParser(comment.user_ua).browser.name
         }}
-        -
         {{
           UAParser(comment.user_ua).os.name +
           UAParser(comment.user_ua).os.version
-        }})
+        }}
+        {{ comment.addr }}
       </v-card-subtitle>
     </v-card-item>
     <v-card-text><Markdown>{{ comment.text }}</Markdown></v-card-text>
@@ -143,14 +144,16 @@
             }}</v-card-title>
 
             <v-card-subtitle>
-              <TimeAgo :date="moreComments.insertedAt" /> - ({{
-                UAParser(moreComments.user_ua).browser.name
-              }}
-              -
-              {{
-                UAParser(moreComments.user_ua).os.name +
-                UAParser(moreComments.user_ua).os.version
-              }}) - {{ moreComments.insertedAt }}
+              <TimeAgo :date="moreComments.insertedAt" />
+        {{ moreComments.most_specific_country_or_region }}
+        {{
+          UAParser(moreComments.user_ua).browser.name
+        }}
+        {{
+          UAParser(moreComments.user_ua).os.name +
+          UAParser(moreComments.user_ua).os.version
+        }}
+        {{ moreComments.addr }}
             </v-card-subtitle>
           </v-card-item>
           <v-card-text><Markdown>{{ moreComments.text }}</Markdown></v-card-text>
@@ -208,14 +211,16 @@
             }}</v-card-title>
 
             <v-card-subtitle
-              ><TimeAgo :date="comment.insertedAt" /> - ({{
-                UAParser(comment.user_ua).browser.name
-              }}
-              -
-              {{
-                UAParser(comment.user_ua).os.name +
-                UAParser(comment.user_ua).os.version
-              }}) - {{ comment.insertedAt }}</v-card-subtitle
+              >    <TimeAgo :date="comment.insertedAt" />
+        {{ comment.most_specific_country_or_region }}
+        {{
+          UAParser(comment.user_ua).browser.name
+        }}
+        {{
+          UAParser(comment.user_ua).os.name +
+          UAParser(comment.user_ua).os.version
+        }}
+        {{ comment.addr }}</v-card-subtitle
             >
           </v-card-item>
           <v-card-text><Markdown>{{ comment.text }}</Markdown></v-card-text>
