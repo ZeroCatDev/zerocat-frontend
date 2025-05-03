@@ -9,7 +9,7 @@
             <v-icon icon="mdi-circle-outline" size="large" v-else />
           </div>
           <div>
-            <div class="text-h5 mb-1">欢迎来到 {{ appName }}!</div>
+            <div class="text-h5 mb-1">欢迎来到 ZeroCat !</div>
             <div class="text-body-1">快完成了！我们向 {{ email }} 发送了一封激活邮件。请按照邮件中的说明操作来激活您的账户。</div>
           </div>
         </div>
@@ -101,7 +101,6 @@ export default {
     const emailForm = ref(null);
 
     // State variables
-    const appName = ref('WuyuanDev');
     const email = ref('');
     const token = ref('');
     const loading = ref(false);
