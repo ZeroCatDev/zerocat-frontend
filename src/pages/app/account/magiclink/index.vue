@@ -1,55 +1,39 @@
 <template>
-  <div class="auth-wrapper d-flex align-center justify-center pa-4">
-    <v-card class="auth-card pa-4 pt-7" max-width="448" border  rounded="lg">
-      <v-row>
-        <v-col cols="12">
-          <v-cardtext>
-            <h5 class="text-h5 font-weight-semibold mb-1">
-              欢迎来到ZeroCat！ 👋🏻
-            </h5>
-            <p class="mb-0">登录你的账户</p>
-          </v-cardtext>
-        </v-col></v-row
-      >
+  <div>
+    <AuthCard subtitle="魔术链接登录">
+      <v-form @submit.prevent="sendMagicLink">
+        <v-row>
+          <v-col cols="12">
+            <v-text-field
+              label="邮箱"
+              type="text"
+              v-model="email"
+              variant="outlined"
+              :rules="emailRules"
+            ></v-text-field>
+          </v-col>
 
-      <v-cardtext>
-        <v-form>
-          <v-row>
-            <!-- email -->
-            <v-col cols="12">
-              <v-text-field
-                label="邮箱"
-                type="text"
-                v-model="email"
-                variant="outlined"
-                :rules="emailRules"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="9">
-              <Recaptcha ref="recaptcha" recaptchaId="recaptcha-div" />
-            </v-col>
-            <!-- password -->
-            <v-col cols="12">
-              <!-- remember me checkbox
-              <div class="d-flex align-center justify-space-between flex-wrap ">
-                <VCheckbox disabled label="Remember me" />
+          <v-col cols="12">
+            <Recaptcha ref="recaptcha" recaptchaId="recaptcha-div" />
+          </v-col>
 
+          <v-col cols="12">
+            <v-btn
+              class="text-none"
+              color="primary"
+              rounded="xl"
+              :text="linkSent ? '已发送，请检查邮箱' : '发送登录链接'"
+              variant="flat"
+              size="large"
+              @click="sendMagicLink"
+              append-icon="mdi-arrow-right"
+              :loading="loading"
+              :disabled="linkSent"
+            ></v-btn>
+          </v-col>
 
-              </div>-->
-
-              <v-btn
-                class="text-none"
-                color="primary"
-                rounded="xl"
-                text="发送验证链接"
-                variant="flat"
-                size="large"
-                @click="login"
-                append-icon="mdi-arrow-right"
-              ></v-btn>
-              <!-- login button -->
-            </v-col>
-            <v-col cols="12">
+          <v-col cols="12">
+            <div class="d-flex flex-wrap justify-start gap-2">
               <v-btn
                 class="text-none"
                 color="white"
@@ -70,7 +54,6 @@
                 append-icon="mdi-arrow-right"
                 to="/app/account/register"
               ></v-btn>
-              <!-- login button -->
               <v-btn
                 class="text-none"
                 color="white"
@@ -81,95 +64,117 @@
                 append-icon="mdi-arrow-right"
                 to="/app/account/retrieve"
               ></v-btn>
-              <!-- login button -->
-            </v-col>
-            <!-- create account -->
-          </v-row>
-        </v-form>
-      </v-cardtext>
-
-    </v-card>
+            </div>
+          </v-col>
+        </v-row>
+      </v-form>
+    </AuthCard>
+    <LoadingDialog :show="loading" text="处理中" />
   </div>
-  <LoadingDialog :show="loading" text="登录中" />
 </template>
 
 <script>
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useHead } from "@unhead/vue";
 import { localuser } from "@/services/localAccount";
-import request from "../../../../axios/axios";
+import AuthService from "@/services/authService";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
-import { useHead } from "@unhead/vue";
-import { generateMagicLink } from "@/services/accountService";
+import AuthCard from "@/components/AuthCard.vue";
 
 export default {
-  components: { LoadingDialog, Recaptcha },
-  data() {
-    return {
-      BASE_API: import.meta.env.VITE_APP_BASE_API,
-      email: "",
-      tryinguser: {},
-      loading: false,
-      show1: ref(false),
-      emailRules: [
-        (value) => {
-          if (value) return true;
+  components: { LoadingDialog, Recaptcha, AuthCard },
 
-          return "必须填写邮箱";
-        },
-        (value) => {
-          if (/.+@.+\..+/.test(value)) return true;
+  setup() {
+    const router = useRouter();
+    const recaptcha = ref(null);
 
-          return "不符合格式";
-        },
-      ],
-      usernameRules: [
-        (value) => {
-          if (value) return true;
+    // State variables
+    const email = ref("");
+    const loading = ref(false);
+    const linkSent = ref(false);
 
-          return "必须填写用户名";
-        },
-      ],
-    };
-  },
+    // Validation rules
+    const emailRules = [
+      (v) => !!v || "必须填写邮箱",
+      (v) => /.+@.+\..+/.test(v) || "不符合格式",
+    ];
 
-  created() {
-    if (localuser.isLogin.value == true) {
-      this.$router.push("/");
+    // Check if user is already logged in
+    if (localuser.isLogin.value === true) {
+      router.push("/app/explore");
     }
-    useHead({
-      title: "魔术链接",
-    });
-  },
 
-  methods: {
-    async login() {
-      this.loading = true;
+    // Set page title
+    useHead({
+      title: "魔术链接登录",
+    });
+
+    const sendMagicLink = async () => {
+      if (!email.value || !/.+@.+\..+/.test(email.value)) {
+        showErrorToast("请输入正确的邮箱地址");
+        return;
+      }
+
+      if (linkSent.value) return;
+
+      loading.value = true;
       try {
-        await this.$nextTick(); // 确保$refs已被正确初始化
-        const response = await generateMagicLink({
-          captcha: this.$refs.recaptcha.getResponse(),
-          email: this.email,
-        });
-        this.tryinguser = response.data;
-        if (this.tryinguser.message != "OK") {
-          this.$toast.add({
-            severity: "info",
-            summary: "info",
-            detail: this.tryinguser.message,
-            life: 3000,
-          });
+        const captcha = recaptcha.value?.getResponse();
+        if (!captcha) {
+          showErrorToast("请完成人机验证");
+          loading.value = false;
+          return;
+        }
+
+        const response = await AuthService.generateMagicLink(
+          email.value,
+          window.location.origin + '/app/account/magiclink/validate',
+          captcha
+        );
+
+        if (response.status === "success") {
+          showSuccessToast("登录链接已发送到您的邮箱");
+          linkSent.value = true;
+        } else {
+          showErrorToast(response.message || "发送失败");
         }
       } catch (error) {
-        this.$toast.add({
-          severity: "error",
-          summary: "错误",
-          detail: error.message,
-          life: 3000,
-        });
+        showErrorToast(error.response?.data?.message || error.message);
       } finally {
-        this.loading = false;
+        loading.value = false;
       }
-    },
+    };
+
+    const showSuccessToast = (message) => {
+      // Using PrimeVue toast
+      this?.$toast?.add({
+        severity: "success",
+        summary: "成功",
+        detail: message,
+        life: 3000,
+      });
+    };
+
+    const showErrorToast = (message) => {
+      // Using PrimeVue toast
+      this?.$toast?.add({
+        severity: "error",
+        summary: "错误",
+        detail: message,
+        life: 3000,
+      });
+    };
+
+    return {
+      email,
+      loading,
+      linkSent,
+      recaptcha,
+      emailRules,
+      sendMagicLink,
+    };
   },
 };
 </script>

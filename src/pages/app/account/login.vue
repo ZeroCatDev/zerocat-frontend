@@ -1,301 +1,428 @@
 <template>
-  <div class="auth-wrapper d-flex align-center justify-center pa-4">
-    <v-card class="auth-card pa-4 pt-7" max-width="448" border rounded="lg">
-      <v-row>
-        <v-col cols="12">
-          <v-cardtext>
-            <h5 class="text-h5 font-weight-semibold mb-1">
-              欢迎来到ZeroCat！ 👋🏻
-            </h5>
-            <p class="mb-0">登录你的账户</p>
-          </v-cardtext>
-        </v-col>
-      </v-row>
+  <div>
+    <AuthCard subtitle="登录你的账户">
+      <v-form>
+        <v-row>
+          <!-- 登录方式切换 -->
+          <v-col cols="12">
+            <v-tabs v-model="loginType" class="mb-4">
+              <v-tab value="password" variant="text">密码登录</v-tab>
+              <v-tab value="code" variant="text">验证码登录</v-tab>
+              <v-tab value="magiclink" variant="text">魔术链接登录</v-tab>
+            </v-tabs>
 
-      <v-cardtext>
-        <v-form>
-          <v-row>
-            <!-- 登录方式切换 -->
-            <v-col cols="12">
-              <v-tabs
-      v-model="loginType"
-       class="mb-4"
-    >
-      <v-tab value="password" variant="text">密码登录</v-tab>
-      <v-tab value="code" variant="text">验证码登录</v-tab>
-    </v-tabs>
+            <v-text-field
+              label="邮箱"
+              type="text"
+              v-model="email"
+              variant="outlined"
+              :rules="emailRules"
+            ></v-text-field>
 
-              <v-text-field label="邮箱" type="text" v-model="username" variant="outlined"
-                :rules="emailRules"></v-text-field>
+            <!-- 密码登录 -->
+            <v-text-field
+              v-if="loginType === 'password'"
+              label="密码"
+              v-model="password"
+              variant="outlined"
+              :rules="passwordRules"
+              :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+              :type="showPassword ? 'text' : 'password'"
+              @click:append="showPassword = !showPassword"
+            ></v-text-field>
 
-              <!-- 密码登录 -->
-              <v-text-field v-if="loginType === 'password'" label="密码" v-model="password" variant="outlined"
-                :rules="usernameRules" :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="show1 ? 'text' : 'password'" @click:append="show1 = !show1"></v-text-field>
+            <!-- 验证码登录 -->
+            <template v-if="loginType === 'code'">
+              <v-text-field
+                v-model="verificationCode"
+                label="验证码"
+                variant="outlined"
+                maxlength="6"
+                :rules="[rules.required, rules.length]"
+              ></v-text-field>
+              <v-btn
+                class="mb-4"
+                variant="text"
+                @click="sendVerificationCode"
+                :disabled="countdown > 0"
+              >
+                {{ countdown > 0 ? `${countdown}秒后重新发送` : "发送验证码" }}
+              </v-btn>
+            </template>
+          </v-col>
 
-              <!-- 验证码登录 -->
-              <template v-else>
-                <v-text-field v-model="verificationCode" label="验证码" variant="outlined" maxlength="6"
-                  :rules="[rules.required, rules.length]"></v-text-field>
-                <v-btn class="mb-4" variant="text" @click="sendVerificationCode" :disabled="countdown > 0">
-                  {{ countdown > 0 ? `${countdown}秒后重新发送` : '发送验证码' }}
-                </v-btn>
-              </template>
-            </v-col>
+          <v-col cols="12">
+            <Recaptcha
+              ref="recaptcha"
+              recaptchaId="recaptcha-div"
+              :showNormal="true"
+              @bindVerified="handleBindVerified"
+              @bindError="handleBindError"
+              @bindClose="handleBindClose"
+            />
+          </v-col>
 
-            <v-col cols="9">
-              <Recaptcha ref="recaptcha" recaptchaId="recaptcha-div" :showNormal="loginType === 'password'"
-                @bindVerified="handleBindVerified" @bindError="handleBindError" @bindClose="handleBindClose" />
-            </v-col>
+          <v-col cols="12">
+            <v-btn
+              class="text-none"
+              color="primary"
+              rounded="xl"
+              :text="getLoginButtonText()"
+              variant="flat"
+              size="large"
+              @click="handleLoginAction"
+              append-icon="mdi-arrow-right"
+              :loading="loading"
+            ></v-btn>
+          </v-col>
 
-            <v-col cols="12">
-              <v-btn class="text-none" color="primary" rounded="xl" text="登录" variant="flat" size="large"
-                @click="handleLogin" append-icon="mdi-arrow-right"></v-btn>
-            </v-col>
+          <v-col cols="12">
+            <v-btn
+              class="text-none"
+              color="white"
+              rounded="xl"
+              text="注册"
+              variant="text"
+              size="large"
+              append-icon="mdi-arrow-right"
+              to="/app/account/register"
+            ></v-btn>
+            <v-btn
+              class="text-none"
+              color="white"
+              rounded="xl"
+              text="找回密码"
+              variant="text"
+              size="large"
+              append-icon="mdi-arrow-right"
+              to="/app/account/retrieve"
+            ></v-btn>
+            <v-btn
+              class="text-none"
+              color="white"
+              rounded="xl"
+              text="魔术链接登录"
+              variant="text"
+              size="large"
+              append-icon="mdi-arrow-right"
+              to="/app/account/magiclink"
+            ></v-btn>
+          </v-col>
 
-            <v-col cols="12">
-              <v-btn class="text-none" color="white" rounded="xl" text="注册" variant="text" size="large"
-                append-icon="mdi-arrow-right" to="/app/account/register"></v-btn>
-              <v-btn class="text-none" color="white" rounded="xl" text="找回密码" variant="text" size="large"
-                append-icon="mdi-arrow-right" to="/app/account/retrieve"></v-btn>
-            </v-col>
-
-            <v-col cols="12">
-              <!--<v-btn @click="loginWithOAuth('google')" color="red">使用 Google 登录</v-btn>-->
-              <v-btn @click="loginWithOAuth('microsoft')" color="blue" prepend-icon="mdi-microsoft">使用 Microsoft 登录</v-btn>
-              <v-btn @click="loginWithOAuth('github')" color="black" prepend-icon="mdi-github">使用 GitHub 登录</v-btn>
-            </v-col>
-          </v-row>
-        </v-form>
-      </v-cardtext>
-    </v-card>
+          <v-col cols="12">
+            <div class="d-flex flex-wrap gap-2 justify-start mt-4">
+              <v-btn
+                @click="loginWithOAuth('microsoft')"
+                color="blue"
+                prepend-icon="mdi-microsoft"
+                variant="flat"
+                >Microsoft</v-btn
+              >
+              <v-btn
+                @click="loginWithOAuth('github')"
+                color="black"
+                prepend-icon="mdi-github"
+                variant="flat"
+                >GitHub</v-btn
+              >
+            </div>
+          </v-col>
+        </v-row>
+      </v-form>
+    </AuthCard>
+    <LoadingDialog :show="loading" text="登录中" />
   </div>
-  <LoadingDialog :show="loading" text="登录中" />
 </template>
 
 <script>
+import { ref, watch } from "vue";
+import { useRouter } from "vue-router";
+import { useHead } from "@unhead/vue";
 import { localuser } from "@/services/localAccount";
-import request from "../../../axios/axios";
+import AuthService from "@/services/authService";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
-import { useHead } from "@unhead/vue";
-import { loginUser } from "@/services/accountService";
-import { ref } from "vue";
+import AuthCard from "@/components/AuthCard.vue";
 
 export default {
-  components: { LoadingDialog, Recaptcha },
-
-  data() {
-    return {
-      BASE_API: import.meta.env.VITE_APP_BASE_API,
-      username: "",
-      password: "",
-      verificationCode: "",
-      loginType: "password",
-      countdown: 0,
-      tryinguser: {},
-      loading: false,
-      localuser,
-      show1: ref(false),
-      rules: {
-        required: value => !!value || '此字段为必填项',
-        length: value => value?.length === 6 || '验证码必须是6位数字'
-      },
-      emailRules: [
-        (value) => {
-          if (value) return true;
-          return "必须填写邮箱";
-        },
-        (value) => {
-          if (/.+@.+\..+/.test(value)) return true;
-          return "不符合格式";
-        },
-      ],
-      usernameRules: [
-        (value) => {
-          if (value) return true;
-          return "必须填写密码";
-        },
-      ],
-    };
-  },
-
-  created() {
-    if (localuser.isLogin.value === true) {
-      this.$router.push("/");
-    }
-  },
+  components: { LoadingDialog, Recaptcha, AuthCard },
 
   setup() {
+    const router = useRouter();
+
+    // State variables
+    const email = ref("");
+    const password = ref("");
+    const verificationCode = ref("");
+    const loginType = ref("password");
+    const countdown = ref(0);
+    const loading = ref(false);
+    const showPassword = ref(false);
+    const recaptcha = ref(null);
+    const magicLinkSent = ref(false);
+
+    // Validation rules
+    const rules = {
+      required: (value) => !!value || "此字段为必填项",
+      length: (value) => value?.length === 6 || "验证码必须是6位数字",
+    };
+
+    const emailRules = [
+      (value) => !!value || "必须填写邮箱",
+      (value) => /.+@.+\..+/.test(value) || "不符合格式",
+    ];
+
+    const passwordRules = [
+      (value) => !!value || "必须填写密码",
+    ];
+
+    // Check if user is already logged in
+    if (localuser.isLogin.value === true) {
+      router.push("/app/explore");
+    }
+
+    // Set page title
     useHead({
       title: "登录",
     });
-  },
 
-  methods: {
-    async handleLogin() {
-      if (this.loginType === 'password') {
-        await this.loginWithPassword();
-      } else {
-        await this.loginWithCode();
+    // Methods
+    const getLoginButtonText = () => {
+      if (loginType.value === "password") return "登录";
+      if (loginType.value === "code") {
+        return verificationCode.value ? "登录" : "发送验证码";
       }
-    },
-
-    async loginWithPassword() {
-      this.loading = true;
-      try {
-        const response = await loginUser({
-          captcha: this.$refs.recaptcha.getResponse(),
-          un: this.username,
-          pw: this.password,
-        });
-        this.handleLoginResponse(response);
-      } catch (error) {
-        this.handleError(error);
-      } finally {
-        this.loading = false;
+      if (loginType.value === "magiclink") {
+        return magicLinkSent.value ? "已发送，请检查邮箱" : "发送登录链接";
       }
-    },
+      return "登录";
+    };
 
-    async loginWithCode() {
-      if (!this.verificationCode || this.verificationCode.length !== 6) {
-        this.$toast.add({
-          severity: "error",
-          summary: "错误",
-          detail: "请输入6位验证码",
-          life: 3000,
-        });
+    const handleLoginAction = async () => {
+      switch (loginType.value) {
+        case "password":
+          await loginWithPassword();
+          break;
+        case "code":
+          if (verificationCode.value) {
+            await loginWithCode();
+          } else {
+            await sendVerificationCode();
+          }
+          break;
+        case "magiclink":
+          await sendMagicLink();
+          break;
+      }
+    };
+
+    const loginWithPassword = async () => {
+      if (!email.value || !password.value) {
+        showErrorToast("请输入邮箱和密码");
         return;
       }
 
-      this.loading = true;
+      loading.value = true;
       try {
-        const response = await request.post('/account/login-with-code', {
-          email: this.username,
-          code: this.verificationCode,
-        });
-        this.handleLoginResponse(response);
+        const captcha = recaptcha.value?.getResponse() || null;
+        const response = await AuthService.loginWithPassword(
+          email.value,
+          password.value,
+          captcha
+        );
+
+        handleLoginResponse(response);
       } catch (error) {
-        this.handleError(error);
+        handleError(error);
       } finally {
-        this.loading = false;
+        loading.value = false;
       }
-    },
+    };
 
-    async sendVerificationCode() {
-      if (this.countdown > 0) return;
-
-      if (!this.username || !/.+@.+\..+/.test(this.username)) {
-        this.$toast.add({
-          severity: "error",
-          summary: "错误",
-          detail: "请输入正确的邮箱地址",
-          life: 3000,
-        });
+    const loginWithCode = async () => {
+      if (!email.value || !verificationCode.value) {
+        showErrorToast("请输入邮箱和验证码");
         return;
       }
 
-      // 显示验证码
-      this.$refs.recaptcha.showBindCaptcha();
-    },
-
-    async handleBindVerified(response) {
-      this.loading = true;
+      loading.value = true;
       try {
-        const apiResponse = await request.post('/account/send-login-code', {
-          email: this.username,
-          captcha: response,
-        });
+        const response = await AuthService.loginWithCode(
+          email.value,
+          verificationCode.value
+        );
 
-        if (apiResponse.data.status === 'success') {
-          this.$toast.add({
-            severity: "success",
-            summary: "成功",
-            detail: "验证码已发送",
-            life: 3000,
-          });
-          this.startCountdown();
+        handleLoginResponse(response);
+      } catch (error) {
+        handleError(error);
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    const sendVerificationCode = async () => {
+      if (countdown.value > 0) return;
+
+      if (!email.value || !/.+@.+\..+/.test(email.value)) {
+        showErrorToast("请输入正确的邮箱地址");
+        return;
+      }
+
+      loading.value = true;
+      try {
+        const captcha = recaptcha.value?.getResponse() || null;
+        const response = await AuthService.sendLoginCode(email.value, captcha);
+
+        if (response.status === "success") {
+          showSuccessToast("验证码已发送");
+          startCountdown();
         } else {
-          this.$toast.add({
-            severity: "error",
-            summary: "错误",
-            detail: apiResponse.data.message,
-            life: 3000,
-          });
+          showErrorToast(response.message);
         }
       } catch (error) {
-        this.handleError(error);
+        handleError(error);
       } finally {
-        this.loading = false;
+        loading.value = false;
       }
-    },
+    };
 
-    handleBindError() {
-      this.$toast.add({
-        severity: "error",
-        summary: "错误",
-        detail: "验证失败，请重试",
+    const sendMagicLink = async () => {
+      if (magicLinkSent.value) return;
+
+      if (!email.value || !/.+@.+\..+/.test(email.value)) {
+        showErrorToast("请输入正确的邮箱地址");
+        return;
+      }
+
+      loading.value = true;
+      try {
+        const captcha = recaptcha.value?.getResponse() || null;
+        if (!captcha) {
+          showErrorToast("请完成人机验证");
+          loading.value = false;
+          return;
+        }
+
+        const response = await AuthService.generateMagicLink(
+          email.value,
+          window.location.origin + '/app/account/magiclink/validate',
+          captcha
+        );
+
+        if (response.status === "success") {
+          showSuccessToast("登录链接已发送到您的邮箱");
+          magicLinkSent.value = true;
+        } else {
+          showErrorToast(response.message);
+        }
+      } catch (error) {
+        handleError(error);
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    const loginWithOAuth = (provider) => {
+      window.location.href = AuthService.oauthRedirect(provider);
+    };
+
+    const handleLoginResponse = (response) => {
+      if (response.status === "success") {
+        showSuccessToast("登录成功，欢迎回来，" + response.display_name);
+        setTimeout(() => {
+          router.push("/app/explore");
+        }, 1000);
+      } else {
+        showErrorToast(response.message);
+      }
+    };
+
+    const handleError = (error) => {
+      showErrorToast(error.response?.data?.message || error.message);
+    };
+
+    const showSuccessToast = (message) => {
+      // Using PrimeVue toast
+      this?.$toast?.add({
+        severity: "success",
+        summary: "成功",
+        detail: message,
         life: 3000,
       });
-    },
+    };
 
-    handleBindClose() {
-      // 可以添加关闭验证码弹窗的处理逻辑
-    },
+    const showErrorToast = (message) => {
+      // Using PrimeVue toast
+      this?.$toast?.add({
+        severity: "error",
+        summary: "错误",
+        detail: message,
+        life: 3000,
+      });
+    };
 
-    startCountdown() {
-      this.countdown = 60;
+    const startCountdown = () => {
+      countdown.value = 60;
       const timer = setInterval(() => {
-        this.countdown--;
-        if (this.countdown <= 0) {
+        countdown.value--;
+        if (countdown.value <= 0) {
           clearInterval(timer);
         }
       }, 1000);
-    },
+    };
 
-    async handleLoginResponse(response) {
-      this.tryinguser = response.data;
-      if (this.tryinguser.status === "success") {
-        // 使用新的认证系统响应格式
-        await localuser.setUser({
-          token: this.tryinguser.token,
-          refresh_token: this.tryinguser.refresh_token,
-          expires_at: this.tryinguser.expires_at,
-          refresh_expires_at: this.tryinguser.refresh_expires_at
-        });
-
-        this.$toast.add({
-          severity: "success",
-          summary: "登录成功",
-          detail: "欢迎回来，" + this.tryinguser.display_name,
-          life: 3000,
-        });
-
-
-        window.location.replace('/app/explore')
-        } else {
-        this.$toast.add({
-          severity: "info",
-          summary: "info",
-          detail: this.tryinguser.message,
-          life: 3000,
-        });
+    // ReCAPTCHA handlers
+    const handleBindVerified = (response) => {
+      if (loginType.value === "code" && !verificationCode.value) {
+        sendVerificationCode();
       }
-    },
+    };
 
-    handleError(error) {
-      this.$toast.add({
-        severity: "error",
-        summary: "错误",
-        detail: error.response?.data?.message || error.message,
-        life: 3000,
-      });
-    },
+    const handleBindError = () => {
+      showErrorToast("验证失败，请重试");
+    };
 
-    loginWithOAuth(provider) {
-      const token = localuser.getToken(); // 获取用户的 token
-      window.location.href = `${import.meta.env.VITE_APP_BASE_API}/account/oauth/${provider}?token=${token}`;
-    },
+    const handleBindClose = () => {
+      // Handle close
+    };
+
+    // Reset verification code when login type changes
+    watch(loginType, (newValue) => {
+      verificationCode.value = "";
+      magicLinkSent.value = false;
+
+      // 添加延时后重置验证码，确保 DOM 更新后再执行
+      setTimeout(() => {
+        if (recaptcha.value) {
+          recaptcha.value.resetCaptcha();
+        }
+      }, 100);
+    });
+
+    return {
+      email,
+      password,
+      verificationCode,
+      loginType,
+      countdown,
+      loading,
+      showPassword,
+      rules,
+      emailRules,
+      passwordRules,
+      recaptcha,
+      magicLinkSent,
+      getLoginButtonText,
+      handleLoginAction,
+      loginWithPassword,
+      loginWithCode,
+      sendVerificationCode,
+      sendMagicLink,
+      loginWithOAuth,
+      handleBindVerified,
+      handleBindError,
+      handleBindClose,
+    };
   },
 };
 </script>

@@ -136,3 +136,36 @@ export function revokeToken(tokenId) {
     },
   });
 }
+
+// Email verification and management methods
+export function resendVerificationEmail(token) {
+  return request({
+    url: "/account/register/resend-verification-email",
+    method: "post",
+    data: {
+      token
+    },
+  });
+}
+
+export function changeRegisterEmail(token, email) {
+  return request({
+    url: "/account/register/change-register-email",
+    method: "post",
+    data: {
+      token,
+      email
+    },
+  });
+}
+
+export function verifyEmail(email, code) {
+  return request({
+    url: "/account/register/verify-email",
+    method: "post",
+    data: {
+      email,
+      code
+    },
+  });
+}

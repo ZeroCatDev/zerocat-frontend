@@ -1,79 +1,156 @@
 <template>
-  <v-container>
-    <v-card class="mx-auto" rel="noopener" target="_blank" border>
-      <template v-slot:title> <span>您正在登录一个账户</span> </template
-      ><template v-slot:subtitle>
-        <span
-          >其他页面传来了一个登录请求，正常情况下它会被自动处理</span
-        > </template
-      ><v-card-text class="bg-surface-light pt-4"
-        >传入的token是：<br />
-        {{ token }}
-        <br />
-        <br />处理后的数据是：<br />
-        {{ user }}
+  <div class="d-flex align-center justify-center pa-4">
+    <v-card class="pa-4 pt-7" max-width="448" border rounded="lg">
+      <v-card-title class="text-h5 font-weight-semibold">
+        {{ pageTitle }}
+      </v-card-title>
+
+      <v-card-subtitle>{{ pageSubtitle }}</v-card-subtitle>
+
+      <v-card-text v-if="loading">
+        <v-progress-circular indeterminate color="primary" class="mx-auto d-block mb-4"></v-progress-circular>
+        <p class="text-center">正在验证您的登录链接...</p>
       </v-card-text>
+
+      <v-card-text v-else-if="error">
+        <v-alert type="error" variant="tonal" border="start" class="mb-4">
+          {{ error }}
+        </v-alert>
+        <p class="text-body-2">
+          验证链接可能已失效或已被使用。请尝试重新获取登录链接，或使用其他方式登录。
+        </p>
+      </v-card-text>
+
+      <v-card-text v-else-if="success">
+        <v-alert type="success" variant="tonal" border="start" class="mb-4">
+          {{ success }}
+        </v-alert>
+        <p class="text-body-2">
+          您已成功登录，即将跳转到主页...
+        </p>
+      </v-card-text>
+
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn
           color="primary"
-          text="返回登录"
-          variant="tonal"
+          variant="text"
           to="/app/account/login"
-          @click="login"
-        ></v-btn>
+          :disabled="loading || countdown > 0"
+        >
+          {{ countdown > 0 ? `${countdown}秒后跳转` : '返回登录' }}
+        </v-btn>
+        <v-btn
+          color="primary"
+          variant="flat"
+          to="/app/explore"
+          :disabled="loading || !loginSuccess || countdown > 0"
+        >
+          去主页
+        </v-btn>
       </v-card-actions>
     </v-card>
-  </v-container>
+  </div>
 </template>
 
 <script>
-import { jwtDecode } from "jwt-decode";
-import { localuser } from "@/services/localAccount";
-import { validateMagicLink } from "@/services/accountService";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useHead } from "@unhead/vue";
+import { localuser } from "@/services/localAccount";
+import AuthService from "@/services/authService";
 
 export default {
-  data() {
-    return {
-      token: "",
-      user: {},
-      BASE_API: import.meta.env.VITE_APP_BASE_API,
-    };
-  },
-  mounted() {
-    if (localuser.isLogin.value == true) {
-      this.$router.push("/");
-    }
-  },
-  async created() {
-    useHead({
-      title: "魔术链接登录",
-    });
-    if (this.$route.query.token) {
-      try {
-        await this.$nextTick(); // 确保$refs已被正确初始化
-        const res = await validateMagicLink(this.$route.query.token);
-        this.$toast.add({
-          severity: res.data.status,
-          summary: res.data.status,
-          detail: res.data.message,
-          life: 3000,
-        });
+  setup() {
+    const route = useRoute();
+    const router = useRouter();
 
-        if (res.data.token) {
-          this.token = res.data.token;
-          await localuser.setUser(res.data.token);
-          if (localuser.isLogin.value == true) {
-            this.$router.push("/");
-          }
+    // State variables
+    const loading = ref(true);
+    const error = ref("");
+    const success = ref("");
+    const loginSuccess = ref(false);
+    const countdown = ref(0);
+    const redirectTimer = ref(null);
+    const countdownTimer = ref(null);
+
+    const pageTitle = computed(() => {
+      if (loading.value) return "正在验证登录";
+      if (error.value) return "验证失败";
+      return "验证成功";
+    });
+
+    const pageSubtitle = computed(() => {
+      if (loading.value) return "请稍候，正在处理您的登录请求";
+      if (error.value) return "登录链接验证失败";
+      return "您已成功登录";
+    });
+
+    // Set page title
+    useHead({
+      title: "魔术链接验证",
+    });
+
+    onMounted(async () => {
+      if (localuser.isLogin.value === true) {
+        router.push("/app/explore");
+        return;
+      }
+
+      const token = route.query.token;
+
+      if (!token) {
+        loading.value = false;
+        error.value = "缺少验证令牌，无法完成验证";
+        return;
+      }
+
+      try {
+        const response = await AuthService.validateMagicLink(token);
+
+        if (response.status === "success") {
+          loading.value = false;
+          success.value = response.message || "登录成功！";
+          loginSuccess.value = true;
+
+          // Start redirect countdown
+          countdown.value = 5;
+          countdownTimer.value = setInterval(() => {
+            countdown.value--;
+            if (countdown.value <= 0) {
+              clearInterval(countdownTimer.value);
+            }
+          }, 1000);
+
+          // Redirect after delay
+          redirectTimer.value = setTimeout(() => {
+            const redirectUrl = response.callback?.redirect || "/app/explore";
+            router.push(redirectUrl);
+          }, 5000);
+        } else {
+          loading.value = false;
+          error.value = response.message || "验证失败";
         }
       } catch (error) {
-        this.user = error;
+        loading.value = false;
+        error.value = error.response?.data?.message || "验证过程中发生错误";
       }
-    } else {
-      console.log("无token");
-    }
-  },
+    });
+
+    onBeforeUnmount(() => {
+      if (redirectTimer.value) clearTimeout(redirectTimer.value);
+      if (countdownTimer.value) clearInterval(countdownTimer.value);
+    });
+
+    return {
+      loading,
+      error,
+      success,
+      loginSuccess,
+      countdown,
+      pageTitle,
+      pageSubtitle,
+    };
+  }
 };
 </script>

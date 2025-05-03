@@ -27,8 +27,8 @@
       </v-card-subtitle>
     </v-card-item>
 
-    <v-card-text v-if="userData.motto">
-      <div class="text-body-2 text-medium-emphasis">
+    <v-card-text v-if="userData.motto"><!--超出一行则显示...-->
+      <div class="text-body-2 text-medium-emphasis" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
         {{ userData.motto }}
       </div>
     </v-card-text>

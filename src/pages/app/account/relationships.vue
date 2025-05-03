@@ -1,15 +1,8 @@
 <template>
   <v-container fluid class="pa-4">
-    <v-card class="mb-4" border>
-      <v-card-title class="d-flex align-center">
-        <v-icon icon="mdi-account-group" class="mr-2" />
-        用户关系
-      </v-card-title>
-      <v-card-subtitle>
-        管理您的关注、粉丝和拉黑用户列表
-      </v-card-subtitle>
-      <v-card-text>
-      </v-card-text>
+    <v-card class="mb-4" border title="用户关系" subtitle="管理您的关注、粉丝和拉黑用户列表" prepend-icon="mdi-account-group">
+
+
     </v-card>
 
     <v-card hover border>
