@@ -27,7 +27,7 @@ export async function getProjectInfo(ids) {
   } else {
     try {
       const { data } = await request.get(`/project/id/${ids}`);
-      return data;
+      return data.data;
     } catch (error) {
       return defaultProject(ids);
     }

@@ -1,21 +1,10 @@
 <template>
   <div>
-    <AuthCard subtitle="邮箱验证">
+    <AuthCard :subtitle="`快完成了！我们向 ${email} 发送了一封激活邮件。请按照邮件中的说明操作来激活您的账户。`">
       <v-card-text>
-        <div class="d-flex align-center mb-6">
-          <div class="me-3">
-            <v-icon color="success" icon="mdi-check-circle" size="large" v-if="verificationStep === 'success'" />
-            <v-icon color="success" icon="mdi-check-circle" size="large" v-else-if="verificationStep === 'completed'" />
-            <v-icon icon="mdi-circle-outline" size="large" v-else />
-          </div>
-          <div>
-            <div class="text-h5 mb-1">欢迎来到 ZeroCat !</div>
-            <div class="text-body-1">快完成了！我们向 {{ email }} 发送了一封激活邮件。请按照邮件中的说明操作来激活您的账户。</div>
-          </div>
-        </div>
+        如果您没有收到邮件，请检查您的垃圾邮件文件夹。
+        <div v-if="verificationStep === 'waiting'">
 
-        <div v-if="verificationStep === 'waiting'" class="mb-4">
-          <div class="text-body-1 mb-2">如果您没有收到邮件，请检查您的垃圾邮件文件夹。</div>
 
           <v-btn
             color="primary"
@@ -242,7 +231,6 @@ export default {
     };
 
     return {
-      appName,
       email,
       token,
       loading,
