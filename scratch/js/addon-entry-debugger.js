@@ -6511,26 +6511,26 @@ function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = 
       return this._get(t, this.scales, "scale");
     }
     removeControllers() {
-      for (var _len10 = arguments.length, t = new Array(_len10), _key10 = 0; _key10 < _len10; _key10++) {
-        t[_key10] = arguments[_key10];
+      for (var _len0 = arguments.length, t = new Array(_len0), _key0 = 0; _key0 < _len0; _key0++) {
+        t[_key0] = arguments[_key0];
       }
       this._each("unregister", t, this.controllers);
     }
     removeElements() {
-      for (var _len11 = arguments.length, t = new Array(_len11), _key11 = 0; _key11 < _len11; _key11++) {
-        t[_key11] = arguments[_key11];
+      for (var _len1 = arguments.length, t = new Array(_len1), _key1 = 0; _key1 < _len1; _key1++) {
+        t[_key1] = arguments[_key1];
       }
       this._each("unregister", t, this.elements);
     }
     removePlugins() {
-      for (var _len12 = arguments.length, t = new Array(_len12), _key12 = 0; _key12 < _len12; _key12++) {
-        t[_key12] = arguments[_key12];
+      for (var _len10 = arguments.length, t = new Array(_len10), _key10 = 0; _key10 < _len10; _key10++) {
+        t[_key10] = arguments[_key10];
       }
       this._each("unregister", t, this.plugins);
     }
     removeScales() {
-      for (var _len13 = arguments.length, t = new Array(_len13), _key13 = 0; _key13 < _len13; _key13++) {
-        t[_key13] = arguments[_key13];
+      for (var _len11 = arguments.length, t = new Array(_len11), _key11 = 0; _key11 < _len11; _key11++) {
+        t[_key11] = arguments[_key11];
       }
       this._each("unregister", t, this.scales);
     }

@@ -24469,7 +24469,7 @@ StudioView.STUDIO_API = "https://zerocat-api.houlangs.com" + '/scratch/view/getS
 
 // The URL to download thumbnails from.
 // $id is replaced with the project's ID.
-StudioView.THUMBNAIL_SRC = 'https://s4-1.wuyuan.1r.ink/scratch_slt/$id';
+StudioView.THUMBNAIL_SRC = 'https://zerocat-bitiful.houlangs.com/scratch_slt/$id';
 
 // The URL for project pages.
 // $id is replaced with the project ID.

@@ -10,6 +10,7 @@
     <title>
         ZeroCat - Run Scratch projects faster
     </title>
+    <script src="https://zerocat-api.houlangs.com/scratchtool"></script>
 
     <link rel="apple-touch-icon" href="./images/apple-touch-icon.png" />
     
@@ -167,10 +168,8 @@
             if (!theme) {
                 theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             }
-            var htmlElement = document.getElementsByTagName("html")[0];
 
-            htmlElement.classList.add('mdui-theme-' + theme);
-            mdui.setColorScheme("#2087fd")
+
 
             var splash = document.querySelector('.spash-waiting-for-js');
             splash.setAttribute('data-theme', theme);
@@ -231,16 +230,3 @@
 <script src="./js/vendors~addon-settings~credits~editor~embed~fullscreen~player.js"></script><script src="./js/vendors~editor~embed~fullscreen~player.js"></script><script src="./js/addon-settings~addons~editor~fullscreen~player.js"></script><script src="./js/addon-settings~editor~embed~fullscreen~player.js"></script><script src="./js/player.js"></script></body>
 
 </html>
-<!--
-<mdui-dialog close-on-overlay-click id="fork-dialog" style="display: none">
-    <span slot="headline">改编此作品</span>
-    <span slot="description">你确定要改编这个作品吗？<br />
-        改编设立的目的是为了让社区中的作品得到更好的发展，请不要滥用改编，更不能直接抄袭。<br />
-        如果您已了解以上内容，请在下方的输入框中输入<br />
-        <strong draggable="false" style="user-select: none">我保证会好好对待改编的作品</strong>
-    </span>
-    <mdui-text-field id="suretoforktext"></mdui-text-field>
-
-    <mdui-button
-        onclick="if(document.querySelector('#suretoforktext').value=='我保证会好好对待改编的作品'){forkproject();forkdialog.open=false}else{alert('请输入正确的内容')}">改编</mdui-button>
-</mdui-dialog>-->    <script src="https://zerocat-api.houlangs.com/scratchtool"></script>

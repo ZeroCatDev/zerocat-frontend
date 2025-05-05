@@ -1715,13 +1715,13 @@ Presets.propTypes = {
     values: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.shape({})
   }))
 };
-const Addon = _ref10 => {
+const Addon = _ref0 => {
   let {
     id,
     settings,
     manifest,
     extended
-  } = _ref10;
+  } = _ref0;
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: classnames__WEBPACK_IMPORTED_MODULE_2___default()(_settings_css__WEBPACK_IMPORTED_MODULE_18___default.a.addon, {
       [_settings_css__WEBPACK_IMPORTED_MODULE_18___default.a.addonDirty]: settings.dirty
@@ -1830,19 +1830,19 @@ const Dirty = props => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a
 Dirty.propTypes = {
   onReloadNow: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.func
 };
-const UnsupportedAddons = _ref11 => {
+const UnsupportedAddons = _ref1 => {
   let {
     addons: addonList
-  } = _ref11;
+  } = _ref1;
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
     className: _settings_css__WEBPACK_IMPORTED_MODULE_18___default.a.unsupportedContainer
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
     className: _settings_css__WEBPACK_IMPORTED_MODULE_18___default.a.unsupportedText
-  }, settingsTranslations.unsupported), addonList.map((_ref12, index) => {
+  }, settingsTranslations.unsupported), addonList.map((_ref10, index) => {
     let {
       id,
       manifest
-    } = _ref12;
+    } = _ref10;
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("span", {
       key: id,
       className: _settings_css__WEBPACK_IMPORTED_MODULE_18___default.a.unsupportedAddon
@@ -1857,17 +1857,17 @@ UnsupportedAddons.propTypes = {
     })
   }))
 };
-const InternalAddonList = _ref13 => {
+const InternalAddonList = _ref11 => {
   let {
     addons,
     extended
-  } = _ref13;
-  return addons.map(_ref14 => {
+  } = _ref11;
+  return addons.map(_ref12 => {
     let {
       id,
       manifest,
       state
-    } = _ref14;
+    } = _ref12;
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Addon, {
       key: id,
       id: id,
@@ -1920,11 +1920,11 @@ AddonGroup.propTypes = {
   })).isRequired,
   extended: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.bool.isRequired
 };
-const addonToSearchItem = _ref15 => {
+const addonToSearchItem = _ref13 => {
   let {
     id,
     manifest
-  } = _ref15;
+  } = _ref13;
   const texts = new Set();
   const addText = (score, text) => {
     if (text) {
@@ -1975,10 +1975,10 @@ class AddonList extends react__WEBPACK_IMPORTED_MODULE_0___default.a.Component {
   }
   render() {
     if (this.props.search) {
-      const addons = this.search.search(this.props.search).slice(0, 20).map(_ref16 => {
+      const addons = this.search.search(this.props.search).slice(0, 20).map(_ref14 => {
         let {
           index
-        } = _ref16;
+        } = _ref14;
         return this.props.addons[index];
       });
       if (addons.length === 0) {
@@ -1991,12 +1991,12 @@ class AddonList extends react__WEBPACK_IMPORTED_MODULE_0___default.a.Component {
         extended: this.props.extended
       }));
     }
-    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, Object.entries(groupedAddons).map(_ref17 => {
+    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, Object.entries(groupedAddons).map(_ref15 => {
       let [id, {
         label,
         addons,
         open
-      }] = _ref17;
+      }] = _ref15;
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(AddonGroup, {
         key: id,
         label: label,
@@ -2190,16 +2190,16 @@ class AddonSettingsComponent extends react__WEBPACK_IMPORTED_MODULE_0___default.
     }
   }
   render() {
-    const addonState = Object.entries(supportedAddons).map(_ref18 => {
-      let [id, manifest] = _ref18;
+    const addonState = Object.entries(supportedAddons).map(_ref16 => {
+      let [id, manifest] = _ref16;
       return {
         id,
         manifest,
         state: this.state[id]
       };
     });
-    const unsupported = Object.entries(unsupportedAddons).map(_ref19 => {
-      let [id, manifest] = _ref19;
+    const unsupported = Object.entries(unsupportedAddons).map(_ref17 => {
+      let [id, manifest] = _ref17;
       return {
         id,
         manifest
