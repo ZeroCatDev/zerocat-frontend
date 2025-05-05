@@ -51,6 +51,13 @@ axiosInstance.interceptors.response.use(
     if (error.response && error.response.status === 401 && !originalRequest._retry &&
         originalRequest.url !== '/account/refresh-token') {
 
+      // 检查是否是ZC_ERROR_NEED_LOGIN错误
+      if (error.response.data && error.response.data.code === 'ZC_ERROR_NEED_LOGIN') {
+        const { localuser } = await import('../services/localAccount');
+        localuser.logout(false);
+        return Promise.reject(error);
+      }
+
       if (isRefreshing) {
         // 如果已经在刷新token，将请求加入队列等待token刷新完成
         return new Promise((resolve) => {
