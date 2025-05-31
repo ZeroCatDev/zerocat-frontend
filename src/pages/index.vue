@@ -680,8 +680,9 @@ const footerLinks = [
   {
     title: "友情链接",
     links: [
+    { text: "ScratchDeveloper", href: "https://scdev.top?ref=zerocat" },
+
       { text: "LINUX DO", href: "https://linux.do" },
-      { text: "ScratchDeveloper", href: "https://scdev.top?ref=zerocat" },
     ],
   },
 ];
@@ -939,19 +940,4 @@ onMounted(() => {
   color: var(--v-theme-primary);
 }
 
-/* 页脚样式 */
-.v-footer {
-  border-top: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-}
-
-.v-btn.v-btn--variant-plain {
-  opacity: 0.8;
-  min-height: 32px;
-  transition: opacity 0.2s ease-in-out;
-}
-
-.v-btn.v-btn--variant-plain:hover {
-  opacity: 1;
-  background: transparent;
-}
 </style>
