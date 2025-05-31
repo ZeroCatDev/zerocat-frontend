@@ -680,8 +680,6 @@ const footerLinks = [
   {
     title: "友情链接",
     links: [
-    { text: "ScratchDeveloper", href: "https://scdev.top?ref=zerocat" },
-
       { text: "LINUX DO", href: "https://linux.do" },
     ],
   },
