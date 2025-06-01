@@ -110,7 +110,7 @@
                       <v-img
                         :src="VITE_APP_S3_BUCKET + '/scratch_slt/' + item.id"
                         class="align-end"
-                        lazy-src="../../assets/43-lazyload.png"
+                        lazy-src="../assets/43-lazyload.png"
                         height="100%"
                         gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
                         cover
