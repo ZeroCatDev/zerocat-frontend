@@ -36,8 +36,8 @@
         <v-row align="center">
           <v-col cols="12" md="6" class="text-center text-md-left">
             <div class="mb-8">
-              <h1 class="mb-4 font-weight-bold">
-                <span class="primary--text">ZeroCat</span> -
+              <h1 class="mb-4 font-weight-bold hero-title">
+                <span class="text-gradient">ZeroCat</span> -
                 <Typewriter
                   :strings="[
                     '编程社区新选择',
@@ -706,7 +706,7 @@ onMounted(() => {
 
 <style scoped>
 .card-glass {
-  background: rgba(255, 255, 255, 0.08);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
@@ -715,7 +715,7 @@ onMounted(() => {
 }
 
 .card-glass:hover {
-  transform: translateY(-5px);
+  transform: translateY(-8px);
   box-shadow: 0 15px 35px rgba(var(--v-theme-primary), 0.15);
   border-color: rgba(var(--v-theme-primary), 0.3);
 }
@@ -728,10 +728,11 @@ onMounted(() => {
   position: relative;
   overflow: hidden;
   background: radial-gradient(
-    circle at 50% 50%,
-    rgba(var(--v-theme-primary), 0.08) 0%,
-    rgba(var(--v-theme-primary), 0) 70%
-  );
+      circle at 50% 50%,
+      rgba(var(--v-theme-primary), 0.08) 0%,
+      rgba(var(--v-theme-primary), 0) 70%
+    ),
+    linear-gradient(180deg, rgba(var(--v-theme-primary), 0.02), transparent);
 }
 
 .hero-section::before {
@@ -788,6 +789,7 @@ onMounted(() => {
 .features-section {
   position: relative;
   overflow: hidden;
+  background: linear-gradient(180deg, rgba(var(--v-theme-primary), 0.02), transparent);
 }
 
 .features-section::before {
@@ -830,6 +832,7 @@ onMounted(() => {
 .cta-section {
   position: relative;
   overflow: hidden;
+  background: linear-gradient(135deg, rgb(var(--v-theme-primary)), rgba(var(--v-theme-secondary), 0.8));
 }
 
 .cta-section::before {
@@ -936,6 +939,17 @@ onMounted(() => {
 .tech-icon:hover {
   transform: scale(1.2);
   color: var(--v-theme-primary);
+}
+
+.hero-title {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  line-height: 1.2;
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, rgb(var(--v-theme-primary)), rgb(var(--v-theme-secondary)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 </style>
