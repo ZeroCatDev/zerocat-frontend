@@ -10,6 +10,7 @@
             variant="outlined"
             hide-details
             class="search-input"
+            :loading="isSearching"
             @keyup.enter="handleSearch"
           >
             <template v-slot:prepend-inner>
@@ -84,93 +85,134 @@
         <ais-configure :query="currentSearchTerm" />
         <!-- 搜索结果 -->
         <ais-hits>
-          <template v-slot="{ items }">
+          <template v-slot="{ items, isSearching }">
             <v-fade-transition group>
-              <v-row v-if="items.length > 0">
-                <v-col
-                  cols="12"
-                  xs="12"
-                  sm="6"
-                  md="4"
-                  lg="3"
-                  xl="2"
-                  xxl="2"
-                  v-for="item in items"
-                  :key="item.objectID"
-                >
-                  <v-hover v-slot="{ isHovering, props }">
+              <!-- 加载动画 -->
+              <template v-if="isSearching">
+                <v-row>
+                  <v-col
+                    v-for="n in 8"
+                    :key="n"
+                    cols="12"
+                    xs="12"
+                    sm="6"
+                    md="4"
+                    lg="3"
+                    xl="2"
+                    xxl="2"
+                  >
                     <v-card
-                      v-bind="props"
-                      :to="`/app/link/project/?id=${item.id}`"
-                      :elevation="isHovering ? 8 : 2"
                       style="aspect-ratio: 4/3"
                       rounded="lg"
-                      class="result-card"
+                      class="loading-card"
                     >
                       <v-img
-                        :src="VITE_APP_S3_BUCKET + '/scratch_slt/' + item.id"
-                        class="align-end"
-                        lazy-src="../assets/43-lazyload.png"
                         height="100%"
-                        gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
                         cover
+                        class="loading-image"
                       >
                         <template v-slot:placeholder>
-                          <v-row
-                            class="fill-height ma-0"
-                            align="center"
-                            justify="center"
-                          >
+                          <div class="d-flex align-center justify-center fill-height">
                             <v-progress-circular
                               indeterminate
                               color="primary"
                             ></v-progress-circular>
-                          </v-row>
+                          </div>
                         </template>
-                        <v-card-item>
-                          <v-chip
-                            size="small"
-                            color="primary"
-                            variant="tonal"
-                            class="type-chip"
-                          >
-                            {{ item.type }}
-                          </v-chip>
-                          <v-chip
-                            v-if="item.license!='no'"
-                            size="small"
-                            color="primary"
-                            variant="tonal"
-                            class="license-chip"
-                          >
-                            {{ item.license }}
-                          </v-chip>
-                          <v-card-title class="text-white">{{
-                            item.title
-                          }}</v-card-title>
-                          <v-card-subtitle class="text-white">{{
-                            item.description
-                          }}</v-card-subtitle>
-                        </v-card-item>
                       </v-img>
                     </v-card>
-                  </v-hover>
-                </v-col>
-              </v-row>
-              <v-row v-else class="mt-4" justify="center">
-                <v-col cols="12" class="text-center">
-                  <v-alert
-                    type="info"
-                    variant="tonal"
-                    class="no-results-alert"
+                  </v-col>
+                </v-row>
+              </template>
+
+              <!-- 搜索结果 -->
+              <template v-else>
+                <v-row v-if="items.length > 0">
+                  <v-col
+                    cols="12"
+                    xs="12"
+                    sm="6"
+                    md="4"
+                    lg="3"
+                    xl="2"
+                    xxl="2"
+                    v-for="item in items"
+                    :key="item.objectID"
                   >
-                    <template v-slot:prepend>
-                      <v-icon icon="mdi-information"></v-icon>
-                    </template>
-                    未找到相关结果，请尝试其他关键词
-                  </v-alert>
-                </v-col>
-              </v-row>
+                    <v-hover v-slot="{ isHovering, props }">
+                      <v-card
+                        v-bind="props"
+                        :to="`/app/link/project/?id=${item.id}`"
+                        :elevation="isHovering ? 8 : 2"
+                        style="aspect-ratio: 4/3"
+                        rounded="lg"
+                        class="result-card"
+                      >
+                        <v-img
+                          :src="VITE_APP_S3_BUCKET + '/scratch_slt/' + item.id"
+                          class="align-end"
+                          lazy-src="../assets/43-lazyload.png"
+                          height="100%"
+                          gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+                          cover
+                        >
+                          <template v-slot:placeholder>
+                            <v-row
+                              class="fill-height ma-0"
+                              align="center"
+                              justify="center"
+                            >
+                              <v-progress-circular
+                                indeterminate
+                                color="primary"
+                              ></v-progress-circular>
+                            </v-row>
+                          </template>
+                          <v-card-item>
+                            <v-chip
+                              size="small"
+                              color="primary"
+                              variant="tonal"
+                              class="type-chip"
+                            >
+                              {{ item.type }}
+                            </v-chip>
+                            <v-chip
+                              v-if="item.license!='no'"
+                              size="small"
+                              color="primary"
+                              variant="tonal"
+                              class="license-chip"
+                            >
+                              {{ item.license }}
+                            </v-chip>
+                            <v-card-title class="text-white">{{
+                              item.title
+                            }}</v-card-title>
+                            <v-card-subtitle class="text-white">{{
+                              item.description
+                            }}</v-card-subtitle>
+                          </v-card-item>
+                        </v-img>
+                      </v-card>
+                    </v-hover>
+                  </v-col>
+                </v-row>
+                <v-row v-else class="mt-4" justify="center">
+                  <v-col cols="12" class="text-center">
+                    <v-alert
+                      type="info"
+                      variant="tonal"
+                      class="no-results-alert"
+                    >
+                      <template v-slot:prepend>
+                        <v-icon icon="mdi-information"></v-icon>
+                      </template>
+                      未找到相关结果，请尝试其他关键词
+                    </v-alert>
+                  </v-col>
+                </v-row>
+              </template>
             </v-fade-transition>
           </template>
         </ais-hits>
@@ -444,5 +486,25 @@ export default {
 
 .gap-2 {
   gap: 8px;
+}
+
+.loading-card {
+  background: linear-gradient(110deg, var(--v-theme-surface) 8%, var(--v-theme-surface-variant) 18%, var(--v-theme-surface) 33%);
+  background-size: 200% 100%;
+  animation: shine 1.5s linear infinite;
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.loading-image {
+  opacity: 0.7;
+  background: linear-gradient(110deg, var(--v-theme-surface-variant) 8%, var(--v-theme-surface) 18%, var(--v-theme-surface-variant) 33%);
+  background-size: 200% 100%;
+  animation: shine 2s linear infinite;
+}
+
+@keyframes shine {
+  to {
+    background-position-x: -200%;
+  }
 }
 </style>
