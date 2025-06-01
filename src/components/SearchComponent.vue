@@ -177,29 +177,28 @@
                     </v-alert>
                   </v-col>
                 </v-row>
+                <!-- 分页 -->
+                <v-row class="mt-4" v-if="items && items.length > 0">
+                  <v-col>
+                    <ais-pagination>
+                      <template v-slot="{ currentRefinement, nbPages, refine }">
+                        <div class="text-center">
+                          <v-pagination
+                            :length="nbPages"
+                            :total-visible="7"
+                            rounded="circle"
+                            :model-value="currentRefinement"
+                            @update:model-value="refine($event)"
+                          ></v-pagination>
+                        </div>
+                      </template>
+                    </ais-pagination>
+                  </v-col>
+                </v-row>
               </template>
             </v-fade-transition>
           </template>
         </ais-hits>
-
-        <!-- 分页 -->
-        <v-row class="mt-4" v-if="items && items.length > 0">
-          <v-col>
-            <ais-pagination>
-              <template v-slot="{ currentRefinement, nbPages, refine }">
-                <div class="text-center">
-                  <v-pagination
-                    :length="nbPages"
-                    :total-visible="7"
-                    rounded="circle"
-                    :model-value="currentRefinement"
-                    @update:model-value="refine($event)"
-                  ></v-pagination>
-                </div>
-              </template>
-            </ais-pagination>
-          </v-col>
-        </v-row>
       </ais-instant-search>
     </v-fade-transition>
 
