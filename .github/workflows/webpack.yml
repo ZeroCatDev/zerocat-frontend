@@ -43,7 +43,7 @@ jobs:
           VITE_APP_SCRATCH_PROXY_GUI: https://scratch-editor.192325.xyz
           VITE_APP_CLARITY_PROJECT_ID: mp11rvtms0
           VITE_APP_S3_BUCKET: https://zerocat-bitiful.houlangs.com
-          VITE_APP_MEILISEARCH_URL: http://wuyuan-server-dq1:7700
+          VITE_APP_MEILISEARCH_URL: https://search-1.192325.xyz
           VITE_APP_MEILISEARCH_API_KEY: 34ab22b5131cebd1e2a2459fec77c1b50bfb67560a7cdaf7774d5545c16e6a1c
       run: |
         git submodule update --init --recursive
