@@ -8,9 +8,9 @@
             clearable
             label="键入以搜索"
             variant="outlined"
+            :loading="isSearching"
             hide-details
             class="search-input"
-            :loading="isSearching"
             @keyup.enter="handleSearch"
           >
             <template v-slot:prepend-inner>
@@ -85,10 +85,10 @@
         <ais-configure :query="currentSearchTerm" />
         <!-- 搜索结果 -->
         <ais-hits>
-          <template v-slot="{ items, isSearching }">
+          <template v-slot="{ items, isSearchStalled }">
             <v-fade-transition group>
               <!-- 加载动画 -->
-              <template v-if="isSearching">
+              <template v-if="isSearching || isSearchStalled">
                 <v-row>
                   <v-col
                     v-for="n in 8"
@@ -272,6 +272,7 @@ import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 
 const SEARCH_HISTORY_KEY = "search_history";
 const MAX_HISTORY_ITEMS = 10;
+const MIN_LOADING_TIME = 500; // 最小加载时间，确保动画流畅
 
 export default {
   name: 'SearchComponent',
@@ -292,7 +293,7 @@ export default {
       errorMessage: "",
       hotSearches: ["Scratch", "游戏", "动画", "音乐", "艺术", "编程"],
       isSearching: false,
-      items: [],
+      loadingTimeout: null,
     };
   },
 
@@ -306,18 +307,30 @@ export default {
     this.loadSearchHistory();
   },
 
+  beforeUnmount() {
+    if (this.loadingTimeout) {
+      clearTimeout(this.loadingTimeout);
+    }
+  },
+
   methods: {
     handleSearch() {
       const trimmedQuery = this.searchQuery.trim();
       if (trimmedQuery) {
+        // 清除之前的超时
+        if (this.loadingTimeout) {
+          clearTimeout(this.loadingTimeout);
+        }
+
         this.isSearching = true;
         this.currentSearchTerm = trimmedQuery;
         this.addToSearchHistory(trimmedQuery);
         this.showSuggestions = false;
 
-        setTimeout(() => {
+        // 确保加载动画至少显示一定时间
+        this.loadingTimeout = setTimeout(() => {
           this.isSearching = false;
-        }, 500);
+        }, MIN_LOADING_TIME);
       }
     },
 
