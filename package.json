@@ -6,7 +6,7 @@
     "build": "vite build",
     "build:scratch-gui": "cd ./scratch-gui && npm run build && cd ../",
     "preview": "vite preview",
-    "lint": "eslint . --fix --ignore-path .gitignore",
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint . --fix",
     "deploy": "npm run build",
     "start": "npm run dev"
   },
