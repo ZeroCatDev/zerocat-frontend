@@ -1,130 +1,95 @@
 <template>
   <div class="search-component">
-    <div class="search-box-container">
-      <v-form @submit.prevent="handleSearch" >
-        <div class="d-flex align-center gap-2" >
-          <v-text-field
-            v-model="searchQuery"
-            clearable
-            label="键入以搜索"
-            variant="outlined"
-            :loading="isSearching"
-            hide-details
-            class="search-input"
-            @keyup.enter="handleSearch"
-          >
-            <template v-slot:prepend-inner>
-              <v-icon icon="mdi-magnify"></v-icon>
-            </template>
-          </v-text-field>
-          <v-btn
-            color="primary"
-            :loading="isSearching"
-            @click="handleSearch"
-            class="search-button"
-            height="56"
-            min-width="56"
-          >
-            <v-icon>mdi-magnify</v-icon>
-          </v-btn>
-        </div>
-      </v-form>
-
-      <!-- 搜索历史和热门搜索 -->
-      <v-expand-transition style="padding-top: 16px!important;">
-        <v-card
-          v-if="showSuggestions && !searchQuery"
-          flat
-          class="suggestions-card"
-        >
-          <v-card-text>
-            <div v-if="searchHistory.length > 0">
-              <div class="text-subtitle-2">搜索历史</div>
-              <v-chip-group>
-                <v-chip
-                  v-for="(term, index) in searchHistory"
-                  :key="index"
-                  size="small"
-                  @click="handleHistoryClick(term)"
-                  class="history-chip"
-                >
-                  {{ term }}
-                </v-chip>
-              </v-chip-group>
-            </div>
-            <v-divider
-              v-if="searchHistory.length > 0"
-              class="my-3"
-            ></v-divider>
-            <div>
-              <div class="text-subtitle-2 ">热门搜索</div>
-              <v-chip-group>
-                <v-chip
-                  v-for="(term, index) in hotSearches"
-                  :key="index"
-                  size="small"
-                  @click="handleHistoryClick(term)"
-                  class="hot-chip"
-                >
-                  {{ term }}
-                </v-chip>
-              </v-chip-group>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-expand-transition>
-    </div>
-
     <v-fade-transition>
       <ais-instant-search
         :search-client="searchClient"
         :index-name="VITE_APP_MEILISEARCH_INDEX"
         class="search-results"
-        v-if="hasSearchQuery"
       >
+        <ais-state-results class="mb-4">
+          <template v-slot="{ status }">
+            <v-form @submit.prevent="handleSearch">
+              <div class="d-flex align-center gap-2">
+                <v-text-field
+                  v-model="searchQuery"
+                  clearable
+                  label="键入以搜索"
+                  variant="outlined"
+                  :loading="status === 'stalled'"
+                  hide-details
+                  class="search-input"
+                  @keyup.enter="handleSearch"
+                >
+                  <template v-slot:prepend-inner>
+                    <v-icon icon="mdi-magnify"></v-icon>
+                  </template>
+                </v-text-field>
+                <v-btn
+                  color="primary"
+                  :loading="status === 'stalled'"
+                  @click="handleSearch"
+                  class="search-button"
+                  height="56"
+                  min-width="56"
+                >
+                  <v-icon>mdi-magnify</v-icon>
+                </v-btn>
+              </div>
+            </v-form>
+
+            <!-- 搜索历史和热门搜索 -->
+            <v-expand-transition style="padding-top: 16px !important">
+              <v-card v-if="!searchQuery" flat class="suggestions-card">
+                <v-card-text>
+                  <div v-if="searchHistory.length > 0">
+                    <div class="text-subtitle-2">搜索历史</div>
+                    <v-chip-group>
+                      <v-chip
+                        v-for="(term, index) in searchHistory"
+                        :key="index"
+                        size="small"
+                        @click="handleHistoryClick(term)"
+                        class="history-chip"
+                      >
+                        {{ term }}
+                      </v-chip>
+                    </v-chip-group>
+                  </div>
+                  <v-divider
+                    v-if="searchHistory.length > 0"
+                    class="my-3"
+                  ></v-divider>
+                  <div>
+                    <div class="text-subtitle-2">热门搜索</div>
+                    <v-chip-group>
+                      <v-chip
+                        v-for="(term, index) in hotSearches"
+                        :key="index"
+                        size="small"
+                        @click="handleHistoryClick(term)"
+                        class="hot-chip"
+                      >
+                        {{ term }}
+                      </v-chip>
+                    </v-chip-group>
+                  </div>
+                </v-card-text>
+              </v-card>
+            </v-expand-transition>
+            <!--<v-progress-linear
+        v-show="status === 'stalled'"
+          indeterminate
+          color="primary"
+          class="mt-4"
+        ></v-progress-linear>  <br/>-->
+          </template>
+        </ais-state-results>
         <ais-configure :query="currentSearchTerm" />
         <!-- 搜索结果 -->
         <ais-hits>
           <template v-slot="{ items, isSearchStalled }">
             <v-fade-transition group>
-              <!-- 加载动画 -->
-              <template v-if="isSearching || isSearchStalled">
-                <v-row>
-                  <v-col
-                    v-for="n in 8"
-                    :key="n"
-                    cols="12"
-                    xs="12"
-                    sm="6"
-                    md="4"
-                    lg="3"
-                    xl="2"
-                    xxl="2"
-                  >
-                    <v-card
-                      style="aspect-ratio: 4/3"
-                      rounded="lg"
-                      class="loading-card"
-                    >
-                      <v-img
-                        height="100%"
-                        cover
-                        class="loading-image"
-                      >
-                        <template v-slot:placeholder>
-                          <div class="d-flex align-center justify-center fill-height">
-                            <v-progress-circular
-                              indeterminate
-                              color="primary"
-                            ></v-progress-circular>
-                          </div>
-                        </template>
-                      </v-img>
-                    </v-card>
-                  </v-col>
-                </v-row>
-              </template>
-
+              <template v-if="isSearchStalled"></template>
               <!-- 搜索结果 -->
               <template v-else>
                 <v-row v-if="items.length > 0">
@@ -178,7 +143,7 @@
                               {{ item.type }}
                             </v-chip>
                             <v-chip
-                              v-if="item.license!='no'"
+                              v-if="item.license != 'no'"
                               size="small"
                               color="primary"
                               variant="tonal"
@@ -241,11 +206,7 @@
     <v-fade-transition>
       <v-row v-if="!hasSearchQuery" class="mt-4" justify="center">
         <v-col cols="12" sm="8" md="6" class="text-center">
-          <v-alert
-            type="info"
-            variant="tonal"
-            class="welcome-alert"
-          >
+          <v-alert type="info" variant="tonal" class="welcome-alert">
             <template v-slot:prepend>
               <v-icon icon="mdi-magnify"></v-icon>
             </template>
@@ -275,7 +236,7 @@ const MAX_HISTORY_ITEMS = 10;
 const MIN_LOADING_TIME = 500; // 最小加载时间，确保动画流畅
 
 export default {
-  name: 'SearchComponent',
+  name: "SearchComponent",
 
   data() {
     return {
@@ -300,7 +261,7 @@ export default {
   computed: {
     hasSearchQuery() {
       return this.currentSearchTerm.trim().length > 0;
-    }
+    },
   },
 
   created() {
@@ -388,7 +349,6 @@ export default {
   position: sticky;
   top: 0;
   z-index: 1;
-  background-color: var(--v-theme-surface);
   padding: 16px;
   border-radius: 8px 8px 0 0;
   transition: box-shadow 0.3s ease;
@@ -444,7 +404,7 @@ export default {
 
 .search-results {
   padding: 16px;
-  padding-top: 0px!important;
+  padding-top: 0px !important;
   animation: fadeIn 0.3s ease;
 }
 
@@ -502,7 +462,12 @@ export default {
 }
 
 .loading-card {
-  background: linear-gradient(110deg, var(--v-theme-surface) 8%, var(--v-theme-surface-variant) 18%, var(--v-theme-surface) 33%);
+  background: linear-gradient(
+    110deg,
+    var(--v-theme-surface) 8%,
+    var(--v-theme-surface-variant) 18%,
+    var(--v-theme-surface) 33%
+  );
   background-size: 200% 100%;
   animation: shine 1.5s linear infinite;
   border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
@@ -510,7 +475,12 @@ export default {
 
 .loading-image {
   opacity: 0.7;
-  background: linear-gradient(110deg, var(--v-theme-surface-variant) 8%, var(--v-theme-surface) 18%, var(--v-theme-surface-variant) 33%);
+  background: linear-gradient(
+    110deg,
+    var(--v-theme-surface-variant) 8%,
+    var(--v-theme-surface) 18%,
+    var(--v-theme-surface-variant) 33%
+  );
   background-size: 200% 100%;
   animation: shine 2s linear infinite;
 }
