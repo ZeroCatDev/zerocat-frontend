@@ -958,9 +958,9 @@ onMounted(() => {
 
 .text-glow {
   text-shadow:
-    0 0 6px rgba(var(--v-theme-primary), 0.4),
-    0 0 12px rgba(var(--v-theme-primary), 0.3),
-    0 0 24px rgba(var(--v-theme-primary), 0.2);
+    0 0 6px rgba(var(--v-theme-primary), 0.1),
+    0 0 12px rgba(var(--v-theme-primary), 0.1),
+    0 0 24px rgba(var(--v-theme-primary), 0.1);
 }
 
 .text-gradient {

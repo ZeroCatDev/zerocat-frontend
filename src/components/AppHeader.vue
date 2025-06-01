@@ -305,7 +305,7 @@ export default {
           list: [
             { title: "首页", link: "/", icon: "mdi-home" },
             { title: "项目", link: "/app/explore", icon: "mdi-xml" },
-            { title: "搜索", link: "/app/algolia", icon: "mdi-earth" },
+            { title: "搜索", link: "/app/search", icon: "mdi-earth" },
           ],
         },
         mirror: {

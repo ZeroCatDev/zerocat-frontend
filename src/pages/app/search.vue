@@ -1,8 +1,8 @@
 <template>
-  <v-container v-if="algolia_app_id && algolia_api_key && algolia_index_name">
+  <v-container>
     <ais-instant-search
       :search-client="searchClient"
-      :index-name="algolia_index_name"
+      index-name="zerocat"
     >
       <ais-search-box
         ><template v-slot="{ isSearchStalled, refine }">
@@ -36,7 +36,7 @@
               :key="item.objectID"
             >
               <v-card
-                :to="`${item.authorid}/${item.id}`"
+                :to="`/app/link/project/?id=${item.id}`"
                 style="aspect-ratio: 4/3"
                 rounded="lg"
               >
@@ -95,41 +95,27 @@
       </v-expansion-panel-text>
   </v-expansion-panel>
 </v-expansion-panels>--> </ais-instant-search
-    ><br />Search by
-    <v-btn
-      variant="text"
-      href="https://algolia.com/"
-      target="_blank"
-      rel="noopener noreferrer"
     >
-      <v-img
-        src="../../assets/Algolia-logo-blue.svg"
-        height="1.5rem"
-        width="5rem"
-      ></v-img>
-    </v-btn>
   </v-container>
 </template>
 
 <script>
-import { liteClient as algoliasearch } from "algoliasearch/lite";
+import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
 import { useHead } from "@unhead/vue";
 
 export default {
   setup() {
     useHead({
-      title: "Algolia Search",
+      title: "Search",
     });
   },
   data() {
     return {
-      algolia_index_name: import.meta.env.VITE_APP_ALGOLIA_INDEX_NAME,
-      algolia_app_id: import.meta.env.VITE_APP_ALGOLIA_APP_ID,
-      algolia_api_key: import.meta.env.VITE_APP_ALGOLIA_API_KEY,
-      searchClient: algoliasearch(
-        import.meta.env.VITE_APP_ALGOLIA_APP_ID,
-        import.meta.env.VITE_APP_ALGOLIA_API_KEY
-      ),
+
+      searchClient: instantMeiliSearch(
+       import.meta.env.VITE_APP_MEILISEARCH_URL,
+        import.meta.env.VITE_APP_MEILISEARCH_API_KEY
+      ).searchClient,
       VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
     };
   },

@@ -14,6 +14,9 @@ importers:
       '@mdi/font':
         specifier: 7.4.47
         version: 7.4.47
+      '@meilisearch/instant-meilisearch':
+        specifier: ^0.26.0
+        version: 0.26.0
       '@microsoft/clarity':
         specifier: ^1.0.0
         version: 1.0.0
@@ -468,6 +471,9 @@ packages:
 
   '@mdi/font@7.4.47':
     resolution: {integrity: sha512-43MtGpd585SNzHZPcYowu/84Vz2a2g31TvPMTm9uTiCSWzaheQySUcSyUH/46fPnuPQWof2yd0pGBtzee/IQWw==}
+
+  '@meilisearch/instant-meilisearch@0.26.0':
+    resolution: {integrity: sha512-b3Blox8xE0nwn23FteCqOJWyQKFL4lgYjjtwKAbHGXxSHshvmWlhvPv+HuNOKk8MFF878hUSwddHg5zFgbU4Pw==}
 
   '@microsoft/clarity@1.0.0':
     resolution: {integrity: sha512-2QY6SmXnqRj6dWhNY8NYCN3e53j4zCFebH4wGnNhdGV1mqAsQwql2fT0w8TISxCvwwfVp8idsWLIdrRHOms1PQ==}
@@ -1697,6 +1703,9 @@ packages:
   mdurl@2.0.0:
     resolution: {integrity: sha512-Lf+9+2r+Tdp5wXDXC4PcIBjTDtq4UKjCPMQhKIuzpJNW0b96kVqSwW0bT7FhRSfmAiFYgP+SCRvdrDozfh0U5w==}
 
+  meilisearch@0.50.0:
+    resolution: {integrity: sha512-9IzIkobvnuS18Eg4dq/eJB9W+eXqeLZjNRgq/kKMswSmVYYSQsXqGgSuCA0JkF+o5RwJlwIsieQee6rh313VhA==}
+
   merge2@1.4.1:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
     engines: {node: '>= 8'}
@@ -2814,6 +2823,10 @@ snapshots:
   '@jridgewell/sourcemap-codec@1.5.0': {}
 
   '@mdi/font@7.4.47': {}
+
+  '@meilisearch/instant-meilisearch@0.26.0':
+    dependencies:
+      meilisearch: 0.50.0
 
   '@microsoft/clarity@1.0.0': {}
 
@@ -4172,6 +4185,8 @@ snapshots:
       uc.micro: 2.1.0
 
   mdurl@2.0.0: {}
+
+  meilisearch@0.50.0: {}
 
   merge2@1.4.1: {}
 
