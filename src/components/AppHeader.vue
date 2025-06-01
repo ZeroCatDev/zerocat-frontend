@@ -26,6 +26,7 @@
       <template v-else> <strong>Zero</strong>Cat </template>
     </v-app-bar-title>
     <template #append>
+      <SearchDialog />
       <v-btn icon="mdi-plus" to="/app/new"></v-btn>
       <v-menu
         :close-on-content-click="false"
@@ -201,10 +202,12 @@ import { localuser } from "@/services/localAccount";
 import { useTheme } from "vuetify";
 import { ref, onMounted, watch, nextTick } from "vue";
 import NotificationsCard from "@/components/NotificationsCard.vue";
+import SearchDialog from "@/components/SearchDialog.vue";
 
 export default {
   components: {
     NotificationsCard,
+    SearchDialog,
   },
   setup() {
     const notificationsCard = ref(null);
