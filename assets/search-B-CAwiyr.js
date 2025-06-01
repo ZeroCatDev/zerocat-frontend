@@ -1,1 +1,0 @@
-import{_ as t,eh as e,Z as n,o as a,P as s,h as c,O as r}from"./index-CZXZYWWV.js";import{V as p}from"./VContainer-C8j3O-CD.js";const _={components:{SearchComponent:e},setup(){r({title:"搜索 - ZeroCat"})}};function m(u,i,f,l,d,h){const o=e;return a(),n(p,null,{default:s(()=>[c(o)]),_:1})}const $=t(_,[["render",m]]);export{$ as default};
