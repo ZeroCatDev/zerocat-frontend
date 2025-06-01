@@ -44,6 +44,7 @@ onMounted(async () => {
 
     // 获取项目信息
     const projectInfo = await getProjectInfo(projectId)
+    console.log(projectInfo)
     if (!projectInfo) {
       throw new Error('项目不存在')
     }
