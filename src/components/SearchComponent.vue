@@ -4,6 +4,7 @@
       <ais-instant-search
         :search-client="searchClient"
         :index-name="VITE_APP_MEILISEARCH_INDEX"
+
         class="search-results mt-4"
       >
         <ais-search-box>
@@ -77,19 +78,20 @@
             </v-expand-transition>
           </template>
         </ais-search-box>
-        <ais-state-results class="mb-4">
-          <template v-slot="{ status }">
-            <v-progress-linear
-              v-show="status === 'stalled'"
-              indeterminate
-              color="primary"
-              class="mt-4"
-            ></v-progress-linear>
-          </template>
-        </ais-state-results>
-        <ais-configure :query="currentSearchTerm" />
-        <!-- 搜索结果 -->
-        <template v-if="hasPerformedSearch">
+
+        <!-- 搜索结果部分 -->
+        <template v-if="currentSearchTerm">
+          <ais-state-results class="mb-4">
+            <template v-slot="{ status }">
+              <v-progress-linear
+                v-show="status === 'stalled'"
+                indeterminate
+                color="primary"
+                class="mt-4"
+              ></v-progress-linear>
+            </template>
+          </ais-state-results>
+          <ais-configure :query="currentSearchTerm" />
           <ais-hits>
             <template v-slot="{ items, isSearchStalled }">
               <v-fade-transition group>
@@ -237,7 +239,12 @@ export default {
     return {
       searchClient: instantMeiliSearch(
         import.meta.env.VITE_APP_MEILISEARCH_URL,
-        import.meta.env.VITE_APP_MEILISEARCH_API_KEY
+        import.meta.env.VITE_APP_MEILISEARCH_API_KEY,
+        {
+          primaryKey: "id",
+          keepZeroFacets: true,
+          finitePagination: true,
+        }
       ).searchClient,
       VITE_APP_MEILISEARCH_INDEX: import.meta.env.VITE_APP_MEILISEARCH_INDEX,
       VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,

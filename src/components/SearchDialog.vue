@@ -1,7 +1,8 @@
 <template>
   <v-dialog
+    v-if="!isMobileOrTablet"
     v-model="dialog"
-    width="100%"
+    width="80%"
     :scrim="false"
     transition="dialog-bottom-transition"
     class="search-dialog"
@@ -14,16 +15,24 @@
         class="search-trigger"
       ></v-btn>
     </template>
-    <v-card max-height="90vh" class="d-flex flex-column search-dialog-card">
+    <v-card max-height="90vh" class="d-flex flex-column search-dialog-card bg-surface-light" border hover>
       <v-card-text class="pa-0 flex-grow-0" style="margin: 8px;">
         <SearchComponent :dialog-mode="true" />
       </v-card-text>
     </v-card>
   </v-dialog>
+  <v-btn
+    v-else
+    icon="mdi-magnify"
+    variant="text"
+    class="search-trigger"
+    @click="navigateToSearch"
+  ></v-btn>
 </template>
 
 <script>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import SearchComponent from './SearchComponent.vue'
 
 export default {
@@ -33,8 +42,33 @@ export default {
   },
   setup() {
     const dialog = ref(false)
+    const router = useRouter()
+
+    const isMobileOrTablet = ref(false)
+
+    // 检测设备类型
+    const checkDevice = () => {
+      const userAgent = navigator.userAgent.toLowerCase()
+      const isMobile = /mobile|android|iphone|ipad|phone/i.test(userAgent)
+      isMobileOrTablet.value = isMobile
+    }
+
+    // 导航到搜索页面
+    const navigateToSearch = () => {
+      router.push('/app/search')
+    }
+
+    // 在组件挂载时检测设备类型
+    if (typeof window !== 'undefined') {
+      checkDevice()
+      // 监听窗口大小变化
+      window.addEventListener('resize', checkDevice)
+    }
+
     return {
-      dialog
+      dialog,
+      isMobileOrTablet,
+      navigateToSearch
     }
   }
 }
