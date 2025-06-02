@@ -157,6 +157,9 @@
             <v-btn @click="openEditor(project.id, project.type)" variant="text"
               >打开创造页</v-btn
             >
+            <v-btn :to="`/${$route.params.username}/${$route.params.projectname}/editor`" variant="text"
+              >编辑源文件</v-btn
+            >
           </div>
           <div class="px-4">
             <v-card hover :to="'/' + author.username" border>
