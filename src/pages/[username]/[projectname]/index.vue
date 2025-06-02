@@ -154,13 +154,14 @@
           </div>
           <div class="px-4 d-flex ga-2 mb-2">
             <ProjectStar :projectId="project.id" :starcount="project.star_count" />
-            <v-btn @click="openEditor(project.id, project.type)" variant="text"
+
+          </div><div class="px-4 d-flex ga-2 mb-2">
+          <v-btn @click="openEditor(project.id, project.type)" variant="text"
               >打开创造页</v-btn
             >
             <v-btn :to="`/${$route.params.username}/${$route.params.projectname}/editor`" variant="text"
               >编辑源文件</v-btn
-            >
-          </div>
+            ></div>
           <div class="px-4">
             <v-card hover :to="'/' + author.username" border>
               <v-card-item>
