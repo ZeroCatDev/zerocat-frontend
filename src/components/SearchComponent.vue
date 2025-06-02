@@ -148,12 +148,20 @@
                             >
                               {{ item.license }}
                             </v-chip>
-                            <v-card-title class="text-white">{{
-                              item.title
-                            }}</v-card-title>
-                            <v-card-subtitle class="text-white">{{
-                              item.description
-                            }}</v-card-subtitle>
+                            <v-card-title class="text-white">
+                              <ais-highlight :hit="item" attribute="title">
+                                <template v-slot="{ value }">
+                                  <span v-html="value"></span>
+                                </template>
+                              </ais-highlight>
+                            </v-card-title>
+                            <v-card-subtitle class="text-white">
+                              <ais-highlight :hit="item" attribute="description">
+                                <template v-slot="{ value }">
+                                  <span v-html="value"></span>
+                                </template>
+                              </ais-highlight>
+                            </v-card-subtitle>
                           </v-card-item>
                         </v-img>
                       </v-card>
@@ -213,6 +221,14 @@
 
 <script>
 import { instantMeiliSearch } from "@meilisearch/instant-meilisearch";
+import {
+  AisInstantSearch,
+  AisHits,
+  AisHighlight,
+  AisConfigure,
+  AisStateResults,
+  AisPagination,
+} from "vue-instantsearch/vue3/es";
 
 const SEARCH_HISTORY_KEY = "search_history";
 const MAX_HISTORY_ITEMS = 10;
@@ -220,6 +236,14 @@ const MIN_LOADING_TIME = 500; // 最小加载时间，确保动画流畅
 
 export default {
   name: "SearchComponent",
+  components: {
+    AisInstantSearch,
+    AisHits,
+    AisHighlight,
+    AisConfigure,
+    AisStateResults,
+    AisPagination,
+  },
 
   data() {
     return {
@@ -370,7 +394,7 @@ export default {
 }
 
 .search-results {
-  padding: 16px;
+
   padding-top: 0px !important;
   animation: fadeIn 0.3s ease;
 }
@@ -422,6 +446,14 @@ export default {
 .search-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 高亮样式 */
+:deep(.ais-Highlight-highlighted) {
+  background-color: rgba(var(--v-theme-primary), 0.8);
+  padding: 0 2px;
+  border-radius: 2px;
+  font-weight: bold;
 }
 
 .gap-2 {
