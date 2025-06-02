@@ -9,7 +9,7 @@ import { registerPlugins } from "@/plugins";
 import ToastService from "primevue/toastservice";
 import PrimeVue from "primevue/config";
 import Aura from "@primevue/themes/aura";
-import InstantSearch from "vue-instantsearch/vue3/es";
+import InstantSearch from 'vue-instantsearch/vue3/es';
 
 import { createHead } from "@unhead/vue";
 
