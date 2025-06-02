@@ -156,7 +156,10 @@
                               </ais-highlight>
                             </v-card-title>
                             <v-card-subtitle class="text-white">
-                              <ais-highlight :hit="item" attribute="description">
+                              <ais-highlight
+                                :hit="item"
+                                attribute="description"
+                              >
                                 <template v-slot="{ value }">
                                   <span v-html="value"></span>
                                 </template>
@@ -332,6 +335,7 @@ export default {
 }
 
 .search-component {
+  padding: 16px;
   display: flex;
   flex-direction: column;
 }
@@ -394,7 +398,6 @@ export default {
 }
 
 .search-results {
-
   padding-top: 0px !important;
   animation: fadeIn 0.3s ease;
 }
