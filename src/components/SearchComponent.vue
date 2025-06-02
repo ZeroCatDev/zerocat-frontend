@@ -1,215 +1,201 @@
 <template>
   <div class="search-component">
+    <v-form @submit.prevent="handleSearch"
+      ><div class="d-flex align-center gap-2">
+        <v-text-field
+          v-model="searchQuery"
+          clearable
+          label="键入以搜索"
+          variant="outlined"
+          hide-details
+          class="search-input"
+          @keyup.enter="handleSearch"
+        >
+          <template v-slot:prepend-inner>
+            <v-icon icon="mdi-magnify"></v-icon>
+          </template>
+        </v-text-field>
+        <v-btn
+          color="primary"
+          :loading="status === 'stalled'"
+          @click="handleSearch"
+          class="search-button"
+          height="56"
+          min-width="56"
+        >
+          <v-icon>mdi-magnify</v-icon>
+        </v-btn>
+      </div></v-form
+    >
+
+    <!-- 搜索历史和热门搜索 -->
+    <v-expand-transition style="padding-top: 16px !important">
+      <v-card v-if="!searchQuery" flat class="suggestions-card">
+        <v-card-text>
+          <div v-if="searchHistory.length > 0">
+            <div class="text-subtitle-2">搜索历史</div>
+            <v-chip-group>
+              <v-chip
+                v-for="(term, index) in searchHistory"
+                :key="index"
+                size="small"
+                @click="handleHistoryClick(term)"
+                class="history-chip"
+              >
+                {{ term }}
+              </v-chip>
+            </v-chip-group>
+          </div>
+          <v-divider v-if="searchHistory.length > 0" class="my-3"></v-divider>
+          <div>
+            <div class="text-subtitle-2">热门搜索</div>
+            <v-chip-group>
+              <v-chip
+                v-for="(term, index) in hotSearches"
+                :key="index"
+                size="small"
+                @click="handleHistoryClick(term)"
+                class="hot-chip"
+              >
+                {{ term }}
+              </v-chip>
+            </v-chip-group>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-expand-transition>
     <v-fade-transition>
       <ais-instant-search
         :search-client="searchClient"
         :index-name="VITE_APP_MEILISEARCH_INDEX"
-
         class="search-results mt-4"
       >
-        <ais-search-box>
-          <template v-slot="{ currentRefinement, refine }">
-            <v-form @submit.prevent="handleSearch"
-              ><div class="d-flex align-center gap-2">
-                <v-text-field
-                  v-model="searchQuery"
-                  clearable
-                  label="键入以搜索"
-                  variant="outlined"
-                  hide-details
-                  class="search-input"
-                  @keyup.enter="handleSearch"
-                >
-                  <template v-slot:prepend-inner>
-                    <v-icon icon="mdi-magnify"></v-icon>
-                  </template>
-                </v-text-field>
-                <v-btn
-                  color="primary"
-                  :loading="status === 'stalled'"
-                  @click="handleSearch"
-                  class="search-button"
-                  height="56"
-                  min-width="56"
-                >
-                  <v-icon>mdi-magnify</v-icon>
-                </v-btn>
-              </div></v-form
-            >
-
-            <!-- 搜索历史和热门搜索 -->
-            <v-expand-transition style="padding-top: 16px !important">
-              <v-card v-if="!searchQuery" flat class="suggestions-card">
-                <v-card-text>
-                  <div v-if="searchHistory.length > 0">
-                    <div class="text-subtitle-2">搜索历史</div>
-                    <v-chip-group>
-                      <v-chip
-                        v-for="(term, index) in searchHistory"
-                        :key="index"
-                        size="small"
-                        @click="handleHistoryClick(term)"
-                        class="history-chip"
-                      >
-                        {{ term }}
-                      </v-chip>
-                    </v-chip-group>
-                  </div>
-                  <v-divider
-                    v-if="searchHistory.length > 0"
-                    class="my-3"
-                  ></v-divider>
-                  <div>
-                    <div class="text-subtitle-2">热门搜索</div>
-                    <v-chip-group>
-                      <v-chip
-                        v-for="(term, index) in hotSearches"
-                        :key="index"
-                        size="small"
-                        @click="handleHistoryClick(term)"
-                        class="hot-chip"
-                      >
-                        {{ term }}
-                      </v-chip>
-                    </v-chip-group>
-                  </div>
-                </v-card-text>
-              </v-card>
-            </v-expand-transition>
-          </template>
-        </ais-search-box>
-
         <!-- 搜索结果部分 -->
-        <template v-if="currentSearchTerm">
-          <ais-state-results class="mb-4">
-            <template v-slot="{ status }">
-              <v-progress-linear
-                v-show="status === 'stalled'"
-                indeterminate
-                color="primary"
-                class="mt-4"
-              ></v-progress-linear>
-            </template>
-          </ais-state-results>
-          <ais-configure :query="currentSearchTerm" />
-          <ais-hits>
-            <template v-slot="{ items, isSearchStalled }">
-              <v-fade-transition group>
-                <template v-if="isSearchStalled"></template>
-                <!-- 搜索结果 -->
-                <template v-else>
-                  <v-row v-if="items.length > 0">
-                    <v-col
-                      cols="12"
-                      xs="12"
-                      sm="6"
-                      md="4"
-                      lg="3"
-                      xl="2"
-                      xxl="2"
-                      v-for="item in items"
-                      :key="item.objectID"
-                    >
-                      <v-hover v-slot="{ isHovering, props }">
-                        <v-card
-                          v-bind="props"
-                          :to="`/app/link/project/?id=${item.id}`"
-                          :elevation="isHovering ? 8 : 2"
-                          style="aspect-ratio: 4/3"
-                          rounded="lg"
-                          class="result-card"
-                        >
-                          <v-img
-                            :src="
-                              VITE_APP_S3_BUCKET + '/scratch_slt/' + item.id
-                            "
-                            class="align-end"
-                            lazy-src="../assets/43-lazyload.png"
-                            height="100%"
-                            gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                            cover
-                          >
-                            <template v-slot:placeholder>
-                              <v-row
-                                class="fill-height ma-0"
-                                align="center"
-                                justify="center"
-                              >
-                                <v-progress-circular
-                                  indeterminate
-                                  color="primary"
-                                ></v-progress-circular>
-                              </v-row>
-                            </template>
-                            <v-card-item>
-                              <v-chip
-                                size="small"
-                                color="primary"
-                                variant="tonal"
-                                class="type-chip"
-                              >
-                                {{ item.type }}
-                              </v-chip>
-                              <v-chip
-                                v-if="item.license != 'no'"
-                                size="small"
-                                color="primary"
-                                variant="tonal"
-                                class="license-chip"
-                              >
-                                {{ item.license }}
-                              </v-chip>
-                              <v-card-title class="text-white">{{
-                                item.title
-                              }}</v-card-title>
-                              <v-card-subtitle class="text-white">{{
-                                item.description
-                              }}</v-card-subtitle>
-                            </v-card-item>
-                          </v-img>
-                        </v-card>
-                      </v-hover>
-                    </v-col>
-                  </v-row>
-                  <v-row v-else class="mt-4" justify="center">
-                    <v-col cols="12" class="text-center">
-                      <v-alert
-                        type="info"
-                        variant="tonal"
-                        class="no-results-alert"
+
+        <ais-state-results class="mb-4">
+          <template v-slot="{ status }">
+            <v-progress-linear
+              v-show="status === 'stalled'"
+              indeterminate
+              color="primary"
+              class="mt-4"
+            ></v-progress-linear>
+          </template>
+        </ais-state-results>
+        <ais-configure :query="currentSearchTerm" />
+        <ais-hits>
+          <template v-slot="{ items, isSearchStalled }">
+            <v-fade-transition group>
+              <template v-if="isSearchStalled"></template>
+              <!-- 搜索结果 -->
+              <template v-else>
+                <v-row v-if="items.length > 0">
+                  <v-col
+                    cols="12"
+                    xs="12"
+                    sm="6"
+                    md="4"
+                    lg="3"
+                    xl="2"
+                    xxl="2"
+                    v-for="item in items"
+                    :key="item.objectID"
+                  >
+                    <v-hover v-slot="{ isHovering, props }">
+                      <v-card
+                        v-bind="props"
+                        :to="`/app/link/project/?id=${item.id}`"
+                        :elevation="isHovering ? 8 : 2"
+                        style="aspect-ratio: 4/3"
+                        rounded="lg"
+                        class="result-card"
                       >
-                        <template v-slot:prepend>
-                          <v-icon icon="mdi-information"></v-icon>
-                        </template>
-                        未找到相关结果，请尝试其他关键词
-                      </v-alert>
-                    </v-col>
-                  </v-row>
-                  <!-- 分页 -->
-                  <v-row class="mt-4" v-if="items && items.length > 0">
-                    <v-col>
-                      <ais-pagination>
-                        <template
-                          v-slot="{ currentRefinement, nbPages, refine }"
+                        <v-img
+                          :src="VITE_APP_S3_BUCKET + '/scratch_slt/' + item.id"
+                          class="align-end"
+                          lazy-src="../assets/43-lazyload.png"
+                          height="100%"
+                          gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+                          cover
                         >
-                          <div class="text-center">
-                            <v-pagination
-                              :length="nbPages"
-                              :total-visible="7"
-                              rounded="circle"
-                              :model-value="currentRefinement"
-                              @update:model-value="refine($event)"
-                            ></v-pagination>
-                          </div>
-                        </template>
-                      </ais-pagination>
-                    </v-col>
-                  </v-row>
-                </template>
-              </v-fade-transition>
-            </template>
-          </ais-hits>
-        </template>
+                          <template v-slot:placeholder>
+                            <v-row
+                              class="fill-height ma-0"
+                              align="center"
+                              justify="center"
+                            >
+                              <v-progress-circular
+                                indeterminate
+                                color="primary"
+                              ></v-progress-circular>
+                            </v-row>
+                          </template>
+                          <v-card-item>
+                            <v-chip
+                              size="small"
+                              color="primary"
+                              variant="tonal"
+                              class="type-chip"
+                            >
+                              {{ item.type }}
+                            </v-chip>
+                            <v-chip
+                              v-if="item.license != 'no'"
+                              size="small"
+                              color="primary"
+                              variant="tonal"
+                              class="license-chip"
+                            >
+                              {{ item.license }}
+                            </v-chip>
+                            <v-card-title class="text-white">{{
+                              item.title
+                            }}</v-card-title>
+                            <v-card-subtitle class="text-white">{{
+                              item.description
+                            }}</v-card-subtitle>
+                          </v-card-item>
+                        </v-img>
+                      </v-card>
+                    </v-hover>
+                  </v-col>
+                </v-row>
+                <v-row v-else class="mt-4" justify="center">
+                  <v-col cols="12" class="text-center">
+                    <v-alert
+                      type="info"
+                      variant="tonal"
+                      class="no-results-alert"
+                    >
+                      <template v-slot:prepend>
+                        <v-icon icon="mdi-information"></v-icon>
+                      </template>
+                      未找到相关结果，请尝试其他关键词
+                    </v-alert>
+                  </v-col>
+                </v-row>
+                <!-- 分页 -->
+                <v-row class="mt-4" v-if="items && items.length > 0">
+                  <v-col>
+                    <ais-pagination>
+                      <template v-slot="{ currentRefinement, nbPages, refine }">
+                        <div class="text-center">
+                          <v-pagination
+                            :length="nbPages"
+                            :total-visible="7"
+                            rounded="circle"
+                            :model-value="currentRefinement"
+                            @update:model-value="refine($event)"
+                          ></v-pagination>
+                        </div>
+                      </template>
+                    </ais-pagination>
+                  </v-col>
+                </v-row>
+              </template>
+            </v-fade-transition>
+          </template>
+        </ais-hits>
       </ais-instant-search>
     </v-fade-transition>
   </div>
@@ -250,14 +236,10 @@ export default {
       VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
       searchQuery: "",
       currentSearchTerm: "",
-      showSuggestions: true,
       searchHistory: [],
       showError: false,
       errorMessage: "",
       hotSearches: ["Scratch", "游戏", "动画", "音乐", "艺术", "编程"],
-      isSearching: false,
-      loadingTimeout: null,
-      hasPerformedSearch: false,
     };
   },
 
@@ -271,31 +253,12 @@ export default {
     this.loadSearchHistory();
   },
 
-  beforeUnmount() {
-    if (this.loadingTimeout) {
-      clearTimeout(this.loadingTimeout);
-    }
-  },
-
   methods: {
     handleSearch() {
       const trimmedQuery = this.searchQuery.trim();
       if (trimmedQuery) {
-        // 清除之前的超时
-        if (this.loadingTimeout) {
-          clearTimeout(this.loadingTimeout);
-        }
-
-        this.isSearching = true;
         this.currentSearchTerm = trimmedQuery;
         this.addToSearchHistory(trimmedQuery);
-        this.showSuggestions = false;
-        this.hasPerformedSearch = true;
-
-        // 确保加载动画至少显示一定时间
-        this.loadingTimeout = setTimeout(() => {
-          this.isSearching = false;
-        }, MIN_LOADING_TIME);
       }
     },
 
