@@ -4,7 +4,7 @@ import request from "../axios/axios.js";
 const defaultProject = (id) => ({
   id,
   title: "未知项目",
-  description: "项目信息未缓存",
+  description: "未知项目",
   authorid: 0,
   type: "scratch",
   license: "unknow",

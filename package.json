@@ -44,7 +44,6 @@
     "vite-plugin-static-copy": "^2.3.0",
     "vue": "^3.5.13",
     "vue-blurhash": "^0.1.4",
-    "vue-instantsearch": "^4.20.4",
     "vuedraggable": "^4.1.0",
     "vuetify": "^3.7.9"
   },
