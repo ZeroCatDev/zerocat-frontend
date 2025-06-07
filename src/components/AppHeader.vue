@@ -3,6 +3,31 @@
     <template #prepend>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
     </template>
+
+    <v-btn variant="text" icon @click="goHome" :active="false">
+      <v-icon>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          width="200"
+          height="200"
+          viewBox="0 0 200 200"
+          fill="none"
+        >
+          <circle cx="100" cy="100" r="100" fill="#FFFFFF"></circle>
+          <path
+            d="M38 162.867L100.5 100.367L100.5 162.867L38 162.867ZM163 100.367L100.5 100.367L100.5 162.867L163 100.367Z"
+            fill-rule="evenodd"
+            fill="#415F91"
+          ></path>
+          <path
+            d="M38 100.367L100.5 37.8672L100.5 100.367L38 100.367ZM163 37.8672L100.5 37.8672L100.5 100.367L163 37.8672Z"
+            fill-rule="evenodd"
+            fill="#8EACE3"
+          ></path>
+        </svg>
+      </v-icon>
+    </v-btn>
     <v-app-bar-title>
       <template v-if="isProjectPath">
         <div class="d-flex align-center">
@@ -28,10 +53,7 @@
     <template #append>
       <SearchDialog />
       <v-btn icon="mdi-plus" to="/app/new"></v-btn>
-      <v-menu
-        :close-on-content-click="false"
-        location="bottom"
-      >
+      <v-menu :close-on-content-click="false" location="bottom">
         <template #activator="{ props, isActive }"
           ><template v-if="localuser.isLogin.value">
             <v-btn
@@ -40,7 +62,9 @@
               @click="notificationsCard?.fetchNotifications()"
             >
               <v-avatar
-                :image="VITE_APP_S3_BUCKET + '/user/' + localuser.user.value.images"
+                :image="
+                  VITE_APP_S3_BUCKET + '/user/' + localuser.user.value.images
+                "
               ></v-avatar>
             </v-btn>
           </template>
@@ -91,7 +115,6 @@
               <!-- 个人资料选项卡内容 -->
               <v-window-item value="profile">
                 <v-card
-
                   @click="localuser.loadUser(true)"
                   :title="localuser.user.value.display_name"
                   :subtitle="localuser.user.value.username"
@@ -179,11 +202,10 @@
           rounded="xl"
         ></v-list-item>
       </div>
-
-
     </v-list>
     <v-divider></v-divider>
-    <v-list> <v-list-item
+    <v-list>
+      <v-list-item
         @click="toggleTheme"
         :prepend-icon="isDarkTheme ? 'mdi-weather-sunny' : 'mdi-weather-night'"
         rounded="xl"
@@ -281,6 +303,13 @@ export default {
     },
   },
   methods: {
+    goHome() {
+      if (this.$route.path === "/") {
+        window.location.reload();
+      } else {
+        this.$router.push("/");
+      }
+    },
     checkNotifications() {
       if (this.notificationsCard) {
         this.notificationsCard.notificationsHandler.fetchNotifications();

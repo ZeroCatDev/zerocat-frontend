@@ -159,7 +159,7 @@
           <v-btn @click="openEditor(project.id, project.type)" variant="text"
               >打开创造页</v-btn
             >
-            <v-btn :to="`/${$route.params.username}/${$route.params.projectname}/editor`" variant="text"
+            <v-btn :to="`/${$route.params.username}/${$route.params.projectname}/edit`" variant="text"
               >编辑源文件</v-btn
             ></div>
           <div class="px-4">
@@ -201,6 +201,8 @@
 </template>
 
 <script>
+import { use404Helper } from '@/composables/use404';
+
 import openEditor from "../../../stores/openEdit";
 import ProjectRunner from "../../../components/project/ProjectRunner.vue";
 import { localuser } from "@/services/localAccount";
@@ -255,10 +257,13 @@ export default {
     };
   },
   async mounted() {
+
     this.initlizeProject();
   },
   methods: {
     async initlizeProject() {
+
+
       const username = this.$route.params.username;
       const projectname = this.$route.params.projectname;
 
@@ -273,7 +278,8 @@ export default {
         projectname
       );
       if (projectFromCloud.id == 0) {
-        this.$router.replace("/404");
+        use404Helper.show404();
+
         return;
       }
       this.project = projectFromCloud;

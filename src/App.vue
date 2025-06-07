@@ -1,30 +1,45 @@
 <template>
-  <component :is="layout">
+  <component :is="currentLayout">
     <router-view />
   </component>
 </template>
 
 <script setup>
 import { computed } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useHead } from "@unhead/vue";
+import { use404Helper } from "@/composables/use404";
 
 // 导入布局
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import SimpleLayout from "@/layouts/SimpleLayout.vue";
+import Layout404 from "@/layouts/404Layout.vue";
 
 const route = useRoute();
+const router = useRouter();
 
 // 可用布局映射
 const layouts = {
   default: DefaultLayout,
   simple: SimpleLayout,
+  404: Layout404
 };
 
 // 根据路由元数据确定使用哪个布局
-const layout = computed(() => {
+const currentLayout = computed(() => {
+  if (use404Helper.is404.value) {
+    console.log(use404Helper.is404.value);
+    return layouts['404'];
+  }
   const layoutName = route.meta.layout || "default";
   return layouts[layoutName];
+});
+
+// 监听路由错误
+router.onError((error) => {
+  if (error.message.includes('Failed to load')) {
+    use404Helper.show404();
+  }
 });
 
 // SEO 和 Meta 标签配置

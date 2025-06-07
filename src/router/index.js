@@ -5,12 +5,13 @@
  */
 
 // Composables
-import { createRouter, createWebHistory } from 'vue-router/auto'
+import { createRouter, createWebHistory } from 'vue-router'
 import { setupLayouts } from 'virtual:generated-layouts'
 import { routes } from 'vue-router/auto-routes'
+import { use404Helper } from '../composables/use404'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(),
   routes: setupLayouts(routes),
 })
 
@@ -32,5 +33,18 @@ router.onError((err, to) => {
 router.isReady().then(() => {
   localStorage.removeItem('vuetify:dynamic-reload')
 })
+
+// 添加路由错误处理
+router.beforeEach((to, from, next) => {
+  // 如果路由不存在
+  if (!to.matched.length) {
+    use404Helper.show404();
+    next(false);
+    return;
+  }
+  // 如果是正常路由，确保重置404状态
+  use404Helper.reset404();
+  next();
+});
 
 export default router

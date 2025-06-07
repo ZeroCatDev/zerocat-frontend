@@ -8,7 +8,6 @@ import VueRouter from "unplugin-vue-router/vite";
 import Vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 import { viteStaticCopy } from 'vite-plugin-static-copy';
-//import copyPlugin from "rollup-plugin-copy";
 
 // Utilities
 import { defineConfig, loadEnv } from "vite";

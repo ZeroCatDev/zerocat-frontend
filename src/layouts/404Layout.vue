@@ -3,11 +3,7 @@
     <Toast />
     <AppHeader />
     <v-main>
-      <router-view v-slot="{ Component, route }">
-        <transition name="md3" mode="out-in">
-          <component :is="Component" :key="route.path" />
-        </transition>
-      </router-view>
+      <error404 />
     </v-main>
   </v-app>
 </template>
@@ -17,7 +13,7 @@ import { onMounted, watch } from "vue";
 import { useTheme } from "vuetify";
 import AppHeader from "@/components/AppHeader.vue";
 import Toast from "primevue/toast";
-
+import error404 from "@/components/error/404.vue";
 const theme = useTheme();
 
 /**
@@ -32,21 +28,21 @@ const initTheme = () => {
     const prefersDark = window.matchMedia(
       "(prefers-color-scheme: dark)"
     ).matches;
-    theme.global.name.value = prefersDark  ? "dark" : "light";
-    localStorage.setItem("theme",  theme.global.name.value);
-
-    // 监听主题变化并保存到本地存储
-    watch(
-      () => theme.global.name.value,
-      (newTheme) => {
-        localStorage.setItem("theme", newTheme);
-      }
-    );
+    theme.global.name.value = prefersDark ? "dark" : "light";
+    localStorage.setItem("theme", theme.global.name.value);
   }
 };
 
 // 初始化主题
 onMounted(initTheme);
+
+// 监听主题变化并保存到本地存储
+watch(
+  () => theme.global.name.value,
+  (newTheme) => {
+    localStorage.setItem("theme", newTheme);
+  }
+);
 </script>
 
 <style>
