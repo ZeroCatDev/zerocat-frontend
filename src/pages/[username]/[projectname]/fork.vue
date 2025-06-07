@@ -102,7 +102,6 @@ import openEditor from "../../../stores/openEdit";
 import { localuser } from "@/services/localAccount";
 import { useHead } from "@unhead/vue";
 import { getProjectInfoByNamespace } from "../../../services/projectService";
-import { getUserById } from "../../../stores/user.js";
 import request from "../../../axios/axios";
 
 export default {
@@ -149,7 +148,7 @@ export default {
       useHead({
         title: "分叉" + this.project.title,
       });
-      this.author = await getUserById(this.project.authorid);
+      this.author = this.project.author;
     },
     async verifyname() {
       getProjectInfoByNamespace(

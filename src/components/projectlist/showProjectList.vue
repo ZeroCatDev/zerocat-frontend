@@ -5,7 +5,7 @@
         <v-progress-circular indeterminate color="primary"></v-progress-circular>
       </v-col>
     </v-row>
-    
+
     <template v-else>
       <v-row>
         <v-col cols="12">
@@ -25,17 +25,17 @@
                 color="primary"
               ></v-btn>
             </v-card-title>
-            
+
             <v-card-subtitle v-if="listInfo.description">
               {{ listInfo.description }}
             </v-card-subtitle>
-            
+
             <v-card-text>
               <div class="d-flex align-center mb-2">
                 <v-avatar size="24" class="mr-2">
-                  <v-img :src="getAvatarUrl(authorInfo)" alt="用户头像"></v-img>
+                  <v-img :src="getAvatarUrl(listInfo.author)" alt="用户头像"></v-img>
                 </v-avatar>
-                <span class="text-caption">{{ authorInfo.username || authorInfo.display_name || '未知用户' }}</span>
+                <span class="text-caption">{{ listInfo.author?.display_name || listInfo.author?.username || '未知用户' }}</span>
               </div>
               <div class="d-flex flex-wrap">
                 <span class="text-caption mr-4">创建于: {{ formatDate(listInfo.createTime) }}</span>
@@ -45,7 +45,7 @@
           </v-card>
         </v-col>
       </v-row>
-      
+
       <v-row v-if="!hasProjects">
         <v-col cols="12" class="text-center">
           <v-alert type="info" variant="tonal">
@@ -53,19 +53,19 @@
           </v-alert>
         </v-col>
       </v-row>
-      
+
       <v-row v-else>
         <v-col cols="12">
           <h3 class="text-h6 mb-4">项目列表</h3>
           <v-row>
-            <v-col 
-              v-for="project in listInfo.projects" 
+            <v-col
+              v-for="project in listInfo.projects"
               :key="project.id"
               cols="12" sm="6" md="4" lg="3"
             >
-              <project-card 
-                :project-data="project" 
-                :author-data="getUserInfo(project.authorid)" 
+              <project-card
+                :project-data="project"
+                :author-data="project.author"
                 :show-author="true"
               />
             </v-col>
@@ -73,12 +73,12 @@
         </v-col>
       </v-row>
     </template>
-    
+
     <v-dialog v-model="editDialog" max-width="600px">
-      <EditProjectListConfig 
-        :listid="listId" 
-        :callback="fetchProjectList" 
-        :close="() => editDialog = false" 
+      <EditProjectListConfig
+        :listid="listId"
+        :callback="fetchProjectList"
+        :close="() => editDialog = false"
       />
     </v-dialog>
   </v-container>
@@ -88,7 +88,6 @@
 import request from "../../axios/axios";
 import EditProjectListConfig from "./EditProjectListConfig.vue";
 import { localuser } from "../../services/localAccount";
-import { getUserById } from "../../stores/user";
 import ProjectCard from "../project/ProjectCard.vue";
 
 export default {
@@ -107,9 +106,7 @@ export default {
       loading: true,
       listInfo: {},
       isOwner: false,
-      editDialog: false,
-      userCache: {},
-      authorInfo: {}
+      editDialog: false
     };
   },
   computed: {
@@ -127,21 +124,11 @@ export default {
         const response = await request.get(`/projectlist/lists/listid/${this.listId}`);
         if (response.data.status === "success") {
           this.listInfo = response.data.data;
-          
+
           // 检查当前用户是否是列表所有者
           const currentUser = localuser.user.value;
           this.isOwner = currentUser && currentUser.id === this.listInfo.authorid;
-          
-          // 获取作者信息
-          if (this.listInfo.authorid) {
-            this.authorInfo = await this.fetchUserInfo(this.listInfo.authorid);
-          }
-          
-          // 获取项目作者信息
-          if (this.listInfo.projects && this.listInfo.projects.length > 0) {
-            const authorIds = [...new Set(this.listInfo.projects.map(p => p.authorid))];
-            await Promise.all(authorIds.map(id => this.fetchUserInfo(id)));
-          }
+
         } else {
           this.$toast.add({
             severity: "error",
@@ -162,52 +149,33 @@ export default {
         this.loading = false;
       }
     },
-    
-    async fetchUserInfo(userId) {
-      if (this.userCache[userId]) return this.userCache[userId];
-      
-      try {
-        const userData = await getUserById(userId);
-        this.userCache[userId] = userData;
-        return userData;
-      } catch (error) {
-        console.error(`获取用户 ${userId} 信息失败:`, error);
-        return { id: userId, username: `用户${userId}` };
-      }
-    },
-    
-    getUserInfo(userId) {
-      return this.userCache[userId] || { id: userId, username: `用户${userId}` };
-    },
-    
+
     getAvatarUrl(user) {
       if (!user) return '';
-      
+
       if (user.avatar) return user.avatar;
-      
+
       if (user.images) {
         return `${import.meta.env.VITE_APP_S3_BUCKET}/user/${user.images}`;
       }
-      
+
       return '';
     },
-    
+
     openEditDialog() {
       this.editDialog = true;
     },
-    
+
     formatDate(dateString) {
       if (!dateString) return '未知';
       const date = new Date(dateString);
       return date.toLocaleDateString('zh-CN', {
         year: 'numeric',
         month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
+        day: '2-digit'
       });
     }
-  },
+  }
 };
 </script>
 

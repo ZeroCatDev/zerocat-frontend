@@ -13,13 +13,13 @@
         </v-btn>
       </v-col>
     </v-row>
-    
+
     <v-row v-if="loading">
       <v-col cols="12" class="text-center">
         <v-progress-circular indeterminate color="primary"></v-progress-circular>
       </v-col>
     </v-row>
-    
+
     <v-row v-else-if="myLists.length === 0">
       <v-col cols="12">
         <v-alert type="info" variant="tonal">
@@ -27,7 +27,7 @@
         </v-alert>
       </v-col>
     </v-row>
-    
+
     <v-row v-else>
       <v-col
         v-for="list in myLists"
@@ -37,28 +37,28 @@
         md="4"
         lg="3"
       >
-        <project-list-item 
-          :list="list" 
+        <project-list-item
+          :list="list"
           @edit="openEditDialog"
         />
       </v-col>
     </v-row>
-    
+
     <!-- 新建列表对话框 -->
     <v-dialog v-model="newListDialog" max-width="600px">
-      <NewProjectList 
-        :callback="fetchMyLists" 
-        :close="() => newListDialog = false" 
+      <NewProjectList
+        :callback="fetchMyLists"
+        :close="() => newListDialog = false"
       />
     </v-dialog>
-    
+
     <!-- 编辑列表对话框 -->
     <v-dialog v-model="editDialog" max-width="600px">
-      <EditProjectListConfig 
-        v-if="selectedListId" 
-        :listid="selectedListId" 
-        :callback="fetchMyLists" 
-        :close="() => editDialog = false" 
+      <EditProjectListConfig
+        v-if="selectedListId"
+        :listid="selectedListId"
+        :callback="fetchMyLists"
+        :close="() => editDialog = false"
       />
     </v-dialog>
   </v-container>
@@ -115,15 +115,15 @@ export default {
         this.loading = false;
       }
     },
-    
+
     openNewListDialog() {
       this.newListDialog = true;
     },
-    
+
     openEditDialog(listId) {
       this.selectedListId = listId;
       this.editDialog = true;
     }
   }
 };
-</script> 
+</script>

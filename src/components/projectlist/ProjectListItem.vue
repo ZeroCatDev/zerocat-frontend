@@ -15,15 +15,15 @@
       <div class="mt-2 d-flex align-center">
         <span class="text-caption">项目数: {{ projectCount }}</span>
         <v-spacer></v-spacer>
-        <span v-if="authorInfo" class="text-caption">
+        <span v-if="list.author" class="text-caption">
           <v-avatar size="16" class="mr-1">
-            <v-img :src="getAvatarUrl(authorInfo)" alt="用户头像"></v-img>
+            <v-img :src="getAvatarUrl(list.author)" alt="用户头像"></v-img>
           </v-avatar>
-          {{ authorInfo.username || authorInfo.display_name || `用户${list.authorid || list.userId}` }}
+          {{ list.author.display_name || list.author.username || `用户${list.authorid}` }}
         </span>
       </div>
     </v-card-text>
-    
+
     <v-card-actions>
       <v-btn
         v-if="isOwner"
@@ -46,7 +46,6 @@
 
 <script>
 import { localuser } from "../../services/localAccount";
-import { getUserById } from "../../stores/user";
 import { getProjectListById } from "../../services/projectListService";
 
 export default {
@@ -58,7 +57,6 @@ export default {
   },
   data() {
     return {
-      authorInfo: null,
       projectCount: 0,
       loading: false
     };
@@ -70,21 +68,9 @@ export default {
     }
   },
   async created() {
-    await this.fetchAuthorInfo();
     await this.fetchProjectCount();
   },
   methods: {
-    async fetchAuthorInfo() {
-      const authorId = this.list.authorid || this.list.userId;
-      if (authorId) {
-        try {
-          this.authorInfo = await getUserById(authorId);
-        } catch (error) {
-          console.error(`获取用户 ${authorId} 信息失败:`, error);
-        }
-      }
-    },
-    
     async fetchProjectCount() {
       if (!this.list.projects) {
         try {
@@ -102,19 +88,19 @@ export default {
         this.projectCount = this.list.projects.length;
       }
     },
-    
+
     getAvatarUrl(user) {
       if (!user) return '';
-      
+
       if (user.avatar) return user.avatar;
-      
+
       if (user.images) {
         return `${import.meta.env.VITE_APP_S3_BUCKET}/user/${user.images}`;
       }
-      
+
       return '';
     },
-    
+
     formatDate(dateString) {
       if (!dateString) return '未知';
       const date = new Date(dateString);
@@ -126,4 +112,4 @@ export default {
     }
   }
 };
-</script> 
+</script>

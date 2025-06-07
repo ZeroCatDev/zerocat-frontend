@@ -5,7 +5,7 @@
         <v-progress-circular indeterminate color="primary"></v-progress-circular>
       </v-card-text>
     </v-card>
-    
+
     <template v-else>
       <v-card v-if="lists.length === 0" class="mb-4">
         <v-card-text class="text-center">
@@ -14,7 +14,7 @@
           </v-alert>
         </v-card-text>
       </v-card>
-      
+
       <v-row v-else>
         <v-col cols="12" xs="12" sm="6" md="4" lg="3" xl="2" xxl="2" v-for="item in lists" :key="item.id">
           <v-card rounded="lg">
@@ -83,4 +83,4 @@ export default {
     }
   }
 };
-</script> 
+</script>

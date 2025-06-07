@@ -29,7 +29,6 @@
 
 <script>
 import { getProjectInfo } from "@/services/projectService";
-import { getUserById } from "@/stores/user.js";
 
 export default {
   props: {
@@ -94,7 +93,7 @@ export default {
       } else if (this.projectId) {
         this.fetchProject(this.projectId);
       }
-      
+
       // 处理作者数据
       if (this.authorData) {
         this.author = this.authorData;
@@ -102,29 +101,29 @@ export default {
         this.loadAuthorIfNeeded();
       }
     },
-    
+
     loadAuthorIfNeeded() {
       // 如果需要显示作者信息，但没有作者数据，则尝试加载
-      if (this.showAuthor && !this.author && this.project?.authorid) {
-        this.fetchAuthor(this.project.authorid);
+      if (this.showAuthor && !this.author && this.project?.author) {
+        this.author = this.project.author;
       }
     },
-    
+
     getProjectLink() {
       if (!this.project) return '';
-      
-      // 如果有项目名称和作者用户名，使用 /:username/:projectname 路由
-      if (this.project.name && this.author?.username) {
-        return `/${this.author.username}/${this.project.name}`;
+
+      // 如果有项目名称和作者信息，使用 /:username/:projectname 路由
+      if (this.project.name && this.project.author?.username) {
+        return `/${this.project.author.username}/${this.project.name}`;
       }
-      
+
       return `/app/link/project?id=${this.project.id}`;
     },
-    
+
     async fetchProject(id) {
       if (this.loading) return;
       this.loading = true;
-      
+
       try {
         const projects = await getProjectInfo([id]);
         if (projects && projects.length > 0) {
@@ -137,26 +136,17 @@ export default {
         this.loading = false;
       }
     },
-    
+
     async fetchAuthor(authorId) {
-      // 如果不需要显示作者或已有作者数据，则不加载
-      if (!this.showAuthor || this.authorData) return;
-      
-      try {
-        const authors = await getUserById([authorId]);
-        if (authors && authors.length > 0) {
-          this.author = authors[0];
-        }
-      } catch (error) {
-        console.error("Failed to fetch author:", error);
-      }
+      // 不再需要单独获取作者信息，因为已经包含在项目数据中
+      return;
     }
   }
 };
 </script>
 <style scoped>
 .box-shadow {
-  box-shadow: 
+  box-shadow:
     0px 0px 0px 1px rgba(14, 63, 126, 0.04),
     0px 1px 1px -0.5px rgba(42, 51, 70, 0.04),
     0px 3px 3px -1.5px rgba(42, 51, 70, 0.04),

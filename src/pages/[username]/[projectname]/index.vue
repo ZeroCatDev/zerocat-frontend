@@ -63,7 +63,6 @@ import {
   getBranchs,
   getBranchHistoryByCommit,
 } from "@/services/projectService";
-import { getUserById } from "@/stores/user.js";
 import Markdown from "@/components/Markdown.vue";
 import License from "@/components/license/License.vue";
 import ProjectBranchNav from "@/components/project/ProjectBranchNav.vue";
@@ -137,7 +136,7 @@ export default {
       }
       this.loadBranchHistory();
       useHead({ title: this.project.title });
-      this.author = await getUserById(this.project.authorid);
+      this.author = this.project.author;
     },
     async loadBranchHistory() {
       const res = await getBranchHistoryByCommit(

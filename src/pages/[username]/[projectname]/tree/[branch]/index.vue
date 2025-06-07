@@ -44,7 +44,6 @@ import {
   getBranchs,
   getBranchHistoryByCommit,
 } from "@/services/projectService";
-import { getUserById } from "@/stores/user.js";
 import ProjectBranchNav from "@/components/project/ProjectBranchNav.vue";
 import ProjectPlayer from "@/components/project/ProjectPlayer.vue";
 import ProjectInfoCard from "@/components/project/ProjectInfoCard.vue";
@@ -118,7 +117,7 @@ export default {
       this.loadBranchHistory();
 
       useHead({ title: `${this.project.title} at ${branch}` });
-      this.author = await getUserById(this.project.authorid);
+      this.author = this.project.author;
     },
     async loadBranchHistory() {
       const res = await getBranchHistoryByCommit(

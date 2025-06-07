@@ -13,16 +13,26 @@ const defaultProject = (id) => ({
   time: 0,
   tags: [],
   source: "unknow",
+  author: {
+    id: 0,
+    username: "未知用户",
+    display_name: "未知用户",
+    motto: "",
+    images: "",
+    regTime: null
+  },
 });
 
 // 获取项目详情函数
 export async function getProjectInfo(ids) {
   if (Array.isArray(ids)) {
     try {
-      const { data } = await request.post(`/project/batch`, { projectIds: ids });
+      const { data } = await request.post(`/project/batch`, {
+        projectIds: ids,
+      });
       return data.data;
     } catch (error) {
-      return ids.map(id => defaultProject(id));
+      return ids.map((id) => defaultProject(id));
     }
   } else {
     try {
@@ -46,7 +56,9 @@ export async function getProjectListById(id) {
 // 使用 [username]/[projectname] 获取项目信息函数
 export async function getProjectInfoByNamespace(username, projectname) {
   try {
-    const { data } = await request.get(`/project/namespace/${username}/${projectname}`);
+    const { data } = await request.get(
+      `/project/namespace/${username}/${projectname}`
+    );
     return data;
   } catch (error) {
     return defaultProject(0); // 返回默认项目对象
@@ -55,7 +67,9 @@ export async function getProjectInfoByNamespace(username, projectname) {
 
 export async function initProject(projectid) {
   try {
-    const { data } = await request.post(`/project/initlize?projectid=${projectid}`);
+    const { data } = await request.post(
+      `/project/initlize?projectid=${projectid}`
+    );
     return data;
   } catch (error) {
     return defaultProject(0); // 返回默认项目对象
@@ -133,7 +147,7 @@ export const getBranchHistoryByCommit = async (projectId, commitid) => {
 
   const findCommitById = (id) => {
     console.log(`Finding commit by id: ${id}`);
-    return commits.find(commit => commit.id === id);
+    return commits.find((commit) => commit.id === id);
   };
 
   const getCommitHistory = (commitid) => {
@@ -181,4 +195,3 @@ export const deleteBranch = async (projectId, branchName) => {
   });
   return response.data;
 };
-

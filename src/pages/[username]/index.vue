@@ -256,7 +256,6 @@ import Comment from "../../components/Comment.vue";
 import { useHead } from "@unhead/vue";
 import { getUserByUsername } from "../../stores/user.js";
 import request from "../../axios/axios.js";
-import { getUserById } from "../../stores/user";
 import Markdown from "@/components/Markdown.vue";
 import "github-markdown-css";
 import TimeAgo from "@/components/TimeAgo.vue";

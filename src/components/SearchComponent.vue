@@ -196,7 +196,6 @@ const SEARCH_HISTORY_KEY = "search_history";
 const MAX_HISTORY_ITEMS = 10;
 const ITEMS_PER_PAGE = 20;
 import { getProjectInfo } from "@/services/projectService";
-import { getUserById } from "@/stores/user";
 import { ref } from "vue";
 export default {
   name: "SearchComponent",
@@ -311,24 +310,13 @@ export default {
         // Get all project IDs
         const projectIds = this.searchResults.map((result) => result.id);
 
-        // Batch fetch project info without awaiting
+        // Batch fetch project info
         getProjectInfo(projectIds)
-          .then(async (projectInfos) => {
-            const authorids = projectInfos.map((info) => info.authorid);
-            const userInfos = await getUserById(authorids);
-
-            // Create a map of authorid to userInfo for easier lookup
-            const userInfoMap = {};
-            userInfos.forEach((userInfo) => {
-              userInfoMap[userInfo.id] = userInfo;
-            });
-
+          .then((projectInfos) => {
             // Update urlMap with fetched info
             projectInfos.forEach((info) => {
-              if (info && userInfoMap[info.authorid]) {
-                this.urlMap.value[info.id] = `/${
-                  userInfoMap[info.authorid].username
-                }/${info.name}`;
+              if (info && info.author?.username) {
+                this.urlMap.value[info.id] = `/${info.author.username}/${info.name}`;
               }
             });
           })

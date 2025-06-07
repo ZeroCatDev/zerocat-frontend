@@ -266,27 +266,15 @@ export default {
     // 预先加载通知所需的用户和项目数据
     const prepareTemplateData = async (notificationsList) => {
       try {
-        // 收集所有需要获取的用户、项目和项目列表ID
-        const userIds = new Set();
+        // 收集所有需要获取的项目和项目列表ID
         const projectIds = new Set();
         const projectListIds = new Set();
 
-        // 先收集所有需要的ID
+        // 收集所有需要的ID
         notificationsList.forEach((notification) => {
-          // 从actor_id或actor.id收集用户ID
-          if (notification.actor_id) {
-            userIds.add(notification.actor_id);
-          } else if (notification.actor?.id) {
-            userIds.add(notification.actor.id);
-            // 如果没有actor_id但有actor.id，将actor.id赋值给actor_id方便使用
-            notification.actor_id = notification.actor.id;
-          }
-
           // 收集target IDs
           if (notification.target_id) {
-            if (notification.target_type === "user") {
-              userIds.add(notification.target_id);
-            } else if (notification.target_type === "project") {
+            if (notification.target_type === "project") {
               projectIds.add(notification.target_id);
             } else if (notification.target_type === "projectlist") {
               projectListIds.add(notification.target_id);
@@ -351,15 +339,13 @@ export default {
                 if (Array.isArray(projects)) {
                   // 处理数组返回结果
                   const projectsObj = {};
+                  const authorsObj = {};
                   projects.forEach((project) => {
                     if (project && project.id) {
                       projectsObj[project.id] = project;
-                      // 收集项目作者ID，后续加载用户数据
-                      if (
-                        project.author_id &&
-                        !userCache.value[project.author_id]
-                      ) {
-                        userIds.add(project.author_id);
+                      // 直接从project.author中获取作者信息并缓存
+                      if (project.author && project.author.id) {
+                        authorsObj[project.author.id] = project.author;
                       }
                     }
                   });
@@ -368,16 +354,19 @@ export default {
                     ...projectCache.value,
                     ...projectsObj,
                   };
+                  // 合并作者信息到用户缓存
+                  userCache.value = {
+                    ...userCache.value,
+                    ...authorsObj,
+                  };
                   console.log("转换后的项目数据:", projectCache.value);
+                  console.log("更新后的用户缓存:", userCache.value);
                 } else if (projects && projects.id) {
                   // 处理单个项目返回结果
                   projectCache.value[projects.id] = projects;
-                  // 收集项目作者ID
-                  if (
-                    projects.author_id &&
-                    !userCache.value[projects.author_id]
-                  ) {
-                    userIds.add(projects.author_id);
+                  // 缓存单个项目的作者信息
+                  if (projects.author && projects.author.id) {
+                    userCache.value[projects.author.id] = projects.author;
                   }
                 }
               })
@@ -398,12 +387,9 @@ export default {
                   // 如果成功获取到列表数据，就加入缓存
                   if (projectList && projectList.id) {
                     projectListCache.value[projectList.id] = projectList;
-                    // 收集项目列表作者ID
-                    if (
-                      projectList.author_id &&
-                      !userCache.value[projectList.author_id]
-                    ) {
-                      userIds.add(projectList.author_id);
+                    // 如果项目列表包含作者信息，直接缓存
+                    if (projectList.author && projectList.author.id) {
+                      userCache.value[projectList.author.id] = projectList.author;
                     }
                   }
                 })
@@ -418,30 +404,6 @@ export default {
 
         // 等待所有数据加载完成
         await Promise.allSettled(promises);
-
-        // 从项目和项目列表收集到的作者ID，获取用户数据
-        const authorIds = Array.from(userIds).filter(
-          (id) => !userCache.value[id]
-        );
-        if (authorIds.length > 0) {
-          console.log("获取项目和列表作者数据:", authorIds);
-          try {
-            const authorUsers = await getUserById(authorIds);
-            if (Array.isArray(authorUsers)) {
-              const authorsObj = {};
-              authorUsers.forEach((user) => {
-                if (user && user.id) {
-                  authorsObj[user.id] = user;
-                }
-              });
-              userCache.value = { ...userCache.value, ...authorsObj };
-            } else if (authorUsers && authorUsers.id) {
-              userCache.value[authorUsers.id] = authorUsers;
-            }
-          } catch (err) {
-            console.error("获取作者数据失败:", err);
-          }
-        }
 
         console.log("缓存状态:", {
           users: userCache.value,
@@ -485,12 +447,8 @@ export default {
               notification.target_id
             ) {
               const project = projectCache.value[notification.target_id];
-              if (project) {
-                const authorUsername =
-                  project.authorid && userCache.value[project.authorid]
-                    ? userCache.value[project.authorid].username
-                    : "user";
-                notification.redirect_url = `/${authorUsername}/${
+              if (project && project.author) {
+                notification.redirect_url = `/${project.author.username}/${
                   project.name || project.title
                 }`;
                 console.log(

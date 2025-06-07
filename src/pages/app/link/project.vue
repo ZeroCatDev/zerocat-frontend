@@ -28,7 +28,6 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getProjectInfo } from '@/services/projectService'
-import { getUserById } from '@/stores/user'
 
 const route = useRoute()
 const router = useRouter()
@@ -44,19 +43,17 @@ onMounted(async () => {
 
     // 获取项目信息
     const projectInfo = await getProjectInfo(projectId)
-    console.log(projectInfo)
     if (!projectInfo) {
       throw new Error('项目不存在')
     }
-    console.log(await getUserById(projectInfo.authorid))
-    // 获取作者信息
-    const userData  = await getUserById(projectInfo.authorid)
-    if (!userData) {
+
+    // 检查项目作者信息
+    if (!projectInfo.author || !projectInfo.author.username) {
       throw new Error('作者信息不存在')
     }
 
     // 重定向到项目页面
-    await router.push(`/${userData.username}/${projectInfo.name}`)
+    await router.push(`/${projectInfo.author.username}/${projectInfo.name}`)
   } catch (e) {
     error.value = e.message || '加载失败'
   } finally {

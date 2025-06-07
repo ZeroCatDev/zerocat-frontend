@@ -69,7 +69,6 @@ import {
   initProject,
   getCommitInfo,
 } from "@/services/projectService";
-import { getUserById } from "@/stores/user.js";
 import ProjectPlayer from "@/components/project/ProjectPlayer.vue";
 import ProjectInfoCard from "@/components/project/ProjectInfoCard.vue";
 
@@ -129,7 +128,7 @@ export default {
       useHead({
         title: `${this.project.title} at ${this.commitInfo.commit_message}`,
       });
-      this.author = await getUserById(this.project.authorid);
+      this.author = this.project.author;
     },
   },
   watch: {
