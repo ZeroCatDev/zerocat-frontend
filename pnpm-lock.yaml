@@ -62,9 +62,6 @@ importers:
       instantsearch.css:
         specifier: ^8.5.1
         version: 8.5.1
-      instantsearch.js:
-        specifier: ^4.78.3
-        version: 4.78.3(algoliasearch@5.20.0)
       jszip:
         specifier: ^3.10.1
         version: 3.10.1
@@ -110,9 +107,6 @@ importers:
       vue-blurhash:
         specifier: ^0.1.4
         version: 0.1.4(blurhash@1.1.5)
-      vue-instantsearch:
-        specifier: ^4.20.4
-        version: 4.20.4(@vue/server-renderer@3.5.13(vue@3.5.13(typescript@5.7.2)))(algoliasearch@5.20.0)(vue@3.5.13(typescript@5.7.2))
       vuedraggable:
         specifier: ^4.1.0
         version: 4.1.0(vue@3.5.13(typescript@5.7.2))
@@ -217,9 +211,6 @@ packages:
     resolution: {integrity: sha512-KL1zWTzrlN4MSiaK1ea560iCA/UewMbS4ZsLQRPoDTWyrbDKVbztkPwwv764LAqgXk0fvkNZvJ3IelcK7DqhjQ==}
     engines: {node: '>= 14.0.0'}
 
-  '@algolia/events@4.0.1':
-    resolution: {integrity: sha512-FQzvOCgoFXAbf5Y6mYozw2aj5KCJoA3m4heImceldzPSMbdyS4atVjJzXKMsfX3wnZTFYwkkt8/z8UesLHlSBQ==}
-
   '@algolia/ingestion@1.20.0':
     resolution: {integrity: sha512-shj2lTdzl9un4XJblrgqg54DoK6JeKFO8K8qInMu4XhE2JuB8De6PUuXAQwiRigZupbI0xq8aM0LKdc9+qiLQA==}
     engines: {node: '>= 14.0.0'}
@@ -259,10 +250,6 @@ packages:
     resolution: {integrity: sha512-SRJ4jYmXRqV1/Xc+TIVG84WjHBXKlxO9sHQnA2Pf12QQEAp1LOh6kDzNHXcUnbH1QI0FDoPPVOt+vyUDucxpaw==}
     engines: {node: '>=6.0.0'}
     hasBin: true
-
-  '@babel/runtime@7.25.6':
-    resolution: {integrity: sha512-VBj9MYyDb9tuLq7yzqjgzt6Q+IBQLrGZfdjOekyEirZPHxXWoTSGUTMrpsfi58Up73d13NfYLv8HT9vmznjzhQ==}
-    engines: {node: '>=6.9.0'}
 
   '@babel/types@7.26.5':
     resolution: {integrity: sha512-L6mZmwFDK6Cjh1nRCLXpa6no13ZIioJDz7mdkzHv399pThrTa/k0nUlNaenOeh2kWu/iaOQYElEpKPUswUa9Vg==}
@@ -712,17 +699,8 @@ packages:
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
 
-  '@types/dom-speech-recognition@0.0.1':
-    resolution: {integrity: sha512-udCxb8DvjcDKfk1WTBzDsxFbLgYxmQGKrE/ricoMqHRNjSlSUCcamVTA5lIQqzY10mY5qCY0QDwBfFEwhfoDPw==}
-
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
-
-  '@types/google.maps@3.58.0':
-    resolution: {integrity: sha512-rZPrbNHoGxeY70uuQYFLGQqcz5mLd3pZy0u286GSugvN7PLFsHNRF2wN2QXtUgNiC33IC0LX+MD3LGAC3wN7Eg==}
-
-  '@types/hogan.js@3.0.5':
-    resolution: {integrity: sha512-/uRaY3HGPWyLqOyhgvW9Aa43BNnLZrNeQxl2p8wqId4UHMfPKolSB+U7BlZyO1ng7MkLnyEAItsBzCG0SDhqrA==}
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
@@ -735,9 +713,6 @@ packages:
 
   '@types/node@20.14.12':
     resolution: {integrity: sha512-r7wNXakLeSsGT0H1AU863vS2wa5wBOK4bWMjZz2wj+8nBx+m5PeIn0k8AloSLpRuiwdRQZwarZqHE4FNArPuJQ==}
-
-  '@types/qs@6.9.16':
-    resolution: {integrity: sha512-7i+zxXdPD0T4cKDuxCUXJ4wHcsJLwENa6Z3dCu8cfCK743OGy5Nu1RmAGqDPsoTDINVEcdXKRvR/zre+P2Ku1A==}
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
@@ -833,9 +808,6 @@ packages:
   '@vueuse/shared@12.5.0':
     resolution: {integrity: sha512-vMpcL1lStUU6O+kdj6YdHDixh0odjPAUM15uJ9f7MY781jcYkIwFA4iv2EfoIPO6vBmvutI1HxxAwmf0cx5ISQ==}
 
-  abbrev@1.1.1:
-    resolution: {integrity: sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==}
-
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
@@ -853,16 +825,6 @@ packages:
 
   ajv@6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
-
-  algoliasearch-helper@3.24.1:
-    resolution: {integrity: sha512-knYRACqLH9UpeR+WRUrBzBFR2ulGuOjI2b525k4PNeqZxeFMHJE7YcL7s6Jh12Qza0rtHqZdgHMfeuaaAkf4wA==}
-    peerDependencies:
-      algoliasearch: '>= 3.1 < 6'
-
-  algoliasearch-helper@3.25.0:
-    resolution: {integrity: sha512-vQoK43U6HXA9/euCqLjvyNdM4G2Fiu/VFp4ae0Gau9sZeIKBPvUPnXfLYAe65Bg7PFuw03coeu5K6lTPSXRObw==}
-    peerDependencies:
-      algoliasearch: '>= 3.1 < 6'
 
   algoliasearch@5.20.0:
     resolution: {integrity: sha512-groO71Fvi5SWpxjI9Ia+chy0QBwT61mg6yxJV27f5YFf+Mw+STT75K6SHySpP8Co5LsCrtsbCH5dJZSRtkSKaQ==}
@@ -1469,15 +1431,8 @@ packages:
     resolution: {integrity: sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==}
     engines: {node: '>=12.0.0'}
 
-  hogan.js@3.0.2:
-    resolution: {integrity: sha512-RqGs4wavGYJWE07t35JQccByczmNUXQT0E12ZYV1VKYu5UiAU9lsos/yBAcf840+zrUQQxgVduCR5/B8nNtibg==}
-    hasBin: true
-
   hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
-
-  htm@3.1.1:
-    resolution: {integrity: sha512-983Vyg8NwUE7JkZ6NmOqpCZ+sh1bKv2iYTlUkzlWmA5JD2acKoxd4KVxbMmxX/85mtfdnDmTFoNKcg5DGAvxNQ==}
 
   ignore@5.3.1:
     resolution: {integrity: sha512-5Fytz/IraMjqpwfd34ke28PTVMjZjJG2MPn5t7OE4eUCUNf8BAa7b5WUS9/Qvr6mwOQS7Mk6vdsMno5he+T8Xw==}
@@ -1504,21 +1459,8 @@ packages:
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
 
-  instantsearch-ui-components@0.11.1:
-    resolution: {integrity: sha512-ZqUbJYYgObQ47J08ftXV1KNC1vdEoiD4/49qrkCdW46kRzLxLgYXJGuEuk48DQwK4aBtIoccgTyfbMGfcqNjxg==}
-
   instantsearch.css@8.5.1:
     resolution: {integrity: sha512-lu4gWSa2crIA1OAuFwtrNJy4d8oRvKmkY5gv8Dbf3tuedQMm6cf7K+1kXJKRAHLm4pZos9RXIH10m57UfDKbyg==}
-
-  instantsearch.js@4.77.3:
-    resolution: {integrity: sha512-nlNDHpRa15lXw6HEzCyEtickhRZOzmWXiLuhlfRazC/LjqbmmfE2ZMfGUp8YMeLIrP9i4HuK02/+esd2MsnrKA==}
-    peerDependencies:
-      algoliasearch: '>= 3.1 < 6'
-
-  instantsearch.js@4.78.3:
-    resolution: {integrity: sha512-0i7vyX9jHEIKSfhu+CZHL/ySnbMAe7e98YUJiZX5D7AiXo2WvAPbnV/3CXIPR0whNWOXKGvlv7Ji7Pt4Yrn+Aw==}
-    peerDependencies:
-      algoliasearch: '>= 3.1 < 6'
 
   internal-slot@1.0.7:
     resolution: {integrity: sha512-NGnrKwXzSms2qUUih/ILZ5JBqNTSa1+ZmP6flaIp6KmSElgE9qdndzS3cqjrDovwFdmwsGsLdeFgB6suw+1e9g==}
@@ -1749,13 +1691,6 @@ packages:
   minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
 
-  mitt@2.1.0:
-    resolution: {integrity: sha512-ILj2TpLiysu2wkBbWjAmww7TkZb65aiQO+DkVdUTBpBXq+MHYiETENkKFMtsJZX1Lf4pe4QOrTSjIfUwN5lRdg==}
-
-  mkdirp@0.3.0:
-    resolution: {integrity: sha512-OHsdUcVAQ6pOtg5JYWpCBo9W/GySVuwvP9hueRMW7UqshC0tbfzLv8wjySTPm3tfUZ/21CE9E1pJagOA91Pxew==}
-    deprecated: Legacy versions of mkdirp are no longer supported. Please update to mkdirp 1.x. (Note that the API surface has changed to use Promises in 1.x.)
-
   mlly@1.7.4:
     resolution: {integrity: sha512-qmdSIPC4bDJXgZTCR7XosJiNKySV7O215tsPtDN9iEO/7q/76b/ijtgRu/+epFXSJhijtTCCGp3DWS549P3xKw==}
 
@@ -1778,10 +1713,6 @@ packages:
 
   node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
-
-  nopt@1.0.10:
-    resolution: {integrity: sha512-NWmpvLSqUrgrAC9HCuxEvb+PSloHpqVu+FqcO4eeF2h5qYRhA7ev6KvelyQAKtegUbC6RypJnlEOhd8vloNKYg==}
-    hasBin: true
 
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
@@ -1912,9 +1843,6 @@ packages:
     resolution: {integrity: sha512-OCVPnIObs4N29kxTjzLfUryOkvZEq+pf8jTF0lg8E7uETuWHA+v7j3c/xJmiqpX450191LlmZfUKkXxkTry7nA==}
     engines: {node: ^10 || ^12 || >=14}
 
-  preact@10.24.0:
-    resolution: {integrity: sha512-aK8Cf+jkfyuZ0ZZRG9FbYqwmEiGQ4y/PUO4SuTWoyWL244nZZh7bd5h2APd4rSNDYTBNghg1L+5iJN3Skxtbsw==}
-
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
@@ -1949,10 +1877,6 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
-  qs@6.9.7:
-    resolution: {integrity: sha512-IhMFgUmuNpyRfxA90umL7ByLlgRXu6tIfKPpF5TmcfRLlLCckfP/g3IQmju6jjpu+Hh8rA+2p6A27ZSPOOHdKw==}
-    engines: {node: '>=0.6'}
-
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
@@ -1984,9 +1908,6 @@ packages:
   readdirp@4.1.1:
     resolution: {integrity: sha512-h80JrZu/MHUZCyHu5ciuoI0+WxsCxzxJTILn6Fs8rxSnFPh+UVHYfeIxK1nVGugMqkfC4vJcBOYbkfkwYK0+gw==}
     engines: {node: '>= 14.18.0'}
-
-  regenerator-runtime@0.14.1:
-    resolution: {integrity: sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==}
 
   regexp.prototype.flags@1.5.2:
     resolution: {integrity: sha512-NcDiDkTLuPR+++OCKB0nWafEmhg/Da8aUPLPMQbK+bxKKCm1/S5he+AqYa4PlMCVBalb4/yxIRub6qkEx5yJbw==}
@@ -2178,9 +2099,6 @@ packages:
 
   scule@1.3.0:
     resolution: {integrity: sha512-6FtHJEvt+pVMIB9IBY+IcCJ6Z5f1iQnytgyfKMhDKgmzYG+TeH/wx1y3l27rshSbLiSanrR9ffZDrEsmjlQF2g==}
-
-  search-insights@2.17.2:
-    resolution: {integrity: sha512-zFNpOpUO+tY2D85KrxJ+aqwnIfdEGi06UH2+xEb+Bp9Mwznmauqc9djbnBibJO5mpfUPPa8st6Sx65+vbeO45g==}
 
   seedrandom@3.0.5:
     resolution: {integrity: sha512-8OwmbklUNzwezjGInmZ+2clQmExQPvomqjL7LFqOYqtmuxRgQYqOD3mHaU+MvZn5FLUeVxVfQjwLZW/n/JFuqg==}
@@ -2502,19 +2420,6 @@ packages:
     peerDependencies:
       eslint: '>=6.0.0'
 
-  vue-instantsearch@4.20.4:
-    resolution: {integrity: sha512-/Zx3uHNsUkbRBnIAQBScM8SiedIuoFzgjOzBZ8ZF656mfa0i1KGnGoBfxjXRIaBIoq27opDoyuMlnpMevalx5A==}
-    peerDependencies:
-      '@vue/server-renderer': ^3.1.2
-      algoliasearch: '>= 3.32.0 < 6'
-      vue: ^2.6.0 || >=3.0.0-rc.0
-      vue-server-renderer: ^2.6.11
-    peerDependenciesMeta:
-      '@vue/server-renderer':
-        optional: true
-      vue-server-renderer:
-        optional: true
-
   vue-router@4.5.0:
     resolution: {integrity: sha512-HDuk+PuH5monfNuY+ct49mNmkCRK4xJAV9Ts4z9UFc4rzdDnxQLyCMGGc8pKhZhHTVzfanpNwB/lwqevcBwI4w==}
     peerDependencies:
@@ -2648,8 +2553,6 @@ snapshots:
       '@algolia/requester-fetch': 5.20.0
       '@algolia/requester-node-http': 5.20.0
 
-  '@algolia/events@4.0.1': {}
-
   '@algolia/ingestion@1.20.0':
     dependencies:
       '@algolia/client-common': 5.20.0
@@ -2692,10 +2595,6 @@ snapshots:
   '@babel/parser@7.26.5':
     dependencies:
       '@babel/types': 7.26.5
-
-  '@babel/runtime@7.25.6':
-    dependencies:
-      regenerator-runtime: 0.14.1
 
   '@babel/types@7.26.5':
     dependencies:
@@ -3012,13 +2911,7 @@ snapshots:
 
   '@rtsao/scc@1.1.0': {}
 
-  '@types/dom-speech-recognition@0.0.1': {}
-
   '@types/estree@1.0.6': {}
-
-  '@types/google.maps@3.58.0': {}
-
-  '@types/hogan.js@3.0.5': {}
 
   '@types/json-schema@7.0.15': {}
 
@@ -3030,8 +2923,6 @@ snapshots:
     dependencies:
       undici-types: 5.26.5
     optional: true
-
-  '@types/qs@6.9.16': {}
 
   '@types/trusted-types@2.0.7':
     optional: true
@@ -3178,8 +3069,6 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  abbrev@1.1.1: {}
-
   acorn-jsx@5.3.2(acorn@8.12.1):
     dependencies:
       acorn: 8.12.1
@@ -3198,16 +3087,6 @@ snapshots:
       fast-json-stable-stringify: 2.1.0
       json-schema-traverse: 0.4.1
       uri-js: 4.4.1
-
-  algoliasearch-helper@3.24.1(algoliasearch@5.20.0):
-    dependencies:
-      '@algolia/events': 4.0.1
-      algoliasearch: 5.20.0
-
-  algoliasearch-helper@3.25.0(algoliasearch@5.20.0):
-    dependencies:
-      '@algolia/events': 4.0.1
-      algoliasearch: 5.20.0
 
   algoliasearch@5.20.0:
     dependencies:
@@ -3964,14 +3843,7 @@ snapshots:
 
   highlight.js@11.11.1: {}
 
-  hogan.js@3.0.2:
-    dependencies:
-      mkdirp: 0.3.0
-      nopt: 1.0.10
-
   hookable@5.5.3: {}
-
-  htm@3.1.1: {}
 
   ignore@5.3.1: {}
 
@@ -3990,43 +3862,7 @@ snapshots:
 
   inherits@2.0.4: {}
 
-  instantsearch-ui-components@0.11.1:
-    dependencies:
-      '@babel/runtime': 7.25.6
-
   instantsearch.css@8.5.1: {}
-
-  instantsearch.js@4.77.3(algoliasearch@5.20.0):
-    dependencies:
-      '@algolia/events': 4.0.1
-      '@types/dom-speech-recognition': 0.0.1
-      '@types/google.maps': 3.58.0
-      '@types/hogan.js': 3.0.5
-      '@types/qs': 6.9.16
-      algoliasearch: 5.20.0
-      algoliasearch-helper: 3.24.1(algoliasearch@5.20.0)
-      hogan.js: 3.0.2
-      htm: 3.1.1
-      instantsearch-ui-components: 0.11.1
-      preact: 10.24.0
-      qs: 6.9.7
-      search-insights: 2.17.2
-
-  instantsearch.js@4.78.3(algoliasearch@5.20.0):
-    dependencies:
-      '@algolia/events': 4.0.1
-      '@types/dom-speech-recognition': 0.0.1
-      '@types/google.maps': 3.58.0
-      '@types/hogan.js': 3.0.5
-      '@types/qs': 6.9.16
-      algoliasearch: 5.20.0
-      algoliasearch-helper: 3.25.0(algoliasearch@5.20.0)
-      hogan.js: 3.0.2
-      htm: 3.1.1
-      instantsearch-ui-components: 0.11.1
-      preact: 10.24.0
-      qs: 6.9.7
-      search-insights: 2.17.2
 
   internal-slot@1.0.7:
     dependencies:
@@ -4250,10 +4086,6 @@ snapshots:
 
   minimist@1.2.8: {}
 
-  mitt@2.1.0: {}
-
-  mkdirp@0.3.0: {}
-
   mlly@1.7.4:
     dependencies:
       acorn: 8.14.0
@@ -4273,10 +4105,6 @@ snapshots:
 
   node-addon-api@7.1.1:
     optional: true
-
-  nopt@1.0.10:
-    dependencies:
-      abbrev: 1.1.1
 
   normalize-path@3.0.0: {}
 
@@ -4400,8 +4228,6 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  preact@10.24.0: {}
-
   prelude-ls@1.2.1: {}
 
   prettydiff@101.2.6:
@@ -4438,8 +4264,6 @@ snapshots:
       dijkstrajs: 1.0.3
       pngjs: 5.0.0
       yargs: 15.4.1
-
-  qs@6.9.7: {}
 
   queue-microtask@1.2.3: {}
 
@@ -4478,8 +4302,6 @@ snapshots:
       picomatch: 2.3.1
 
   readdirp@4.1.1: {}
-
-  regenerator-runtime@0.14.1: {}
 
   regexp.prototype.flags@1.5.2:
     dependencies:
@@ -4661,8 +4483,6 @@ snapshots:
       loose-envify: 1.4.0
 
   scule@1.3.0: {}
-
-  search-insights@2.17.2: {}
 
   seedrandom@3.0.5: {}
 
@@ -5028,16 +4848,6 @@ snapshots:
       semver: 7.6.3
     transitivePeerDependencies:
       - supports-color
-
-  vue-instantsearch@4.20.4(@vue/server-renderer@3.5.13(vue@3.5.13(typescript@5.7.2)))(algoliasearch@5.20.0)(vue@3.5.13(typescript@5.7.2)):
-    dependencies:
-      algoliasearch: 5.20.0
-      instantsearch-ui-components: 0.11.1
-      instantsearch.js: 4.77.3(algoliasearch@5.20.0)
-      mitt: 2.1.0
-      vue: 3.5.13(typescript@5.7.2)
-    optionalDependencies:
-      '@vue/server-renderer': 3.5.13(vue@3.5.13(typescript@5.7.2))
 
   vue-router@4.5.0(vue@3.5.13(typescript@5.7.2)):
     dependencies:
