@@ -328,12 +328,16 @@ export default {
         this.page = 0;
         this.commentList = [];
       }
+
       // 获取评论列表
       request({
-        url: `/comment/api/comment?path=${this.url}&page=${
-          this.page + 1
-        }&pageSize=${this.pageSize}&sortBy=${this.sorttext}`,
-
+        url: `/comment/api/comment`,
+        params: {
+          path: this.url,
+          page: this.page + 1,
+          pageSize: this.pageSize,
+          sortBy: this.sorttext,
+        },
         method: "get",
       }).then((res) => {
         //在数据末尾添加新数据

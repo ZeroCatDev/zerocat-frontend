@@ -5,37 +5,19 @@
         <ProjectBranchNav
           :username="$route.params.username"
           :projectname="$route.params.projectname"
-          :current-branch="player.branch"
-          :current-commit-id="player.commit.id"
+          :current-branch="$route.params.branch"
+          :current-commit-id="currentCommitId"
           :branches="projectbranchs"
           :branch-history="projectbranchhistory"
         />
 
         <ProjectPlayer
           :project-id="project.id"
-          :branch="player.branch"
-          :commit-id="player.commit.id"
+          :branch="$route.params.branch"
+          :commit-id="currentCommitId"
           :showplayer="showplayer"
         />
         <br />
-        <v-card>
-          <v-tabs v-model="tab" bg-color="primary">
-            <v-tab value="readme">README</v-tab>
-            <v-tab value="license">LICENSE</v-tab>
-          </v-tabs>
-
-          <v-card-text class="markdown-body">
-            <v-tabs-window v-model="tab">
-              <v-tabs-window-item value="readme">
-                <Markdown>{{ project.description }}</Markdown>
-              </v-tabs-window-item>
-
-              <v-tabs-window-item value="license">
-                <License :licenseKey="project.license || 'none'" />
-              </v-tabs-window-item>
-            </v-tabs-window>
-          </v-card-text>
-        </v-card>
       </v-col>
       <v-col xs="12" sm="12" md="4" lg="4" xl="4" xxl="8" cols="12">
         <ProjectInfoCard
@@ -46,16 +28,15 @@
         />
       </v-col>
       <v-col xxl="8" xl="8" lg="8" md="8" sm="12" xs="12" cols="12">
-        <Comment :url="'project-' + project.id" name="项目"></Comment>
+        <Comment :url="'project-' + project.id+'#'+$route.params.branch" :name="` ${project.title} 的分支：${$route.params.branch} `"></Comment>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-import { use404Helper } from '@/composables/use404';
+import { use404Helper } from "@/composables/use404";
 import { localuser } from "@/services/localAccount";
-import Comment from "@/components/Comment.vue";
 import { useHead } from "@unhead/vue";
 import {
   getProjectInfoByNamespace,
@@ -64,18 +45,12 @@ import {
   getBranchHistoryByCommit,
 } from "@/services/projectService";
 import { getUserById } from "@/stores/user.js";
-import Markdown from "@/components/Markdown.vue";
-import License from "@/components/license/License.vue";
 import ProjectBranchNav from "@/components/project/ProjectBranchNav.vue";
 import ProjectPlayer from "@/components/project/ProjectPlayer.vue";
 import ProjectInfoCard from "@/components/project/ProjectInfoCard.vue";
-import "github-markdown-css";
 
 export default {
   components: {
-    Comment,
-    Markdown,
-    License,
     ProjectBranchNav,
     ProjectPlayer,
     ProjectInfoCard,
@@ -85,31 +60,26 @@ export default {
       project: {},
       author: {},
       localuser,
-      tab: "readme",
       projectbranchs: [],
       projectbranchhistory: [],
       showplayer: true,
-      player: {
-        branch: "main",
-        commit: {
-          id: "latest",
-        },
-        latest_commit_hash: "latest",
-      },
+      currentCommitId: "",
       initProject,
     };
   },
   async mounted() {
-    this.initlizeProject();
+    await this.initlizeProject();
   },
   methods: {
     async initlizeProject() {
       const username = this.$route.params.username;
       const projectname = this.$route.params.projectname;
+      const branch = this.$route.params.branch;
 
       // 遗留问题
-      if (this.$route.params.username == "proxy") {
+      if (username === "proxy") {
         this.$router.replace(`/app${this.$route.path}`);
+        return;
       }
 
       // 获取云端数据
@@ -117,42 +87,53 @@ export default {
         username,
         projectname
       );
-      if (projectFromCloud.id == 0) {
+      if (projectFromCloud.id === 0) {
         use404Helper.show404();
         return;
       }
+
       this.project = projectFromCloud;
-      this.project.id = this.project.id; // 更新 projectid
-      if (this.project.default_branch == null) this.showplayer = false;
-      this.player.branch = this.project.default_branch;
+      if (this.project.default_branch == null) {
+        this.showplayer = false;
+        return;
+      }
+
       var res = await getBranchs(this.project.id);
-      if (res.data.length == 0) this.showplayer = false;
+      if (res.data.length === 0) {
+        this.showplayer = false;
+        return;
+      }
+
       this.projectbranchs = res.data;
       const currentBranch = this.projectbranchs.find(
-        (item) => item.name === this.player.branch
+        (item) => item.name === branch
       );
-      if (currentBranch) {
-        this.player.commit.id = currentBranch.latest_commit_hash;
-        this.player.latest_commit_hash = currentBranch.latest_commit_hash;
+
+      if (!currentBranch) {
+        use404Helper.show404();
+        return;
       }
+
+      this.currentCommitId = currentBranch.latest_commit_hash;
       this.loadBranchHistory();
-      useHead({ title: this.project.title });
+
+      useHead({ title: `${this.project.title} at ${branch}` });
       this.author = await getUserById(this.project.authorid);
     },
     async loadBranchHistory() {
       const res = await getBranchHistoryByCommit(
         this.project.id,
-        this.player.latest_commit_hash
+        this.currentCommitId
       );
       this.projectbranchhistory = res;
     },
   },
   watch: {
-    player: {
-      handler: function (newVal, oldVal) {
-        this.loadBranchHistory();
+    "$route.params.branch": {
+      handler: async function (newBranch) {
+        await this.initlizeProject();
       },
-      deep: true,
+      immediate: true,
     },
   },
 };

@@ -157,3 +157,28 @@ export const getBranchHistoryByCommit = async (projectId, commitid) => {
   return getCommitHistory(commitid);
 };
 
+export const createBranch = async (projectId, branchName, sourceBranch) => {
+  const response = await request({
+    url: `/project/branches`,
+    method: "post",
+    data: {
+      projectid: projectId,
+      name: branchName,
+      branch: sourceBranch,
+    },
+  });
+  return response.data;
+};
+
+export const deleteBranch = async (projectId, branchName) => {
+  const response = await request({
+    url: `/project/branches`,
+    method: "delete",
+    data: {
+      projectid: projectId,
+      branch: branchName,
+    },
+  });
+  return response.data;
+};
+
