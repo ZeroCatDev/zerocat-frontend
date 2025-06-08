@@ -46,7 +46,7 @@
             系统
           </v-chip>
           <v-spacer></v-spacer>
-          <v-menu v-if="!item.fromSystem">
+          <v-menu>
             <template v-slot:activator="{ props }">
               <v-btn
                 icon="mdi-dots-vertical"
@@ -67,14 +67,6 @@
                 prepend-icon="mdi-content-copy"
               >
                 <v-list-item-title>复制值</v-list-item-title>
-              </v-list-item>
-              <v-divider></v-divider>
-              <v-list-item
-                @click="confirmDelete(item)"
-                prepend-icon="mdi-delete"
-                color="error"
-              >
-                <v-list-item-title>删除</v-list-item-title>
               </v-list-item>
             </v-list>
           </v-menu>
@@ -330,33 +322,6 @@
         </div>
       </v-col>
     </v-row>
-
-    <!-- 删除确认对话框 -->
-    <v-dialog v-model="showDeleteDialog" max-width="400">
-      <v-card>
-        <v-card-title>确认删除配置项？</v-card-title>
-        <v-card-text>
-          确定要删除配置项 "{{ deleteItem?.description || deleteItem?.key }}" 吗？此操作不可恢复。
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="primary"
-            variant="text"
-            @click="showDeleteDialog = false"
-          >
-            取消
-          </v-btn>
-          <v-btn
-            color="error"
-            variant="text"
-            @click="deleteConfig"
-          >
-            确认删除
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-container>
 </template>
 
@@ -374,18 +339,13 @@ const props = defineProps({
 });
 
 const emit = defineEmits([
-  "refresh",
-  "validation-error",
-  "save-error",
-  "delete"
+  "save-error"
 ]);
 
 // 本地状态
 const localValues = ref({});
 const initialValues = ref({});
 const savingItems = ref({});
-const showDeleteDialog = ref(false);
-const deleteItem = ref(null);
 const newArrayItem = ref('');
 
 // Add draggable component registration
@@ -576,20 +536,6 @@ const resetToDefault = (item) => {
   localValues.value[item.key] = JSON.parse(JSON.stringify(defaultValue));
 };
 
-// 确认删除配置项
-const confirmDelete = (item) => {
-  deleteItem.value = item;
-  showDeleteDialog.value = true;
-};
-
-// 删除配置项
-const deleteConfig = () => {
-  if (!deleteItem.value) return;
-  emit("delete", deleteItem.value.key);
-  showDeleteDialog.value = false;
-  deleteItem.value = null;
-};
-
 // 复制到剪贴板
 const copyToClipboard = async (value) => {
   let textToCopy = value;
@@ -607,7 +553,6 @@ const copyToClipboard = async (value) => {
 
   try {
     await navigator.clipboard.writeText(textToCopy);
-    // 可以添加一个提示，但由于操作很快，可能不需要
   } catch (err) {
     // 如果剪贴板API不可用，使用传统方法
     const textarea = document.createElement('textarea');

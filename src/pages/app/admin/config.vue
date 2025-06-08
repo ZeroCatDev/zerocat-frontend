@@ -18,7 +18,6 @@
         <config-item-group
           :configs="configs"
           @save-error="handleSaveError"
-          @delete="handleDelete"
         />
       </v-card-text>
     </v-card>
@@ -66,18 +65,6 @@ const loadConfigs = async () => {
 const handleSaveError = (key) => {
   const config = configs.value.find(c => c.key === key)
   showError(`保存 ${config?.description || key} 失败`)
-}
-
-const handleDelete = async (key) => {
-  try {
-    const result = await axios.delete(`/admin/config/${key}`)
-    if (result.status === 200) {
-      showSuccess('删除配置成功')
-      loadConfigs()
-    }
-  } catch (error) {
-    showError('删除配置失败')
-  }
 }
 
 const showSuccess = (text) => {
