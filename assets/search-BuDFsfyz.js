@@ -1,1 +1,0 @@
-import{_ as t,ei as e,Y as n,o as a,N as s,e as c,T as r,M as _}from"./index-jkuXz66S.js";const p={components:{SearchComponent:e},setup(){_({title:"搜索 - ZeroCat"})}};function u(i,l,m,d,f,h){const o=e;return a(),n(r,null,{default:s(()=>[c(o)]),_:1})}const x=t(p,[["render",u]]);export{x as default};
