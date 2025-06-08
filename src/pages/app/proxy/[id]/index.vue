@@ -67,6 +67,17 @@
                 >{{ project.history.shared }}公开</v-chip
               >
             </v-card-item>
+            <v-card-item v-if="project.project_tags && project.project_tags.length > 0">
+              <v-chip
+                v-for="tag in project.project_tags"
+                :key="tag.id"
+                class="ma-1"
+                pill
+                prepend-icon="mdi-tag"
+              >
+                {{ tag.name }}
+              </v-chip>
+            </v-card-item>
           </v-card-list>
 
           <div class="px-4 d-flex ga-2 mb-2">
@@ -233,6 +244,7 @@ export default {
           root: null,
         },
         project_token: "",
+        project_tags: [],
       },
       parentProject: null,
       rootProject: null,
