@@ -20,7 +20,7 @@
         </p>
       </v-col>
     </v-row>
-    <show-projects :projectIds="projectIds"></show-projects>
+    <show-projects :projects="projects" :show-author="true"></show-projects>
     <br />
     <v-pagination
       v-if="hasTotalCount"
@@ -47,9 +47,9 @@ export default {
   },
   data() {
     return {
-      projectIds: [],
+      projects: [],
       page: 1,
-      limit: 16,
+      limit: 20,
       totalPage: 1,
       totalCount: 0,
       loading: false,
@@ -69,16 +69,13 @@ export default {
         const response = (await request.get(
           `${this.url}&curr=${this.page}&limit=${this.limit}`
         )).data;
-       // this.projectIds = response.projects;
-       // this.totalCount = response.totalCount;
-       // this.totalPage = Math.ceil(this.totalCount / this.limit);
 
         if (response.totalCount) {
-          this.projectIds = response.projects;
+          this.projects = response.projects;
           this.totalCount = response.totalCount;
           this.totalPage = Math.ceil(this.totalCount / this.limit);
         } else {
-          this.projectIds = [...this.projectIds, ...response.projects];
+          this.projects = [...this.projects, ...response.projects];
         }
       } catch (error) {
         console.error("Failed to fetch projects:", error);

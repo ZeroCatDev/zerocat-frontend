@@ -112,12 +112,18 @@ export default {
     getProjectLink() {
       if (!this.project) return '';
 
-      // 如果有项目名称和作者信息，使用 /:username/:projectname 路由
-      if (this.project.name && this.project.author?.username) {
+      // 确保有作者信息和项目名称
+      if (this.project.author?.username && this.project.name) {
         return `/${this.project.author.username}/${this.project.name}`;
       }
 
-      return `/app/link/project?id=${this.project.id}`;
+      // 如果没有作者信息或项目名称，则使用项目ID作为名称
+      if (this.project.author?.username) {
+        return `/${this.project.author.username}/${this.project.id}`;
+      }
+
+      // 如果连作者信息都没有，则返回空链接
+      return '';
     },
 
     async fetchProject(id) {

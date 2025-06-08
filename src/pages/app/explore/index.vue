@@ -117,7 +117,7 @@ export default {
         authorid: "",
         state: "public",
         tag: "",
-        limit: 20,
+        limit: 40,
       },
       showAdvancedSearch: false,
       typeitems: [
@@ -157,7 +157,7 @@ export default {
         authorid: "",
         state: "public",
         tag: "",
-        limit: 20,
+        limit: 40,
       };
       this.onPageChange();
     },

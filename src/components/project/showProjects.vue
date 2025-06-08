@@ -21,7 +21,6 @@
 </template>
 
 <script>
-import { getProjectInfo } from "@/services/projectService";
 import ProjectCard from "./ProjectCard.vue";
 
 export default {
@@ -29,52 +28,14 @@ export default {
     ProjectCard
   },
   props: {
-    projectIds: {
+    projects: {
       type: Array,
       required: true,
+      default: () => []
     },
     showAuthor: {
       type: Boolean,
       default: false
-    }
-  },
-  data() {
-    return {
-      projects: [],
-      loading: false,
-      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
-    };
-  },
-  watch: {
-    projectIds: {
-      handler() {
-        this.loadData();
-      },
-      immediate: true,
-      deep: true,
-    }
-  },
-  methods: {
-    async loadData() {
-      this.loading = true;
-
-      try {
-        // 加载项目数据（作者信息包含在项目数据中）
-        await this.fetchProjects();
-      } catch (error) {
-        console.error("Failed to load data:", error);
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async fetchProjects() {
-      try {
-        this.projects = await getProjectInfo(this.projectIds);
-      } catch (error) {
-        console.error("Failed to fetch projects:", error);
-        this.projects = [];
-      }
     }
   }
 };

@@ -7,8 +7,10 @@
     <div class="px-4 d-flex ga-2 mb-2">
       <v-chip pill>
         <v-avatar start>
-          <v-img :src="VITE_APP_S3_BUCKET + '/user/' + author.images"></v-img>
-        </v-avatar>{{ author.display_name }}
+          <v-img
+            :src="VITE_APP_S3_BUCKET + '/user/' + author.images"
+          ></v-img> </v-avatar
+        >{{ author.display_name }}
       </v-chip>
     </div>
     <div class="px-4 d-flex ga-2 mb-2">
@@ -18,8 +20,17 @@
       </v-chip>
     </div>
     <div class="px-4 d-flex ga-2 mb-2">
-      <v-chip pill prepend-icon="mdi-xml" v-if="project.state == 'public'">开源作品</v-chip>
-      <v-chip pill prepend-icon="mdi-xml" v-if="project.state == 'private'">私密作品</v-chip>
+      <v-chip pill prepend-icon="mdi-xml" v-if="project.state == 'public'"
+        >开源作品</v-chip
+      >
+      <v-chip
+        pill
+        prepend-icon="mdi-xml"
+        v-if="project.state == 'private'"
+        color="red"
+        variant="outlined"
+        >私密作品</v-chip
+      >
       <v-chip pill prepend-icon="mdi-application">{{ project.type }}</v-chip>
     </div>
     <div class="px-4 d-flex ga-2 mb-2">
@@ -31,8 +42,12 @@
       <ProjectStar :projectId="project.id" :starcount="project.star_count" />
     </div>
     <div class="px-4 d-flex ga-2 mb-2">
-      <v-btn @click="openEditor(project.id, project.type)" variant="text">打开创造页</v-btn>
-      <v-btn :to="`/${username}/${projectname}/edit`" variant="text">编辑源文件</v-btn>
+      <v-btn @click="openEditor(project.id, project.type)" variant="text"
+        >打开创造页</v-btn
+      >
+      <v-btn :to="`/${username}/${projectname}/edit`" variant="text"
+        >编辑源文件</v-btn
+      >
     </div>
     <div class="px-4">
       <ProjectAuthorCard :author="author" />
@@ -48,35 +63,35 @@ import ProjectAuthorCard from "@/components/project/ProjectAuthorCard.vue";
 import openEditor from "@/stores/openEdit";
 
 export default {
-  name: 'ProjectInfoCard',
+  name: "ProjectInfoCard",
   components: {
     TimeAgo,
     ProjectStar,
-    ProjectAuthorCard
+    ProjectAuthorCard,
   },
   props: {
     project: {
       type: Object,
-      required: true
+      required: true,
     },
     author: {
       type: Object,
-      required: true
+      required: true,
     },
     username: {
       type: String,
-      required: true
+      required: true,
     },
     projectname: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
       openEditor,
       VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
-    }
-  }
-}
+    };
+  },
+};
 </script>
