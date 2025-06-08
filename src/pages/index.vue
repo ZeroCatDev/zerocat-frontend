@@ -684,6 +684,7 @@ const footerLinks = [
     links: [
       { text: "Telegram", href: "https://t.me/zerocatdev" },
       { text: "QQ", href: "https://qm.qq.com/q/W4YRztB94q" },
+      { text: "Discord", href: "https://discord.gg/YmW2JWnbdy" },
     ],
   },
   {
@@ -701,7 +702,7 @@ const socialLinks = [
   { icon: "mdi-airplane", link: "https://t.me/zerocatdev" },
 
   { icon: "mdi-youtube", link: "https://www.youtube.com/@sunwuyuan" },
-  { icon: "mdi-discord", link: "#" },
+  { icon: "mdi-discord", link: "https://discord.gg/YmW2JWnbdy" },
 ];
 
 // 合作伙伴
