@@ -57,7 +57,7 @@
               >
                 浏览作品
               </v-btn>
-              <v-btn variant="outlined"> 了解详情 </v-btn>
+              <v-btn variant="outlined" href="https://langs.ink/article/houlangs/" target="_blank"> 了解更多 </v-btn>
             </div>
 
             <v-chip
@@ -680,6 +680,13 @@ const footerLinks = [
     ],
   },
   {
+    title: "社群",
+    links: [
+      { text: "Telegram", href: "https://t.me/zerocatdev" },
+      { text: "QQ", href: "https://qm.qq.com/q/W4YRztB94q" },
+    ],
+  },
+  {
     title: "友情链接",
     links: [
       { text: "LINUX DO", href: "https://linux.do" },
@@ -691,6 +698,8 @@ const footerLinks = [
 const socialLinks = [
   { icon: "mdi-github", link: "https://github.com/zerocatdev" },
   { icon: "mdi-twitter", link: "https://x.com/wuyuandev" },
+  { icon: "mdi-airplane", link: "https://t.me/zerocatdev" },
+
   { icon: "mdi-youtube", link: "https://www.youtube.com/@sunwuyuan" },
   { icon: "mdi-discord", link: "#" },
 ];
