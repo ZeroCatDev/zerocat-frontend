@@ -1,17 +1,83 @@
 <template>
   <v-container class="pa-0">
-    <v-row v-for="item in items" :key="item.key" class="mb-4">
+    <v-row v-for="item in Array.from(new Set(configs.map(c => c.key))).map(key => configs.find(c => c.key === key))" :key="item.key" class="mb-4">
+
       <v-col cols="12">
         <div class="d-flex align-center mb-2">
-          <span class="text-subtitle-1">{{ item.description }}</span>
+          <span class="text-subtitle-1">{{ item.description||item.key }}</span>
           <v-chip
             v-if="isItemEdited(item)"
             color="warning"
             size="small"
             class="ml-2"
           >
-            未保存的修改
+            未保存
           </v-chip>
+          <v-chip
+            v-else-if="isDifferentFromDefault(item)"
+            color="info"
+            size="small"
+            class="ml-2"
+          >
+            已修改
+          </v-chip>
+          <v-chip
+            v-if="item.public"
+            color="success"
+            size="small"
+            class="ml-2"
+          >
+            公开
+          </v-chip>
+          <v-chip
+            v-if="item.required"
+            color="error"
+            size="small"
+            class="ml-2"
+          >
+            必填
+          </v-chip>
+          <v-chip
+            v-if="item.fromSystem"
+            color="primary"
+            size="small"
+            class="ml-2"
+          >
+            系统
+          </v-chip>
+          <v-spacer></v-spacer>
+          <v-menu v-if="!item.fromSystem">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                icon="mdi-dots-vertical"
+                size="small"
+                variant="text"
+                v-bind="props"
+              />
+            </template>
+            <v-list>
+              <v-list-item
+                @click="copyToClipboard(item.key)"
+                prepend-icon="mdi-key"
+              >
+                <v-list-item-title>复制键名</v-list-item-title>
+              </v-list-item>
+              <v-list-item
+                @click="copyToClipboard(localValues[item.key])"
+                prepend-icon="mdi-content-copy"
+              >
+                <v-list-item-title>复制值</v-list-item-title>
+              </v-list-item>
+              <v-divider></v-divider>
+              <v-list-item
+                @click="confirmDelete(item)"
+                prepend-icon="mdi-delete"
+                color="error"
+              >
+                <v-list-item-title>删除</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
         </div>
 
         <div class="d-flex align-center">
@@ -36,213 +102,119 @@
                   v-if="isItemEdited(item)"
                   color="success"
                   size="small"
+                  variant="tonal"
                   @click="saveItem(item)"
                   :loading="savingItems[item.key]"
                   icon="mdi-check"
-                />
+                >
+                </v-btn>
                 <v-btn
                   v-if="isItemEdited(item)"
                   color="error"
                   size="small"
-                  icon="mdi-refresh"
+                  icon="mdi-close"
                   @click="revertEdit(item)"
-                />
+                  variant="tonal"
+                >
+                </v-btn>
+                <v-btn
+                  v-if="isDifferentFromDefault(item) && !isItemEdited(item)"
+                  color="warning"
+                  size="small"
+                  icon="mdi-refresh"
+                  variant="tonal"
+                  @click="resetToDefault(item)"
+                >
+                </v-btn>
               </template>
             </v-text-field>
 
             <!-- 数组类型 -->
             <div v-else-if="item.type === 'array'" class="array-editor">
-              <v-card variant="outlined">
-                <v-toolbar density="compact" color="primary">
-                  <v-toolbar-title class="text-subtitle-2"
-                    >列表</v-toolbar-title
-                  >
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    color="primary"
-                    variant="text"
-                    prepend-icon="mdi-plus"
+
+              <!-- 数组项显示 -->
+              <div class="d-flex flex-wrap gap-2 mb-2">
+                <template v-if="localValues[item.key]?.length">
+                  <v-chip
+                    v-for="(value, index) in localValues[item.key]"
+                    :key="index"
+                    closable
                     size="small"
-                    @click="addArrayItem(item)"
+                    @click:close="handleArrayItemRemove(item, index)"
                   >
-                    添加项目
-                  </v-btn>
-                </v-toolbar>
-
-                <v-list v-if="localValues[item.key]?.length" class="pa-2">
-                  <div class="d-flex align-center mb-2">
-                    <div class="text-caption text-grey">
-                      共 {{ localValues[item.key].length }} 项
-                    </div>
-                    <v-spacer></v-spacer>
-                    <v-btn
-                      color="primary"
-                      variant="text"
-                      density="comfortable"
-                      size="small"
-                      prepend-icon="mdi-plus"
-                      @click="addArrayItem(item, 0)"
-                      class="mr-2"
-                    >
-                      在顶部添加
-                    </v-btn>
-                    <v-btn
-                      color="primary"
-                      variant="text"
-                      density="comfortable"
-                      size="small"
-                      prepend-icon="mdi-plus"
-                      @click="addArrayItem(item)"
-                    >
-                      在底部添加
-                    </v-btn>
-                  </div>
-
-                  <draggable
-                    v-model="localValues[item.key]"
-                    item-key="id"
-                    handle=".handle"
-                    @change="
-                      () => handleUpdate(item.key, localValues[item.key])
-                    "
-                    tag="div"
-                    class="rounded-lg"
-                  >
-                    <template #item="{ element, index }">
-                      <div>
-                        <v-hover v-slot="{ isHovering, props }">
-                          <v-list-item
-                            v-bind="props"
-                            :class="{ 'bg-blue-lighten-1': isHovering }"
-                            rounded="lg"
-                          >
-                            <template v-slot:prepend>
-                              <v-icon
-                                class="handle mr-2"
-                                :color="
-                                  isHovering ? 'primary' : 'primary-lighten-1'
-                                "
-                                icon="mdi-drag"
-                                size="small"
-                              >
-                                <v-tooltip activator="parent" location="top"
-                                  >拖拽排序</v-tooltip
-                                >
-                              </v-icon>
-                              <div class="text-grey-darken-1">
-                                {{ index + 1 }}.
-                              </div>
-                            </template>
-
-                            <v-text-field
-                              v-model="element.value"
-                              hide-details="auto"
-                              density="compact"
-                              variant="underlined"
-                              class="mx-2"
-                              placeholder="输入项目内容"
-                              @update:model-value="
-                                () =>
-                                  handleUpdate(item.key, localValues[item.key])
-                              "
-                            />
-
-                            <template v-slot:append>
-                              <div class="d-flex align-center">
-                                <v-btn
-                                  color="primary"
-                                  variant="text"
-                                  density="comfortable"
-                                  size="x-small"
-                                  icon="mdi-plus"
-                                  @click="addArrayItem(item, index + 1)"
-                                  class="mr-2"
-                                >
-                                  <v-tooltip activator="parent" location="top"
-                                    >在此项后添加</v-tooltip
-                                  >
-                                </v-btn>
-                                <v-btn
-                                  color="error"
-                                  variant="text"
-                                  density="comfortable"
-                                  size="small"
-                                  prepend-icon="mdi-delete"
-                                  @click="removeArrayItem(item, index)"
-                                >
-                                  删除
-                                </v-btn>
-                              </div>
-                            </template>
-                          </v-list-item>
-                        </v-hover>
-                        <v-divider
-                          v-if="index < localValues[item.key].length - 1"
-                          class="my-1"
-                        ></v-divider>
-                      </div>
-                    </template>
-                  </draggable>
-                </v-list>
-
-                <v-card-text v-else class="text-center text-grey py-4">
-                  <v-icon
-                    icon="mdi-format-list-text"
-                    size="large"
-                    color="grey-lighten-1"
-                    class="mb-2"
-                  />
-                  <div>暂无列表项</div>
+                    {{ value }}
+                  </v-chip>
+                </template>
+                <div v-else class="text-caption text-grey">
+                  暂无列表项
+                </div>
+              </div>
+              <v-text-field
+                v-model="newArrayItem"
+                variant="outlined"
+                density="comfortable"
+                hide-details="auto"
+                placeholder="输入新项目，多个项目用逗号分隔"
+                @keydown.enter="
+                  (e) => {
+                    handleArrayItemAdd(item, e.target.value);
+                    e.target.value = '';
+                    newArrayItem = '';
+                  }
+                "
+                :loading="savingItems[item.key]"
+              >
+                <template v-slot:append>
                   <v-btn
                     color="primary"
-                    variant="text"
-                    prepend-icon="mdi-plus"
-                    class="mt-2"
-                    @click="addArrayItem(item)"
+                    size="small"
+                    variant="tonal"
+                    @click="
+                      () => {
+                        handleArrayItemAdd(item, newArrayItem);
+                        newArrayItem = '';
+                      }
+                    "
+                    icon="mdi-plus"
                   >
-                    添加第一项
+
                   </v-btn>
-                </v-card-text>
-
-                <v-divider></v-divider>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
                   <v-btn
                     v-if="isItemEdited(item)"
                     color="success"
                     size="small"
-                    prepend-icon="mdi-check"
+                    variant="tonal"
                     @click="saveItem(item)"
                     :loading="savingItems[item.key]"
+                    icon="mdi-check"
                   >
-                    保存修改
                   </v-btn>
                   <v-btn
                     v-if="isItemEdited(item)"
                     color="error"
                     size="small"
-                    prepend-icon="mdi-close"
+                    icon="mdi-close"
                     @click="revertEdit(item)"
+                    variant="tonal"
                   >
-                    撤销修改
                   </v-btn>
                   <v-btn
                     v-if="isDifferentFromDefault(item) && !isItemEdited(item)"
                     color="warning"
                     size="small"
-                    prepend-icon="mdi-refresh"
+                    icon="mdi-refresh"
+                    variant="tonal"
                     @click="resetToDefault(item)"
                   >
-                    重置默认
                   </v-btn>
-                </v-card-actions>
-              </v-card>
+                </template>
+              </v-text-field>
+
             </div>
 
             <!-- 选择类型 -->
             <v-select
-              v-else-if="item.type === 'select'"
+              v-else-if="item.type === 'enum'"
               :model-value="localValues[item.key]"
               :items="item.options"
               variant="outlined"
@@ -326,46 +298,61 @@
           </div>
         </div>
 
-        <div class="d-flex mt-1" v-if="item.type !== 'array'">
-          <div class="text-caption text-grey">默认值: {{ item.default }}</div>
-          <div v-if="isItemEdited(item)" class="text-caption text-warning ml-4">
-            有未保存的修改
+        <div class="d-flex mt-1">
+          <div class="text-caption text-grey">
+            默认值:
+            <template v-if="item.type === 'array'">
+              <template v-if="item.default !== undefined && item.default !== null">
+                <v-chip
+                  v-for="(value, index) in item.default"
+                  :key="index"
+                  size="x-small"
+                  variant="flat"
+                  class="ml-1"
+                >
+                  {{ value }}
+                </v-chip>
+              </template>
+              <span v-else class="text-disabled">无</span>
+            </template>
+            <template v-else>
+              <span v-if="item.default !== undefined && item.default !== null">{{ item.default }}</span>
+              <span v-else class="text-disabled">无</span>
+            </template>
           </div>
-          <div
-            v-else-if="isDifferentFromDefault(item)"
-            class="text-caption ml-4"
-          >
-            已编辑
+          <v-spacer></v-spacer>
+          <div v-if="isItemEdited(item)" class="text-caption ">
+            点击 <v-icon size="x-small" icon="mdi-check" color="success" /> 保存修改
           </div>
+          <!--<div v-else-if="isDifferentFromDefault(item)" class="text-caption">
+            点击 <v-icon size="x-small" icon="mdi-refresh" color="warning" /> 恢复默认值
+          </div>-->
         </div>
       </v-col>
     </v-row>
 
-    <!-- 恢复默认值确认对话框 -->
-    <v-dialog v-model="showResetDialog" max-width="400">
+    <!-- 删除确认对话框 -->
+    <v-dialog v-model="showDeleteDialog" max-width="400">
       <v-card>
-        <v-card-title>确认恢复默认值？</v-card-title>
+        <v-card-title>确认删除配置项？</v-card-title>
         <v-card-text>
-          确定要将 "{{ resetItem?.description }}" 恢复为默认值 "{{
-            resetItem?.default
-          }}" 吗？
+          确定要删除配置项 "{{ deleteItem?.description || deleteItem?.key }}" 吗？此操作不可恢复。
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
             color="primary"
             variant="text"
-            @click="showResetDialog = false"
+            @click="showDeleteDialog = false"
           >
             取消
           </v-btn>
           <v-btn
             color="error"
             variant="text"
-            @click="resetToDefault"
-            :loading="savingItems[resetItem?.key]"
+            @click="deleteConfig"
           >
-            确认恢复
+            确认删除
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -379,26 +366,27 @@ import axios from "@/axios/axios";
 import draggable from "vuedraggable";
 
 const props = defineProps({
-  items: {
+  configs: {
     type: Array,
     required: true,
     default: () => [],
-  },
+  }
 });
 
 const emit = defineEmits([
-  "update",
   "refresh",
   "validation-error",
   "save-error",
+  "delete"
 ]);
 
 // 本地状态
 const localValues = ref({});
 const initialValues = ref({});
 const savingItems = ref({});
-const showResetDialog = ref(false);
-const resetItem = ref(null);
+const showDeleteDialog = ref(false);
+const deleteItem = ref(null);
+const newArrayItem = ref('');
 
 // Add draggable component registration
 const components = {
@@ -412,15 +400,16 @@ onMounted(() => {
 
 const initializeValues = () => {
   const values = {};
-  props.items.forEach((item) => {
+  // 使用 Set 来确保 key 的唯一性
+  const uniqueConfigs = Array.from(new Set(props.configs.map(c => c.key)))
+    .map(key => props.configs.find(c => c.key === key));
+
+  uniqueConfigs.forEach((item) => {
     if (item.type === "array") {
-      // 为数组项添加唯一ID
-      values[item.key] = (item.current_value || []).map((value) => ({
-        id: Date.now() + Math.random(),
-        value,
-      }));
+      // 数组类型保持数组形式
+      values[item.key] = item.value || [];
     } else {
-      values[item.key] = item.current_value;
+      values[item.key] = item.value;
     }
   });
   localValues.value = JSON.parse(JSON.stringify(values));
@@ -433,15 +422,9 @@ const isItemEdited = (item) => {
   const initialValue = initialValues.value[item.key];
 
   if (item.type === "array") {
-    if (!Array.isArray(currentValue) || !Array.isArray(initialValue))
-      return false;
+    if (!Array.isArray(currentValue) || !Array.isArray(initialValue)) return false;
     if (currentValue.length !== initialValue.length) return true;
-
-    // 比较每个数组项的值
-    return currentValue.some((curr, index) => {
-      const init = initialValue[index];
-      return !init || curr.value !== init.value;
-    });
+    return currentValue.some((value, index) => value !== initialValue[index]);
   }
 
   // 其他类型的比较保持不变
@@ -457,26 +440,22 @@ const isItemEdited = (item) => {
 // 检查是否与默认值不同
 const isDifferentFromDefault = (item) => {
   const currentValue = localValues.value[item.key];
+  const defaultValue = item.default;
 
   if (item.type === "array") {
-    if (!Array.isArray(currentValue) || !Array.isArray(item.default))
-      return true;
-    if (currentValue.length !== item.default.length) return true;
-
-    // 比较每个数组项的值
-    return currentValue.some(
-      (curr, index) => curr.value !== item.default[index]
-    );
+    if (!Array.isArray(currentValue) || !Array.isArray(defaultValue)) return true;
+    if (currentValue.length !== defaultValue.length) return true;
+    return currentValue.some((value, index) => value !== defaultValue[index]);
   }
 
   // 其他类型的比较保持不变
   if (item.type === "number") {
-    return Number(currentValue) !== Number(item.default);
+    return Number(currentValue) !== Number(defaultValue);
   }
   if (item.type === "boolean") {
-    return Boolean(currentValue) !== Boolean(item.default);
+    return Boolean(currentValue) !== Boolean(defaultValue);
   }
-  return currentValue !== item.default;
+  return currentValue !== defaultValue;
 };
 
 // 获取右侧图标
@@ -501,7 +480,27 @@ const handleAppendInnerClick = (item) => {
 
 const handleUpdate = (key, value) => {
   localValues.value[key] = value;
-  emit("update", key, value);
+};
+
+// 新增：处理数组项的添加
+const handleArrayItemAdd = (item, value) => {
+  if (!value) return;
+  if (!Array.isArray(localValues.value[item.key])) {
+    localValues.value[item.key] = [];
+  }
+
+  // 处理逗号分隔的输入
+  const values = value.split(',').map(v => v.trim()).filter(v => v);
+  values.forEach(v => {
+    if (!localValues.value[item.key].includes(v)) {
+      localValues.value[item.key].push(v);
+    }
+  });
+};
+
+// 新增：处理数组项的删除
+const handleArrayItemRemove = (item, index) => {
+  localValues.value[item.key].splice(index, 1);
 };
 
 // 保存单个配置项
@@ -509,38 +508,34 @@ const saveItem = async (item) => {
   savingItems.value[item.key] = true;
 
   try {
-    const value =
-      item.type === "array"
-        ? localValues.value[item.key].map((item) => item.value)
-        : localValues.value[item.key];
+    const result = await axios.put(`/admin/config/${item.key}`, {
+      type: item.type,
+      value: localValues.value[item.key],
+      description: item.description,
+      default: item.default,
+      public: item.public,
+      required: item.required,
+      options: item.options
+    });
 
-    const { data } = await axios.put(`/admin/config/${item.key}`, { value });
+    if (result.status === 200) {
+      // 更新初始值，但不触发完整刷新
+      initialValues.value[item.key] = JSON.parse(
+        JSON.stringify(localValues.value[item.key])
+      );
 
-    if (data.status === "success") {
-      if (data.data.valid) {
-        // 深拷贝保存成功的值
-        initialValues.value[item.key] = JSON.parse(
-          JSON.stringify(localValues.value[item.key])
-        );
-        emit("refresh");
-      } else {
-        // 恢复到上一次保存的值
-        localValues.value[item.key] = JSON.parse(
-          JSON.stringify(initialValues.value[item.key])
-        );
-        emit("validation-error", {
-          key: item.key,
-          description: item.description,
-          error: data.data.error,
-        });
+      // 更新当前配置项的值
+      const configIndex = props.configs.findIndex(c => c.key === item.key);
+      if (configIndex !== -1) {
+        props.configs[configIndex].value = localValues.value[item.key];
       }
     }
   } catch (error) {
-    // 恢复到上一次保存的值
+    // 如果保存失败，恢复到上一次保存的值
     localValues.value[item.key] = JSON.parse(
       JSON.stringify(initialValues.value[item.key])
     );
-    emit("save-error", item.key);
+    emit('save-error', item.key);
   }
 
   savingItems.value[item.key] = false;
@@ -555,42 +550,95 @@ const revertEdit = (item) => {
 
 // 重置为默认值
 const resetToDefault = (item) => {
-  localValues.value[item.key] = item.default;
-};
-
-// 数组操作方法
-const addArrayItem = (item, insertIndex = -1) => {
-  if (!Array.isArray(localValues.value[item.key])) {
-    localValues.value[item.key] = [];
-  }
-
-  const newItem = {
-    id: Date.now() + Math.random(),
-    value: "",
-  };
-
-  if (insertIndex === -1) {
-    // 添加到末尾
-    localValues.value[item.key].push(newItem);
+  // 根据类型设置适当的默认空值
+  let defaultValue;
+  if (item.default !== undefined && item.default !== null) {
+    defaultValue = item.default;
   } else {
-    // 在指定位置插入
-    localValues.value[item.key].splice(insertIndex, 0, newItem);
+    switch (item.type) {
+      case 'array':
+        defaultValue = [];
+        break;
+      case 'number':
+        defaultValue = 0;
+        break;
+      case 'boolean':
+        defaultValue = false;
+        break;
+      case 'string':
+      case 'enum':
+      default:
+        defaultValue = '';
+        break;
+    }
   }
 
-  handleUpdate(item.key, localValues.value[item.key]);
+  localValues.value[item.key] = JSON.parse(JSON.stringify(defaultValue));
 };
 
-const removeArrayItem = (item, index) => {
-  localValues.value[item.key].splice(index, 1);
-  handleUpdate(item.key, localValues.value[item.key]);
+// 确认删除配置项
+const confirmDelete = (item) => {
+  deleteItem.value = item;
+  showDeleteDialog.value = true;
+};
+
+// 删除配置项
+const deleteConfig = () => {
+  if (!deleteItem.value) return;
+  emit("delete", deleteItem.value.key);
+  showDeleteDialog.value = false;
+  deleteItem.value = null;
+};
+
+// 复制到剪贴板
+const copyToClipboard = async (value) => {
+  let textToCopy = value;
+
+  // 如果是数组，转换为逗号分隔的字符串
+  if (Array.isArray(value)) {
+    textToCopy = value.join(',');
+  } else if (typeof value === 'object') {
+    // 如果是对象，转换为JSON字符串
+    textToCopy = JSON.stringify(value);
+  } else {
+    // 确保其他类型都转换为字符串
+    textToCopy = String(value);
+  }
+
+  try {
+    await navigator.clipboard.writeText(textToCopy);
+    // 可以添加一个提示，但由于操作很快，可能不需要
+  } catch (err) {
+    // 如果剪贴板API不可用，使用传统方法
+    const textarea = document.createElement('textarea');
+    textarea.value = textToCopy;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+  }
 };
 
 // 监听items变化，更新本地值
 watch(
-  () => props.items,
+  () => props.configs,
   () => {
     initializeValues();
   },
   { deep: true }
 );
 </script>
+
+<style scoped>
+.v-card {
+  margin-bottom: 24px;
+}
+
+.gap-1 {
+  gap: 4px;
+}
+
+.gap-2 {
+  gap: 8px;
+}
+</style>
