@@ -15,8 +15,13 @@
         class="search-trigger"
       ></v-btn>
     </template>
-    <v-card max-height="90vh" class="d-flex flex-column search-dialog-card bg-surface-light" border hover>
-      <v-card-text class="pa-0 flex-grow-0" style="margin: 8px;">
+    <v-card
+      max-height="90vh"
+      class="d-flex flex-column search-dialog-card bg-surface-light"
+      border
+      hover
+    >
+      <v-card-text class="pa-0 flex-grow-0" style="margin: 16px">
         <SearchComponent mode="dialog" @search-submitted="closeDialog" />
       </v-card-text>
     </v-card>
@@ -31,45 +36,45 @@
 </template>
 
 <script>
-import SearchComponent from './SearchComponent.vue'
+import SearchComponent from "./SearchComponent.vue";
 
 export default {
-  name: 'SearchDialog',
+  name: "SearchDialog",
   components: {
-    SearchComponent
+    SearchComponent,
   },
   data() {
     return {
       dialog: false,
-      isMobileOrTablet: false
-    }
+      isMobileOrTablet: false,
+    };
   },
   methods: {
     checkDevice() {
-      const userAgent = navigator.userAgent.toLowerCase()
-      const isMobile = /mobile|android|iphone|ipad|phone/i.test(userAgent)
-      this.isMobileOrTablet = isMobile
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isMobile = /mobile|android|iphone|ipad|phone/i.test(userAgent);
+      this.isMobileOrTablet = isMobile;
     },
     navigateToSearch() {
-      this.dialog = false
-      this.$router.push('/app/search')
+      this.dialog = false;
+      this.$router.push("/app/search");
     },
     closeDialog() {
-      this.dialog = false
-    }
+      this.dialog = false;
+    },
   },
   mounted() {
-    if (typeof window !== 'undefined') {
-      this.checkDevice()
-      window.addEventListener('resize', this.checkDevice)
+    if (typeof window !== "undefined") {
+      this.checkDevice();
+      window.addEventListener("resize", this.checkDevice);
     }
   },
   beforeUnmount() {
-    if (typeof window !== 'undefined') {
-      window.removeEventListener('resize', this.checkDevice)
+    if (typeof window !== "undefined") {
+      window.removeEventListener("resize", this.checkDevice);
     }
-  }
-}
+  },
+};
 </script>
 
 <style scoped>

@@ -93,7 +93,7 @@
     <v-row>
       <!-- Main Content -->
       <v-col cols="12" md="9">
-        <!-- Feed -->
+        <!-- Feed -->    <SearchComponent mode="dialog" /><br/>
         <v-card class="mb-4" variant="flat">
           <v-card-title class="d-flex align-center">
             <v-icon icon="mdi-timeline-clock" color="primary" class="mr-2" />

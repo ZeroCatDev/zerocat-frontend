@@ -456,7 +456,7 @@ export default {
 }
 
 .search-component {
-  padding: 16px;
+
   display: flex;
   flex-direction: column;
 }
