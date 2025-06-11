@@ -88,7 +88,7 @@ onMounted(async () => {
 
       // 延迟跳转以显示成功状态
       setTimeout(() => {
-        router.push('/app/explore');
+        router.push('/app/dashboard');
       }, 2000);
     } else {
       throw new Error(data.message || '令牌验证失败');

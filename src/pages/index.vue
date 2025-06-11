@@ -977,7 +977,7 @@ onMounted(() => {
   background: linear-gradient(
     90deg,
     rgb(var(--v-theme-primary)),
-    rgb(var(--v-theme-secondary))
+    rgb(0, 0, 0)
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

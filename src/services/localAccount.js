@@ -1,5 +1,5 @@
 import { ref, watch } from "vue";
-import request from "../axios/axios";
+import request from "@/axios/axios";
 
 // Constants for storage keys
 const USER_INFO_KEY = "userInfo";

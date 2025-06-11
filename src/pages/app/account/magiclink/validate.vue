@@ -43,7 +43,7 @@
         <v-btn
           color="primary"
           variant="flat"
-          to="/app/explore"
+          to="/app/dashboard"
           :disabled="loading || !loginSuccess || countdown > 0"
         >
           去主页
@@ -93,7 +93,7 @@ export default {
 
     onMounted(async () => {
       if (localuser.isLogin.value === true) {
-        router.push("/app/explore");
+        router.push("/app/dashboard");
         return;
       }
 
@@ -124,7 +124,7 @@ export default {
 
           // Redirect after delay
           redirectTimer.value = setTimeout(() => {
-            const redirectUrl = response.callback?.redirect || "/app/explore";
+            const redirectUrl = response.callback?.redirect || "/app/dashboard";
             router.push(redirectUrl);
           }, 5000);
         } else {

@@ -193,14 +193,17 @@
           <v-icon :icon="lists.icon" size="small"></v-icon>
           {{ lists.title }}
         </v-list-subheader>
+        <div  v-for="item in lists.list">
         <v-list-item
-          v-for="item in lists.list"
+
           :key="item.title"
           :prepend-icon="item.icon"
           :title="item.title"
           :to="item.link"
+          v-if="item.login === false || item.login === isLogin"
           rounded="xl"
         ></v-list-item>
+      </div>
       </div>
     </v-list>
     <v-divider></v-divider>
@@ -335,9 +338,20 @@ export default {
           icon: "mdi-menu",
           login: false,
           list: [
-            { title: "首页", link: "/", icon: "mdi-home" },
-            { title: "项目", link: "/app/explore", icon: "mdi-xml" },
-            { title: "搜索", link: "/app/search", icon: "mdi-earth" },
+            { title: "首页", link: "/", icon: "mdi-home" , login: false },
+            {
+              title: "仪表盘",
+              link: "/app/dashboard",
+              icon: "mdi-view-dashboard",
+              login: true,
+            },
+            {
+              title: "项目",
+              link: "/app/explore",
+              icon: "mdi-xml",
+              login: false,
+            },
+            { title: "搜索", link: "/app/search", icon: "mdi-earth", login: false },
           ],
         },
         mirror: {
@@ -345,12 +359,11 @@ export default {
           icon: "mdi-link-variant",
           login: true,
           list: [
-            { title: "首页", link: "/app/proxy", icon: "mdi-home" },
-            { title: "探索", link: "/app/proxy/explore", icon: "mdi-earth" },
-            { title: "搜索", link: "/app/proxy/search", icon: "mdi-xml" },
-            { title: "新闻", link: "/app/proxy/news", icon: "mdi-newspaper" },
-
-            { title: "打开", link: "/app/proxy/open", icon: "mdi-link" },
+            { title: "首页", link: "/app/proxy", icon: "mdi-home", login: false  },
+            { title: "探索", link: "/app/proxy/explore", icon: "mdi-earth" , login: false },
+            { title: "搜索", link: "/app/proxy/search", icon: "mdi-xml" , login: false },
+            { title: "新闻", link: "/app/proxy/news", icon: "mdi-newspaper" , login: false },
+            { title: "打开", link: "/app/proxy/open", icon: "mdi-link" , login: false },
           ],
         },
         tools: {
@@ -361,12 +374,12 @@ export default {
             {
               title: "桌面版镜像",
               link: "/app/tools/asdm",
-              icon: "mdi-download",
+              icon: "mdi-download", login: false
             },
             {
               title: "项目比较器",
               link: "/app/tools/comparer",
-              icon: "mdi-xml",
+              icon: "mdi-xml", login: false
             },
           ],
         },

@@ -178,7 +178,7 @@ export default {
 
     // Check if user is already logged in
     if (localuser.isLogin.value === true) {
-      router.push("/app/explore");
+      router.push("/app/dashboard");
     }
 
     // Set page title
@@ -330,7 +330,7 @@ export default {
       if (response.status === "success") {
         showSuccessToast("登录成功，欢迎回来，" + response.display_name);
         setTimeout(() => {
-          router.push("/app/explore");
+          router.push("/app/dashboard");
         }, 1000);
       } else {
         showErrorToast(response.message);

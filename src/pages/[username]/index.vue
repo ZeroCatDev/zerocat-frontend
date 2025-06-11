@@ -83,169 +83,19 @@
         </v-container>
       </v-tabs-window-item>
       <v-tabs-window-item value="timeline">
-        <v-timeline side="end" align="start" class="mt-4">
-          <v-timeline-item v-for="event in timeline.events" :key="event.id" size="small" dot-color="primary">
-            <template v-slot:opposite>
-              {{ new Date(event.created_at).toLocaleString() }}
-            </template>
-            <template v-slot:icon>
-              <v-avatar :image="VITE_APP_S3_BUCKET + '/user/' + user.images"></v-avatar>
-            </template>
-            <div class="timeline-item-content">
-              <!-- Event Header -->
-              <div class="event-header">
-                <h3 class="text-h6">
-                  {{ event.actor.display_name }}
-                  {{ eventTypes[event.type]?.text || '进行了操作' }}
-                </h3>
-                <v-chip size="x-small" :color="eventTypes[event.type]?.color || 'primary'" class="ml-2">
-                  {{ eventTypes[event.type]?.label || event.type }}
-                </v-chip>
-              </div> <router-link :to="`/app/link/project?id=${event.target?.id}`" class="text-decoration-none"
-                v-if="eventTypes[event.type]?.isProject">
-                {{ event.event_data?.project_title }}
-              </router-link>
-              <div class=" mb-2"></div>
-              <!-- Project Event Card -->
-              <v-card
-                v-if="eventTypes[event.type]?.isProject && !['project_rename', 'project_commit'].includes(event.type)"
-                class="mb-3 project-event" :to="`/app/link/project?id=${event.target?.id}`">
-                <v-card-text>
-                  <div class="project-info">
-                    <v-icon icon="mdi-source-repository" color="primary" class="mr-2" />
-                    <span class="font-weight-medium">{{ event.event_data?.project_name || '未命名项目' }}</span>
-
-                    <div class="mt-2 text-caption text-medium-emphasis">
-                      {{ event.event_data?.project_description }}
-                    </div>
-                  </div>
-                </v-card-text>
-              </v-card>
-
-              <!-- Special Project Events -->
-              <template v-else-if="['project_rename', 'project_commit', 'project_info_update'].includes(event.type)">
-                <!-- Rename Event -->
-                <template v-if="event.type === 'project_rename'">
-                  <v-card class="rename-card mb-3" :to="`/app/link/project?id=${event.target?.id}`">
-                    <v-card-text>
-                      <div class="d-flex align-center mb-2">
-                        <v-icon icon="mdi-rename-box" color="warning" class="mr-2" />
-                        <span class="font-weight-medium">{{ event.event_data?.project_title }}</span>
-                      </div>
-                      <div class="rename-details text-body-2">
-                        <div class="d-flex align-center">
-                          <span class="text-medium-emphasis">从</span>
-                          <v-chip size="small" class="mx-2" color="surface-variant">
-                            {{ event.event_data?.old_name }}
-                          </v-chip>
-                        </div>
-                        <div class="d-flex align-center mt-1">
-                          <span class="text-medium-emphasis">到</span>
-                          <v-chip size="small" class="mx-2" color="warning">
-                            {{ event.event_data?.new_name }}
-                          </v-chip>
-                        </div>
-                      </div>
-                      <div class="project-meta text-caption text-medium-emphasis mt-2">
-                        <v-chip size="x-small" class="mr-1">{{ event.event_data?.project_type }}</v-chip>
-                        <v-chip size="x-small">{{ event.event_data?.project_state }}</v-chip>
-                      </div>
-                    </v-card-text>
-                  </v-card>
-                </template>
-
-                <!-- Commit Event -->
-                <template v-else-if="event.type === 'project_commit'">
-                  <v-card class="commit-card mb-3" :to="`/app/link/project?id=${event.target?.id}`">
-                    <v-card-text>
-                      <div class="d-flex align-center mb-2">
-                        <v-icon icon="mdi-source-commit" color="info" class="mr-2" />
-                        <span class="font-weight-medium">分支: {{ event.event_data?.branch }}</span>
-                      </div>
-                      <div class="commit-message text-body-2">
-                        {{ event.event_data?.commit_message }}
-                      </div>
-                      <div class="commit-hash text-caption text-medium-emphasis mt-1">
-                        提交ID: {{ event.event_data?.commit_id.substring(0, 7) }}
-                      </div>
-                    </v-card-text>
-                  </v-card>
-                </template>
-
-                <!-- Project Info Update Event -->
-                <template v-else-if="event.type === 'project_info_update'">
-                  <v-card class="info-update-card mb-3" :to="`/app/link/project?id=${event.target?.id}`">
-                    <v-card-text>
-                      <div class="d-flex align-center mb-2">
-                        <v-icon icon="mdi-file-document-edit" color="info" class="mr-2" />
-                        <span class="font-weight-medium">{{ event.event_data?.project_title }}</span>
-                      </div>
-
-                      <div class="info-updates text-body-2">
-                        <template v-for="field in event.event_data?.updated_fields" :key="field">
-                          <div class="update-item mb-2">
-                            <div class="d-flex align-center">
-                              <v-chip size="x-small" color="info" class="mr-2">{{ getFieldDisplayName(field) }}</v-chip>
-                            </div>
-                            <div class="d-flex flex-column mt-1 field-changes">
-                              <div class="old-value">
-                                <span class="text-medium-emphasis">从：</span>
-                                <span class="ml-2">{{ event.event_data?.old_values[field] }}</span>
-                              </div>
-                              <div class="new-value">
-                                <span class="text-medium-emphasis">到：</span>
-                                <span class="ml-2 text-info">{{ event.event_data?.new_values[field] }}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </template>
-                      </div>
-
-                      <div class="project-meta text-caption text-medium-emphasis mt-2">
-                        <v-chip size="x-small" class="mr-1">{{ event.event_data?.project_type }}</v-chip>
-                        <v-chip size="x-small">{{ event.event_data?.project_state }}</v-chip>
-                      </div>
-                    </v-card-text>
-                  </v-card>
-                </template>
-              </template>
-
-              <!-- Simple Event Content -->
-              <div v-else class="event-content pa-2">
-                <!-- Profile Update Event -->
-                <template v-if="event.type === 'user_profile_update'">
-                  <div class="text-body-2">
-                    更新了：{{ getUpdatedFields(event.event_data?.updated_fields) }}
-                  </div>
-                </template>
-
-                <!-- Project Related Events -->
-                <template v-else-if="event.target?.type === 'project'">
-                  <div class="text-body-2">
-                    <span>{{ eventTypes[event.type]?.text || '操作了' }}</span>
-                    <router-link :to="`/app/link/project?id=${event.target.id}`" class="text-decoration-none ml-1">
-                      {{ event.event_data?.project_name || event.target.title || `项目 #${event.target.id}` }}
-                    </router-link>
-                  </div>
-                </template>
-
-                <!-- Other Events -->
-                <div v-else class="text-body-2 text-medium-emphasis">
-                  {{ getTargetContent(event.target, event.type) }}
-                </div>
-              </div>
-            </div>
-          </v-timeline-item>
-        </v-timeline>
-
-        <div class="d-flex justify-center mt-4 mb-4">
-          <v-btn v-if="hasMoreEvents" :loading="isLoadingMore" variant="tonal" @click="loadMoreEvents">
-            加载更多
-          </v-btn>
-          <div v-else-if="timeline.events.length > 0" class="text-medium-emphasis">
-            没有更多内容了
-          </div>
-        </div>
+        <v-card class="mt-4" variant="flat">
+          <v-card-title class="d-flex align-center">
+            <v-icon icon="mdi-timeline-clock" color="primary" class="mr-2" />
+            {{ user.display_name }} 的动态
+          </v-card-title>
+          <v-card-text>
+            <Timeline
+              :timeline="timeline"
+              :is-loading-more="isLoadingMore"
+              @load-more="loadMoreEvents"
+            />
+          </v-card-text>
+        </v-card>
       </v-tabs-window-item>
     </v-tabs-window>
   </v-container>
@@ -265,6 +115,7 @@ import FollowStats from "@/components/user/FollowStats.vue";
 import { localuser } from "@/services/localAccount";
 import UserFollowers from "@/components/user/UserFollowers.vue";
 import UserFollowing from "@/components/user/UserFollowing.vue";
+import Timeline from "@/components/timeline/Timeline.vue";
 
 export default {
   components: {
@@ -275,7 +126,8 @@ export default {
     UserRelationControls,
     FollowStats,
     UserFollowers,
-    UserFollowing
+    UserFollowing,
+    Timeline
   },
   data() {
     return {
@@ -292,9 +144,7 @@ export default {
           total: 0
         }
       },
-      currentPage: 1,
       isLoadingMore: false,
-      pageSize: 20,
       localuser,
       eventTypes: {
         project_create: {
@@ -411,8 +261,8 @@ export default {
       try {
         const response = await request.get(`/timeline/user/${this.user.id}`, {
           params: {
-            page: page,
-            limit: this.pageSize
+            page,
+            limit: this.timeline.pagination.size
           }
         });
 
@@ -438,14 +288,11 @@ export default {
         .join('、');
     },
     async loadMoreEvents() {
-      if (this.isLoadingMore || !this.hasMoreEvents) return;
+      if (this.isLoadingMore) return;
 
       try {
         this.isLoadingMore = true;
-        this.currentPage += 1;
-        await this.fetchTimeline(this.currentPage);
-      } catch (error) {
-        console.error('Failed to load more events:', error);
+        await this.fetchTimeline(this.timeline.pagination.current + 1);
       } finally {
         this.isLoadingMore = false;
       }

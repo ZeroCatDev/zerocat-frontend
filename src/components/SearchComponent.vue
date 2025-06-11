@@ -67,117 +67,119 @@
       </v-card>
     </v-expand-transition>
 
-    <!-- 搜索结果 -->
-    <v-fade-transition>
-      <div v-if="hasSearched" class="search-results mt-4">
-        <!-- 加载进度条 -->
-        <v-progress-linear
-          v-if="isLoading"
-          indeterminate
-          color="primary"
-          class="mt-4"
-        ></v-progress-linear>
+    <!-- 搜索结果 - 仅在页面模式显示 -->
+    <template v-if="mode === 'page'">
+      <v-fade-transition>
+        <div v-if="hasSearched" class="search-results mt-4">
+          <!-- 加载进度条 -->
+          <v-progress-linear
+            v-if="isLoading"
+            indeterminate
+            color="primary"
+            class="mt-4"
+          ></v-progress-linear>
 
-        <!-- 搜索结果展示 -->
-        <v-fade-transition group>
-          <template v-if="!isLoading">
-            <v-row v-if="searchResults.length > 0">
-              <v-col
-                cols="12"
-                xs="12"
-                sm="6"
-                md="4"
-                lg="3"
-                xl="2"
-                xxl="2"
-                v-for="item in searchResults"
-                :key="item.id"
-              >
-                <v-hover v-slot="{ isHovering, props }">
-                  <v-card
-                    v-bind="props"
-                    :to="urlMap.value[item.id]"
-                    :elevation="isHovering ? 8 : 2"
-                    style="aspect-ratio: 4/3"
-                    rounded="lg"
-                    class="result-card"
-                  >
-                    <v-img
-                      :src="s3BucketUrl + '/scratch_slt/' + item.id"
-                      class="align-end"
-                      lazy-src="../assets/43-lazyload.png"
-                      error-src="../assets/43-lazyload.png"
-                      height="100%"
-                      gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                      cover
+          <!-- 搜索结果展示 -->
+          <v-fade-transition group>
+            <template v-if="!isLoading">
+              <v-row v-if="searchResults.length > 0">
+                <v-col
+                  cols="12"
+                  xs="12"
+                  sm="6"
+                  md="4"
+                  lg="3"
+                  xl="2"
+                  xxl="2"
+                  v-for="item in searchResults"
+                  :key="item.id"
+                >
+                  <v-hover v-slot="{ isHovering, props }">
+                    <v-card
+                      v-bind="props"
+                      :to="urlMap[item.id]"
+                      :elevation="isHovering ? 8 : 2"
+                      style="aspect-ratio: 4/3"
+                      rounded="lg"
+                      class="result-card"
                     >
-                      <template v-slot:placeholder>
-                        <v-progress-linear
-                          indeterminate
-                          color="primary"
-                        ></v-progress-linear>
-                      </template>
-                      <v-card-item>
-                        <v-chip
-                          size="small"
-                          color="primary"
-                          variant="tonal"
-                          class="type-chip"
-                        >
-                          {{ item.type }}
-                        </v-chip>
-                        <v-chip
-                          v-if="item.license !== 'no'"
-                          size="small"
-                          color="primary"
-                          variant="tonal"
-                          class="license-chip"
-                        >
-                          {{ item.license }}
-                        </v-chip>
-                        <v-card-title
-                          class="text-white"
-                          v-html="item._formatted.title"
-                        ></v-card-title>
-                        <v-card-subtitle
-                          class="text-white"
-                          v-html="item._formatted.description"
-                        ></v-card-subtitle>
-                      </v-card-item>
-                    </v-img>
-                  </v-card>
-                </v-hover>
-              </v-col>
-            </v-row>
-            <v-row v-else class="mt-4" justify="center">
-              <v-col cols="12" class="text-center">
-                <v-alert type="info" variant="tonal" class="no-results-alert">
-                  <template v-slot:prepend>
-                    <v-icon icon="mdi-information"></v-icon>
-                  </template>
-                  未找到相关结果，请尝试其他关键词
-                </v-alert>
-              </v-col>
-            </v-row>
+                      <v-img
+                        :src="s3BucketUrl + '/scratch_slt/' + item.id"
+                        class="align-end"
+                        lazy-src="../assets/43-lazyload.png"
+                        error-src="../assets/43-lazyload.png"
+                        height="100%"
+                        gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+                        cover
+                      >
+                        <template v-slot:placeholder>
+                          <v-progress-linear
+                            indeterminate
+                            color="primary"
+                          ></v-progress-linear>
+                        </template>
+                        <v-card-item>
+                          <v-chip
+                            size="small"
+                            color="primary"
+                            variant="tonal"
+                            class="type-chip"
+                          >
+                            {{ item.type }}
+                          </v-chip>
+                          <v-chip
+                            v-if="item.license !== 'no'"
+                            size="small"
+                            color="primary"
+                            variant="tonal"
+                            class="license-chip"
+                          >
+                            {{ item.license }}
+                          </v-chip>
+                          <v-card-title
+                            class="text-white"
+                            v-html="item._formatted.title"
+                          ></v-card-title>
+                          <v-card-subtitle
+                            class="text-white"
+                            v-html="item._formatted.description"
+                          ></v-card-subtitle>
+                        </v-card-item>
+                      </v-img>
+                    </v-card>
+                  </v-hover>
+                </v-col>
+              </v-row>
+              <v-row v-else class="mt-4" justify="center">
+                <v-col cols="12" class="text-center">
+                  <v-alert type="info" variant="tonal" class="no-results-alert">
+                    <template v-slot:prepend>
+                      <v-icon icon="mdi-information"></v-icon>
+                    </template>
+                    未找到相关结果，请尝试其他关键词
+                  </v-alert>
+                </v-col>
+              </v-row>
 
-            <!-- 分页 -->
-            <v-row class="mt-4" v-if="searchResults.length > 0">
-              <v-col>
-                <div class="text-center">
-                  <v-pagination
-                    :length="totalPages"
-                    :total-visible="7"
-                    rounded="circle"
-                    v-model="currentPage"
-                    @update:model-value="handlePageChange"
-                  ></v-pagination>
-                </div>
-              </v-col>
-            </v-row>
-          </template>
-        </v-fade-transition>
-      </div>
-    </v-fade-transition>
+              <!-- 分页 -->
+              <v-row class="mt-4" v-if="searchResults.length > 0">
+                <v-col>
+                  <div class="text-center">
+                    <v-pagination
+                      :length="totalPages"
+                      :total-visible="7"
+                      rounded="circle"
+                      v-model="currentPage"
+                      @update:model-value="handlePageChange"
+                    ></v-pagination>
+                  </div>
+                </v-col>
+              </v-row>
+            </template>
+          </v-fade-transition>
+        </div>
+      </v-fade-transition>
+    </template>
   </div>
 
   <!-- 错误提示 -->
@@ -196,190 +198,244 @@ const SEARCH_HISTORY_KEY = "search_history";
 const MAX_HISTORY_ITEMS = 10;
 const ITEMS_PER_PAGE = 20;
 import { getProjectInfo } from "@/services/projectService";
-import { ref } from "vue";
+import { ref, watch, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+
 export default {
   name: "SearchComponent",
 
-  data() {
-    return {
-      searchQuery: "",
-      searchResults: [],
-      searchHistory: [],
-      isLoading: false,
-      showError: false,
-      errorMessage: "",
-      hasSearched: false,
-      currentPage: 1,
-      totalHits: 0,
-      hotSearches: ["Scratch", "游戏", "动画", "音乐", "艺术", "编程"],
-      s3BucketUrl: import.meta.env.VITE_APP_S3_BUCKET,
-      debounceTimeout: null,
-      urlMap: ref({}),
+  props: {
+    mode: {
+      type: String,
+      default: 'page', // 'page' or 'dialog'
+      validator: (value) => ['page', 'dialog'].includes(value)
+    }
+  },
+
+  emits: ['search-submitted'],
+
+  setup(props, { emit }) {
+    const route = useRoute();
+    const router = useRouter();
+
+    const searchQuery = ref("");
+    const searchResults = ref([]);
+    const searchHistory = ref([]);
+    const isLoading = ref(false);
+    const showError = ref(false);
+    const errorMessage = ref("");
+    const hasSearched = ref(false);
+    const currentPage = ref(1);
+    const totalHits = ref(0);
+    const urlMap = ref({});
+    const hotSearches = ref(["Scratch", "游戏", "动画", "音乐", "艺术", "编程"]);
+    const s3BucketUrl = ref(import.meta.env.VITE_APP_S3_BUCKET);
+
+    const meilisearchConfig = computed(() => ({
+      baseUrl: import.meta.env.VITE_APP_MEILISEARCH_URL,
+      apiKey: import.meta.env.VITE_APP_MEILISEARCH_API_KEY,
+      indexName: import.meta.env.VITE_APP_MEILISEARCH_INDEX,
+    }));
+
+    const searchParams = computed(() => ({
+      q: searchQuery.value.trim(),
+      offset: (currentPage.value - 1) * ITEMS_PER_PAGE,
+      limit: ITEMS_PER_PAGE,
+      attributesToHighlight: ["title", "description"],
+      highlightPreTag: '<mark class="highlight">',
+      highlightPostTag: "</mark>",
+    }));
+
+    const totalPages = computed(() => {
+      return Math.ceil(totalHits.value / ITEMS_PER_PAGE) || 0;
+    });
+
+    const handleError = (error) => {
+      console.error("Search error:", error);
+      showError.value = true;
+      errorMessage.value = error.message || "发生未知错误";
     };
-  },
 
-  computed: {
-    totalPages() {
-      return Math.ceil(this.totalHits / ITEMS_PER_PAGE);
-    },
-
-    searchParams() {
-      return {
-        q: this.searchQuery.trim(),
-        offset: (this.currentPage - 1) * ITEMS_PER_PAGE,
-        limit: ITEMS_PER_PAGE,
-        attributesToHighlight: ["title", "description"],
-        highlightPreTag: '<mark class="highlight">',
-        highlightPostTag: "</mark>",
-      };
-    },
-
-    meilisearchConfig() {
-      return {
-        baseUrl: import.meta.env.VITE_APP_MEILISEARCH_URL,
-        apiKey: import.meta.env.VITE_APP_MEILISEARCH_API_KEY,
-        indexName: import.meta.env.VITE_APP_MEILISEARCH_INDEX,
-      };
-    },
-  },
-
-  created() {
-    this.loadSearchHistory();
-  },
-
-  methods: {
-    async handleSearch() {
-      if (this.debounceTimeout) {
-        clearTimeout(this.debounceTimeout);
-      }
-
-      const trimmedQuery = this.searchQuery.trim();
-      if (!trimmedQuery) return;
-
-      this.debounceTimeout = setTimeout(async () => {
-        try {
-          this.isLoading = true;
-          this.hasSearched = true;
-          this.currentPage = 1;
-          await this.performSearch();
-          this.addToSearchHistory(trimmedQuery);
-        } catch (error) {
-          this.handleError(error);
-        } finally {
-          this.isLoading = false;
+    const initializeUrlMap = () => {
+      if (!searchResults.value) return;
+      const newUrlMap = {};
+      searchResults.value.forEach((result) => {
+        if (result && result.id) {
+          newUrlMap[result.id] = `/app/link/project/?id=${result.id}`;
         }
-      }, 300);
-    },
-
-    async performSearch() {
-      const { baseUrl, apiKey, indexName } = this.meilisearchConfig;
-      const response = await fetch(`${baseUrl}/indexes/${indexName}/search`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify(this.searchParams),
       });
+      urlMap.value = newUrlMap;
+    };
 
-      if (!response.ok) {
-        throw new Error("搜索请求失败");
-      }
-
-      const data = await response.json();
-      this.searchResults = data.hits;
-      this.totalHits = data.estimatedTotalHits;
-
-      // Initialize urlMap with default values immediately
-      this.initializeUrlMap();
-
-      // Update URLs in the background
-      this.updateUrlMapAsync();
-    },
-
-    initializeUrlMap() {
-      // Reset and initialize urlMap with default values for all search results
-      this.urlMap.value = {};
-      this.searchResults.forEach((result) => {
-        this.urlMap.value[result.id] = `/app/link/project/?id=${result.id}`;
-      });
-    },
-
-    async updateUrlMapAsync() {
+    const updateUrlMapAsync = async () => {
       try {
-        // Get all project IDs
-        const projectIds = this.searchResults.map((result) => result.id);
+        if (!searchResults.value || !searchResults.value.length) return;
 
-        // Batch fetch project info
+        const projectIds = searchResults.value
+          .filter(result => result && result.id)
+          .map(result => result.id);
+
+        if (!projectIds.length) return;
+
+        const newUrlMap = { ...urlMap.value };
         getProjectInfo(projectIds)
           .then((projectInfos) => {
-            // Update urlMap with fetched info
+            if (!projectInfos) return;
             projectInfos.forEach((info) => {
               if (info && info.author?.username) {
-                this.urlMap.value[info.id] = `/${info.author.username}/${info.name}`;
+                newUrlMap[info.id] = `/${info.author.username}/${info.name}`;
               }
             });
+            urlMap.value = newUrlMap;
           })
           .catch((error) => {
             console.error("Error updating URLs in background:", error);
-            // Keep default URLs in case of error
           });
       } catch (error) {
         console.error("Error in background URL update:", error);
-        // Keep default URLs in case of error
       }
-    },
+    };
 
-    async handlePageChange(page) {
+    const performSearch = async () => {
       try {
-        this.isLoading = true;
-        this.currentPage = page;
-        await this.performSearch();
+        isLoading.value = true;
+        hasSearched.value = true;
+
+        const { baseUrl, apiKey, indexName } = meilisearchConfig.value;
+        const response = await fetch(`${baseUrl}/indexes/${indexName}/search`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify(searchParams.value),
+        });
+
+        if (!response.ok) {
+          throw new Error("搜索请求失败");
+        }
+
+        const data = await response.json();
+        searchResults.value = data.hits || [];
+        totalHits.value = data.estimatedTotalHits || 0;
+
+        if (searchResults.value.length > 0) {
+          initializeUrlMap();
+          updateUrlMapAsync();
+        }
       } catch (error) {
-        this.handleError(error);
+        handleError(error);
+        searchResults.value = [];
+        totalHits.value = 0;
       } finally {
-        this.isLoading = false;
+        isLoading.value = false;
       }
-    },
+    };
 
-    handleHistoryClick(term) {
-      this.searchQuery = term;
-      this.handleSearch();
-    },
-
-    loadSearchHistory() {
+    const loadSearchHistory = () => {
       try {
         const history = localStorage.getItem(SEARCH_HISTORY_KEY);
-        this.searchHistory = history ? JSON.parse(history) : [];
+        searchHistory.value = history ? JSON.parse(history) : [];
       } catch (error) {
-        this.handleError(new Error("加载搜索历史失败"));
+        handleError(new Error("加载搜索历史失败"));
+        searchHistory.value = [];
       }
-    },
+    };
 
-    addToSearchHistory(term) {
+    const addToSearchHistory = (term) => {
       try {
-        const index = this.searchHistory.indexOf(term);
+        if (!searchHistory.value) searchHistory.value = [];
+        const index = searchHistory.value.indexOf(term);
         if (index > -1) {
-          this.searchHistory.splice(index, 1);
+          searchHistory.value.splice(index, 1);
         }
-        this.searchHistory.unshift(term);
-        if (this.searchHistory.length > MAX_HISTORY_ITEMS) {
-          this.searchHistory.pop();
+        searchHistory.value.unshift(term);
+        if (searchHistory.value.length > MAX_HISTORY_ITEMS) {
+          searchHistory.value.pop();
         }
         localStorage.setItem(
           SEARCH_HISTORY_KEY,
-          JSON.stringify(this.searchHistory)
+          JSON.stringify(searchHistory.value)
         );
       } catch (error) {
-        this.handleError(new Error("保存搜索历史失败"));
+        handleError(new Error("保存搜索历史失败"));
       }
-    },
+    };
 
-    handleError(error) {
-      console.error("Search error:", error);
-      this.showError = true;
-      this.errorMessage = error.message || "发生未知错误";
-    },
+    const handleSearch = async () => {
+      const trimmedQuery = searchQuery.value.trim();
+      if (!trimmedQuery) return;
+
+      if (props.mode === 'dialog') {
+        emit('search-submitted');
+        router.push({
+          path: '/app/search',
+          query: { q: trimmedQuery }
+        });
+        return;
+      }
+
+      if (route.query.q !== trimmedQuery) {
+        router.replace({
+          query: { ...route.query, q: trimmedQuery }
+        });
+      }
+
+      addToSearchHistory(trimmedQuery);
+    };
+
+    const handlePageChange = async (page) => {
+      if (!page || page < 1) return;
+      try {
+        currentPage.value = page;
+        await performSearch();
+      } catch (error) {
+        handleError(error);
+      }
+    };
+
+    const handleHistoryClick = (term) => {
+      if (!term) return;
+      searchQuery.value = term;
+      handleSearch();
+    };
+
+    // 监听路由参数变化
+    watch(() => route.query.q, (newQuery) => {
+      if (props.mode === 'page' && newQuery !== undefined) {
+        searchQuery.value = newQuery || '';
+        if (newQuery) {
+          performSearch();
+        } else {
+          searchResults.value = [];
+          totalHits.value = 0;
+          hasSearched.value = false;
+        }
+      }
+    }, { immediate: true });
+
+    // 初始加载搜索历史
+    loadSearchHistory();
+
+    return {
+      searchQuery,
+      searchResults,
+      searchHistory,
+      isLoading,
+      showError,
+      errorMessage,
+      hasSearched,
+      currentPage,
+      totalHits,
+      urlMap,
+      hotSearches,
+      s3BucketUrl,
+      totalPages,
+      handleSearch,
+      handlePageChange,
+      handleHistoryClick,
+      handleError,
+    };
   },
 };
 </script>

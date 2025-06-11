@@ -17,6 +17,7 @@
     "@microsoft/clarity": "^1.0.0",
     "@primevue/themes": "^4.2.5",
     "@unhead/vue": "^1.11.18",
+    "@vueuse/core": "^13.3.0",
     "@vueuse/rxjs": "^12.5.0",
     "algoliasearch": "^5.20.0",
     "axios": "^1.7.9",

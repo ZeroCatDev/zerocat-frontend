@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <SearchComponent />
+    <SearchComponent mode="page" />
   </v-container>
 </template>
 
