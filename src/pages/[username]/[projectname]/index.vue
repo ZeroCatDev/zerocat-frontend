@@ -1,55 +1,58 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col xs="12" sm="12" md="8" lg="8" xl="8" xxl="8" cols="12">
-        <ProjectBranchNav
-          :username="$route.params.username"
-          :projectname="$route.params.projectname"
-          :current-branch="player.branch"
-          :current-commit-id="player.commit.id"
-          :branches="projectbranchs"
-          :branch-history="projectbranchhistory"
-        />
+  <div>
+    <PageAnalytics target-type="project" :target-id="project.id" />
+    <v-container>
+      <v-row>
+        <v-col xs="12" sm="12" md="8" lg="8" xl="8" xxl="8" cols="12">
+          <ProjectBranchNav
+            :username="$route.params.username"
+            :projectname="$route.params.projectname"
+            :current-branch="player.branch"
+            :current-commit-id="player.commit.id"
+            :branches="projectbranchs"
+            :branch-history="projectbranchhistory"
+          />
 
-        <ProjectPlayer
-          :project-id="project.id"
-          :branch="player.branch"
-          :commit-id="player.commit.id"
-          :showplayer="showplayer"
-        />
-        <br />
-        <v-card>
-          <v-tabs v-model="tab" bg-color="primary">
-            <v-tab value="readme">README</v-tab>
-            <v-tab value="license">LICENSE</v-tab>
-          </v-tabs>
+          <ProjectPlayer
+            :project-id="project.id"
+            :branch="player.branch"
+            :commit-id="player.commit.id"
+            :showplayer="showplayer"
+          />
+          <br />
+          <v-card>
+            <v-tabs v-model="tab" bg-color="primary">
+              <v-tab value="readme">README</v-tab>
+              <v-tab value="license">LICENSE</v-tab>
+            </v-tabs>
 
-          <v-card-text class="markdown-body">
-            <v-tabs-window v-model="tab">
-              <v-tabs-window-item value="readme">
-                <Markdown>{{ project.description }}</Markdown>
-              </v-tabs-window-item>
+            <v-card-text class="markdown-body">
+              <v-tabs-window v-model="tab">
+                <v-tabs-window-item value="readme">
+                  <Markdown>{{ project.description }}</Markdown>
+                </v-tabs-window-item>
 
-              <v-tabs-window-item value="license">
-                <License :licenseKey="project.license || 'none'" />
-              </v-tabs-window-item>
-            </v-tabs-window>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col xs="12" sm="12" md="4" lg="4" xl="4" xxl="8" cols="12">
-        <ProjectInfoCard
-          :project="project"
-          :author="author"
-          :username="$route.params.username"
-          :projectname="$route.params.projectname"
-        />
-      </v-col>
-      <v-col xxl="8" xl="8" lg="8" md="8" sm="12" xs="12" cols="12">
-        <Comment :url="'project-' + project.id" name="项目"></Comment>
-      </v-col>
-    </v-row>
-  </v-container>
+                <v-tabs-window-item value="license">
+                  <License :licenseKey="project.license || 'none'" />
+                </v-tabs-window-item>
+              </v-tabs-window>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col xs="12" sm="12" md="4" lg="4" xl="4" xxl="8" cols="12">
+          <ProjectInfoCard
+            :project="project"
+            :author="author"
+            :username="$route.params.username"
+            :projectname="$route.params.projectname"
+          />
+        </v-col>
+        <v-col xxl="8" xl="8" lg="8" md="8" sm="12" xs="12" cols="12">
+          <Comment :url="'project-' + project.id" name="项目"></Comment>
+        </v-col>
+      </v-row>
+    </v-container>
+  </div>
 </template>
 
 <script>
@@ -69,7 +72,7 @@ import ProjectBranchNav from "@/components/project/ProjectBranchNav.vue";
 import ProjectPlayer from "@/components/project/ProjectPlayer.vue";
 import ProjectInfoCard from "@/components/project/ProjectInfoCard.vue";
 import "github-markdown-css";
-
+import PageAnalytics from "@/components/analytics/PageAnalytics.vue";
 export default {
   components: {
     Comment,
@@ -78,6 +81,7 @@ export default {
     ProjectBranchNav,
     ProjectPlayer,
     ProjectInfoCard,
+    PageAnalytics,
   },
   data() {
     return {

@@ -1,449 +1,453 @@
 <template>
-  <div class="landing-page">
-    <!-- 顶部导航 -->
-    <v-toolbar flat color="surface" class="px-4 px-sm-10">
-      <template v-slot:prepend>
-        <div class="d-flex align-center">
-          <span class="font-weight-bold primary--text">ZeroCat</span>
-        </div>
-      </template>
+  <div>
+    <PageAnalytics target-type="home" target-id="1" />
 
-      <v-spacer></v-spacer>
+    <div class="landing-page">
+      <!-- 顶部导航 -->
+      <v-toolbar flat color="surface" class="px-4 px-sm-10">
+        <template v-slot:prepend>
+          <div class="d-flex align-center">
+            <span class="font-weight-bold primary--text">ZeroCat</span>
+          </div>
+        </template>
 
-      <v-btn
-        variant="text"
-        href="https://github.com/zerocatdev"
-        target="_blank"
-        class="hidden-sm-and-down"
-      >
-        <v-icon class="mr-2">mdi-github</v-icon>开源仓库
-      </v-btn>
+        <v-spacer></v-spacer>
 
-      <v-btn variant="text" to="/app/explore" class="hidden-sm-and-down">
-        <v-icon class="mr-2">mdi-rocket-launch</v-icon>浏览作品
-      </v-btn>
+        <v-btn
+          variant="text"
+          href="https://github.com/zerocatdev"
+          target="_blank"
+          class="hidden-sm-and-down"
+        >
+          <v-icon class="mr-2">mdi-github</v-icon>开源仓库
+        </v-btn>
 
-      <v-btn variant="flat" color="primary" class="ml-4" to="/app/explore">
-        立即开始
-      </v-btn>
-    </v-toolbar>
+        <v-btn variant="text" to="/app/explore" class="hidden-sm-and-down">
+          <v-icon class="mr-2">mdi-rocket-launch</v-icon>浏览作品
+        </v-btn>
 
-    <!-- 主要内容 -->
+        <v-btn variant="flat" color="primary" class="ml-4" to="/app/explore">
+          立即开始
+        </v-btn>
+      </v-toolbar>
 
-    <!-- 首屏区域 -->
-    <section class="hero-section py-16">
-      <v-container>
-        <v-row align="center">
-          <v-col cols="12" md="6" class="text-center text-md-left">
-            <div class="mb-8">
-              <h1 class="mb-2 font-weight-bold hero-title text-gradient text-glow">
-                ZeroCat
-              </h1>
-              <h2 class="mb-6 hero-subtitle text-glow">
-                <Typewriter
-                  :strings="[
-                    '编程社区新选择',
-                    '开源社区平台',
-                    '新一代，开源，编程社区',
-                  ]"
-                />
-              </h2>
-              <p class="mb-8 text-medium-emphasis">新一代，开源，编程社区</p>
+      <!-- 主要内容 -->
+
+      <!-- 首屏区域 -->
+      <section class="hero-section py-16">
+        <v-container>
+          <v-row align="center">
+            <v-col cols="12" md="6" class="text-center text-md-left">
+              <div class="mb-8">
+                <h1 class="mb-2 font-weight-bold hero-title text-gradient text-glow">
+                  ZeroCat
+                </h1>
+                <h2 class="mb-6 hero-subtitle text-glow">
+                  <Typewriter
+                    :strings="[
+                      '编程社区新选择',
+                      '开源社区平台',
+                      '新一代，开源，编程社区',
+                    ]"
+                  />
+                </h2>
+                <p class="mb-8 text-medium-emphasis">新一代，开源，编程社区</p>
+                <v-btn
+                  color="primary"
+                  variant="flat"
+                  class="mr-4"
+                  to="/app/explore"
+                >
+                  浏览作品
+                </v-btn>
+                <v-btn variant="outlined" href="https://langs.ink/article/houlangs/" target="_blank"> 了解更多 </v-btn>
+              </div>
+
+              <v-chip
+                variant="outlined"
+                color="primary"
+                size="small"
+                class="mt-4"
+                href="https://www.rainyun.com/wuyuan_?s=zerocat"
+                target="_blank"
+              >
+                由雨云提供技术支持
+              </v-chip>
+            </v-col>
+
+            <v-col cols="12" md="6" class="d-none d-md-flex justify-center">
+              <v-img
+                src="https://cdn.jsdelivr.net/gh/houlangs/houlangs@main/hero-image.webp"
+                max-width="400"
+                contain
+                class="hero-image"
+              ></v-img>
+            </v-col>
+          </v-row>
+        </v-container>
+      </section>
+
+      <!-- 特性区域 -->
+      <section class="features-section py-12 bg-surface">
+        <v-container>
+          <v-row justify="center" class="mb-8">
+            <v-col cols="12" md="8" class="text-center">
+              <span class="text-overline text-primary">ZeroCat 特性</span>
+              <h2 class="mb-2 font-weight-medium">为什么选择我们？</h2>
+              <p class="text-medium-emphasis">
+                开源、易用、功能丰富的编程社区平台
+              </p>
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col
+              v-for="(feature, i) in features"
+              :key="i"
+              cols="12"
+              sm="6"
+              md="4"
+            >
+              <v-card class="h-100 pa-4 card-glass">
+                <v-icon :color="feature.color" size="36" class="mb-4">{{
+                  feature.icon
+                }}</v-icon>
+                <div class="font-weight-medium mb-2">{{ feature.title }}</div>
+                <p class="text-caption text-medium-emphasis">
+                  {{ feature.text }}
+                </p>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </section>
+
+      <!-- 项目统计 -->
+      <section class="stats-section py-12">
+        <v-container>
+          <v-row justify="center">
+            <v-col v-for="(stat, i) in stats" :key="i" cols="6" sm="4" lg="3">
+              <v-card variant="flat" class="text-center py-6 card-glass">
+                <div class="text-primary font-weight-bold mb-1">
+                  {{ stat.title }}
+                </div>
+                <div class="text-caption text-medium-emphasis">
+                  {{ stat.subtitle }}
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </section>
+
+      <!-- Scratcher社区 -->
+      <section class="community-section py-12 bg-surface">
+        <v-container>
+          <v-row align="center">
+            <v-col cols="12" md="6" class="order-2 order-md-1">
+              <span class="text-overline text-primary">面向Scratcher</span>
+              <h2 class="mb-4 font-weight-medium">寻找更广阔的编程社区？</h2>
+              <p class="text-medium-emphasis mb-6">
+                欢迎各位Scratcher加入ZeroCat，这里不仅有丰富的作品展示，还有更多编程资源和学习机会。
+              </p>
+              <v-btn color="primary" variant="flat" to="/app/explore">
+                探索社区
+              </v-btn>
+            </v-col>
+
+            <v-col
+              cols="12"
+              md="6"
+              class="order-1 order-md-2 text-center mb-6 mb-md-0"
+            >
+              <v-img
+                src="https://cdn.jsdelivr.net/gh/houlangs/houlangs@main/community.webp"
+                max-width="320"
+                class="mx-auto"
+              ></v-img>
+            </v-col>
+          </v-row>
+        </v-container>
+      </section>
+
+      <!-- 团队成员 -->
+      <section class="team-section py-12">
+        <v-container>
+          <v-row justify="center" class="mb-8">
+            <v-col cols="12" md="8" class="text-center">
+              <span class="text-overline text-primary">团队介绍</span>
+              <h2 class="mb-2 font-weight-medium">厚浪开发组</h2>
+              <p class="text-medium-emphasis">一支朝气蓬勃、热爱代码的创新团队</p>
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col v-for="(member, i) in teamMembers" :key="i" cols="6" sm="3">
+              <v-card
+                variant="flat"
+                class="text-center pa-4 card-glass"
+                :href="member.link"
+                target="_blank"
+              >
+                <v-avatar size="80" class="mb-3">
+                  <v-img :src="member.avatar" alt="团队成员"></v-img>
+                </v-avatar>
+                <div class="font-weight-medium">{{ member.title }}</div>
+                <div class="text-caption text-medium-emphasis">
+                  {{ member.subtitle }}
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
+
+          <v-row justify="center" class="mt-6">
+            <v-col cols="12" md="8" class="text-center">
+              <p class="text-caption bg-surface pa-3 rounded">
+                <q>长江后浪推前浪，浮世新人换旧人</q> -
+                我们致力于使用最新技术，助力青少年上云
+              </p>
+              <v-btn
+                variant="text"
+                color="primary"
+                size="small"
+                class="mt-2"
+                href="https://langs.ink/article/houlangs/"
+                target="_blank"
+              >
+                了解更多团队信息
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-container>
+      </section>
+
+      <!-- 开源信息 -->
+      <section class="opensource-section py-12 bg-surface">
+        <v-container>
+          <v-row align="center">
+            <v-col cols="12" md="6" class="text-center mb-6 mb-md-0">
+              <v-icon color="primary" size="64">mdi-github</v-icon>
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <span class="text-overline text-primary">100% 开源</span>
+              <h2 class="mb-4 font-weight-medium">开放所有代码，允许自由使用</h2>
+              <p class="text-medium-emphasis mb-6">
+                ZeroCat是国内少有的完整开源且内容完善的编程社区，我们向您提供了完整的在线编程解决方案
+              </p>
               <v-btn
                 color="primary"
                 variant="flat"
-                class="mr-4"
+                href="https://github.com/zerocatdev"
+                target="_blank"
+                prepend-icon="mdi-github"
+              >
+                访问 GitHub
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-container>
+      </section>
+
+      <!-- 用户评价轮播 -->
+      <section class="testimonials-section py-12">
+        <v-container>
+          <v-row justify="center" class="mb-8">
+            <v-col cols="12" md="8" class="text-center">
+              <span class="text-overline text-primary">用户评价</span>
+              <h2 class="mb-2 font-weight-medium">他们怎么说</h2>
+              <p class="text-medium-emphasis">来自社区成员的真实反馈</p>
+            </v-col>
+          </v-row>
+
+          <v-row justify="center">
+            <v-col cols="12" md="10">
+              <v-carousel hide-delimiters height="320" show-arrows="hover">
+                <v-carousel-item
+                  v-for="(testimonial, i) in testimonials"
+                  :key="i"
+                >
+                  <v-card
+                    class="mx-auto h-100 d-flex flex-column justify-center pa-8"
+                    variant="flat"
+                  >
+                    <div class="text-center">
+                      <v-rating
+                        :model-value="5"
+                        color="amber"
+                        density="compact"
+                        readonly
+                        size="small"
+                      ></v-rating>
+                      <p class="my-6 text-medium-emphasis font-italic">
+                        "{{ testimonial.quote }}"
+                      </p>
+                      <v-avatar size="64" class="mb-2" v-if="testimonial.avatar">
+                        <v-img :src="testimonial.avatar"></v-img>
+                      </v-avatar>
+                      <div class="font-weight-medium">{{ testimonial.name }}</div>
+                      <div class="text-caption text-medium-emphasis">
+                        {{ testimonial.title }}
+                      </div>
+                    </div>
+                  </v-card>
+                </v-carousel-item>
+              </v-carousel>
+            </v-col>
+          </v-row>
+        </v-container>
+      </section>
+
+      <!-- 常见问题 -->
+      <section class="faq-section py-12 bg-surface">
+        <v-container>
+          <v-row justify="center" class="mb-8">
+            <v-col cols="12" md="8" class="text-center">
+              <span class="text-overline text-primary">常见问题</span>
+              <h2 class="mb-2 font-weight-medium">您可能想知道</h2>
+              <p class="text-medium-emphasis">我们收集了一些常见问题的解答</p>
+            </v-col>
+          </v-row>
+
+          <v-row justify="center">
+            <v-col cols="12" md="8">
+              <v-expansion-panels variant="accordion">
+                <v-expansion-panel v-for="(faq, i) in faqs" :key="i">
+                  <v-expansion-panel-title>
+                    {{ faq.question }}
+                  </v-expansion-panel-title>
+                  <v-expansion-panel-text>
+                    {{ faq.answer }}
+                  </v-expansion-panel-text>
+                </v-expansion-panel>
+              </v-expansion-panels>
+            </v-col>
+          </v-row>
+        </v-container>
+      </section>
+
+      <!-- 技术栈展示 -->
+      <section class="tech-stack-section py-12 bg-surface">
+        <v-container>
+          <v-row justify="center" class="mb-8">
+            <v-col cols="12" md="8" class="text-center">
+              <span class="text-overline text-primary">技术栈</span>
+              <h2 class="mb-2 font-weight-medium">我们使用的技术</h2>
+              <p class="text-medium-emphasis">现代化的技术栈确保最佳用户体验</p>
+            </v-col>
+          </v-row>
+
+          <v-row justify="center" align="center">
+            <v-col
+              v-for="(tech, i) in techStack"
+              :key="i"
+              cols="4"
+              sm="3"
+              md="2"
+              class="text-center"
+            >
+              <v-tooltip :text="tech.name" location="top">
+                <template v-slot:activator="{ props }">
+                  <v-icon
+                    v-bind="props"
+                    :icon="tech.icon"
+                    size="x-large"
+                    class="tech-icon mb-2"
+                  ></v-icon>
+                </template>
+              </v-tooltip>
+              <div class="text-caption">{{ tech.name }}</div>
+            </v-col>
+          </v-row>
+        </v-container>
+      </section>
+
+      <!-- 行动召唤 -->
+      <section class="cta-section py-16 bg-primary">
+        <v-container>
+          <v-row justify="center">
+            <v-col cols="12" md="8" class="text-center text-white">
+              <h2 class="mb-4 font-weight-medium">准备好开始了吗？</h2>
+              <p class="mb-8 text-white text-opacity-70">
+                加入我们的编程社区，探索无限可能
+              </p>
+              <v-btn
+                color="white"
+                variant="elevated"
                 to="/app/explore"
+                class="mr-4"
               >
                 浏览作品
               </v-btn>
-              <v-btn variant="outlined" href="https://langs.ink/article/houlangs/" target="_blank"> 了解更多 </v-btn>
+              <v-btn color="white" variant="outlined"> 了解更多 </v-btn>
+            </v-col>
+          </v-row>
+        </v-container>
+      </section>
+
+      <!-- 页脚 -->
+      <v-footer class="pt-6 pt-md-16 pb-0 d-flex flex-column">
+        <v-row>
+          <v-col cols="12" lg="4" md="12">
+            <div class="d-flex align-center mb-6">
+              <span class="text-h5 font-weight-bold primary--text">ZeroCat</span>
             </div>
+            <p class="text-medium-emphasis">新一代开源编程社区</p>
+            <div class="mt-3">
+              <v-btn
+                v-for="social in socialLinks"
+                :key="social.icon"
+                :icon="social.icon"
+                :href="social.link"
+                target="_blank"
+                size="small"
+                variant="text"
+              />
+            </div>
+          </v-col>
 
+          <v-col
+            v-for="(section, i) in footerLinks"
+            :key="i"
+            cols="6"
+            lg="2"
+            md="3"
+          >
+            <p class="text-body-1 font-weight-bold mb-3">{{ section.title }}</p>
+            <div v-for="link in section.links" :key="link.text">
+              <v-btn
+                class="text-none px-0 justify-start"
+                :href="link.href"
+                :to="link.to"
+                :ripple="false"
+                :text="link.text"
+                variant="plain"
+                target="_blank"
+              />
+            </div>
+          </v-col>
+        </v-row>
+
+        <v-divider class="mt-6"></v-divider>
+
+        <div class="px-4 py-2 text-caption text-center w-100 d-flex align-center justify-space-between flex-wrap">
+          <span>&copy; {{ new Date().getFullYear() }} ZeroCat. Sunwuyuan & 厚浪开发组</span>
+          <div>
             <v-chip
+              v-for="(partner, index) in partners"
+              :key="index"
               variant="outlined"
-              color="primary"
-              size="small"
-              class="mt-4"
-              href="https://www.rainyun.com/wuyuan_?s=zerocat"
+              size="x-small"
+              class="ma-1"
+              :href="partner.link"
               target="_blank"
             >
-              由雨云提供技术支持
+              {{ partner.name }}
             </v-chip>
-          </v-col>
-
-          <v-col cols="12" md="6" class="d-none d-md-flex justify-center">
-            <v-img
-              src="https://cdn.jsdelivr.net/gh/houlangs/houlangs@main/hero-image.webp"
-              max-width="400"
-              contain
-              class="hero-image"
-            ></v-img>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
-
-    <!-- 特性区域 -->
-    <section class="features-section py-12 bg-surface">
-      <v-container>
-        <v-row justify="center" class="mb-8">
-          <v-col cols="12" md="8" class="text-center">
-            <span class="text-overline text-primary">ZeroCat 特性</span>
-            <h2 class="mb-2 font-weight-medium">为什么选择我们？</h2>
-            <p class="text-medium-emphasis">
-              开源、易用、功能丰富的编程社区平台
-            </p>
-          </v-col>
-        </v-row>
-
-        <v-row>
-          <v-col
-            v-for="(feature, i) in features"
-            :key="i"
-            cols="12"
-            sm="6"
-            md="4"
-          >
-            <v-card class="h-100 pa-4 card-glass">
-              <v-icon :color="feature.color" size="36" class="mb-4">{{
-                feature.icon
-              }}</v-icon>
-              <div class="font-weight-medium mb-2">{{ feature.title }}</div>
-              <p class="text-caption text-medium-emphasis">
-                {{ feature.text }}
-              </p>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
-
-    <!-- 项目统计 -->
-    <section class="stats-section py-12">
-      <v-container>
-        <v-row justify="center">
-          <v-col v-for="(stat, i) in stats" :key="i" cols="6" sm="4" lg="3">
-            <v-card variant="flat" class="text-center py-6 card-glass">
-              <div class="text-primary font-weight-bold mb-1">
-                {{ stat.title }}
-              </div>
-              <div class="text-caption text-medium-emphasis">
-                {{ stat.subtitle }}
-              </div>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
-
-    <!-- Scratcher社区 -->
-    <section class="community-section py-12 bg-surface">
-      <v-container>
-        <v-row align="center">
-          <v-col cols="12" md="6" class="order-2 order-md-1">
-            <span class="text-overline text-primary">面向Scratcher</span>
-            <h2 class="mb-4 font-weight-medium">寻找更广阔的编程社区？</h2>
-            <p class="text-medium-emphasis mb-6">
-              欢迎各位Scratcher加入ZeroCat，这里不仅有丰富的作品展示，还有更多编程资源和学习机会。
-            </p>
-            <v-btn color="primary" variant="flat" to="/app/explore">
-              探索社区
-            </v-btn>
-          </v-col>
-
-          <v-col
-            cols="12"
-            md="6"
-            class="order-1 order-md-2 text-center mb-6 mb-md-0"
-          >
-            <v-img
-              src="https://cdn.jsdelivr.net/gh/houlangs/houlangs@main/community.webp"
-              max-width="320"
-              class="mx-auto"
-            ></v-img>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
-
-    <!-- 团队成员 -->
-    <section class="team-section py-12">
-      <v-container>
-        <v-row justify="center" class="mb-8">
-          <v-col cols="12" md="8" class="text-center">
-            <span class="text-overline text-primary">团队介绍</span>
-            <h2 class="mb-2 font-weight-medium">厚浪开发组</h2>
-            <p class="text-medium-emphasis">一支朝气蓬勃、热爱代码的创新团队</p>
-          </v-col>
-        </v-row>
-
-        <v-row>
-          <v-col v-for="(member, i) in teamMembers" :key="i" cols="6" sm="3">
-            <v-card
-              variant="flat"
-              class="text-center pa-4 card-glass"
-              :href="member.link"
-              target="_blank"
-            >
-              <v-avatar size="80" class="mb-3">
-                <v-img :src="member.avatar" alt="团队成员"></v-img>
-              </v-avatar>
-              <div class="font-weight-medium">{{ member.title }}</div>
-              <div class="text-caption text-medium-emphasis">
-                {{ member.subtitle }}
-              </div>
-            </v-card>
-          </v-col>
-        </v-row>
-
-        <v-row justify="center" class="mt-6">
-          <v-col cols="12" md="8" class="text-center">
-            <p class="text-caption bg-surface pa-3 rounded">
-              <q>长江后浪推前浪，浮世新人换旧人</q> -
-              我们致力于使用最新技术，助力青少年上云
-            </p>
-            <v-btn
-              variant="text"
-              color="primary"
-              size="small"
-              class="mt-2"
-              href="https://langs.ink/article/houlangs/"
-              target="_blank"
-            >
-              了解更多团队信息
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
-
-    <!-- 开源信息 -->
-    <section class="opensource-section py-12 bg-surface">
-      <v-container>
-        <v-row align="center">
-          <v-col cols="12" md="6" class="text-center mb-6 mb-md-0">
-            <v-icon color="primary" size="64">mdi-github</v-icon>
-          </v-col>
-
-          <v-col cols="12" md="6">
-            <span class="text-overline text-primary">100% 开源</span>
-            <h2 class="mb-4 font-weight-medium">开放所有代码，允许自由使用</h2>
-            <p class="text-medium-emphasis mb-6">
-              ZeroCat是国内少有的完整开源且内容完善的编程社区，我们向您提供了完整的在线编程解决方案
-            </p>
-            <v-btn
-              color="primary"
-              variant="flat"
-              href="https://github.com/zerocatdev"
-              target="_blank"
-              prepend-icon="mdi-github"
-            >
-              访问 GitHub
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
-
-    <!-- 用户评价轮播 -->
-    <section class="testimonials-section py-12">
-      <v-container>
-        <v-row justify="center" class="mb-8">
-          <v-col cols="12" md="8" class="text-center">
-            <span class="text-overline text-primary">用户评价</span>
-            <h2 class="mb-2 font-weight-medium">他们怎么说</h2>
-            <p class="text-medium-emphasis">来自社区成员的真实反馈</p>
-          </v-col>
-        </v-row>
-
-        <v-row justify="center">
-          <v-col cols="12" md="10">
-            <v-carousel hide-delimiters height="320" show-arrows="hover">
-              <v-carousel-item
-                v-for="(testimonial, i) in testimonials"
-                :key="i"
-              >
-                <v-card
-                  class="mx-auto h-100 d-flex flex-column justify-center pa-8"
-                  variant="flat"
-                >
-                  <div class="text-center">
-                    <v-rating
-                      :model-value="5"
-                      color="amber"
-                      density="compact"
-                      readonly
-                      size="small"
-                    ></v-rating>
-                    <p class="my-6 text-medium-emphasis font-italic">
-                      "{{ testimonial.quote }}"
-                    </p>
-                    <v-avatar size="64" class="mb-2" v-if="testimonial.avatar">
-                      <v-img :src="testimonial.avatar"></v-img>
-                    </v-avatar>
-                    <div class="font-weight-medium">{{ testimonial.name }}</div>
-                    <div class="text-caption text-medium-emphasis">
-                      {{ testimonial.title }}
-                    </div>
-                  </div>
-                </v-card>
-              </v-carousel-item>
-            </v-carousel>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
-
-    <!-- 常见问题 -->
-    <section class="faq-section py-12 bg-surface">
-      <v-container>
-        <v-row justify="center" class="mb-8">
-          <v-col cols="12" md="8" class="text-center">
-            <span class="text-overline text-primary">常见问题</span>
-            <h2 class="mb-2 font-weight-medium">您可能想知道</h2>
-            <p class="text-medium-emphasis">我们收集了一些常见问题的解答</p>
-          </v-col>
-        </v-row>
-
-        <v-row justify="center">
-          <v-col cols="12" md="8">
-            <v-expansion-panels variant="accordion">
-              <v-expansion-panel v-for="(faq, i) in faqs" :key="i">
-                <v-expansion-panel-title>
-                  {{ faq.question }}
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  {{ faq.answer }}
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-            </v-expansion-panels>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
-
-    <!-- 技术栈展示 -->
-    <section class="tech-stack-section py-12 bg-surface">
-      <v-container>
-        <v-row justify="center" class="mb-8">
-          <v-col cols="12" md="8" class="text-center">
-            <span class="text-overline text-primary">技术栈</span>
-            <h2 class="mb-2 font-weight-medium">我们使用的技术</h2>
-            <p class="text-medium-emphasis">现代化的技术栈确保最佳用户体验</p>
-          </v-col>
-        </v-row>
-
-        <v-row justify="center" align="center">
-          <v-col
-            v-for="(tech, i) in techStack"
-            :key="i"
-            cols="4"
-            sm="3"
-            md="2"
-            class="text-center"
-          >
-            <v-tooltip :text="tech.name" location="top">
-              <template v-slot:activator="{ props }">
-                <v-icon
-                  v-bind="props"
-                  :icon="tech.icon"
-                  size="x-large"
-                  class="tech-icon mb-2"
-                ></v-icon>
-              </template>
-            </v-tooltip>
-            <div class="text-caption">{{ tech.name }}</div>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
-
-    <!-- 行动召唤 -->
-    <section class="cta-section py-16 bg-primary">
-      <v-container>
-        <v-row justify="center">
-          <v-col cols="12" md="8" class="text-center text-white">
-            <h2 class="mb-4 font-weight-medium">准备好开始了吗？</h2>
-            <p class="mb-8 text-white text-opacity-70">
-              加入我们的编程社区，探索无限可能
-            </p>
-            <v-btn
-              color="white"
-              variant="elevated"
-              to="/app/explore"
-              class="mr-4"
-            >
-              浏览作品
-            </v-btn>
-            <v-btn color="white" variant="outlined"> 了解更多 </v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
-
-    <!-- 页脚 -->
-    <v-footer class="pt-6 pt-md-16 pb-0 d-flex flex-column">
-      <v-row>
-        <v-col cols="12" lg="4" md="12">
-          <div class="d-flex align-center mb-6">
-            <span class="text-h5 font-weight-bold primary--text">ZeroCat</span>
           </div>
-          <p class="text-medium-emphasis">新一代开源编程社区</p>
-          <div class="mt-3">
-            <v-btn
-              v-for="social in socialLinks"
-              :key="social.icon"
-              :icon="social.icon"
-              :href="social.link"
-              target="_blank"
-              size="small"
-              variant="text"
-            />
-          </div>
-        </v-col>
-
-        <v-col
-          v-for="(section, i) in footerLinks"
-          :key="i"
-          cols="6"
-          lg="2"
-          md="3"
-        >
-          <p class="text-body-1 font-weight-bold mb-3">{{ section.title }}</p>
-          <div v-for="link in section.links" :key="link.text">
-            <v-btn
-              class="text-none px-0 justify-start"
-              :href="link.href"
-              :to="link.to"
-              :ripple="false"
-              :text="link.text"
-              variant="plain"
-              target="_blank"
-            />
-          </div>
-        </v-col>
-      </v-row>
-
-      <v-divider class="mt-6"></v-divider>
-
-      <div class="px-4 py-2 text-caption text-center w-100 d-flex align-center justify-space-between flex-wrap">
-        <span>&copy; {{ new Date().getFullYear() }} ZeroCat. Sunwuyuan & 厚浪开发组</span>
-        <div>
-          <v-chip
-            v-for="(partner, index) in partners"
-            :key="index"
-            variant="outlined"
-            size="x-small"
-            class="ma-1"
-            :href="partner.link"
-            target="_blank"
-          >
-            {{ partner.name }}
-          </v-chip>
         </div>
-      </div>
-    </v-footer>
+      </v-footer>
+    </div>
   </div>
 </template>
 
@@ -452,6 +456,7 @@ import { ref, onMounted } from "vue";
 import { useHead } from "@unhead/vue";
 import axios from "@/axios/axios";
 import Typewriter from "@/components/Typewriter.vue";
+import PageAnalytics from "@/components/analytics/PageAnalytics.vue";
 // 设置页面元数据
 useHead({
   title: "ZeroCat - 新一代开源编程社区",
@@ -602,27 +607,6 @@ const techStack = [
   { name: "Scratch", icon: "mdi-cat" },
 ];
 
-// 订阅表单
-const newsletter = ref({
-  email: "",
-  loading: false,
-});
-
-// 提交订阅
-const submitNewsletter = async () => {
-  try {
-    newsletter.value.loading = true;
-    // TODO: 实际的API调用，目前只是模拟
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    newsletter.value.email = "";
-    alert("订阅成功！感谢您的关注。");
-  } catch (error) {
-    console.error("订阅失败", error);
-    alert("订阅失败，请稍后再试。");
-  } finally {
-    newsletter.value.loading = false;
-  }
-};
 
 // 获取统计信息
 const getInfo = async () => {

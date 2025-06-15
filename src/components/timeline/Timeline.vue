@@ -19,7 +19,7 @@
           </v-chip>
         </div>
 
-        <router-link :to="`/app/link/project?id=${event.target?.id}`" class="text-decoration-none"
+        <router-link :to="getProjectLink(event.target?.id)" class="text-decoration-none"
           v-if="eventTypes[event.type]?.isProject">
           {{ event.event_data?.project_title }}
         </router-link>
@@ -29,7 +29,7 @@
         <!-- Project Event Card -->
         <v-card
           v-if="eventTypes[event.type]?.isProject && !['project_rename', 'project_commit'].includes(event.type)"
-          class="mb-3 project-event" :to="`/app/link/project?id=${event.target?.id}`">
+          class="mb-3 project-event" :to="getProjectLink(event.target?.id)">
           <v-card-text>
             <div class="project-info">
               <v-icon icon="mdi-source-repository" color="primary" class="mr-2" />
@@ -46,7 +46,7 @@
         <template v-else-if="['project_rename', 'project_commit', 'project_info_update'].includes(event.type)">
           <!-- Rename Event -->
           <template v-if="event.type === 'project_rename'">
-            <v-card class="rename-card mb-3" :to="`/app/link/project?id=${event.target?.id}`">
+            <v-card class="rename-card mb-3" :to="getProjectLink(event.target?.id)">
               <v-card-text>
                 <div class="d-flex align-center mb-2">
                   <v-icon icon="mdi-rename-box" color="warning" class="mr-2" />
@@ -76,7 +76,7 @@
 
           <!-- Commit Event -->
           <template v-else-if="event.type === 'project_commit'">
-            <v-card class="commit-card mb-3" :to="`/app/link/project?id=${event.target?.id}`">
+            <v-card class="commit-card mb-3" :to="getProjectLink(event.target?.id)">
               <v-card-text>
                 <div class="d-flex align-center mb-2">
                   <v-icon icon="mdi-source-commit" color="info" class="mr-2" />
@@ -94,7 +94,7 @@
 
           <!-- Project Info Update Event -->
           <template v-else-if="event.type === 'project_info_update'">
-            <v-card class="info-update-card mb-3" :to="`/app/link/project?id=${event.target?.id}`">
+            <v-card class="info-update-card mb-3" :to="getProjectLink(event.target?.id)">
               <v-card-text>
                 <div class="d-flex align-center mb-2">
                   <v-icon icon="mdi-file-document-edit" color="info" class="mr-2" />
@@ -143,7 +143,7 @@
           <template v-else-if="event.target?.type === 'project'">
             <div class="text-body-2">
               <span>{{ eventTypes[event.type]?.text || '操作了' }}</span>
-              <router-link :to="`/app/link/project?id=${event.target.id}`" class="text-decoration-none ml-1">
+              <router-link :to="getProjectLink(event.target.id)" class="text-decoration-none ml-1">
                 {{ event.event_data?.project_name || event.target.title || `项目 #${event.target.id}` }}
               </router-link>
             </div>
@@ -169,6 +169,9 @@
 </template>
 
 <script>
+import { ref, onMounted, watch } from 'vue';
+import { getProjectInfo } from '@/services/projectService';
+
 export default {
   name: 'Timeline',
   props: {
@@ -189,9 +192,53 @@ export default {
       default: false
     }
   },
-  data() {
+  setup(props) {
+    const projectInfoMap = ref(new Map());
+    const VITE_APP_S3_BUCKET = import.meta.env.VITE_APP_S3_BUCKET;
+
+    const fetchProjectInfo = async (projectIds) => {
+      try {
+        const uniqueIds = [...new Set(projectIds)].filter(id => id && !projectInfoMap.value.has(id));
+        if (uniqueIds.length === 0) return;
+
+        const response = await getProjectInfo(uniqueIds);
+        if (response && Array.isArray(response)) {
+          response.forEach(project => {
+            if (project && project.id) {
+              projectInfoMap.value.set(project.id, project);
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch project info:', error);
+      }
+    };
+
+    const getProjectLink = (projectId) => {
+      if (!projectId) return '/app/link/project';
+
+      const project = projectInfoMap.value.get(projectId);
+      if (!project || !project.author || !project.name) {
+        return `/app/link/project?id=${projectId}`;
+      }
+
+      return `/${project.author.username}/${project.name}`;
+    };
+
+    watch(() => props.timeline.events, async (newEvents) => {
+      if (!newEvents) return;
+
+      const projectIds = newEvents
+        .filter(event => event.target?.type === 'project' && event.target?.id)
+        .map(event => event.target.id);
+
+      await fetchProjectInfo(projectIds);
+    }, { immediate: true });
+
     return {
-      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
+      VITE_APP_S3_BUCKET,
+      projectInfoMap,
+      getProjectLink,
       eventTypes: {
         project_create: {
           text: '创建了新项目',
