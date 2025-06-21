@@ -155,8 +155,8 @@ export default {
 
       if (user.avatar) return user.avatar;
 
-      if (user.images) {
-        return `${import.meta.env.VITE_APP_S3_BUCKET}/user/${user.images}`;
+      if (user.avatar) {
+        return `${import.meta.env.VITE_APP_S3_BUCKET}/user/${user.avatar}`;
       }
 
       return '';

@@ -108,7 +108,7 @@ export default {
         },
         profile: {
           id: 1,
-          images: {
+          avatar: {
             "90x90":
               "https://cdn2.scratch.mit.edu/get_image/user/78738602_90x90.png?v=",
             "60x60":

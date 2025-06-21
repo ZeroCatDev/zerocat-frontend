@@ -16,38 +16,58 @@
           <v-responsive class="mt-8">
             <v-row class="d-flex align-center">
               <v-col>
-                <p class="font-weight-medium text-primary">ZeroCat 用户</p>
+                <p class="font-weight-medium text-primary">
+                  {{
+                    user.type === "administrator" ? "ZeroCat 管理员" : "开发者"
+                  }}
+                </p>
                 <p
                   class="font-weight-bold text-sm-h2 text-h4 mt-2 d-inline-flex align-center username"
                 >
                   {{ user.display_name }}
+                  <!--   <span v-if="user.custom_status" class="ml-2" style="font-size: 1.2rem;">
+                    {{ user.custom_status.emoji }} {{ user.custom_status.text }}
+                  </span>-->
                   <v-avatar size="52" class="ma-2">
-                    <v-img :src="VITE_APP_S3_BUCKET + '/user/' + user.images" />
+                    <v-img :src="VITE_APP_S3_BUCKET + '/user/' + user.avatar" />
                   </v-avatar>
                 </p>
-                <p
-                  class="mt-2 text-body-1 text-medium-emphasis"
-                  style="
-                    word-break: break-word;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                  "
-                >
+                <p class="mt-2 text-body-1 text-medium-emphasis user-motto">
                   {{ user.motto }}
                 </p>
                 <p class="mt-2 text-medium-emphasis">
-                  <v-chip>
+                  <v-chip class="mr-2">
                     <v-icon icon="mdi-account-circle" start></v-icon>
                     #{{ user.id }}
                   </v-chip>
-                  <v-chip>
+                  <v-chip class="mr-2">
                     <v-icon icon="mdi-clock" start></v-icon>
                     <TimeAgo :date="user.regTime"></TimeAgo> 注册
                   </v-chip>
-                  <v-chip>
-                    <v-icon icon="mdi-tag" start></v-icon>
-                    {{ user.id === 1 ? "社区管理员" : "用户" }}
+                  <v-chip class="mr-2" v-if="user.location">
+                    <v-icon icon="mdi-map-marker" start></v-icon>
+                    {{ user.location }}
+                  </v-chip>
+                  <v-chip class="mr-2" v-if="user.birthday">
+                    <v-icon icon="mdi-cake-variant" start></v-icon>
+                    {{ new Date(user.birthday).toLocaleDateString() }}
+                  </v-chip>
+                  <v-chip
+                    class="mr-2"
+                    v-if="user.url"
+                    append-icon="mdi-open-in-new"
+                  >
+                    <v-icon icon="mdi-web" start></v-icon>
+                    <a
+                      :href="user.url"
+                      target="_blank"
+                      class="text-decoration-none"
+                      >{{ user.url }}</a
+                    >
+                  </v-chip>
+                  <v-chip v-if="!user.isActive" color="error">
+                    <v-icon icon="mdi-alert-circle" start></v-icon>
+                    异常
                   </v-chip>
                 </p>
                 <user-relation-controls
@@ -67,7 +87,7 @@
           <v-card title="关于我" subtitle="README.md">
             <v-card-text class="markdown-body">
               <br />
-              <Markdown>{{ user.motto }}</Markdown>
+              <Markdown>{{ user.bio }}</Markdown>
             </v-card-text>
           </v-card>
           <Projects :url="url"></Projects>
@@ -238,7 +258,7 @@ export default {
       },
       fieldDisplayNames: {
         display_name: "昵称",
-        motto: "个性签名",
+        bio: "个性签名",
         sex: "性别",
         birthday: "生日",
         avatar: "头像",
@@ -557,5 +577,31 @@ export default {
 
 .new-value {
   font-weight: 500;
+}
+
+.user-motto {
+  word-break: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80%;
+}
+
+.v-chip {
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
 }
 </style>

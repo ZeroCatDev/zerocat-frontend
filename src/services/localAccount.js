@@ -17,8 +17,8 @@ const AUTO_REFRESH_ENABLED = true;
 const DEFAULT_USER = {
   id: 0,
   display_name: "未登录",
-  motto: "未登录用户",
-  images: "",
+  bio: "未登录用户",
+  avatar: "",
   regTime: "",
   sex: "0",
   username: "virtual",
@@ -92,8 +92,8 @@ const fetchUserInfo = async () => {
   user.value = {
     id: data.data.id,
     display_name: data.data.display_name,
-    motto: data.data.motto,
-    images: data.data.images,
+    bio: data.data.bio,
+    avatar: data.data.avatar,
     regTime: data.data.regTime,
     sex: data.data.sex,
     username: data.data.username,

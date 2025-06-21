@@ -20,7 +20,7 @@
       </v-img>
     </v-card>
     <!-- 作者信息区域 -->
-    <v-card-item v-if="showAuthor && author" :append-avatar="author.images ? VITE_APP_S3_BUCKET + '/user/' + author.images : ''">
+    <v-card-item v-if="showAuthor && author" :append-avatar="author.avatar ? VITE_APP_S3_BUCKET + '/user/' + author.avatar : ''">
       <v-card-title>{{ author.display_name || author.username || "未知用户" }}</v-card-title>
       <v-card-subtitle>{{ author.username || "" }}</v-card-subtitle>
     </v-card-item>

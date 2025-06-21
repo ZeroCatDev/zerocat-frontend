@@ -18,7 +18,7 @@
           <template v-slot:prepend>
             <router-link :to="`/${follower.user.username}`">
               <v-avatar size="50">
-                <v-img :src="VITE_APP_S3_BUCKET + '/user/' + (follower.user.avatar || follower.user.images)" alt="用户头像" />
+                <v-img :src="VITE_APP_S3_BUCKET + '/user/' + (follower.user.avatar || follower.user.avatar)" alt="用户头像" />
               </v-avatar>
             </router-link>
           </template>

@@ -23,7 +23,7 @@
         height="150"
       >
         <v-img
-          :src="previewImage || (s3BucketUrl + '/user/' + userData.images)"
+          :src="previewImage || (s3BucketUrl + '/user/' + userData.avatar)"
           height="150"
           width="150"
           cover

@@ -4,7 +4,7 @@
       <v-avatar class="ma-3" size="64">
         <v-img
           :alt="userData.display_name"
-          :src="s3BucketUrl + '/user/' + userData.images"
+          :src="s3BucketUrl + '/user/' + userData.avatar"
           cover
         ></v-img>
       </v-avatar>
@@ -27,9 +27,9 @@
       </v-card-subtitle>
     </v-card-item>
 
-    <v-card-text v-if="userData.motto"><!--超出一行则显示...-->
+    <v-card-text v-if="userData.bio"><!--超出一行则显示...-->
       <div class="text-body-2 text-medium-emphasis" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-        {{ userData.motto }}
+        {{ userData.bio }}
       </div>
     </v-card-text>
 

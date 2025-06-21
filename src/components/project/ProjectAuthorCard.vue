@@ -5,12 +5,12 @@
         <v-avatar>
           <v-img
             :alt="author.display_name"
-            :src="VITE_APP_S3_BUCKET + '/user/' + author.images"
+            :src="VITE_APP_S3_BUCKET + '/user/' + author.avatar"
           ></v-img>
         </v-avatar>
       </template>
       <v-card-title class="text-white">{{ author.display_name }}</v-card-title>
-      <v-card-subtitle class="text-white">{{ author.motto }}</v-card-subtitle>
+      <v-card-subtitle class="text-white">{{ author.bio }}</v-card-subtitle>
 
       <template v-slot:append v-if="localuser.id && localuser.id !== author.id">
         <user-relation-controls

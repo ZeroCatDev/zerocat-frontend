@@ -210,7 +210,7 @@ export default {
           },
           profile: {
             id: null,
-            images: {
+            avatar: {
               "90x90": "",
               "60x60": "",
               "55x55": "",
@@ -220,7 +220,7 @@ export default {
           },
         },
         image: "",
-        images: {
+        avatar: {
           "282x218": "",
           "216x163": "",
           "200x200": "",

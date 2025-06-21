@@ -35,22 +35,22 @@
             <div class="d-flex ga-2 pa-4">
               <v-avatar
                 class="cursor-pointer"
-                image="https://vuetifyjs.b-cdn.net/images/john-smirk.png"
+                image="https://vuetifyjs.b-cdn.net/avatar/john-smirk.png"
                 size="small"
               />
               <v-avatar
                 class="cursor-pointer"
-                image="https://vuetifyjs.b-cdn.net/images/john.png"
+                image="https://vuetifyjs.b-cdn.net/avatar/john.png"
                 size="small"
               />
               <v-avatar
                 class="cursor-pointer"
-                image="https://vuetifyjs.b-cdn.net/images/john-beard.png"
+                image="https://vuetifyjs.b-cdn.net/avatar/john-beard.png"
                 size="small"
               />
               <v-avatar
                 class="cursor-pointer"
-                image="https://vuetifyjs.b-cdn.net/images/john.jpg"
+                image="https://vuetifyjs.b-cdn.net/avatar/john.jpg"
                 size="small"
               />
               <v-avatar

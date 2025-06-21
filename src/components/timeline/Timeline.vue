@@ -5,7 +5,7 @@
         {{ new Date(event.created_at).toLocaleString() }}
       </template>
       <template v-slot:icon>
-        <v-avatar :image="VITE_APP_S3_BUCKET + '/user/' + event.actor.images"></v-avatar>
+        <v-avatar :image="VITE_APP_S3_BUCKET + '/user/' + event.actor.avatar"></v-avatar>
       </template>
       <div class="timeline-item-content">
         <!-- Event Header -->
@@ -295,7 +295,7 @@ export default {
       },
       fieldDisplayNames: {
         display_name: '昵称',
-        motto: '个性签名',
+        bio: '个性签名',
         sex: '性别',
         birthday: '生日',
         avatar: '头像',

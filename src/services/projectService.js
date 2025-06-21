@@ -17,8 +17,8 @@ const defaultProject = (id) => ({
     id: 0,
     username: "未知用户",
     display_name: "未知用户",
-    motto: "",
-    images: "",
+    bio: "",
+    avatar: "",
     regTime: null
   },
 });

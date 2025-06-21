@@ -8,7 +8,7 @@
       <v-chip pill>
         <v-avatar start>
           <v-img
-            :src="VITE_APP_S3_BUCKET + '/user/' + author.images"
+            :src="VITE_APP_S3_BUCKET + '/user/' + author.avatar"
           ></v-img> </v-avatar
         >{{ author.display_name }}
       </v-chip>

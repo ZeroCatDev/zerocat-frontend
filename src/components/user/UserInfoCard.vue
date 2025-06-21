@@ -4,8 +4,8 @@
       <template v-slot:prepend>
         <v-avatar size="96">
           <v-img
-            v-if="user.images"
-            :src="VITE_APP_S3_BUCKET + '/user/' + user.images"
+            v-if="user.avatar"
+            :src="VITE_APP_S3_BUCKET + '/user/' + user.avatar"
             :alt="user.display_name"
           />
           <v-icon v-else size="48" icon="mdi-account"></v-icon>
@@ -15,8 +15,8 @@
       <v-card-subtitle>@{{ user.username || '...' }}</v-card-subtitle>
     </v-card-item>
 
-    <v-card-text v-if="user.motto" class="mt-2">
-      {{ user.motto }}
+    <v-card-text v-if="user.bio" class="mt-2">
+      {{ user.bio }}
     </v-card-text>
 
     <v-card-text class="d-flex gap-2">

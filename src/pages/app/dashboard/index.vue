@@ -51,7 +51,7 @@
             <template v-slot:prepend>
               <v-avatar size="32">
                 <v-img
-                  :src="VITE_APP_S3_BUCKET + '/user/' + project.author.images"
+                  :src="VITE_APP_S3_BUCKET + '/user/' + project.author.avatar"
                 />
               </v-avatar>
             </template>

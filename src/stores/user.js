@@ -4,8 +4,8 @@ import request from "../axios/axios.js";
 const defaultUser = (id) => ({
   id,
   display_name: "未知用户",
-  motto: "用户信息未缓存",
-  images: "",
+  bio: "用户信息未缓存",
+  avatar: "",
   regTime: "2000-01-01T00:00:00.000Z",
   sex: "未知",
   username: "未知",

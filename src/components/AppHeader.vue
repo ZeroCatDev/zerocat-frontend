@@ -63,7 +63,7 @@
             >
               <v-avatar
                 :image="
-                  VITE_APP_S3_BUCKET + '/user/' + localuser.user.value.images
+                  VITE_APP_S3_BUCKET + '/user/' + localuser.user.value.avatar
                 "
               ></v-avatar>
             </v-btn>
@@ -119,7 +119,7 @@
                   :title="localuser.user.value.display_name"
                   :subtitle="localuser.user.value.username"
                   :append-avatar="
-                    VITE_APP_S3_BUCKET + '/user/' + localuser.user.value.images
+                    VITE_APP_S3_BUCKET + '/user/' + localuser.user.value.avatar
                   "
                 ></v-card>
                 <v-list>

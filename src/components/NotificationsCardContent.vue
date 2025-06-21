@@ -35,14 +35,14 @@
                 size="40"
                 v-if="
                   notification.actor_id &&
-                  userCache[notification.actor_id]?.images
+                  userCache[notification.actor_id]?.avatar
                 "
               >
                 <v-img
                   :src="
                     VITE_APP_S3_BUCKET +
                     '/user/' +
-                    userCache[notification.actor_id].images
+                    userCache[notification.actor_id].avatar
                   "
                   alt="用户头像"
                 ></v-img>

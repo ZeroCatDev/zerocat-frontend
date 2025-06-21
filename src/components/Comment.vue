@@ -13,7 +13,7 @@
         <v-avatar color="blue-darken-2">
           <v-img
             :src="
-              VITE_APP_S3_BUCKET + '/user/' + users[comment.user_id].images
+              VITE_APP_S3_BUCKET + '/user/' + users[comment.user_id].avatar
             "
           ></v-img>
         </v-avatar>
@@ -50,7 +50,7 @@
           <template v-slot:prepend>
             <v-img
               :src="
-                VITE_APP_S3_BUCKET + '/user/' + users[children.user_id].images
+                VITE_APP_S3_BUCKET + '/user/' + users[children.user_id].avatar
               "
             ></v-img>
           </template>
@@ -111,7 +111,7 @@
               <v-avatar color="blue-darken-2">
                 <v-img
                   :src="
-                    VITE_APP_S3_BUCKET + '/user/' + users[moreComments.user_id].images
+                    VITE_APP_S3_BUCKET + '/user/' + users[moreComments.user_id].avatar
                   "
                 ></v-img>
               </v-avatar>
@@ -171,7 +171,7 @@
               <v-avatar color="blue-darken-2">
                 <v-img
                   :src="
-                    VITE_APP_S3_BUCKET + '/user/' + users[comment.user_id].images
+                    VITE_APP_S3_BUCKET + '/user/' + users[comment.user_id].avatar
                   "
                 ></v-img>
               </v-avatar>
