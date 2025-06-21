@@ -4,6 +4,7 @@
       <v-card-title class="d-flex align-center">
         <span>系统配置</span>
         <v-spacer></v-spacer>
+        <v-btn variant="tonal" @click="reload" prepend-icon="mdi-reload" class="mr-2"> 重载配置 </v-btn>
         <v-btn
           color="primary"
           @click="loadConfigs"
@@ -81,6 +82,14 @@ const showError = (text) => {
     text,
     color: 'error'
   }
+}
+
+const reload = () => {
+  axios.get('/api/admin/config/reload').then(res => {
+    if (res.status === 200) {
+      showSuccess('重载配置成功')
+    }
+  })
 }
 
 // 生命周期
