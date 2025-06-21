@@ -203,6 +203,7 @@ import { ref, onMounted, computed } from 'vue';
 import axios from '@/axios/axios';
 import { localuser } from '@/services/localAccount';
 import VerifyEmail from '@/components/verifyEmail.vue';
+import oauthProviders from '@/constants/oauth_providers.json';
 
 const oauthAccounts = ref([]);
 const message = ref('');
@@ -215,51 +216,18 @@ const availableProviders = ref([]);
 const BASE_API = import.meta.env.VITE_APP_BASE_API;
 const showDetailsDialog = ref(false);
 
-const providerStyles = {
-    google: {
-        backgroundColor: '#4285F4',
-        color: '#FFFFFF',
-    },
-    microsoft: {
-        backgroundColor: '#F25022',
-        color: '#FFFFFF',
-    },
-    github: {
-        backgroundColor: '#333333',
-        color: '#FFFFFF',
-    },
-    "40code": {
-        backgroundColor: '#000000',
-        color: '#FFFFFF',
-    },
-    linuxdo: {
-        backgroundColor: '#FFD700',
-        color: '#000000',
-    },
-    default: {
-        backgroundColor: '#CCCCCC',
-        color: '#000000',
-    },
-};
-
-const providerIcons = {
-    google: 'mdi-google',
-    microsoft: 'mdi-microsoft',
-    github: 'mdi-github',
-    "40code": 'mdi-code-braces',
-    linuxdo: 'mdi-linux',
-    default: 'mdi-link',
-};
-
 const getProviderIcon = (providerId) => {
     const id = providerId.replace('oauth_', '').toLowerCase();
-    return providerIcons[id] || providerIcons.default;
+    return oauthProviders[id]?.icon || oauthProviders.default.icon;
 };
 
 const getProviderName = (providerId) => {
     const id = providerId.replace('oauth_', '').toLowerCase();
-    const provider = availableProviders.value.find(p => p.id.toLowerCase() === id);
-    return provider ? provider.name : id.charAt(0).toUpperCase() + id.slice(1);
+    return oauthProviders[id]?.name || id.charAt(0).toUpperCase() + id.slice(1);
+};
+
+const getProviderStyle = (providerId) => {
+    return oauthProviders[providerId]?.style || oauthProviders.default.style;
 };
 
 const formatDate = (dateString) => {
@@ -363,10 +331,6 @@ const confirmUnlink = async (code) => {
 
 const bindProvider = (providerId) => {
     window.location.href = `${BASE_API}/account/oauth/bind/${providerId}?token=${localuser.getToken()}`;
-};
-
-const getProviderStyle = (providerId) => {
-    return providerStyles[providerId] || providerStyles.default;
 };
 
 const filteredProviders = computed(() => {

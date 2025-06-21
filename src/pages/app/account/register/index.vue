@@ -199,22 +199,22 @@
           </v-col>
 
           <v-col cols="12">
+            <v-divider class="my-4">
+              <span class="text-body-2 text-medium-emphasis">或使用以下方式登录/注册</span>
+            </v-divider>
+
             <div class="d-flex flex-wrap gap-2 justify-start mt-4">
               <v-btn
-                @click="registerWithOAuth('microsoft')"
-                color="blue"
-                prepend-icon="mdi-microsoft"
+              class="text-none mr-1 mb-1"
+                v-for="provider in providers"
+                :key="provider.id"
+                @click="registerWithOAuth(provider.id)"
+                :style="provider.style"
+                :prepend-icon="provider.icon"
                 variant="flat"
+
               >
-                Microsoft
-              </v-btn>
-              <v-btn
-                @click="registerWithOAuth('github')"
-                color="black"
-                prepend-icon="mdi-github"
-                variant="flat"
-              >
-                GitHub
+                {{ provider.name }}
               </v-btn>
             </div>
           </v-col>
@@ -234,6 +234,7 @@ import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
 import AuthCard from "@/components/AuthCard.vue";
 import { useHead } from "@unhead/vue";
+import oauthProviders from '@/constants/oauth_providers.json';
 
 export default {
   components: { LoadingDialog, Recaptcha, AuthCard },
@@ -274,6 +275,14 @@ export default {
       (v) => v.length >= 8 || "密码至少需要8个字符",
       (v) => /[A-Za-z]/.test(v) && /[0-9]/.test(v) || "密码必须包含字母和数字",
     ];
+
+    // OAuth providers
+    const providers = Object.entries(oauthProviders)
+      .filter(([key]) => key !== 'default')
+      .map(([key, value]) => ({
+        id: key,
+        ...value
+      }));
 
     // Check if user is already logged in
     if (localuser.isLogin.value === true) {
@@ -357,7 +366,7 @@ export default {
     };
 
     const registerWithOAuth = (provider) => {
-      window.location.href = AuthService.oauthRedirect(provider);
+      window.location.href = AuthService.oauthRedirect(provider, true);
     };
 
     const showSuccessToast = (message) => {
@@ -419,7 +428,15 @@ export default {
       registerWithOAuth,
       showSuccessToast,
       showErrorToast,
+      providers,
     };
   },
 };
 </script>
+
+<style scoped>
+.v-divider {
+  margin: 24px 0;
+  border-color: rgba(var(--v-border-color), var(--v-border-opacity));
+}
+</style>

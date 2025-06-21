@@ -97,34 +97,22 @@
               append-icon="mdi-arrow-right"
               to="/app/account/retrieve"
             ></v-btn>
-            <v-btn
-              class="text-none"
-              color="white"
-              rounded="xl"
-              text="魔术链接登录"
-              variant="text"
-              size="large"
-              append-icon="mdi-arrow-right"
-              to="/app/account/magiclink"
-            ></v-btn>
+
           </v-col>
 
           <v-col cols="12">
             <div class="d-flex flex-wrap gap-2 justify-start mt-4">
               <v-btn
-                @click="loginWithOAuth('microsoft')"
-                color="blue"
-                prepend-icon="mdi-microsoft"
+                class="text-none mr-1 mb-1"
+                v-for="provider in providers"
+                :key="provider.id"
+                @click="loginWithOAuth(provider.id)"
+                :style="provider.style"
+                :prepend-icon="provider.icon"
                 variant="flat"
-                >Microsoft</v-btn
               >
-              <v-btn
-                @click="loginWithOAuth('github')"
-                color="black"
-                prepend-icon="mdi-github"
-                variant="flat"
-                >GitHub</v-btn
-              >
+                {{ provider.name }}
+              </v-btn>
             </div>
           </v-col>
         </v-row>
@@ -143,6 +131,7 @@ import AuthService from "@/services/authService";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
 import AuthCard from "@/components/AuthCard.vue";
+import oauthProviders from '@/constants/oauth_providers.json';
 
 export default {
   components: { LoadingDialog, Recaptcha, AuthCard },
@@ -185,6 +174,14 @@ export default {
     useHead({
       title: "登录",
     });
+
+    // OAuth providers
+    const providers = Object.entries(oauthProviders)
+      .filter(([key]) => key !== 'default')
+      .map(([key, value]) => ({
+        id: key,
+        ...value
+      }));
 
     // Methods
     const getLoginButtonText = () => {
@@ -422,6 +419,7 @@ export default {
       handleBindVerified,
       handleBindError,
       handleBindClose,
+      providers,
     };
   },
 };
