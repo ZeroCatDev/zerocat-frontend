@@ -196,7 +196,7 @@ export default {
         this.showSnackbar(`已取消关注 ${displayName}`, "info");
       } catch (error) {
         console.error("取消关注失败:", error);
-        this.showSnackbar("操作失败，请稍后重试", "error");
+        this.showSnackbar(error.response.data.error.message || "操作失败，请稍后重试", "error");
       } finally {
         this.unfollowingId = null;
       }

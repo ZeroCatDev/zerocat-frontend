@@ -432,11 +432,7 @@ export default {
       const isAuthor = localuser.user.value.username == authorname;
       return [
         { title: "代码", link: `/${authorname}/${projectname}`, name: "home" },
-        {
-          title: "分叉",
-          link: `/${authorname}/${projectname}/fork`,
-          name: "fork",
-        },
+
         {
           title: "分析",
           link: `/${authorname}/${projectname}/analytics`,

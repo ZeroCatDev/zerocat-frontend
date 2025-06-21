@@ -191,7 +191,7 @@ export default {
         }
       } catch (error) {
         console.error("关注操作失败:", error);
-        this.showSnackbar("操作失败，请稍后重试", "error");
+        this.showSnackbar(error.response.data.error.message || "操作失败，请稍后重试", "error");
       } finally {
         this.actionLoading = null;
       }

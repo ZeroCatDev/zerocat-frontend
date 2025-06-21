@@ -184,7 +184,7 @@ export default {
         this.showSnackbar(`已取消拉黑 ${displayName}`, "success");
       } catch (error) {
         console.error("取消拉黑失败:", error);
-        this.showSnackbar("操作失败，请稍后重试", "error");
+        this.showSnackbar(error.response.data.error.message || "操作失败，请稍后重试", "error");
       } finally {
         this.unblockingId = null;
       }

@@ -29,7 +29,7 @@
         你正在分叉
         <span v-text="project.title"></span>
         ，这将会从此项目的生产环境创建一个一模一样的项目，新的项目将拥有一样的名称，简介与源代码内容。分叉是一个技术概念，不代表作者对你有任何授权。
-        <br />改编设立的目的是为了让社区中的作品得到更好的发展，请不要滥用改编，更不能直接抄袭。
+        <br />分叉设立的目的是为了让社区中的作品得到更好的发展，请不要滥用分叉，更不能直接抄袭。
       </template>
       <v-card-actions>
         <v-checkbox label="我已了解并确认" v-model="checkknow"></v-checkbox>
@@ -66,7 +66,7 @@
     <v-text>如果您已了解以上内容，请在下方的输入框中输入</v-text> <br /><br />
     <v-text-field
       hint="请准确输入上方的话"
-      label="我保证会好好对待改编的作品"
+      label="我保证会好好对待分叉的作品"
       type="input"
       v-model="checktext"
       :rules="textRules"
@@ -111,14 +111,14 @@ export default {
       author: {},
       openEditor: openEditor,
       localuser: localuser,
-      checktext: "我保证会好好对待改编的作品",
+      checktext: "",
       checkknow: true,
       checklicense: true,
       checkname: false,
       textRules: [
         (value) => (value ? true : "记得输入内容哦~"),
         (value) =>
-          value === "我保证会好好对待改编的作品" ? true : "输的不太对~",
+          value === "我保证会好好对待分叉的作品" ? true : "输的不太对~",
       ],
       forkprojectinfo: {
         name: "",

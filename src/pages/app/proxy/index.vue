@@ -84,7 +84,7 @@ export default {
       scratch_proxy: import.meta.env.VITE_APP_SCRATCH_PROXY,
       translate: {
         community_newest_projects: "最新创建",
-        community_most_remixed_projects: "大家在改编的作品",
+        community_most_remixed_projects: "大家在分叉的作品",
         scratch_design_studio: "Scratch设计室",
         curator_top_projects: "被特殊用户挑选的作品",
 

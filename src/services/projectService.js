@@ -210,3 +210,42 @@ export async function getProjectAnalytics(projectId, startDate, endDate) {
     throw error;
   }
 }
+
+export async function getProjectStats(projectId) {
+  try {
+    const response = await request.get(`/project/stats/${projectId}`);
+    return response.data.data;
+  } catch (error) {
+    console.error('Error fetching project stats:', error);
+    return {
+      pageviews: 0,
+      visitors: 0
+    };
+  }
+}
+
+export async function queryProjects(type, target, limit = 20, offset = 0) {
+  try {
+    const response = await request.get('/project/query', {
+      params: {
+        type,
+        target,
+        limit,
+        offset
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error querying projects:', error);
+    return {
+      status: 'error',
+      message: error.message,
+      data: {
+        projects: [],
+        total: 0,
+        limit,
+        offset
+      }
+    };
+  }
+}
