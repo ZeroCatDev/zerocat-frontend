@@ -97,23 +97,9 @@
               append-icon="mdi-arrow-right"
               to="/app/account/retrieve"
             ></v-btn>
-
           </v-col>
-
           <v-col cols="12">
-            <div class="d-flex flex-wrap gap-2 justify-start mt-4">
-              <v-btn
-                class="text-none mr-1 mb-1"
-                v-for="provider in providers"
-                :key="provider.id"
-                @click="loginWithOAuth(provider.id)"
-                :style="provider.style"
-                :prepend-icon="provider.icon"
-                variant="flat"
-              >
-                {{ provider.name }}
-              </v-btn>
-            </div>
+          <OAuthButtons mode="login" divider-text="或使用以下方式登录" />
           </v-col>
         </v-row>
       </v-form>
@@ -131,10 +117,11 @@ import AuthService from "@/services/authService";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
 import AuthCard from "@/components/AuthCard.vue";
+import OAuthButtons from "@/components/account/OAuthButtons.vue";
 import oauthProviders from '@/constants/oauth_providers.json';
 
 export default {
-  components: { LoadingDialog, Recaptcha, AuthCard },
+  components: { LoadingDialog, Recaptcha, AuthCard, OAuthButtons },
 
   setup() {
     const router = useRouter();
@@ -415,11 +402,9 @@ export default {
       loginWithCode,
       sendVerificationCode,
       sendMagicLink,
-      loginWithOAuth,
       handleBindVerified,
       handleBindError,
       handleBindClose,
-      providers,
     };
   },
 };

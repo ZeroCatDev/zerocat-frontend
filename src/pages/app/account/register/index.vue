@@ -198,26 +198,10 @@
             ></v-btn>
           </v-col>
 
-          <v-col cols="12">
-            <v-divider class="my-4">
-              <span class="text-body-2 text-medium-emphasis">或使用以下方式登录/注册</span>
-            </v-divider>
 
-            <div class="d-flex flex-wrap gap-2 justify-start mt-4">
-              <v-btn
-              class="text-none mr-1 mb-1"
-                v-for="provider in providers"
-                :key="provider.id"
-                @click="registerWithOAuth(provider.id)"
-                :style="provider.style"
-                :prepend-icon="provider.icon"
-                variant="flat"
-
-              >
-                {{ provider.name }}
-              </v-btn>
-            </div>
-          </v-col>
+            <v-col cols="12">
+              <OAuthButtons mode="register" />
+            </v-col>
         </v-row>
       </v-form>
     </AuthCard>
@@ -235,9 +219,10 @@ import Recaptcha from "@/components/Recaptcha.vue";
 import AuthCard from "@/components/AuthCard.vue";
 import { useHead } from "@unhead/vue";
 import oauthProviders from '@/constants/oauth_providers.json';
+import OAuthButtons from "@/components/account/OAuthButtons.vue";
 
 export default {
-  components: { LoadingDialog, Recaptcha, AuthCard },
+  components: { LoadingDialog, Recaptcha, AuthCard, OAuthButtons },
 
   setup() {
     const router = useRouter();
