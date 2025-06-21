@@ -437,6 +437,11 @@ export default {
           link: `/${authorname}/${projectname}/fork`,
           name: "fork",
         },
+        {
+          title: "分析",
+          link: `/${authorname}/${projectname}/analytics`,
+          name: "analytics",
+        },
         ...(isAuthor
           ? [
               {

@@ -195,3 +195,18 @@ export const deleteBranch = async (projectId, branchName) => {
   });
   return response.data;
 };
+
+export async function getProjectAnalytics(projectId, startDate, endDate) {
+  try {
+    const response = await request.get(`/project/analytics/${projectId}`, {
+      params: {
+        start_date: startDate,
+        end_date: endDate
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching project analytics:', error);
+    throw error;
+  }
+}
