@@ -675,7 +675,7 @@ export default {
       try {
         await axios.delete(`/oauth/applications/${this.$route.params.client_id}`)
         this.showSuccess('应用已删除')
-        this.$router.push({ name: 'app-oauth-applications' })
+        this.$router.push("/app/oauth/applications")
       } catch (error) {
         this.showError('删除应用失败')
         console.error('Failed to delete application:', error)

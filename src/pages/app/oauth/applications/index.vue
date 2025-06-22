@@ -26,8 +26,16 @@
           </v-card-text>
 
           <!-- 空状态 -->
-          <v-card-text v-else-if="applications.length === 0" class="text-center py-8">
-            <v-icon icon="mdi-apps" size="64" color="grey" class="mb-4"></v-icon>
+          <v-card-text
+            v-else-if="applications.length === 0"
+            class="text-center py-8"
+          >
+            <v-icon
+              icon="mdi-apps"
+              size="64"
+              color="grey"
+              class="mb-4"
+            ></v-icon>
             <h3 class="text-h6 mb-2">还没有OAuth应用</h3>
             <p class="text-body-1 text-grey">
               创建一个新的OAuth应用来让其他用户通过OAuth授权访问你的应用。
@@ -48,6 +56,7 @@
                 v-for="app in applications"
                 :key="app.client_id"
                 :to="`/app/oauth/applications/${app.client_id}`"
+                :style="{ display: app.status == 'deleted' ? 'none' : '' }"
                 class="app-list-item"
               >
                 <template v-slot:prepend>
@@ -72,12 +81,23 @@
 
                 <v-list-item-subtitle>
                   <div class="d-flex align-center text-grey">
-                    <v-icon icon="mdi-identifier" size="small" class="mr-1"></v-icon>
+                    <v-icon
+                      icon="mdi-identifier"
+                      size="small"
+                      class="mr-1"
+                    ></v-icon>
                     <span class="mr-4">{{ app.client_id }}</span>
-                    <v-icon icon="mdi-clock-outline" size="small" class="mr-1"></v-icon>
-                    <span>创建于 {{ new Date(app.created_at).toLocaleDateString() }}</span>
+                    <v-icon
+                      icon="mdi-clock-outline"
+                      size="small"
+                      class="mr-1"
+                    ></v-icon>
+                    <span
+                      >创建于
+                      {{ new Date(app.created_at).toLocaleDateString() }}</span
+                    >
                   </div>
-                  <div class="mt-1">{{ app.description || '暂无描述' }}</div>
+                  <div class="mt-1">{{ app.description || "暂无描述" }}</div>
                 </v-list-item-subtitle>
               </v-list-item>
             </v-list>
@@ -87,55 +107,51 @@
     </v-row>
 
     <!-- 错误提示 -->
-    <v-snackbar
-      v-model="snackbar.show"
-      :color="snackbar.color"
-      :timeout="3000"
-    >
+    <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="3000">
       {{ snackbar.text }}
     </v-snackbar>
   </v-container>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import axios from '@/axios/axios'
+import { ref, onMounted } from "vue";
+import axios from "@/axios/axios";
 
 // 状态变量
-const applications = ref([])
-const loading = ref(false)
+const applications = ref([]);
+const loading = ref(false);
 const snackbar = ref({
   show: false,
-  text: '',
-  color: 'error'
-})
+  text: "",
+  color: "error",
+});
 
 // 加载应用列表
 const loadApplications = async () => {
-  loading.value = true
+  loading.value = true;
   try {
-    const response = await axios.get('/oauth/applications')
-    applications.value = response.data
+    const response = await axios.get("/oauth/applications");
+    applications.value = response.data;
   } catch (error) {
-    showError('加载应用列表失败')
-    console.error('Failed to load applications:', error)
+    showError("加载应用列表失败");
+    console.error("Failed to load applications:", error);
   }
-  loading.value = false
-}
+  loading.value = false;
+};
 
 // 显示错误信息
 const showError = (text) => {
   snackbar.value = {
     show: true,
     text,
-    color: 'error'
-  }
-}
+    color: "error",
+  };
+};
 
 // 页面加载时获取数据
 onMounted(() => {
-  loadApplications()
-})
+  loadApplications();
+});
 </script>
 
 <style scoped>
