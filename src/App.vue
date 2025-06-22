@@ -13,7 +13,6 @@ import { use404Helper } from "@/composables/use404";
 // 导入布局
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import SimpleLayout from "@/layouts/SimpleLayout.vue";
-import Layout404 from "@/layouts/404Layout.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -22,15 +21,10 @@ const router = useRouter();
 const layouts = {
   default: DefaultLayout,
   simple: SimpleLayout,
-  404: Layout404
 };
 
 // 根据路由元数据确定使用哪个布局
 const currentLayout = computed(() => {
-  if (use404Helper.is404.value) {
-    console.log(use404Helper.is404.value);
-    return layouts['404'];
-  }
   const layoutName = route.meta.layout || "default";
   return layouts[layoutName];
 });
