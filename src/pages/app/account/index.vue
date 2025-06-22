@@ -143,6 +143,8 @@ export default {
         { title: "OAuth", value: "oauth", icon: "mdi-link-variant" },
         { title: "安全", value: "security", icon: "mdi-security" },
         { title: "关系", value: "relationships", icon: "mdi-account-group", to: "/app/account/relationships" },
+        { title: "开发者", value: "developer", icon: "mdi-account-group", to: "/app/account/developer" },
+
       ],
       VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
     };
