@@ -53,7 +53,7 @@
           class="h-100"
           elevation="1"
           hover
-          to="https://docs.wuyuan.dev"
+          href="https://docs.wuyuan.dev"
           target="_blank"
           rel="noopener noreferrer"
         >
