@@ -1,0 +1,1 @@
+import{_ as o}from"./ProjectQueryView-HjydwlUQ.js";import{_ as r,Y as n,o as _}from"./index-BUZt_Pi5.js";import"./ProjectCard-DOpcd87h.js";const c={components:{ProjectQueryView:o}};function p(e,s,a,i,m,u){const t=o;return _(),n(t,{type:"fork",target:e.$route.params.id},null,8,["target"])}const $=r(c,[["render",p]]);export{$ as default};
