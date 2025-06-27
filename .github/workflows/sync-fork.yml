@@ -17,3 +17,4 @@ jobs:
           base: main
           head: main
           repo: zerocat
+          token: ${{ secrets.FORKED_USER_GITHUB_TOKEN }}
