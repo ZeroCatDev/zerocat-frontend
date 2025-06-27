@@ -16,5 +16,5 @@ jobs:
           owner: sunwuyuan
           base: main
           head: main
-          repo: zerocat
+          repo: zerocat-frontend
           token: ${{ secrets.FORKED_USER_GITHUB_TOKEN }}
