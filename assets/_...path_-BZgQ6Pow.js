@@ -1,1 +1,0 @@
-import{Y as t,o as a,a2 as r}from"./index-BUZt_Pi5.js";const c={__name:"[...path]",setup(e){return this.$route.path.startsWith("/proxy")&&this.$router.replace(`/app${route.path}`),(o,p)=>(a(),t(r))}};export{c as default};
