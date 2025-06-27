@@ -13,6 +13,6 @@ jobs:
       env:
         REPO: git@github.com:Sunwuyuan/zerocat-frontend.git
         BRANCH: main
-        FOLDER: /
+        FOLDER: ./
         SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_PRIVATE_KEY }}
         #KNOWN_HOSTS_FILE: known_hosts
