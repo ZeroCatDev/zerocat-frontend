@@ -91,4 +91,4 @@ User-agent: YandexAdditionalBot
 User-agent: YouBot
 Disallow: /
 
-Sitemap: https://zerocat-api.houlangs.com/api/sitemap.xml
+Sitemap: https://zerocat.dev/sitemap.xml
