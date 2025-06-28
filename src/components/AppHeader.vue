@@ -383,6 +383,25 @@ export default {
             },
           ],
         },
+        admin: {
+          title: "管理",
+          icon: "mdi-shield-account",
+          login: true,
+          list: [
+            {
+              title: "系统配置",
+              link: "/app/admin/config",
+              icon: "mdi-cog",
+              login: true
+            },
+            {
+              title: "站点地图",
+              link: "/app/admin/sitemap",
+              icon: "mdi-sitemap",
+              login: true
+            },
+          ],
+        },
       };
     },
     updateSubNavItems(route) {
