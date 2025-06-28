@@ -1,8 +1,13 @@
 {
     "rewrites": [
-      { "source": "/(.*)", "destination": "/" },
+      { "source": "/:match*", "destination": "/" },
       {
         "source": "/scratch/:path*",
         "destination": "/scratch/:path*"
-      }    ]
+      },
+      {
+        "source": "/vercel-cgi-bin/sitemap.xml",
+        "destination": "https://zerocat-api.houlangs.com/api/sitemap.xml"
+      }
+    ]
   }
