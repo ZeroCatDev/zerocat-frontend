@@ -18,7 +18,7 @@
         :style="{ 'overflow-y': 'auto' }"
         @scroll="handleScroll"
       >
-        <v-list v-if="notifications.length > 0">
+        <v-list v-if="notifications.length > 0" class="notifications-list">
           <v-list-item
             v-for="notification in notifications"
             :key="notification.id"
@@ -30,45 +30,35 @@
             :class="{ 'clickable-item': !!notification.redirect_url }"
           >
             <template v-slot:prepend>
-              <!-- 使用actor用户的头像 - 安全处理 -->
+              <!-- 使用actor用户的头像 -->
               <v-avatar
-                size="40"
-                v-if="
-                  notification.actor_id &&
-                  userCache[notification.actor_id]?.avatar
-                "
+                size="42"
+                v-if="notification.actor?.avatar"
               >
                 <v-img
-                  :src="
-                    VITE_APP_S3_BUCKET +
-                    '/user/' +
-                    userCache[notification.actor_id].avatar
-                  "
+                  :src="VITE_APP_S3_BUCKET + '/user/' + notification.actor.avatar"
                   alt="用户头像"
                 ></v-img>
               </v-avatar>
               <v-avatar
                 v-else-if="notification.template_info?.icon"
                 color="primary"
-                size="40"
+                size="42"
+                class="system-avatar"
               >
-                <v-icon>{{
-                  getIconForType(notification.template_info.icon)
-                }}</v-icon>
+                <v-icon>{{ getIconForType(notification.template_info.icon) }}</v-icon>
               </v-avatar>
-              <v-avatar v-else color="primary" size="40">
+              <v-avatar v-else color="primary" size="42" class="system-avatar">
                 <v-icon>mdi-bell</v-icon>
               </v-avatar>
             </template>
 
-            <v-list-item-title>
+            <v-list-item-title class="font-weight-medium">
               <span v-if="notification.template_info?.title">
                 {{ notification.template_info.title }}
               </span>
-
               <span v-else>系统消息</span>
 
-              <!-- 图标移动到行内 -->
               <v-icon
                 v-if="notification.template_info?.icon"
                 size="small"
@@ -96,7 +86,7 @@
               <span v-else>{{ notification.content || "新的通知" }}</span>
             </v-list-item-subtitle>
 
-            <v-list-item-subtitle class="text-caption text-grey">
+            <v-list-item-subtitle class="text-caption text-grey mt-1">
               {{ formatDate(notification.created_at) }}
             </v-list-item-subtitle>
 
@@ -170,7 +160,6 @@ import {
   markNotificationAsRead,
   markAllNotificationsAsRead,
 } from "@/services/notificationService";
-import { getUserById } from "@/stores/user.js";
 import { getProjectInfo, getProjectListById } from "@/services/projectService";
 
 export default {
@@ -202,12 +191,8 @@ export default {
     const notificationsContainer = ref(null);
 
     const VITE_APP_S3_BUCKET = import.meta.env.VITE_APP_S3_BUCKET;
-    const userCache = ref({});
-    console.log("初始化userCache为空对象:", userCache.value);
     const projectCache = ref({});
-    console.log("初始化projectCache为空对象:", projectCache.value);
     const projectListCache = ref({});
-    console.log("初始化projectListCache为空对象:", projectListCache.value);
 
     const hasUnread = computed(() => unreadCount.value > 0);
 
@@ -263,7 +248,7 @@ export default {
       }
     };
 
-    // 预先加载通知所需的用户和项目数据
+    // 预先加载通知所需的项目和项目列表数据
     const prepareTemplateData = async (notificationsList) => {
       try {
         // 收集所有需要获取的项目和项目列表ID
@@ -282,52 +267,13 @@ export default {
           }
         });
 
-        console.log("准备获取数据：", {
-          users: Array.from(userIds),
-          projects: Array.from(projectIds),
-          projectLists: Array.from(projectListIds),
-        });
-
         // 过滤掉已缓存的ID，只获取尚未缓存的数据
-        const uncachedUserIds = Array.from(userIds).filter(
-          (id) => !userCache.value[id]
-        );
         const uncachedProjectIds = Array.from(projectIds).filter(
           (id) => !projectCache.value[id]
         );
 
         // 批量获取数据
         const promises = [];
-
-        // 获取用户数据
-        if (uncachedUserIds.length > 0) {
-          console.log("获取用户数据:", uncachedUserIds);
-          promises.push(
-            getUserById(uncachedUserIds)
-              .then((users) => {
-                console.log("获取到用户数据:", users);
-                // 将用户数据转换为以ID为键的对象格式
-                if (Array.isArray(users)) {
-                  // 处理数组返回结果
-                  const usersObj = {};
-                  users.forEach((user) => {
-                    if (user && user.id) {
-                      usersObj[user.id] = user;
-                    }
-                  });
-                  // 合并到缓存中
-                  userCache.value = { ...userCache.value, ...usersObj };
-                  console.log("转换后的用户数据:", userCache.value);
-                } else if (users && users.id) {
-                  // 处理单个用户返回结果
-                  userCache.value[users.id] = users;
-                }
-              })
-              .catch((err) => {
-                console.error("获取用户数据失败:", err);
-              })
-          );
-        }
 
         if (uncachedProjectIds.length > 0) {
           console.log("获取项目数据:", uncachedProjectIds);
@@ -339,14 +285,9 @@ export default {
                 if (Array.isArray(projects)) {
                   // 处理数组返回结果
                   const projectsObj = {};
-                  const authorsObj = {};
                   projects.forEach((project) => {
                     if (project && project.id) {
                       projectsObj[project.id] = project;
-                      // 直接从project.author中获取作者信息并缓存
-                      if (project.author && project.author.id) {
-                        authorsObj[project.author.id] = project.author;
-                      }
                     }
                   });
                   // 合并到缓存中
@@ -354,20 +295,10 @@ export default {
                     ...projectCache.value,
                     ...projectsObj,
                   };
-                  // 合并作者信息到用户缓存
-                  userCache.value = {
-                    ...userCache.value,
-                    ...authorsObj,
-                  };
                   console.log("转换后的项目数据:", projectCache.value);
-                  console.log("更新后的用户缓存:", userCache.value);
                 } else if (projects && projects.id) {
                   // 处理单个项目返回结果
                   projectCache.value[projects.id] = projects;
-                  // 缓存单个项目的作者信息
-                  if (projects.author && projects.author.id) {
-                    userCache.value[projects.author.id] = projects.author;
-                  }
                 }
               })
               .catch((err) => {
@@ -387,10 +318,6 @@ export default {
                   // 如果成功获取到列表数据，就加入缓存
                   if (projectList && projectList.id) {
                     projectListCache.value[projectList.id] = projectList;
-                    // 如果项目列表包含作者信息，直接缓存
-                    if (projectList.author && projectList.author.id) {
-                      userCache.value[projectList.author.id] = projectList.author;
-                    }
                   }
                 })
                 .catch((err) => {
@@ -406,40 +333,12 @@ export default {
         await Promise.allSettled(promises);
 
         console.log("缓存状态:", {
-          users: userCache.value,
           projects: projectCache.value,
           projectLists: projectListCache.value,
         });
 
-        // 为每个通知添加actor_details并处理redirect_url
+        // 处理redirect_url
         notificationsList.forEach((notification) => {
-          // 添加actor_details
-          if (notification.actor_id) {
-            if (userCache.value[notification.actor_id]) {
-              notification.actor_details =
-                userCache.value[notification.actor_id];
-              console.log(
-                `为通知${notification.id}设置actor_details:`,
-                notification.actor_details
-              );
-            } else {
-              console.warn(`未找到actor${notification.actor_id}的数据`);
-            }
-          } else if (notification.actor?.id) {
-            const actorId = notification.actor.id;
-            notification.actor_id = actorId; // 设置actor_id字段
-            if (userCache.value[actorId]) {
-              notification.actor_details = userCache.value[actorId];
-              console.log(
-                `为通知${notification.id}设置actor_details:`,
-                notification.actor_details
-              );
-            } else {
-              console.warn(`未找到actor${actorId}的数据`);
-            }
-          }
-
-          // 处理redirect_url
           if (!notification.redirect_url) {
             // 根据通知类型和目标构造redirect_url
             if (
@@ -458,16 +357,14 @@ export default {
               }
             } else if (
               notification.target_type === "user" &&
-              notification.target_id
+              notification.target_id &&
+              notification.actor
             ) {
-              const user = userCache.value[notification.target_id];
-              if (user) {
-                notification.redirect_url = `/${user.username}`;
-                console.log(
-                  `为通知${notification.id}生成redirect_url:`,
-                  notification.redirect_url
-                );
-              }
+              notification.redirect_url = `/${notification.actor.username}`;
+              console.log(
+                `为通知${notification.id}生成redirect_url:`,
+                notification.redirect_url
+              );
             } else if (
               notification.target_type === "projectlist" &&
               notification.target_id
@@ -500,6 +397,64 @@ export default {
           );
         }
       }
+    };
+
+    // 渲染通知模板
+    const renderTemplate = (template, notification) => {
+      if (!template) return "";
+
+      let result = template;
+      const { actor, target_type, target_id } = notification;
+
+      // 使用actor信息
+      if (actor) {
+        result = result.replace(
+          /{{actor_name}}/g,
+          actor.display_name || actor.username || ""
+        );
+        result = result.replace(/{{actor_id}}/g, actor.id || "");
+      } else {
+        result = result.replace(/{{actor_name}}/g, "未知用户");
+        result = result.replace(/{{actor_id}}/g, "");
+      }
+
+      // 根据目标类型获取相应信息
+      if (target_type && target_id) {
+        if (target_type === "user" && notification.actor) {
+          result = result.replace(
+            /{{target_name}}/g,
+            notification.actor.display_name || notification.actor.username || ""
+          );
+          result = result.replace(/{{target_id}}/g, notification.actor.id || "");
+        } else if (target_type === "project") {
+          const targetInfo = projectCache.value[target_id];
+          if (targetInfo) {
+            result = result.replace(/{{target_name}}/g, targetInfo.title || "");
+            result = result.replace(/{{target_id}}/g, targetInfo.id || "");
+          } else {
+            result = result.replace(/{{target_name}}/g, "未知项目");
+            result = result.replace(/{{target_id}}/g, target_id);
+          }
+        } else if (target_type === "projectlist") {
+          const targetInfo = projectListCache.value[target_id];
+          if (targetInfo && !targetInfo.error) {
+            result = result.replace(/{{target_name}}/g, targetInfo.name || "");
+            result = result.replace(/{{target_id}}/g, targetInfo.id || "");
+          } else {
+            result = result.replace(/{{target_name}}/g, "未知项目列表");
+            result = result.replace(/{{target_id}}/g, target_id);
+          }
+        }
+      }
+
+      // 替换其他模板变量
+      Object.entries(notification.template_data || {}).forEach(
+        ([key, value]) => {
+          result = result.replace(new RegExp(`{{${key}}}`, "g"), value || "");
+        }
+      );
+
+      return result;
     };
 
     // 处理滚动加载
@@ -593,73 +548,6 @@ export default {
       return iconMap[iconType] || "mdi-bell";
     };
 
-    // 渲染通知模板
-    const renderTemplate = (template, notification) => {
-      if (!template) return "";
-
-      let result = template;
-      const { actor_id, target_type, target_id } = notification;
-
-      // 安全获取actor信息
-      if (actor_id && userCache.value[actor_id]) {
-        const actorInfo = userCache.value[actor_id];
-        // 使用从用户数据库中获取的详细信息
-        result = result.replace(
-          /{{actor_name}}/g,
-          actorInfo.display_name || actorInfo.name || ""
-        );
-        result = result.replace(/{{actor_id}}/g, actorInfo.id || "");
-      } else {
-        // 兜底处理
-        result = result.replace(/{{actor_name}}/g, "未知用户");
-        result = result.replace(/{{actor_id}}/g, actor_id || "");
-      }
-
-      // 根据目标类型获取相应信息
-      if (target_type && target_id) {
-        if (target_type === "user") {
-          const targetInfo = userCache.value[target_id];
-          if (targetInfo) {
-            result = result.replace(
-              /{{target_name}}/g,
-              targetInfo.display_name || targetInfo.name || ""
-            );
-            result = result.replace(/{{target_id}}/g, targetInfo.id || "");
-          } else {
-            result = result.replace(/{{target_name}}/g, "未知用户");
-            result = result.replace(/{{target_id}}/g, target_id);
-          }
-        } else if (target_type === "project") {
-          const targetInfo = projectCache.value[target_id];
-          if (targetInfo) {
-            result = result.replace(/{{target_name}}/g, targetInfo.title || "");
-            result = result.replace(/{{target_id}}/g, targetInfo.id || "");
-          } else {
-            result = result.replace(/{{target_name}}/g, "未知项目");
-            result = result.replace(/{{target_id}}/g, target_id);
-          }
-        } else if (target_type === "projectlist") {
-          const targetInfo = projectListCache.value[target_id];
-          if (targetInfo && !targetInfo.error) {
-            result = result.replace(/{{target_name}}/g, targetInfo.name || "");
-            result = result.replace(/{{target_id}}/g, targetInfo.id || "");
-          } else {
-            result = result.replace(/{{target_name}}/g, "未知项目列表");
-            result = result.replace(/{{target_id}}/g, target_id);
-          }
-        }
-      }
-
-      // 替换其他模板变量
-      Object.entries(notification.template_data || {}).forEach(
-        ([key, value]) => {
-          result = result.replace(new RegExp(`{{${key}}}`, "g"), value || "");
-        }
-      );
-
-      return result;
-    };
-
     if (props.autoFetch) {
       onMounted(() => {
         fetchNotifications();
@@ -687,22 +575,10 @@ export default {
       getIconForType,
       processNotificationTemplates,
       prepareTemplateData,
-      userCache,
       VITE_APP_S3_BUCKET,
     };
   },
 };
 </script>
 
-<style scoped>
-.v-list-item--active {
-  background-color: rgba(var(--v-theme-primary), 0.08);
-}
 
-.clickable-item {
-  cursor: pointer;
-}
-.clickable-item:hover {
-  background-color: rgba(var(--v-theme-primary), 0.04);
-}
-</style>
