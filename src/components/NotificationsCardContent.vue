@@ -404,7 +404,7 @@ export default {
       if (!template) return "";
 
       let result = template;
-      const { actor, target_type, target_id } = notification;
+      const { actor, target_type, target_id, data } = notification;
 
       // 使用actor信息
       if (actor) {
@@ -445,6 +445,20 @@ export default {
             result = result.replace(/{{target_id}}/g, target_id);
           }
         }
+      }
+
+      // 替换data字段中的变量
+      if (data && typeof data === 'object') {
+        Object.entries(data).forEach(([key, value]) => {
+          const regex = new RegExp(`{{${key}}}`, 'g');
+          if (typeof value === 'object') {
+            // 如果值是对象，尝试使用其display_name, name, 或 title属性
+            const displayValue = value.display_name || value.name || value.title || JSON.stringify(value);
+            result = result.replace(regex, displayValue);
+          } else {
+            result = result.replace(regex, value?.toString() || '');
+          }
+        });
       }
 
       // 替换其他模板变量
