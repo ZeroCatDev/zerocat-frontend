@@ -8,6 +8,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
     - name: to target repo
       uses: s0/git-publish-subdir-action@develop
       env:
