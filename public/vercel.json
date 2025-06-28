@@ -2,8 +2,8 @@
     "$schema": "https://openapi.vercel.sh/vercel.json",
     "rewrites": [
       {
-        "source": "/sitemap.xml",
-        "destination": "https://zerocat-api.houlangs.com/api/sitemap.xml"
+        "source": "/vercel-cgi-bin/:match*",
+        "destination": "https://zerocat-api.houlangs.com/api/:match*"
       }
     ]
   }
