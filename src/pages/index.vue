@@ -15,7 +15,7 @@
 
         <v-btn
           variant="text"
-          href="https://github.com/zerocatdev"
+          href="https://github.com/ZeroCatDev/ZeroCat"
           target="_blank"
           class="hidden-sm-and-down"
         >

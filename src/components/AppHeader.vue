@@ -381,6 +381,7 @@ export default {
               link: "/app/tools/comparer",
               icon: "mdi-xml", login: false
             },
+
           ],
         },
         admin: {
