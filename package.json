@@ -14,7 +14,7 @@
     "@fingerprintjs/fingerprintjs": "^4.6.2",
     "@highlightjs/vue-plugin": "^2.1.0",
     "@mdi/font": "7.4.47",
-    "@meilisearch/instant-meilisearch": "^0.26.0",
+    "@meilisearch/instant-meilisearch": "^0.27.0",
     "@microsoft/clarity": "^1.0.0",
     "@primevue/themes": "^4.2.5",
     "@unhead/vue": "^1.11.18",
