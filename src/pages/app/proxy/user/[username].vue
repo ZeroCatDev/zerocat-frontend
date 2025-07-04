@@ -90,6 +90,7 @@ import { getUserById } from "@/services/proxy/userService";
 import Comment from "../../../../components/Comment.vue";
 import ProxyShowUsers from "../../../../components/proxy/ProxyShowUsers.vue";
 import ProxyShowProjects from "../../../../components/proxy/ProxyShowProjects.vue";
+import { get } from '@/services/serverConfig';
 
 export default {
   components: { Comment, ProxyShowUsers, ProxyShowProjects },
@@ -132,11 +133,12 @@ export default {
       totalPage: 1,
       limit: 40,
 
-      scratch_proxy: import.meta.env.VITE_APP_SCRATCH_PROXY,
+      scratch_proxy: '',
     };
   },
 
-  async created() {
+  async mounted() {
+    this.scratch_proxy = await get('scratchproxy.url');
     await this.fetchUserData();
   },
   methods: {

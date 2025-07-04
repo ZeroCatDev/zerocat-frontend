@@ -17,6 +17,7 @@
 
 <script>
 import request from "@/axios/axios";
+import { get } from '@/services/serverConfig';
 
 export default {
   props: {
@@ -38,7 +39,7 @@ export default {
       users: [],
       page: 0,
       canLoad: true,
-      scratch_proxy: import.meta.env.VITE_APP_SCRATCH_PROXY,
+      scratch_proxy: '',
       limit: 20,
     };
   },
@@ -57,7 +58,8 @@ export default {
         });
     },
   },
-  created() {
+  async mounted() {
+    this.scratch_proxy = await get('scratchproxy.url');
     this.fetchUsers();
   },
 };

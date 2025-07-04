@@ -124,8 +124,8 @@
               xl="3"
               >
               <project-card
-                :project-data="project"
-                :author-data="project.author"
+                :project="project"
+                :author="project.author"
                 :show-author="true"
                 :to="project.author ? `/${project.author.username}/${project.name}` : `/app/link/project?id=${project.id}`"
               />
@@ -133,11 +133,11 @@
           </v-row>
           <!-- Loading indicator -->
           <div class="d-flex justify-center my-4">
-            <v-progress-circular
+            <v-progress-linear
               v-if="isLoadingExplore"
               indeterminate
               color="primary"
-            ></v-progress-circular>
+            ></v-progress-linear>
             <v-chip
               v-else-if="!exploreSearch.hasMore"
               color="primary"

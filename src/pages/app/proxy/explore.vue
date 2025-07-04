@@ -78,6 +78,8 @@
 
 <script>
 import { exploreProjects } from "@/services/proxy/projectService";
+import { get } from '@/services/serverConfig';
+
 export default {
   data() {
     return {
@@ -105,10 +107,11 @@ export default {
       projects: [],
       projectscount: 0,
       curPage: 1,
-      scratch_proxy: import.meta.env.VITE_APP_SCRATCH_PROXY,
+      scratch_proxy: '',
     };
   },
-  async created() {
+  async mounted() {
+    this.scratch_proxy = await get('scratchproxy.url');
     await this.getprojects();
   },
   methods: {

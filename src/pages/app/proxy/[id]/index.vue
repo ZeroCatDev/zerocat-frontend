@@ -187,6 +187,7 @@ import { getProjectById } from "@/services/proxy/projectService";
 import Comment from "../../../../components/Comment.vue";
 import ProxyShowUsers from "../../../../components/proxy/ProxyShowUsers.vue";
 import ProxyShowProjects from "../../../../components/proxy/ProxyShowProjects.vue";
+import { get } from '@/services/serverConfig';
 
 export default {
   components: { Comment, ProxyShowProjects },
@@ -250,12 +251,14 @@ export default {
       rootProject: null,
       projectid: this.$route.params.id,
       embedurl: "",
-      scratch_proxy: import.meta.env.VITE_APP_SCRATCH_PROXY,
-      scratch_proxy_gui: import.meta.env.VITE_APP_SCRATCH_PROXY_GUI,
+      scratch_proxy: '',
+      scratch_proxy_gui: '',
     };
   },
 
-  async created() {
+  async mounted() {
+    this.scratch_proxy = await get('scratchproxy.url');
+    this.scratch_proxy_gui = await get('scratchproxy.gui');
     await this.fetchProjectData();
   },
   methods: {

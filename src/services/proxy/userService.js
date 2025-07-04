@@ -1,15 +1,22 @@
 import request from "@/axios/axios";
+import { get } from '@/services/serverConfig';
 
-export function getUserById(username) {
-  return request.get(import.meta.env.VITE_APP_SCRATCH_PROXY + `/users/${username}`);
+export async function getUser(username) {
+  const baseUrl = await get('scratchproxy.url');
+  return request.get(baseUrl + `/users/${username}`);
 }
 
-export function getUserProjects(username, page, limit) {
-  return request.get(import.meta.env.VITE_APP_SCRATCH_PROXY + `/users/${username}/projects?&offset=${page * 16 - 16}&limit=${limit}`);
+export async function getUserProjects(username, page = 1, limit = 16) {
+  const baseUrl = await get('scratchproxy.url');
+  return request.get(baseUrl + `/users/${username}/projects?&offset=${page * 16 - 16}&limit=${limit}`);
 }
-export function getUserFollowing(username, page, limit) {
-  return request.get(import.meta.env.VITE_APP_SCRATCH_PROXY + `/users/${username}/following?&offset=${page * 16 - 16}&limit=${limit}`);
+
+export async function getUserFollowing(username, page = 1, limit = 16) {
+  const baseUrl = await get('scratchproxy.url');
+  return request.get(baseUrl + `/users/${username}/following?&offset=${page * 16 - 16}&limit=${limit}`);
 }
-export function getUserFollowers(username, page, limit) {
-  return request.get(import.meta.env.VITE_APP_SCRATCH_PROXY + `/users/${username}/followers?&offset=${page * 16 - 16}&limit=${limit}`);
+
+export async function getUserFollowers(username, page = 1, limit = 16) {
+  const baseUrl = await get('scratchproxy.url');
+  return request.get(baseUrl + `/users/${username}/followers?&offset=${page * 16 - 16}&limit=${limit}`);
 }

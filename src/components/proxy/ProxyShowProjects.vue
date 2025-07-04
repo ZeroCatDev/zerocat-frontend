@@ -68,6 +68,7 @@
 
 <script>
 import request from "@/axios/axios";
+import { get } from '@/services/serverConfig';
 
 export default {
   props: {
@@ -98,7 +99,7 @@ export default {
       page: 0,
       canLoad: true,
       loading: false,
-      scratch_proxy: import.meta.env.VITE_APP_SCRATCH_PROXY,
+      scratch_proxy: '',
       limit: 40,
     };
   },
@@ -136,6 +137,9 @@ export default {
   },
   created() {
     if (this.autoload == true) this.fetchProjects();
+  },
+  async mounted() {
+    this.scratch_proxy = await get('scratchproxy.url');
   },
 };
 </script>

@@ -156,16 +156,13 @@
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn text @click="showUnlinkDialog = false">取消</v-btn>
-                    <v-btn color="error" @click="initiateUnlink">
+                    <v-btn color="error" @click="unlinkOAuth" :loading="unlinking">
                         <v-icon left>mdi-link-variant-off</v-icon>
                         确认解除绑定
                     </v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
-
-        <!-- 验证码对话框 -->
-        <verify-email v-model="showVerifyDialog" :email="primaryEmail" @verified="confirmUnlink" />
 
         <!-- 可绑定的 OAuth 提供商 -->
         <v-card class="mt-4">
@@ -215,6 +212,7 @@ const selectedAccount = ref(null);
 const availableProviders = ref([]);
 const BASE_API = import.meta.env.VITE_APP_BASE_API;
 const showDetailsDialog = ref(false);
+const unlinking = ref(false);
 
 const getProviderIcon = (providerId) => {
     const id = providerId.replace('oauth_', '').toLowerCase();
@@ -300,16 +298,12 @@ const prepareUnlink = () => {
     showUnlinkDialog.value = true;
 };
 
-const initiateUnlink = () => {
-    showUnlinkDialog.value = false;
-    showVerifyDialog.value = true;
-};
+const unlinkOAuth = async () => {
+    if (!selectedAccount.value) return;
 
-const confirmUnlink = async (code) => {
+    unlinking.value = true;
     try {
-        const response = await axios.post('/account/confirm-unlink-oauth', {
-            email: primaryEmail.value,
-            code,
+        const response = await axios.post('/account/unlink-oauth', {
             provider: selectedAccount.value.contact_type
         });
 
@@ -317,6 +311,7 @@ const confirmUnlink = async (code) => {
             message.value = '成功解绑 OAuth 账号';
             messageType.value = 'success';
             fetchOAuthAccounts();
+            showUnlinkDialog.value = false;
         } else {
             message.value = response.data.message || '解绑失败';
             messageType.value = 'error';
@@ -325,6 +320,7 @@ const confirmUnlink = async (code) => {
         message.value = error.response?.data?.message || '解绑 OAuth 账号失败';
         messageType.value = 'error';
     } finally {
+        unlinking.value = false;
         selectedAccount.value = null;
     }
 };

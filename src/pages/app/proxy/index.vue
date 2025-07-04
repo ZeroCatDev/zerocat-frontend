@@ -48,6 +48,7 @@
 <script>
 import { getFeaturedProjects } from "@/services/proxy/projectService";
 import { useHead } from "@unhead/vue";
+import { get } from '@/services/serverConfig';
 
 export default {
   setup() {
@@ -81,7 +82,7 @@ export default {
       projects: {},
       projectscount: 0,
       curPage: 1,
-      scratch_proxy: import.meta.env.VITE_APP_SCRATCH_PROXY,
+      scratch_proxy: '',
       translate: {
         community_newest_projects: "最新创建",
         community_most_remixed_projects: "大家在分叉的作品",
@@ -94,7 +95,8 @@ export default {
       },
     };
   },
-  async created() {
+  async mounted() {
+    this.scratch_proxy = await get('scratchproxy.url');
     await this.getprojects();
   },
   methods: {

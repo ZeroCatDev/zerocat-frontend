@@ -64,8 +64,8 @@
               cols="12" sm="6" md="4" lg="3"
             >
               <project-card
-                :project-data="project"
-                :author-data="project.author"
+                :project="project"
+                :author="project.author"
                 :show-author="true"
               />
             </v-col>

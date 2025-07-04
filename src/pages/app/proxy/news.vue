@@ -11,12 +11,14 @@
 </template>
 <script>
 import request from "@/axios/axios";
+import { get } from '@/services/serverConfig';
+
 export default {
   data() {
     return {
       news: [],
       loading: false,
-      scratch_proxy: import.meta.env.VITE_APP_SCRATCH_PROXY,
+      scratch_proxy: '',
     };
   },
   methods: {
@@ -32,7 +34,9 @@ export default {
       }
     },
   },
-  mounted() {
+  async mounted() {
+    this.scratch_proxy = await get('scratchproxy.url');
     this.fetchNews();
   },
-}</script>
+}
+</script>

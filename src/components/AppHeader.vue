@@ -3,7 +3,6 @@
     <template #prepend>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
     </template>
-
     <v-btn variant="text" icon @click="goHome" :active="false">
       <v-icon>
         <svg
@@ -187,26 +186,111 @@
     </template>
   </v-app-bar>
   <v-navigation-drawer v-model="drawer" :rail="drawerRail" expand-on-hover>
-    <v-list v-for="lists in items" :key="lists.title">
-      <div v-if="lists.login === false || lists.login === isLogin">
-        <v-list-subheader>
-          <v-icon :icon="lists.icon" size="small"></v-icon>
-          {{ lists.title }}
-        </v-list-subheader>
-        <div  v-for="item in lists.list">
-        <v-list-item
+    <!-- 导航部分 -->
+    <v-list>
+      <v-list-subheader>
+        <v-icon icon="mdi-menu" size="small"></v-icon>
+        导航
+      </v-list-subheader>
 
-          :key="item.title"
-          :prepend-icon="item.icon"
-          :title="item.title"
-          :to="item.link"
-          v-if="item.login === false || item.login === isLogin"
-          rounded="xl"
-        ></v-list-item>
-      </div>
-      </div>
+      <v-list-item
+        to="/"
+        prepend-icon="mdi-home"
+        title="首页"
+        rounded="xl"
+      ></v-list-item>
+
+      <v-list-item
+        v-if="localuser.isLogin"
+        to="/app/dashboard"
+        prepend-icon="mdi-view-dashboard"
+        title="仪表盘"
+        rounded="xl"
+      ></v-list-item>
+
+      <v-list-item
+        to="/app/explore"
+        prepend-icon="mdi-xml"
+        title="项目"
+        rounded="xl"
+      ></v-list-item>
+
+      <v-list-item
+        to="/app/search"
+        prepend-icon="mdi-earth"
+        title="搜索"
+        rounded="xl"
+      ></v-list-item>
     </v-list>
+
+    <!-- 镜像部分 -->
+    <v-list v-if="proxyEnabled">
+      <v-list-subheader>
+        <v-icon icon="mdi-link-variant" size="small"></v-icon>
+        镜像
+      </v-list-subheader>
+
+      <v-list-item
+        to="/app/proxy"
+        prepend-icon="mdi-home"
+        title="首页"
+        rounded="xl"
+      ></v-list-item>
+
+      <v-list-item
+        to="/app/proxy/explore"
+        prepend-icon="mdi-earth"
+        title="探索"
+        rounded="xl"
+      ></v-list-item>
+
+      <v-list-item
+        to="/app/proxy/search"
+        prepend-icon="mdi-xml"
+        title="搜索"
+        rounded="xl"
+      ></v-list-item>
+
+      <v-list-item
+        to="/app/proxy/news"
+        prepend-icon="mdi-newspaper"
+        title="新闻"
+        rounded="xl"
+      ></v-list-item>
+
+      <v-list-item
+        to="/app/proxy/open"
+        prepend-icon="mdi-link"
+        title="打开"
+        rounded="xl"
+      ></v-list-item>
+    </v-list>
+
+    <!-- 工具部分 -->
+    <v-list>
+      <v-list-subheader>
+        <v-icon icon="mdi-tools" size="small"></v-icon>
+        工具
+      </v-list-subheader>
+
+      <v-list-item
+        to="/app/tools/asdm"
+        prepend-icon="mdi-download"
+        title="桌面版镜像"
+        rounded="xl"
+      ></v-list-item>
+
+      <v-list-item
+        to="/app/tools/comparer"
+        prepend-icon="mdi-xml"
+        title="项目比较器"
+        rounded="xl"
+      ></v-list-item>
+    </v-list>
+
     <v-divider></v-divider>
+
+    <!-- 主题和抽屉控制 -->
     <v-list>
       <v-list-item
         @click="toggleTheme"
@@ -237,6 +321,8 @@ export default {
   },
   async mounted() {
     this.s3BucketUrl = await get('s3.staticurl');
+    // 获取scratchproxy.enabled配置
+    this.proxyEnabled = await get('scratchproxy.enabled');
   },
   setup() {
     const notificationsCard = ref(null);
@@ -249,6 +335,7 @@ export default {
           notificationsCard.value.checkUnreadNotifications();
         }
       }
+
     });
 
     return {
@@ -271,6 +358,7 @@ export default {
       isDarkTheme: false,
       theme: null,
       userTab: "profile",
+      proxyEnabled: false,
     };
   },
   created() {
@@ -336,7 +424,7 @@ export default {
     },
 
     initializeNavItems() {
-      return {
+      const items = {
         main: {
           title: "导航",
           icon: "mdi-menu",
@@ -358,7 +446,30 @@ export default {
             { title: "搜索", link: "/app/search", icon: "mdi-earth", login: false },
           ],
         },
-        mirror: {
+        tools: {
+          login: false,
+          icon: "mdi-tools",
+          title: "工具",
+          list: [
+            {
+              title: "桌面版镜像",
+              link: "/app/tools/asdm",
+              icon: "mdi-download",
+              login: false
+            },
+            {
+              title: "项目比较器",
+              link: "/app/tools/comparer",
+              icon: "mdi-xml",
+              login: false
+            },
+          ],
+        },
+      };
+
+      // 只有当proxyEnabled为true时才添加mirror部分
+      if (this.proxyEnabled) {
+        items.mirror = {
           title: "镜像",
           icon: "mdi-link-variant",
           login: true,
@@ -369,45 +480,10 @@ export default {
             { title: "新闻", link: "/app/proxy/news", icon: "mdi-newspaper" , login: false },
             { title: "打开", link: "/app/proxy/open", icon: "mdi-link" , login: false },
           ],
-        },
-        tools: {
-          login: false,
-          icon: "mdi-tools",
-          title: "工具",
-          list: [
-            {
-              title: "桌面版镜像",
-              link: "/app/tools/asdm",
-              icon: "mdi-download", login: false
-            },
-            {
-              title: "项目比较器",
-              link: "/app/tools/comparer",
-              icon: "mdi-xml", login: false
-            },
+        };
+      }
 
-          ],
-        },
-        /*admin: {
-          title: "管理",
-          icon: "mdi-shield-account",
-          login: true,
-          list: [
-            {
-              title: "系统配置",
-              link: "/app/admin/config",
-              icon: "mdi-cog",
-              login: true
-            },
-            {
-              title: "站点地图",
-              link: "/app/admin/sitemap",
-              icon: "mdi-sitemap",
-              login: true
-            },
-          ],
-        },*/
-      };
+      return items;
     },
     updateSubNavItems(route) {
       if (this.shouldHideNav(route.path)) {
@@ -456,7 +532,6 @@ export default {
       const isAuthor = localuser.user.value.username == authorname;
       return [
         { title: "代码", link: `/${authorname}/${projectname}`, name: "home" },
-
         {
           title: "分析",
           link: `/${authorname}/${projectname}/analytics`,

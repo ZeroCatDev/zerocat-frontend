@@ -18,13 +18,8 @@ import App from "./App.vue";
 // Composables
 import { createApp } from "vue";
 
-import Clarity from "@microsoft/clarity";
 import './styles/settings.scss'
 
-if (!import.meta.env.VITE_APP_BASE_API.includes("localhost")) {
-  const projectId = import.meta.env.VITE_APP_CLARITY_PROJECT_ID;
-  Clarity.init(projectId);
-}
 
 const app = createApp(App);
 

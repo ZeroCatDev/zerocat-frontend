@@ -159,20 +159,7 @@ export default {
         }
       }
 
-      let location = '';
-      if (locationData.country) {
-        location += locationData.country;
-      }
-      if (locationData.region) {
-        location += ' ' + locationData.region;
-      }
-      if (locationData.city && locationData.city !== locationData.region) {
-        location += ' ' + locationData.city;
-      }
-
-      if (locationData.isp) {
-        location += ` (${locationData.isp})`;
-      }
+      let location = locationData.address;
 
       return location || '-';
     },

@@ -205,6 +205,7 @@
 <script>
 import request from "../../../axios/axios";
 import { useHead } from '@unhead/vue'
+import { get } from '@/services/serverConfig';
 
 export default {
   setup() {
@@ -241,11 +242,12 @@ export default {
         { state: "自定义", abbr: "" },
       ],
       loading: false,
-      scratch_proxy: import.meta.env.VITE_APP_SCRATCH_PROXY,
+      scratch_proxy: '',
     };
   },
 
-  created() {
+  async mounted() {
+    this.scratch_proxy = await get('scratchproxy.url');
     this.loading = true;
     this.release.stat = 0;
     this.fetchReleaseData(this.scratch_proxy + "/asdm")

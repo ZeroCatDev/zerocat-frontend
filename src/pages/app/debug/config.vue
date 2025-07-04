@@ -68,9 +68,8 @@
           </v-card-title>
 
           <v-card-text>
-            <v-code v-if="!searchKey">
-              <pre>{{ JSON.stringify(config, null, 2) }}</pre>
-            </v-code>
+            <pre v-if="!searchKey"> {{ JSON.stringify(config, null, 2) }}</pre>
+
             <v-alert
               v-else-if="searchResult === undefined"
               type="warning"

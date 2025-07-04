@@ -132,6 +132,8 @@ import { getStudioInfo, getStudioProjects, getStudioCurators, getStudioManagers 
 import Comment from "../../../../components/Comment.vue";
 import ProxyShowProjects from "@/components/proxy/ProxyShowProjects.vue";
 import ProxyShowUsers from "@/components/proxy/ProxyShowUsers.vue";
+import { get } from '@/services/serverConfig';
+
 export default {
   components: { Comment,ProxyShowUsers,ProxyShowProjects },
   data() {
@@ -174,7 +176,7 @@ export default {
       curPage: 1,
       limit: 18,
 
-      scratch_proxy: import.meta.env.VITE_APP_SCRATCH_PROXY,
+      scratch_proxy: '',
     };
   },
 
@@ -182,6 +184,11 @@ export default {
     await this.fetchStudioInfo();
     await this.onPageChange(1, false);
   },
+
+  async mounted() {
+    this.scratch_proxy = await get('scratchproxy.url');
+  },
+
   methods: {
     async fetchStudioInfo() {
       try {
