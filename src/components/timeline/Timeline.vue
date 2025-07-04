@@ -1,26 +1,40 @@
 <template>
   <v-timeline side="end" align="start" class="mt-4">
-    <v-timeline-item v-for="event in timeline.events" :key="event.id" size="small" dot-color="primary">
+    <v-timeline-item
+      v-for="event in timeline.events"
+      :key="event.id"
+      size="small"
+      dot-color="primary"
+    >
       <template v-slot:opposite>
         {{ new Date(event.created_at).toLocaleString() }}
       </template>
       <template v-slot:icon>
-        <v-avatar :image="VITE_APP_S3_BUCKET + '/user/' + event.actor.avatar"></v-avatar>
+        <v-avatar
+          :image="s3BucketUrl + '/user/' + event.actor.avatar"
+        ></v-avatar>
       </template>
       <div class="timeline-item-content">
         <!-- Event Header -->
         <div class="event-header">
           <h3 class="text-h6">
             {{ event.actor.display_name }}
-            {{ eventTypes[event.type]?.text || '进行了操作' }}
+            {{ eventTypes[event.type]?.text || "进行了操作" }}
           </h3>
-          <v-chip size="x-small" :color="eventTypes[event.type]?.color || 'primary'" class="ml-2">
+          <v-chip
+            size="x-small"
+            :color="eventTypes[event.type]?.color || 'primary'"
+            class="ml-2"
+          >
             {{ eventTypes[event.type]?.label || event.type }}
           </v-chip>
         </div>
 
-        <router-link :to="getProjectLink(event.target?.id)" class="text-decoration-none"
-          v-if="eventTypes[event.type]?.isProject">
+        <router-link
+          :to="getProjectLink(event.target?.id)"
+          class="text-decoration-none"
+          v-if="eventTypes[event.type]?.isProject"
+        >
           {{ event.event_data?.project_title }}
         </router-link>
 
@@ -28,12 +42,23 @@
 
         <!-- Project Event Card -->
         <v-card
-          v-if="eventTypes[event.type]?.isProject && !['project_rename', 'project_commit'].includes(event.type)"
-          class="mb-3 project-event" :to="getProjectLink(event.target?.id)">
+          v-if="
+            eventTypes[event.type]?.isProject &&
+            !['project_rename', 'project_commit'].includes(event.type)
+          "
+          class="mb-3 project-event"
+          :to="getProjectLink(event.target?.id)"
+        >
           <v-card-text>
             <div class="project-info">
-              <v-icon icon="mdi-source-repository" color="primary" class="mr-2" />
-              <span class="font-weight-medium">{{ event.event_data?.project_name || '未命名项目' }}</span>
+              <v-icon
+                icon="mdi-source-repository"
+                color="primary"
+                class="mr-2"
+              />
+              <span class="font-weight-medium">{{
+                event.event_data?.project_name || "未命名项目"
+              }}</span>
 
               <div class="mt-2 text-caption text-medium-emphasis">
                 {{ event.event_data?.project_description }}
@@ -43,14 +68,27 @@
         </v-card>
 
         <!-- Special Project Events -->
-        <template v-else-if="['project_rename', 'project_commit', 'project_info_update'].includes(event.type)">
+        <template
+          v-else-if="
+            [
+              'project_rename',
+              'project_commit',
+              'project_info_update',
+            ].includes(event.type)
+          "
+        >
           <!-- Rename Event -->
           <template v-if="event.type === 'project_rename'">
-            <v-card class="rename-card mb-3" :to="getProjectLink(event.target?.id)">
+            <v-card
+              class="rename-card mb-3"
+              :to="getProjectLink(event.target?.id)"
+            >
               <v-card-text>
                 <div class="d-flex align-center mb-2">
                   <v-icon icon="mdi-rename-box" color="warning" class="mr-2" />
-                  <span class="font-weight-medium">{{ event.event_data?.project_title }}</span>
+                  <span class="font-weight-medium">{{
+                    event.event_data?.project_title
+                  }}</span>
                 </div>
                 <div class="rename-details text-body-2">
                   <div class="d-flex align-center">
@@ -66,9 +104,15 @@
                     </v-chip>
                   </div>
                 </div>
-                <div class="project-meta text-caption text-medium-emphasis mt-2">
-                  <v-chip size="x-small" class="mr-1">{{ event.event_data?.project_type }}</v-chip>
-                  <v-chip size="x-small">{{ event.event_data?.project_state }}</v-chip>
+                <div
+                  class="project-meta text-caption text-medium-emphasis mt-2"
+                >
+                  <v-chip size="x-small" class="mr-1">{{
+                    event.event_data?.project_type
+                  }}</v-chip>
+                  <v-chip size="x-small">{{
+                    event.event_data?.project_state
+                  }}</v-chip>
                 </div>
               </v-card-text>
             </v-card>
@@ -76,11 +120,16 @@
 
           <!-- Commit Event -->
           <template v-else-if="event.type === 'project_commit'">
-            <v-card class="commit-card mb-3" :to="getProjectLink(event.target?.id)">
+            <v-card
+              class="commit-card mb-3"
+              :to="getProjectLink(event.target?.id)"
+            >
               <v-card-text>
                 <div class="d-flex align-center mb-2">
                   <v-icon icon="mdi-source-commit" color="info" class="mr-2" />
-                  <span class="font-weight-medium">分支: {{ event.event_data?.branch }}</span>
+                  <span class="font-weight-medium"
+                    >分支: {{ event.event_data?.branch }}</span
+                  >
                 </div>
                 <div class="commit-message text-body-2">
                   {{ event.event_data?.commit_message }}
@@ -94,36 +143,60 @@
 
           <!-- Project Info Update Event -->
           <template v-else-if="event.type === 'project_info_update'">
-            <v-card class="info-update-card mb-3" :to="getProjectLink(event.target?.id)">
+            <v-card
+              class="info-update-card mb-3"
+              :to="getProjectLink(event.target?.id)"
+            >
               <v-card-text>
                 <div class="d-flex align-center mb-2">
-                  <v-icon icon="mdi-file-document-edit" color="info" class="mr-2" />
-                  <span class="font-weight-medium">{{ event.event_data?.project_title }}</span>
+                  <v-icon
+                    icon="mdi-file-document-edit"
+                    color="info"
+                    class="mr-2"
+                  />
+                  <span class="font-weight-medium">{{
+                    event.event_data?.project_title
+                  }}</span>
                 </div>
 
                 <div class="info-updates text-body-2">
-                  <template v-for="field in event.event_data?.updated_fields" :key="field">
+                  <template
+                    v-for="field in event.event_data?.updated_fields"
+                    :key="field"
+                  >
                     <div class="update-item mb-2">
                       <div class="d-flex align-center">
-                        <v-chip size="x-small" color="info" class="mr-2">{{ getFieldDisplayName(field) }}</v-chip>
+                        <v-chip size="x-small" color="info" class="mr-2">{{
+                          getFieldDisplayName(field)
+                        }}</v-chip>
                       </div>
                       <div class="d-flex flex-column mt-1 field-changes">
                         <div class="old-value">
                           <span class="text-medium-emphasis">从：</span>
-                          <span class="ml-2">{{ event.event_data?.old_values[field] }}</span>
+                          <span class="ml-2">{{
+                            event.event_data?.old_values[field]
+                          }}</span>
                         </div>
                         <div class="new-value">
                           <span class="text-medium-emphasis">到：</span>
-                          <span class="ml-2 text-info">{{ event.event_data?.new_values[field] }}</span>
+                          <span class="ml-2 text-info">{{
+                            event.event_data?.new_values[field]
+                          }}</span>
                         </div>
                       </div>
                     </div>
                   </template>
                 </div>
 
-                <div class="project-meta text-caption text-medium-emphasis mt-2">
-                  <v-chip size="x-small" class="mr-1">{{ event.event_data?.project_type }}</v-chip>
-                  <v-chip size="x-small">{{ event.event_data?.project_state }}</v-chip>
+                <div
+                  class="project-meta text-caption text-medium-emphasis mt-2"
+                >
+                  <v-chip size="x-small" class="mr-1">{{
+                    event.event_data?.project_type
+                  }}</v-chip>
+                  <v-chip size="x-small">{{
+                    event.event_data?.project_state
+                  }}</v-chip>
                 </div>
               </v-card-text>
             </v-card>
@@ -142,9 +215,16 @@
           <!-- Project Related Events -->
           <template v-else-if="event.target?.type === 'project'">
             <div class="text-body-2">
-              <span>{{ eventTypes[event.type]?.text || '操作了' }}</span>
-              <router-link :to="getProjectLink(event.target.id)" class="text-decoration-none ml-1">
-                {{ event.event_data?.project_name || event.target.title || `项目 #${event.target.id}` }}
+              <span>{{ eventTypes[event.type]?.text || "操作了" }}</span>
+              <router-link
+                :to="getProjectLink(event.target.id)"
+                class="text-decoration-none ml-1"
+              >
+                {{
+                  event.event_data?.project_name ||
+                  event.target.title ||
+                  `项目 #${event.target.id}`
+                }}
               </router-link>
             </div>
           </template>
@@ -159,7 +239,12 @@
   </v-timeline>
 
   <div class="d-flex justify-center mt-4 mb-4">
-    <v-btn v-if="hasMoreEvents" :loading="isLoadingMore" variant="tonal" @click="loadMore">
+    <v-btn
+      v-if="hasMoreEvents"
+      :loading="isLoadingMore"
+      variant="tonal"
+      @click="loadMore"
+    >
       加载更多
     </v-btn>
     <div v-else-if="timeline.events.length > 0" class="text-medium-emphasis">
@@ -169,11 +254,11 @@
 </template>
 
 <script>
-import { ref, onMounted, watch } from 'vue';
-import { getProjectInfo } from '@/services/projectService';
+import { get } from "@/services/serverConfig";
+import { getProjectInfo } from "@/services/projectService";
 
 export default {
-  name: 'Timeline',
+  name: "Timeline",
   props: {
     timeline: {
       type: Object,
@@ -183,160 +268,179 @@ export default {
         pagination: {
           current: 1,
           size: 20,
-          total: 0
-        }
-      })
+          total: 0,
+        },
+      }),
     },
     isLoadingMore: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
+    username: {
+      type: String,
+      required: true,
+    },
   },
-  setup(props) {
-    const projectInfoMap = ref(new Map());
-    const VITE_APP_S3_BUCKET = import.meta.env.VITE_APP_S3_BUCKET;
-
-    const fetchProjectInfo = async (projectIds) => {
-      try {
-        const uniqueIds = [...new Set(projectIds)].filter(id => id && !projectInfoMap.value.has(id));
-        if (uniqueIds.length === 0) return;
-
-        const response = await getProjectInfo(uniqueIds);
-        if (response && Array.isArray(response)) {
-          response.forEach(project => {
-            if (project && project.id) {
-              projectInfoMap.value.set(project.id, project);
-            }
-          });
-        }
-      } catch (error) {
-        console.error('Failed to fetch project info:', error);
-      }
-    };
-
-    const getProjectLink = (projectId) => {
-      if (!projectId) return '/app/link/project';
-
-      const project = projectInfoMap.value.get(projectId);
-      if (!project || !project.author || !project.name) {
-        return `/app/link/project?id=${projectId}`;
-      }
-
-      return `/${project.author.username}/${project.name}`;
-    };
-
-    watch(() => props.timeline.events, async (newEvents) => {
-      if (!newEvents) return;
-
-      const projectIds = newEvents
-        .filter(event => event.target?.type === 'project' && event.target?.id)
-        .map(event => event.target.id);
-
-      await fetchProjectInfo(projectIds);
-    }, { immediate: true });
-
+  data() {
     return {
-      VITE_APP_S3_BUCKET,
-      projectInfoMap,
-      getProjectLink,
+      events: [],
+      loading: false,
+      error: null,
+      page: 1,
+      hasMore: true,
+      s3BucketUrl: "",
+      projectInfoMap: new Map(),
       eventTypes: {
         project_create: {
-          text: '创建了新项目',
-          label: '新建',
-          color: 'success',
-          isProject: true
+          text: "创建了新项目",
+          label: "新建",
+          color: "success",
+          isProject: true,
         },
         project_publish: {
-          text: '更新了项目',
-          label: '更新',
-          color: 'info',
-          isProject: true
+          text: "更新了项目",
+          label: "更新",
+          color: "info",
+          isProject: true,
         },
         project_fork: {
-          text: '复刻了项目',
-          label: '复刻',
-          color: 'warning',
-          isProject: true
+          text: "复刻了项目",
+          label: "复刻",
+          color: "warning",
+          isProject: true,
         },
         project_delete: {
-          text: '删除了项目',
-          label: '删除',
-          color: 'error',
-          isProject: true
+          text: "删除了项目",
+          label: "删除",
+          color: "error",
+          isProject: true,
+        },
+        project_star: {
+          text: "给项目点了星标",
+          label: "星标",
+          color: "primary",
+          isProject: true,
         },
         user_profile_update: {
-          text: '更新了个人资料',
-          label: '更新',
-          color: 'info'
+          text: "更新了个人资料",
+          label: "更新",
+          color: "info",
         },
         user_register: {
-          text: '加入了 ZeroCat',
-          label: '注册',
-          color: 'primary'
+          text: "加入了 ZeroCat",
+          label: "注册",
+          color: "primary",
         },
         project_commit: {
-          text: '提交了项目更新',
-          label: '提交',
-          color: 'info',
-          isProject: true
+          text: "提交了项目更新",
+          label: "提交",
+          color: "info",
+          isProject: true,
         },
         project_rename: {
-          text: '重命名了项目',
-          label: '重命名',
-          color: 'warning',
-          isProject: true
+          text: "重命名了项目",
+          label: "重命名",
+          color: "warning",
+          isProject: true,
         },
         project_info_update: {
-          text: '更新了项目信息',
-          label: '更新信息',
-          color: 'info',
-          isProject: true
+          text: "更新了项目信息",
+          label: "更新信息",
+          color: "info",
+          isProject: true,
         },
       },
       fieldDisplayNames: {
-        display_name: '昵称',
-        bio: '个性签名',
-        sex: '性别',
-        birthday: '生日',
-        avatar: '头像',
-        background: '背景图片',
-        email: '邮箱',
-        phone: '手机号',
-        website: '个人网站',
-        bio: '个人简介',
-        social_links: '社交链接',
-        preferences: '偏好设置',
-        visibility: '可见性设置',
-        language: '语言设置'
-      }
+        display_name: "昵称",
+        bio: "个性签名",
+        sex: "性别",
+        birthday: "生日",
+        avatar: "头像",
+        background: "背景图片",
+        email: "邮箱",
+        phone: "手机号",
+        website: "个人网站",
+        social_links: "社交链接",
+        preferences: "偏好设置",
+        visibility: "可见性设置",
+        language: "语言设置",
+      },
     };
+  },
+  async mounted() {
+    this.s3BucketUrl = await get("s3.staticurl");
+    // 初始加载时获取项目信息
+    if (this.timeline.events.length > 0) {
+      await this.fetchProjectInfoForEvents(this.timeline.events);
+    }
+  },
+  watch: {
+    "timeline.events": {
+      immediate: true,
+      async handler(newEvents) {
+        if (newEvents.length > 0) {
+          await this.fetchProjectInfoForEvents(newEvents);
+        }
+      },
+    },
   },
   computed: {
     hasMoreEvents() {
       return this.timeline.events.length < this.timeline.pagination.total;
-    }
+    },
   },
   methods: {
+    async fetchProjectInfoForEvents(events) {
+      // 收集所有需要获取信息的项目ID
+      const projectIds = events
+        .filter((event) => event.target?.type === "project")
+        .map((event) => event.target.id);
+
+      if (projectIds.length > 0) {
+        await this.fetchProjectInfo(projectIds);
+      }
+    },
+    async fetchProjectInfo(projectIds) {
+      try {
+        const projects = await getProjectInfo(projectIds);
+        projects.forEach((project) => {
+          this.projectInfoMap.set(project.id, project);
+        });
+      } catch (error) {
+        console.error("Error fetching project info:", error);
+      }
+    },
+    getProjectLink(projectId) {
+      if (!projectId) return "";
+
+      const project = this.projectInfoMap.get(projectId);
+      if (!project) {
+        // 如果没有找到项目信息，返回一个基于ID的临时链接
+        return `/project/${projectId}`;
+      }
+
+      return `/${project.author.username}/${project.name || project.id}`;
+    },
     loadMore() {
-      this.$emit('load-more');
+      this.$emit("load-more");
     },
     getUpdatedFields(fields) {
-      if (!fields?.length) return '';
+      if (!fields?.length) return "";
       return fields
-        .map(field => this.fieldDisplayNames[field] || field)
-        .join('、');
+        .map((field) => this.fieldDisplayNames[field] || field)
+        .join("、");
     },
     getTargetContent(target, eventType) {
-      if (!target) return '';
+      if (!target) return "";
 
       switch (target.type) {
-        case 'project': {
+        case "project": {
           return target.title || `项目 #${target.id}`;
         }
-        case 'user': {
+        case "user": {
           return target.display_name || `用户 #${target.id}`;
         }
-        case 'projectlist':
+        case "projectlist":
           return `项目列表 #${target.id}`;
         default:
           return `${target.type} #${target.id}`;
@@ -344,17 +448,17 @@ export default {
     },
     getFieldDisplayName(field) {
       const fieldNames = {
-        title: '标题',
-        description: '描述',
-        type: '类型',
-        state: '状态',
-        visibility: '可见性',
-        tags: '标签',
-        category: '分类',
+        title: "标题",
+        description: "描述",
+        type: "类型",
+        state: "状态",
+        visibility: "可见性",
+        tags: "标签",
+        category: "分类",
       };
       return fieldNames[field] || field;
     },
-  }
+  },
 };
 </script>
 

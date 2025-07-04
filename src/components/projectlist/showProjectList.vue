@@ -33,7 +33,7 @@
             <v-card-text>
               <div class="d-flex align-center mb-2">
                 <v-avatar size="24" class="mr-2">
-                  <v-img :src="getAvatarUrl(listInfo.author)" alt="用户头像"></v-img>
+                  <v-img :src="getUserAvatar(listInfo.author)" alt="用户头像"></v-img>
                 </v-avatar>
                 <span class="text-caption">{{ listInfo.author?.display_name || listInfo.author?.username || '未知用户' }}</span>
               </div>
@@ -89,6 +89,8 @@ import request from "../../axios/axios";
 import EditProjectListConfig from "./EditProjectListConfig.vue";
 import { localuser } from "../../services/localAccount";
 import ProjectCard from "../project/ProjectCard.vue";
+import { ref, onMounted } from "vue";
+import { get } from "@/services/serverConfig";
 
 export default {
   props: {
@@ -101,12 +103,30 @@ export default {
     EditProjectListConfig,
     ProjectCard
   },
+  setup() {
+    const s3BucketUrl = ref(null);
+
+    onMounted(async () => {
+      s3BucketUrl.value = await get('s3.staticurl');
+    });
+
+    const getUserAvatar = (user) => {
+      if (!user || !user.avatar) return '';
+      return `${s3BucketUrl.value}/user/${user.avatar}`;
+    };
+
+    return {
+      s3BucketUrl,
+      getUserAvatar,
+    };
+  },
   data() {
     return {
       loading: true,
       listInfo: {},
       isOwner: false,
-      editDialog: false
+      editDialog: false,
+      error: null,
     };
   },
   computed: {
@@ -148,18 +168,6 @@ export default {
       } finally {
         this.loading = false;
       }
-    },
-
-    getAvatarUrl(user) {
-      if (!user) return '';
-
-      if (user.avatar) return user.avatar;
-
-      if (user.avatar) {
-        return `${import.meta.env.VITE_APP_S3_BUCKET}/user/${user.avatar}`;
-      }
-
-      return '';
     },
 
     openEditDialog() {

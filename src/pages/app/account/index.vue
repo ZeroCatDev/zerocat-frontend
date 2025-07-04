@@ -4,7 +4,7 @@
     <user-card
       :userData="userInfo"
       :loading="userCardLoading"
-      :s3BucketUrl="VITE_APP_S3_BUCKET"
+      :s3BucketUrl="s3BucketUrl"
     />
 
     <!-- Account Settings Section -->
@@ -59,7 +59,7 @@
             <h3 class="text-h5 mb-4">更新头像</h3>
             <avatar-editor
               :userData="userInfo"
-              :s3BucketUrl="VITE_APP_S3_BUCKET"
+              :s3BucketUrl="s3BucketUrl"
               @avatar-updated="handleAvatarUpdate"
               @error="handleError"
             />
@@ -98,6 +98,8 @@
 import { localuser } from "@/services/localAccount";
 import { useHead } from "@unhead/vue";
 import { getAccount } from "@/services/accountService";
+import { ref, onMounted } from "vue";
+import { get } from "@/services/serverConfig";
 
 // Existing Components
 import EmailManager from "@/components/EmailManager.vue";
@@ -146,11 +148,25 @@ export default {
         { title: "开发者", value: "developer", icon: "mdi-account-group", to: "/app/account/developer" },
 
       ],
-      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
+      loading: false,
+      error: null,
+      s3BucketUrl: '',
     };
   },
   setup() {
     useHead({ title: "账户设置" });
+    const s3BucketUrl = ref(null);
+
+    onMounted(async () => {
+      s3BucketUrl.value = await get('s3.staticurl');
+    });
+
+    return {
+      s3BucketUrl,
+    };
+  },
+  async mounted() {
+    this.s3BucketUrl = await get('s3.staticurl');
   },
   async created() {
     if (!localuser.isLogin.value) {

@@ -8,7 +8,7 @@
       <v-chip pill>
         <v-avatar start>
           <v-img
-            :src="VITE_APP_S3_BUCKET + '/user/' + author.avatar"
+            :src="s3BucketUrl + '/user/' + author.avatar"
           ></v-img> </v-avatar
         >{{ author.display_name }}
       </v-chip>
@@ -73,6 +73,8 @@ import ProjectStar from "@/components/project/ProjectStar.vue";
 import ProjectAuthorCard from "@/components/project/ProjectAuthorCard.vue";
 import openEditor from "@/stores/openEdit";
 import { getProjectStats } from "@/services/projectService";
+import { ref, onMounted } from "vue";
+import { get } from "@/services/serverConfig";
 
 export default {
   name: "ProjectInfoCard",
@@ -102,12 +104,17 @@ export default {
   data() {
     return {
       openEditor,
-      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
+      loading: false,
+      error: null,
       stats: {
         pageviews: 0,
         visitors: 0
-      }
+      },
+      s3BucketUrl: '',
     };
+  },
+  async mounted() {
+    this.s3BucketUrl = await get('s3.staticurl');
   },
   watch: {
     'project.id': {

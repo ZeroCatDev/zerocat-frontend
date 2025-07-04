@@ -17,7 +17,7 @@
         <v-spacer></v-spacer>
         <span v-if="list.author" class="text-caption">
           <v-avatar size="16" class="mr-1">
-            <v-img :src="getAvatarUrl(list.author)" alt="用户头像"></v-img>
+            <v-img :src="getUserAvatar(list.author)" alt="用户头像"></v-img>
           </v-avatar>
           {{ list.author.display_name || list.author.username || `用户${list.authorid}` }}
         </span>
@@ -47,6 +47,8 @@
 <script>
 import { localuser } from "../../services/localAccount";
 import { getProjectListById } from "../../services/projectListService";
+import { ref, onMounted } from "vue";
+import { get } from "@/services/serverConfig";
 
 export default {
   props: {
@@ -58,7 +60,8 @@ export default {
   data() {
     return {
       projectCount: 0,
-      loading: false
+      loading: false,
+      error: null,
     };
   },
   computed: {
@@ -69,6 +72,23 @@ export default {
   },
   async created() {
     await this.fetchProjectCount();
+  },
+  setup() {
+    const s3BucketUrl = ref(null);
+
+    onMounted(async () => {
+      s3BucketUrl.value = await get('s3.staticurl');
+    });
+
+    const getUserAvatar = (user) => {
+      if (!user || !user.avatar) return '';
+      return `${s3BucketUrl.value}/user/${user.avatar}`;
+    };
+
+    return {
+      s3BucketUrl,
+      getUserAvatar,
+    };
   },
   methods: {
     async fetchProjectCount() {
@@ -87,18 +107,6 @@ export default {
       } else {
         this.projectCount = this.list.projects.length;
       }
-    },
-
-    getAvatarUrl(user) {
-      if (!user) return '';
-
-      if (user.avatar) return user.avatar;
-
-      if (user.avatar) {
-        return `${import.meta.env.VITE_APP_S3_BUCKET}/user/${user.avatar}`;
-      }
-
-      return '';
     },
 
     formatDate(dateString) {

@@ -63,7 +63,7 @@
             >
               <v-avatar
                 :image="
-                  VITE_APP_S3_BUCKET + '/user/' + localuser.user.value.avatar
+                  s3BucketUrl + '/user/' + localuser.user.value.avatar
                 "
               ></v-avatar>
             </v-btn>
@@ -119,7 +119,7 @@
                   :title="localuser.user.value.display_name"
                   :subtitle="localuser.user.value.username"
                   :append-avatar="
-                    VITE_APP_S3_BUCKET + '/user/' + localuser.user.value.avatar
+                    s3BucketUrl + '/user/' + localuser.user.value.avatar
                   "
                 ></v-card>
                 <v-list>
@@ -228,11 +228,15 @@ import { useTheme } from "vuetify";
 import { ref, onMounted, watch, nextTick } from "vue";
 import NotificationsCard from "@/components/NotificationsCard.vue";
 import SearchDialog from "@/components/SearchDialog.vue";
+import { get } from "@/services/serverConfig";
 
 export default {
   components: {
     NotificationsCard,
     SearchDialog,
+  },
+  async mounted() {
+    this.s3BucketUrl = await get('s3.staticurl');
   },
   setup() {
     const notificationsCard = ref(null);
@@ -250,6 +254,7 @@ export default {
     return {
       notificationsCard,
       localuser,
+      s3BucketUrl: '',
     };
   },
   data() {
@@ -263,7 +268,6 @@ export default {
       hideNavPaths: ["/app", "/404"],
       hideExactPaths: ["/", "/index.html"],
       activeTab: "notifications",
-      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
       isDarkTheme: false,
       theme: null,
       userTab: "profile",
@@ -384,7 +388,7 @@ export default {
 
           ],
         },
-        admin: {
+        /*admin: {
           title: "管理",
           icon: "mdi-shield-account",
           login: true,
@@ -402,7 +406,7 @@ export default {
               login: true
             },
           ],
-        },
+        },*/
       };
     },
     updateSubNavItems(route) {

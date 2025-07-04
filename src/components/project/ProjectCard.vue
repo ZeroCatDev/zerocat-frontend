@@ -6,7 +6,7 @@
       rounded="lg"
     >
       <v-img
-        :src="project ? VITE_APP_S3_BUCKET + '/scratch_slt/' + project.id : ''"
+        :src="project ? s3BucketUrl + '/scratch_slt/' + project.id : ''"
         class="align-end"
         lazy-src="../../assets/43-lazyload.png"
         height="100%"
@@ -20,7 +20,7 @@
       </v-img>
     </v-card>
     <!-- 作者信息区域 -->
-    <v-card-item v-if="showAuthor && author" :append-avatar="author.avatar ? VITE_APP_S3_BUCKET + '/user/' + author.avatar : ''">
+    <v-card-item v-if="showAuthor && author" :append-avatar="author.avatar ? s3BucketUrl + '/user/' + author.avatar : ''">
       <v-card-title>{{ author.display_name || author.username || "未知用户" }}</v-card-title>
       <v-card-subtitle>{{ author.username || "" }}</v-card-subtitle>
     </v-card-item>
@@ -29,57 +29,49 @@
 
 <script>
 import { getProjectInfo } from "@/services/projectService";
+import { get } from "@/services/serverConfig";
 
 export default {
   props: {
-    // 可以传入完整的项目数据
-    projectData: {
+    project: {
+      type: Object,
+      required: true,
+    },
+    author: {
       type: Object,
       default: null,
     },
-    // 或者只传入项目ID
-    projectId: {
-      type: [Number, String],
-      default: null,
-    },
-    // 可以单独传入作者数据
-    authorData: {
-      type: Object,
-      default: null,
-    },
-    // 是否显示作者信息
     showAuthor: {
       type: Boolean,
-      default: false,
-    }
+      default: true,
+    },
   },
   data() {
     return {
-      project: null,
-      author: null,
       loading: false,
-      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
+      error: null,
+      s3BucketUrl: '',
     };
+  },
+  async mounted() {
+    this.s3BucketUrl = await get('s3.staticurl');
   },
   created() {
     // 初始化数据
     this.initializeData();
   },
   watch: {
-    projectData: {
+    project: {
       handler() {
         this.initializeData();
       },
       deep: true
     },
-    authorData: {
+    author: {
       handler() {
         this.initializeData();
       },
       deep: true
-    },
-    projectId() {
-      this.initializeData();
     },
     showAuthor() {
       this.loadAuthorIfNeeded();
@@ -88,16 +80,7 @@ export default {
   methods: {
     initializeData() {
       // 处理项目数据
-      if (this.projectData) {
-        this.project = this.projectData;
-      } else if (this.projectId) {
-        this.fetchProject(this.projectId);
-      }
-
-      // 处理作者数据
-      if (this.authorData) {
-        this.author = this.authorData;
-      } else {
+      if (this.project) {
         this.loadAuthorIfNeeded();
       }
     },

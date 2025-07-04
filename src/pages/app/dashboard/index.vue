@@ -51,7 +51,7 @@
             <template v-slot:prepend>
               <v-avatar size="32">
                 <v-img
-                  :src="VITE_APP_S3_BUCKET + '/user/' + project.author.avatar"
+                  :src="s3BucketUrl + '/user/' + project.author.avatar"
                 />
               </v-avatar>
             </template>
@@ -197,8 +197,8 @@ import request from "@/axios/axios";
 import Timeline from "@/components/timeline/Timeline.vue";
 import TimeAgo from "@/components/TimeAgo.vue";
 import ProjectCard from "@/components/project/ProjectCard.vue";
-import { ref } from "vue";
 import { localuser } from "@/services/localAccount";
+import { get } from "@/services/serverConfig";
 
 export default {
   name: "Dashboard",
@@ -236,7 +236,11 @@ export default {
       isLoadingMore: false,
       recentActivities: [],
 
-      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
+      projects: [],
+      loading: false,
+      error: null,
+      s3BucketUrl: '',
+      loadMoreTrigger: null,
     };
   },
   methods: {
@@ -409,10 +413,8 @@ export default {
       }
     },
   },
-  async created() {
-    useHead({
-      title: "Dashboard - ZeroCat",
-    });
+  async mounted() {
+    this.s3BucketUrl = await get('s3.staticurl');
     await Promise.all([
       this.fetchTopProjects(),
       this.fetchLatestProjects(),
@@ -421,12 +423,11 @@ export default {
       this.loadMoreExploreProjects(),
     ]);
   },
-  setup() {
-    const loadMoreTrigger = ref(null);
+  created() {
+    useHead({
+      title: "Dashboard - ZeroCat",
+    });
 
-    return {
-      loadMoreTrigger,
-    };
   },
 };
 </script>

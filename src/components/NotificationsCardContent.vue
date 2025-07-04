@@ -36,7 +36,7 @@
                 v-if="notification.actor?.avatar"
               >
                 <v-img
-                  :src="VITE_APP_S3_BUCKET + '/user/' + notification.actor.avatar"
+                  :src="s3BucketUrl + '/user/' + notification.actor.avatar"
                   alt="用户头像"
                 ></v-img>
               </v-avatar>
@@ -161,6 +161,7 @@ import {
   markAllNotificationsAsRead,
 } from "@/services/notificationService";
 import { getProjectInfo, getProjectListById } from "@/services/projectService";
+import { get } from "@/services/serverConfig";
 
 export default {
   name: "NotificationsCardContent",
@@ -177,9 +178,25 @@ export default {
       type: Boolean,
       default: true,
     },
+    notification: {
+      type: Object,
+      required: true,
+    },
   },
   emits: ["update:unread-count"],
-  setup(props, { emit }) {
+  data() {
+    return {
+      loading: false,
+      error: null,
+      s3BucketUrl: '',
+      projectCache: {},
+      projectListCache: {},
+    };
+  },
+  async mounted() {
+    this.s3BucketUrl = await get('s3.staticurl');
+  },
+  async setup(props, { emit }) {
     const router = useRouter();
     const notifications = ref([]);
     const loading = ref(false);
@@ -189,10 +206,6 @@ export default {
     const hasMoreNotifications = ref(false);
     const loadMoreUrl = ref(null);
     const notificationsContainer = ref(null);
-
-    const VITE_APP_S3_BUCKET = import.meta.env.VITE_APP_S3_BUCKET;
-    const projectCache = ref({});
-    const projectListCache = ref({});
 
     const hasUnread = computed(() => unreadCount.value > 0);
 
@@ -589,7 +602,7 @@ export default {
       getIconForType,
       processNotificationTemplates,
       prepareTemplateData,
-      VITE_APP_S3_BUCKET,
+      s3BucketUrl,
     };
   },
 };

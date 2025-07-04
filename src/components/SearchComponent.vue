@@ -194,249 +194,138 @@
 </template>
 
 <script>
-const SEARCH_HISTORY_KEY = "search_history";
-const MAX_HISTORY_ITEMS = 10;
-const ITEMS_PER_PAGE = 20;
-import { getProjectInfo } from "@/services/projectService";
-import { ref, watch, computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { get } from '@/services/serverConfig';
+import { getProjectInfo } from '@/services/projectService';
+import {
+  loadSearchHistory,
+  addToSearchHistory,
+  performSearch,
+  generateUrlMap,
+  updateUrlMap
+} from '@/services/searchService';
 
 export default {
-  name: "SearchComponent",
+  name: 'SearchComponent',
 
   props: {
     mode: {
       type: String,
-      default: 'page', // 'page' or 'dialog'
+      default: 'page',
       validator: (value) => ['page', 'dialog'].includes(value)
     }
   },
 
   emits: ['search-submitted'],
 
-  setup(props, { emit }) {
-    const route = useRoute();
-    const router = useRouter();
-
-    const searchQuery = ref("");
-    const searchResults = ref([]);
-    const searchHistory = ref([]);
-    const isLoading = ref(false);
-    const showError = ref(false);
-    const errorMessage = ref("");
-    const hasSearched = ref(false);
-    const currentPage = ref(1);
-    const totalHits = ref(0);
-    const urlMap = ref({});
-    const hotSearches = ref(["Scratch", "游戏", "动画", "音乐", "艺术", "编程"]);
-    const s3BucketUrl = ref(import.meta.env.VITE_APP_S3_BUCKET);
-
-    const meilisearchConfig = computed(() => ({
-      baseUrl: import.meta.env.VITE_APP_MEILISEARCH_URL,
-      apiKey: import.meta.env.VITE_APP_MEILISEARCH_API_KEY,
-      indexName: import.meta.env.VITE_APP_MEILISEARCH_INDEX,
-    }));
-
-    const searchParams = computed(() => ({
-      q: searchQuery.value.trim(),
-      offset: (currentPage.value - 1) * ITEMS_PER_PAGE,
-      limit: ITEMS_PER_PAGE,
-      attributesToHighlight: ["title", "description"],
-      highlightPreTag: '<mark class="highlight">',
-      highlightPostTag: "</mark>",
-    }));
-
-    const totalPages = computed(() => {
-      return Math.ceil(totalHits.value / ITEMS_PER_PAGE) || 0;
-    });
-
-    const handleError = (error) => {
-      console.error("Search error:", error);
-      showError.value = true;
-      errorMessage.value = error.message || "发生未知错误";
+  data() {
+    return {
+      searchQuery: '',
+      searchResults: [],
+      searchHistory: [],
+      isLoading: false,
+      showError: false,
+      errorMessage: '',
+      hasSearched: false,
+      currentPage: 1,
+      totalHits: 0,
+      totalPages: 0,
+      urlMap: {},
+      s3BucketUrl: '',
+      hotSearches: ['Scratch', '游戏', '动画', '音乐', '艺术', '编程'],
     };
+  },
 
-    const initializeUrlMap = () => {
-      if (!searchResults.value) return;
-      const newUrlMap = {};
-      searchResults.value.forEach((result) => {
-        if (result && result.id) {
-          newUrlMap[result.id] = `/app/link/project/?id=${result.id}`;
+  watch: {
+    '$route.query.q': {
+      immediate: true,
+      handler(newQuery) {
+        if (this.mode === 'page' && newQuery !== undefined) {
+          this.searchQuery = newQuery || '';
+          if (newQuery) {
+            this.performSearch();
+          } else {
+            this.searchResults = [];
+            this.totalHits = 0;
+            this.hasSearched = false;
+          }
         }
-      });
-      urlMap.value = newUrlMap;
-    };
-
-    const updateUrlMapAsync = async () => {
-      try {
-        if (!searchResults.value || !searchResults.value.length) return;
-
-        const projectIds = searchResults.value
-          .filter(result => result && result.id)
-          .map(result => result.id);
-
-        if (!projectIds.length) return;
-
-        const newUrlMap = { ...urlMap.value };
-        getProjectInfo(projectIds)
-          .then((projectInfos) => {
-            if (!projectInfos) return;
-            projectInfos.forEach((info) => {
-              if (info && info.author?.username) {
-                newUrlMap[info.id] = `/${info.author.username}/${info.name}`;
-              }
-            });
-            urlMap.value = newUrlMap;
-          })
-          .catch((error) => {
-            console.error("Error updating URLs in background:", error);
-          });
-      } catch (error) {
-        console.error("Error in background URL update:", error);
       }
-    };
+    }
+  },
 
-    const performSearch = async () => {
+  async created() {
+    this.searchHistory = loadSearchHistory();
+    this.s3BucketUrl = await get('s3.staticurl');
+  },
+
+  methods: {
+    handleError(error) {
+      console.error('Search error:', error);
+      this.showError = true;
+      this.errorMessage = error.message || '发生未知错误';
+    },
+
+    async performSearch() {
       try {
-        isLoading.value = true;
-        hasSearched.value = true;
+        this.isLoading = true;
+        this.hasSearched = true;
 
-        const { baseUrl, apiKey, indexName } = meilisearchConfig.value;
-        const response = await fetch(`${baseUrl}/indexes/${indexName}/search`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify(searchParams.value),
-        });
+        const data = await performSearch(this.searchQuery, this.currentPage);
+        this.searchResults = data.hits || [];
+        this.totalHits = data.estimatedTotalHits || 0;
+        this.totalPages = Math.ceil(this.totalHits / 20);
 
-        if (!response.ok) {
-          throw new Error("搜索请求失败");
-        }
-
-        const data = await response.json();
-        searchResults.value = data.hits || [];
-        totalHits.value = data.estimatedTotalHits || 0;
-
-        if (searchResults.value.length > 0) {
-          initializeUrlMap();
-          updateUrlMapAsync();
+        if (this.searchResults.length > 0) {
+          this.urlMap = generateUrlMap(this.searchResults);
+          this.urlMap = await updateUrlMap(this.searchResults, this.urlMap);
         }
       } catch (error) {
-        handleError(error);
-        searchResults.value = [];
-        totalHits.value = 0;
+        this.handleError(error);
+        this.searchResults = [];
+        this.totalHits = 0;
       } finally {
-        isLoading.value = false;
+        this.isLoading = false;
       }
-    };
+    },
 
-    const loadSearchHistory = () => {
-      try {
-        const history = localStorage.getItem(SEARCH_HISTORY_KEY);
-        searchHistory.value = history ? JSON.parse(history) : [];
-      } catch (error) {
-        handleError(new Error("加载搜索历史失败"));
-        searchHistory.value = [];
-      }
-    };
-
-    const addToSearchHistory = (term) => {
-      try {
-        if (!searchHistory.value) searchHistory.value = [];
-        const index = searchHistory.value.indexOf(term);
-        if (index > -1) {
-          searchHistory.value.splice(index, 1);
-        }
-        searchHistory.value.unshift(term);
-        if (searchHistory.value.length > MAX_HISTORY_ITEMS) {
-          searchHistory.value.pop();
-        }
-        localStorage.setItem(
-          SEARCH_HISTORY_KEY,
-          JSON.stringify(searchHistory.value)
-        );
-      } catch (error) {
-        handleError(new Error("保存搜索历史失败"));
-      }
-    };
-
-    const handleSearch = async () => {
-      const trimmedQuery = searchQuery.value.trim();
+    async handleSearch() {
+      const trimmedQuery = this.searchQuery.trim();
       if (!trimmedQuery) return;
 
-      if (props.mode === 'dialog') {
-        emit('search-submitted');
-        router.push({
+      if (this.mode === 'dialog') {
+        this.$emit('search-submitted');
+        this.$router.push({
           path: '/app/search',
           query: { q: trimmedQuery }
         });
         return;
       }
 
-      if (route.query.q !== trimmedQuery) {
-        router.replace({
-          query: { ...route.query, q: trimmedQuery }
+      if (this.$route.query.q !== trimmedQuery) {
+        this.$router.replace({
+          query: { ...this.$route.query, q: trimmedQuery }
         });
       }
 
-      addToSearchHistory(trimmedQuery);
-    };
+      this.searchHistory = addToSearchHistory(trimmedQuery, this.searchHistory);
+    },
 
-    const handlePageChange = async (page) => {
+    async handlePageChange(page) {
       if (!page || page < 1) return;
       try {
-        currentPage.value = page;
-        await performSearch();
+        this.currentPage = page;
+        await this.performSearch();
       } catch (error) {
-        handleError(error);
+        this.handleError(error);
       }
-    };
+    },
 
-    const handleHistoryClick = (term) => {
+    handleHistoryClick(term) {
       if (!term) return;
-      searchQuery.value = term;
-      handleSearch();
-    };
-
-    // 监听路由参数变化
-    watch(() => route.query.q, (newQuery) => {
-      if (props.mode === 'page' && newQuery !== undefined) {
-        searchQuery.value = newQuery || '';
-        if (newQuery) {
-          performSearch();
-        } else {
-          searchResults.value = [];
-          totalHits.value = 0;
-          hasSearched.value = false;
-        }
-      }
-    }, { immediate: true });
-
-    // 初始加载搜索历史
-    loadSearchHistory();
-
-    return {
-      searchQuery,
-      searchResults,
-      searchHistory,
-      isLoading,
-      showError,
-      errorMessage,
-      hasSearched,
-      currentPage,
-      totalHits,
-      urlMap,
-      hotSearches,
-      s3BucketUrl,
-      totalPages,
-      handleSearch,
-      handlePageChange,
-      handleHistoryClick,
-      handleError,
-    };
-  },
+      this.searchQuery = term;
+      this.handleSearch();
+    }
+  }
 };
 </script>
 

@@ -18,7 +18,7 @@
           <template v-slot:prepend>
             <router-link :to="`/${blockedUser.user.username}`">
               <v-avatar size="50">
-                <v-img :src="VITE_APP_S3_BUCKET + '/user/' + (blockedUser.user.avatar)" alt="用户头像" />
+                <v-img :src="s3BucketUrl + '/user/' + (blockedUser.user.avatar)" alt="用户头像" />
               </v-avatar>
             </router-link>
           </template>
@@ -82,6 +82,8 @@
 <script>
 import request from "@/axios/axios.js";
 import { localuser } from "@/services/localAccount";
+import { ref, onMounted } from "vue";
+import { get } from "@/services/serverConfig";
 
 export default {
   name: "UserBlocked",
@@ -97,22 +99,28 @@ export default {
     showAll: {
       type: Boolean,
       default: false
-    }
+    },
+    username: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
       blockedUsers: [],
-      loading: true,
+      loading: false,
       loadingMore: false,
       unblockingId: null,
       totalBlockedUsers: 0,
       localuser,
-      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
+      page: 1,
+      hasMore: true,
       snackbar: {
         show: false,
         text: "",
         color: "success"
-      }
+      },
+      s3BucketUrl: '',
     };
   },
   computed: {
@@ -199,7 +207,10 @@ export default {
         color
       };
     }
-  }
+  },
+  async mounted() {
+    this.s3BucketUrl = await get('s3.staticurl');
+  },
 };
 </script>
 

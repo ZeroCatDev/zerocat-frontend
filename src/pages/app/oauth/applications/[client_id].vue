@@ -163,7 +163,7 @@
                   height="96"
                 >
                   <v-img
-                    :src="logoPreview ||VITE_APP_S3_BUCKET + '/material/asset/' + application?.logo_url"
+                    :src="logoPreview || s3BucketUrl + '/material/asset/' + application?.logo_url"
                     height="96"
                     width="96"
                     cover
@@ -600,6 +600,8 @@
 <script>
 import axios from '@/axios/axios'
 import Compressor from 'compressorjs'
+import { ref, onMounted } from "vue";
+import { get } from "@/services/serverConfig";
 
 export default {
   data() {
@@ -620,7 +622,7 @@ export default {
       deleteDialog: false,
       deleteConfirmation: '',
       logoFile: null,
-      logoPreview: false,
+      logoPreview: null,
       compressedLogoFile: null,
       logoUploading: false,
       snackbar: {
@@ -628,7 +630,7 @@ export default {
         text: '',
         color: 'success'
       },
-      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET
+      s3BucketUrl: '',
     }
   },
 
@@ -766,7 +768,7 @@ export default {
         URL.revokeObjectURL(this.logoPreview)
       }
       this.logoFile = null
-      this.logoPreview = false
+      this.logoPreview = null
       this.compressedLogoFile = null
     },
 
@@ -804,8 +806,9 @@ export default {
     }
   },
 
-  mounted() {
-    this.loadApplication()
+  async mounted() {
+    this.s3BucketUrl = await get('s3.staticurl');
+    this.loadApplication();
   },
 
   beforeDestroy() {

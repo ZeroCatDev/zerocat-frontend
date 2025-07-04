@@ -13,7 +13,7 @@
         <v-avatar color="blue-darken-2">
           <v-img
             :src="
-              VITE_APP_S3_BUCKET + '/user/' + users[comment.user_id].avatar
+              s3BucketUrl + '/user/' + users[comment.user_id].avatar
             "
           ></v-img>
         </v-avatar>
@@ -50,7 +50,7 @@
           <template v-slot:prepend>
             <v-img
               :src="
-                VITE_APP_S3_BUCKET + '/user/' + users[children.user_id].avatar
+                s3BucketUrl + '/user/' + users[children.user_id].avatar
               "
             ></v-img>
           </template>
@@ -111,7 +111,7 @@
               <v-avatar color="blue-darken-2">
                 <v-img
                   :src="
-                    VITE_APP_S3_BUCKET + '/user/' + users[moreComments.user_id].avatar
+                    s3BucketUrl + '/user/' + users[moreComments.user_id].avatar
                   "
                 ></v-img>
               </v-avatar>
@@ -171,7 +171,7 @@
               <v-avatar color="blue-darken-2">
                 <v-img
                   :src="
-                    VITE_APP_S3_BUCKET + '/user/' + users[comment.user_id].avatar
+                    s3BucketUrl + '/user/' + users[comment.user_id].avatar
                   "
                 ></v-img>
               </v-avatar>
@@ -270,6 +270,8 @@ import TimeAgo from "./TimeAgo.vue";
 import request from "../axios/axios";
 import { localuser } from "@/services/localAccount";
 import { UAParser } from "ua-parser-js";
+import { ref, onMounted } from "vue";
+import { get } from "@/services/serverConfig";
 
 export default {
   components: {
@@ -285,6 +287,14 @@ export default {
       type: String,
       required: true,
     },
+    comment: {
+      type: Object,
+      required: true,
+    },
+    users: {
+      type: Object,
+      required: true,
+    },
   },
   watch: {
     url: function (newUrl, oldUrl) {
@@ -298,7 +308,6 @@ export default {
       sort: "时间倒序",
       sorttext: "insertedAt_desc",
       commentList: [],
-      users: {},
       page: 0,
       totalPages: 0,
       pageSize: 10,
@@ -316,11 +325,13 @@ export default {
       comment: "",
       replyId: "",
       UAParser,
-      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
+      loading: false,
+      error: null,
+      s3BucketUrl: '',
     };
   },
-  mounted() {
-    this.getComments();
+  async mounted() {
+    this.s3BucketUrl = await get('s3.staticurl');
   },
   methods: {
     getComments(info = {}) {

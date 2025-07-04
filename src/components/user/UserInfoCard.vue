@@ -5,7 +5,7 @@
         <v-avatar size="96">
           <v-img
             v-if="user.avatar"
-            :src="VITE_APP_S3_BUCKET + '/user/' + user.avatar"
+            :src="s3BucketUrl + '/user/' + user.avatar"
             :alt="user.display_name"
           />
           <v-icon v-else size="48" icon="mdi-account"></v-icon>
@@ -72,6 +72,8 @@
 import { localuser } from "@/services/localAccount";
 import UserRelationControls from "./UserRelationControls.vue";
 import request from "@/axios/axios";
+import { ref, onMounted } from "vue";
+import { get } from "@/services/serverConfig";
 
 export default {
   name: "UserInfoCard",
@@ -86,16 +88,22 @@ export default {
     username: {
       type: String,
       default: null
-    }
+    },
+    user: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {
-      user: {},
-      loading: true,
+      loading: false,
       error: null,
+      s3BucketUrl: '',
       localuser,
-      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET
     };
+  },
+  async mounted() {
+    this.s3BucketUrl = await get('s3.staticurl');
   },
   methods: {
     getRoleColor(role) {

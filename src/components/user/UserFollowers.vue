@@ -18,7 +18,7 @@
           <template v-slot:prepend>
             <router-link :to="`/${follower.user.username}`">
               <v-avatar size="50">
-                <v-img :src="VITE_APP_S3_BUCKET + '/user/' + (follower.user.avatar || follower.user.avatar)" alt="用户头像" />
+                <v-img :src="s3BucketUrl + '/user/' + (follower.user.avatar || follower.user.avatar)" alt="用户头像" />
               </v-avatar>
             </router-link>
           </template>
@@ -50,7 +50,7 @@
       </v-card>
 
       <div class="d-flex justify-center mt-4 mb-4">
-        <v-btn v-if="hasMoreFollowers" :loading="loadingMore" variant="tonal" @click="loadMoreFollowers">
+        <v-btn v-if="hasMore" :loading="loadingMore" variant="tonal" @click="loadMoreFollowers">
           加载更多
         </v-btn>
         <div v-else-if="followers.length > 0" class="text-medium-emphasis">
@@ -80,6 +80,8 @@
 <script>
 import request from "@/axios/axios.js";
 import { localuser } from "@/services/localAccount";
+import { ref, onMounted } from "vue";
+import { get } from "@/services/serverConfig";
 
 export default {
   name: "UserFollowers",
@@ -95,23 +97,32 @@ export default {
     showAll: {
       type: Boolean,
       default: false
-    }
+    },
+    username: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
       followers: [],
-      loading: true,
+      loading: false,
+      error: null,
+      page: 1,
+      hasMore: true,
+      s3BucketUrl: '',
       loadingMore: false,
       actionLoading: null,
       totalFollowers: 0,
-      localuser,
-      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
       snackbar: {
         show: false,
         text: "",
         color: "success"
       }
     };
+  },
+  async mounted() {
+    this.s3BucketUrl = await get('s3.staticurl');
   },
   computed: {
     hasMoreFollowers() {

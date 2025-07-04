@@ -5,7 +5,7 @@
         <v-avatar>
           <v-img
             :alt="author.display_name"
-            :src="VITE_APP_S3_BUCKET + '/user/' + author.avatar"
+            :src="s3BucketUrl + '/user/' + author.avatar"
           ></v-img>
         </v-avatar>
       </template>
@@ -26,6 +26,7 @@
 <script>
 import { localuser } from "@/services/localAccount";
 import UserRelationControls from "@/components/user/UserRelationControls.vue";
+import { get } from "@/services/serverConfig";
 
 export default {
   name: 'ProjectAuthorCard',
@@ -41,8 +42,13 @@ export default {
   data() {
     return {
       localuser,
-      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
+      loading: false,
+      error: null,
+      s3BucketUrl: '',
     }
+  },
+  async mounted() {
+    this.s3BucketUrl = await get('s3.staticurl');
   }
 }
 </script>

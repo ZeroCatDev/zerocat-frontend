@@ -7,6 +7,7 @@
 
 <script>
 import "https://static.geetest.com/v4/gt4.js";
+import { get } from '@/services/serverConfig';
 
 export default {
   props: {
@@ -27,9 +28,12 @@ export default {
     return {
       captchaObj: null,
       bindCaptchaObj: null,
+      geeId: '',
     };
   },
-  mounted() {
+  async mounted() {
+    this.geeId = await get('captcha.GEE_CAPTCHA_ID');
+    console.log(this.geeId);
     if (this.showNormal) {
       this.initRecaptcha();
     }
@@ -43,10 +47,9 @@ export default {
   },
   methods: {
     initRecaptcha() {
-      console.log(import.meta.env.VITE_APP_GEEID);
       initGeetest4(
         {
-          captchaId: import.meta.env.VITE_APP_GEEID,
+          captchaId: this.geeId,
           product: this.product,
         },
         (captchaObj) => {
@@ -69,7 +72,7 @@ export default {
     initBindRecaptcha() {
       initGeetest4(
         {
-          captchaId: import.meta.env.VITE_APP_GEEID,
+          captchaId: this.geeId,
           product: 'bind',
           mask: {
             outside: true,

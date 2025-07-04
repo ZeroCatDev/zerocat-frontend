@@ -29,7 +29,7 @@
                     {{ user.custom_status.emoji }} {{ user.custom_status.text }}
                   </span>-->
                   <v-avatar size="52" class="ma-2">
-                    <v-img :src="VITE_APP_S3_BUCKET + '/user/' + user.avatar" />
+                    <v-img :src="s3BucketUrl + '/user/' + user.avatar" />
                   </v-avatar>
                 </p>
                 <p class="mt-2 text-body-1 text-medium-emphasis user-motto">
@@ -171,6 +171,8 @@ import UserFollowers from "@/components/user/UserFollowers.vue";
 import UserFollowing from "@/components/user/UserFollowing.vue";
 import Timeline from "@/components/timeline/Timeline.vue";
 import PageAnalytics from "@/components/analytics/PageAnalytics.vue";
+import { ref, onMounted } from "vue";
+import { get } from "@/services/serverConfig";
 
 export default {
   components: {
@@ -272,13 +274,16 @@ export default {
         visibility: "可见性设置",
         language: "语言设置",
       },
-      VITE_APP_S3_BUCKET: import.meta.env.VITE_APP_S3_BUCKET,
+      s3BucketUrl: '',
     };
   },
   watch: {
     "$route.query.tab"(newTab) {
       this.tab = newTab || "home";
     },
+  },
+  async mounted() {
+    this.s3BucketUrl = await get('s3.staticurl');
   },
   async created() {
     await this.fetchUser();
