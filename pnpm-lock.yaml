@@ -20,9 +20,6 @@ importers:
       '@meilisearch/instant-meilisearch':
         specifier: ^0.26.0
         version: 0.26.0
-      '@microsoft/clarity':
-        specifier: ^1.0.0
-        version: 1.0.0
       '@primevue/themes':
         specifier: ^4.2.5
         version: 4.2.5
@@ -479,9 +476,6 @@ packages:
 
   '@meilisearch/instant-meilisearch@0.26.0':
     resolution: {integrity: sha512-b3Blox8xE0nwn23FteCqOJWyQKFL4lgYjjtwKAbHGXxSHshvmWlhvPv+HuNOKk8MFF878hUSwddHg5zFgbU4Pw==}
-
-  '@microsoft/clarity@1.0.0':
-    resolution: {integrity: sha512-2QY6SmXnqRj6dWhNY8NYCN3e53j4zCFebH4wGnNhdGV1mqAsQwql2fT0w8TISxCvwwfVp8idsWLIdrRHOms1PQ==}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -2792,8 +2786,6 @@ snapshots:
   '@meilisearch/instant-meilisearch@0.26.0':
     dependencies:
       meilisearch: 0.50.0
-
-  '@microsoft/clarity@1.0.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
