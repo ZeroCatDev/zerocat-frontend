@@ -17,9 +17,6 @@ importers:
       '@mdi/font':
         specifier: 7.4.47
         version: 7.4.47
-      '@meilisearch/instant-meilisearch':
-        specifier: ^0.26.0
-        version: 0.26.0
       '@primevue/themes':
         specifier: ^4.2.5
         version: 4.2.5
@@ -32,9 +29,6 @@ importers:
       '@vueuse/rxjs':
         specifier: ^12.5.0
         version: 12.5.0(rxjs@7.8.1)(typescript@5.7.2)
-      algoliasearch:
-        specifier: ^5.20.0
-        version: 5.20.0
       axios:
         specifier: ^1.7.9
         version: 1.7.9
@@ -65,9 +59,6 @@ importers:
       highlight.js:
         specifier: ^11.11.1
         version: 11.11.1
-      instantsearch.css:
-        specifier: ^8.5.1
-        version: 8.5.1
       jszip:
         specifier: ^3.10.1
         version: 3.10.1
@@ -104,15 +95,9 @@ importers:
       ua-parser-js:
         specifier: ^2.0.0
         version: 2.0.0
-      vite-plugin-static-copy:
-        specifier: ^2.3.0
-        version: 2.3.0(vite@5.4.14(@types/node@20.14.12)(sass-embedded@1.83.4)(sass@1.83.4))
       vue:
         specifier: ^3.5.13
         version: 3.5.13(typescript@5.7.2)
-      vue-blurhash:
-        specifier: ^0.1.4
-        version: 0.1.4(blurhash@1.1.5)
       vue-echarts:
         specifier: ^7.0.3
         version: 7.0.3(@vue/runtime-core@3.5.13)(echarts@5.6.0)(vue@3.5.13(typescript@5.7.2))
@@ -156,6 +141,9 @@ importers:
       eslint-plugin-vue:
         specifier: ^9.30.0
         version: 9.32.0(eslint@9.19.0)
+      fs-extra:
+        specifier: ^11.3.0
+        version: 11.3.0
       pinia:
         specifier: ^2.3.1
         version: 2.3.1(typescript@5.7.2)(vue@3.5.13(typescript@5.7.2))
@@ -180,6 +168,9 @@ importers:
       vite:
         specifier: ^5.0.0
         version: 5.4.14(@types/node@20.14.12)(sass-embedded@1.83.4)(sass@1.83.4)
+      vite-plugin-static-copy:
+        specifier: ^2.3.0
+        version: 2.3.0(vite@5.4.14(@types/node@20.14.12)(sass-embedded@1.83.4)(sass@1.83.4))
       vite-plugin-vue-layouts:
         specifier: ^0.11.0
         version: 0.11.0(vite@5.4.14(@types/node@20.14.12)(sass-embedded@1.83.4)(sass@1.83.4))(vue-router@4.5.0(vue@3.5.13(typescript@5.7.2)))(vue@3.5.13(typescript@5.7.2))
@@ -191,58 +182,6 @@ importers:
         version: 4.5.0(vue@3.5.13(typescript@5.7.2))
 
 packages:
-
-  '@algolia/client-abtesting@5.20.0':
-    resolution: {integrity: sha512-YaEoNc1Xf2Yk6oCfXXkZ4+dIPLulCx8Ivqj0OsdkHWnsI3aOJChY5qsfyHhDBNSOhqn2ilgHWxSfyZrjxBcAww==}
-    engines: {node: '>= 14.0.0'}
-
-  '@algolia/client-analytics@5.20.0':
-    resolution: {integrity: sha512-CIT9ni0+5sYwqehw+t5cesjho3ugKQjPVy/iPiJvtJX4g8Cdb6je6SPt2uX72cf2ISiXCAX9U3cY0nN0efnRDw==}
-    engines: {node: '>= 14.0.0'}
-
-  '@algolia/client-common@5.20.0':
-    resolution: {integrity: sha512-iSTFT3IU8KNpbAHcBUJw2HUrPnMXeXLyGajmCL7gIzWOsYM4GabZDHXOFx93WGiXMti1dymz8k8R+bfHv1YZmA==}
-    engines: {node: '>= 14.0.0'}
-
-  '@algolia/client-insights@5.20.0':
-    resolution: {integrity: sha512-w9RIojD45z1csvW1vZmAko82fqE/Dm+Ovsy2ElTsjFDB0HMAiLh2FO86hMHbEXDPz6GhHKgGNmBRiRP8dDPgJg==}
-    engines: {node: '>= 14.0.0'}
-
-  '@algolia/client-personalization@5.20.0':
-    resolution: {integrity: sha512-p/hftHhrbiHaEcxubYOzqVV4gUqYWLpTwK+nl2xN3eTrSW9SNuFlAvUBFqPXSVBqc6J5XL9dNKn3y8OA1KElSQ==}
-    engines: {node: '>= 14.0.0'}
-
-  '@algolia/client-query-suggestions@5.20.0':
-    resolution: {integrity: sha512-m4aAuis5vZi7P4gTfiEs6YPrk/9hNTESj3gEmGFgfJw3hO2ubdS4jSId1URd6dGdt0ax2QuapXufcrN58hPUcw==}
-    engines: {node: '>= 14.0.0'}
-
-  '@algolia/client-search@5.20.0':
-    resolution: {integrity: sha512-KL1zWTzrlN4MSiaK1ea560iCA/UewMbS4ZsLQRPoDTWyrbDKVbztkPwwv764LAqgXk0fvkNZvJ3IelcK7DqhjQ==}
-    engines: {node: '>= 14.0.0'}
-
-  '@algolia/ingestion@1.20.0':
-    resolution: {integrity: sha512-shj2lTdzl9un4XJblrgqg54DoK6JeKFO8K8qInMu4XhE2JuB8De6PUuXAQwiRigZupbI0xq8aM0LKdc9+qiLQA==}
-    engines: {node: '>= 14.0.0'}
-
-  '@algolia/monitoring@1.20.0':
-    resolution: {integrity: sha512-aF9blPwOhKtWvkjyyXh9P5peqmhCA1XxLBRgItT+K6pbT0q4hBDQrCid+pQZJYy4HFUKjB/NDDwyzFhj/rwKhw==}
-    engines: {node: '>= 14.0.0'}
-
-  '@algolia/recommend@5.20.0':
-    resolution: {integrity: sha512-T6B/WPdZR3b89/F9Vvk6QCbt/wrLAtrGoL8z4qPXDFApQ8MuTFWbleN/4rHn6APWO3ps+BUePIEbue2rY5MlRw==}
-    engines: {node: '>= 14.0.0'}
-
-  '@algolia/requester-browser-xhr@5.20.0':
-    resolution: {integrity: sha512-t6//lXsq8E85JMenHrI6mhViipUT5riNhEfCcvtRsTV+KIBpC6Od18eK864dmBhoc5MubM0f+sGpKOqJIlBSCg==}
-    engines: {node: '>= 14.0.0'}
-
-  '@algolia/requester-fetch@5.20.0':
-    resolution: {integrity: sha512-FHxYGqRY+6bgjKsK4aUsTAg6xMs2S21elPe4Y50GB0Y041ihvw41Vlwy2QS6K9ldoftX4JvXodbKTcmuQxywdQ==}
-    engines: {node: '>= 14.0.0'}
-
-  '@algolia/requester-node-http@5.20.0':
-    resolution: {integrity: sha512-kmtQClq/w3vtPteDSPvaW9SPZL/xrIgMrxZyAgsFwrJk0vJxqyC5/hwHmrCraDnStnGSADnLpBf4SpZnwnkwWw==}
-    engines: {node: '>= 14.0.0'}
 
   '@antfu/utils@0.7.10':
     resolution: {integrity: sha512-+562v9k4aI80m1+VuMHehNJWLOFjBnXn3tdOitzD0il5b7smkSBal4+a3oKiQTbrwMmN/TBUMDvbdoWDehgOww==}
@@ -473,9 +412,6 @@ packages:
 
   '@mdi/font@7.4.47':
     resolution: {integrity: sha512-43MtGpd585SNzHZPcYowu/84Vz2a2g31TvPMTm9uTiCSWzaheQySUcSyUH/46fPnuPQWof2yd0pGBtzee/IQWw==}
-
-  '@meilisearch/instant-meilisearch@0.26.0':
-    resolution: {integrity: sha512-b3Blox8xE0nwn23FteCqOJWyQKFL4lgYjjtwKAbHGXxSHshvmWlhvPv+HuNOKk8MFF878hUSwddHg5zFgbU4Pw==}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -839,10 +775,6 @@ packages:
   ajv@6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
 
-  algoliasearch@5.20.0:
-    resolution: {integrity: sha512-groO71Fvi5SWpxjI9Ia+chy0QBwT61mg6yxJV27f5YFf+Mw+STT75K6SHySpP8Co5LsCrtsbCH5dJZSRtkSKaQ==}
-    engines: {node: '>= 14.0.0'}
-
   ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
     engines: {node: '>=8'}
@@ -909,9 +841,6 @@ packages:
 
   blueimp-canvas-to-blob@3.29.0:
     resolution: {integrity: sha512-0pcSSGxC0QxT+yVkivxIqW0Y4VlO2XSDPofBAqoJ1qJxgH9eiUDLv50Rixij2cDuEfx4M6DpD9UGZpRhT5Q8qg==}
-
-  blurhash@1.1.5:
-    resolution: {integrity: sha512-a+LO3A2DfxTaTztsmkbLYmUzUeApi0LZuKalwbNmqAHR6HhJGMt1qSV/R3wc+w4DL28holjqO3Bg74aUGavGjg==}
 
   boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
@@ -1475,9 +1404,6 @@ packages:
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
 
-  instantsearch.css@8.5.1:
-    resolution: {integrity: sha512-lu4gWSa2crIA1OAuFwtrNJy4d8oRvKmkY5gv8Dbf3tuedQMm6cf7K+1kXJKRAHLm4pZos9RXIH10m57UfDKbyg==}
-
   internal-slot@1.0.7:
     resolution: {integrity: sha512-NGnrKwXzSms2qUUih/ILZ5JBqNTSa1+ZmP6flaIp6KmSElgE9qdndzS3cqjrDovwFdmwsGsLdeFgB6suw+1e9g==}
     engines: {node: '>= 0.4'}
@@ -1673,9 +1599,6 @@ packages:
 
   mdurl@2.0.0:
     resolution: {integrity: sha512-Lf+9+2r+Tdp5wXDXC4PcIBjTDtq4UKjCPMQhKIuzpJNW0b96kVqSwW0bT7FhRSfmAiFYgP+SCRvdrDozfh0U5w==}
-
-  meilisearch@0.50.0:
-    resolution: {integrity: sha512-9IzIkobvnuS18Eg4dq/eJB9W+eXqeLZjNRgq/kKMswSmVYYSQsXqGgSuCA0JkF+o5RwJlwIsieQee6rh313VhA==}
 
   merge2@1.4.1:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
@@ -2417,11 +2340,6 @@ packages:
       terser:
         optional: true
 
-  vue-blurhash@0.1.4:
-    resolution: {integrity: sha512-B76GgfHXHkdmYgAfI2rZl3BgCMD9OxAgn4Jw2Ro0a8ZoAKa6gqTWUrTo5EGXOftm/EKuMYi1Cc+UcAvV0jnoRw==}
-    peerDependencies:
-      blurhash: ^1.1.3
-
   vue-demi@0.13.11:
     resolution: {integrity: sha512-IR8HoEEGM65YY3ZJYAjMlKygDQn25D5ajNFNoKh9RSDMQtlzCxtfQjdQgv9jjK+m3377SsJXY8ysq8kLCZL25A==}
     engines: {node: '>=12'}
@@ -2551,83 +2469,6 @@ packages:
     resolution: {integrity: sha512-OFXkDJKcrlx5su2XbzJvj/34Q3m6PvyCZkVPHGYpcCJ52ek4U/ymZyfuV1nKE23AyBJ51E/6Yr0mhZ7xGTO4ag==}
 
 snapshots:
-
-  '@algolia/client-abtesting@5.20.0':
-    dependencies:
-      '@algolia/client-common': 5.20.0
-      '@algolia/requester-browser-xhr': 5.20.0
-      '@algolia/requester-fetch': 5.20.0
-      '@algolia/requester-node-http': 5.20.0
-
-  '@algolia/client-analytics@5.20.0':
-    dependencies:
-      '@algolia/client-common': 5.20.0
-      '@algolia/requester-browser-xhr': 5.20.0
-      '@algolia/requester-fetch': 5.20.0
-      '@algolia/requester-node-http': 5.20.0
-
-  '@algolia/client-common@5.20.0': {}
-
-  '@algolia/client-insights@5.20.0':
-    dependencies:
-      '@algolia/client-common': 5.20.0
-      '@algolia/requester-browser-xhr': 5.20.0
-      '@algolia/requester-fetch': 5.20.0
-      '@algolia/requester-node-http': 5.20.0
-
-  '@algolia/client-personalization@5.20.0':
-    dependencies:
-      '@algolia/client-common': 5.20.0
-      '@algolia/requester-browser-xhr': 5.20.0
-      '@algolia/requester-fetch': 5.20.0
-      '@algolia/requester-node-http': 5.20.0
-
-  '@algolia/client-query-suggestions@5.20.0':
-    dependencies:
-      '@algolia/client-common': 5.20.0
-      '@algolia/requester-browser-xhr': 5.20.0
-      '@algolia/requester-fetch': 5.20.0
-      '@algolia/requester-node-http': 5.20.0
-
-  '@algolia/client-search@5.20.0':
-    dependencies:
-      '@algolia/client-common': 5.20.0
-      '@algolia/requester-browser-xhr': 5.20.0
-      '@algolia/requester-fetch': 5.20.0
-      '@algolia/requester-node-http': 5.20.0
-
-  '@algolia/ingestion@1.20.0':
-    dependencies:
-      '@algolia/client-common': 5.20.0
-      '@algolia/requester-browser-xhr': 5.20.0
-      '@algolia/requester-fetch': 5.20.0
-      '@algolia/requester-node-http': 5.20.0
-
-  '@algolia/monitoring@1.20.0':
-    dependencies:
-      '@algolia/client-common': 5.20.0
-      '@algolia/requester-browser-xhr': 5.20.0
-      '@algolia/requester-fetch': 5.20.0
-      '@algolia/requester-node-http': 5.20.0
-
-  '@algolia/recommend@5.20.0':
-    dependencies:
-      '@algolia/client-common': 5.20.0
-      '@algolia/requester-browser-xhr': 5.20.0
-      '@algolia/requester-fetch': 5.20.0
-      '@algolia/requester-node-http': 5.20.0
-
-  '@algolia/requester-browser-xhr@5.20.0':
-    dependencies:
-      '@algolia/client-common': 5.20.0
-
-  '@algolia/requester-fetch@5.20.0':
-    dependencies:
-      '@algolia/client-common': 5.20.0
-
-  '@algolia/requester-node-http@5.20.0':
-    dependencies:
-      '@algolia/client-common': 5.20.0
 
   '@antfu/utils@0.7.10': {}
 
@@ -2782,10 +2623,6 @@ snapshots:
   '@jridgewell/sourcemap-codec@1.5.0': {}
 
   '@mdi/font@7.4.47': {}
-
-  '@meilisearch/instant-meilisearch@0.26.0':
-    dependencies:
-      meilisearch: 0.50.0
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -3123,22 +2960,6 @@ snapshots:
       json-schema-traverse: 0.4.1
       uri-js: 4.4.1
 
-  algoliasearch@5.20.0:
-    dependencies:
-      '@algolia/client-abtesting': 5.20.0
-      '@algolia/client-analytics': 5.20.0
-      '@algolia/client-common': 5.20.0
-      '@algolia/client-insights': 5.20.0
-      '@algolia/client-personalization': 5.20.0
-      '@algolia/client-query-suggestions': 5.20.0
-      '@algolia/client-search': 5.20.0
-      '@algolia/ingestion': 1.20.0
-      '@algolia/monitoring': 1.20.0
-      '@algolia/recommend': 5.20.0
-      '@algolia/requester-browser-xhr': 5.20.0
-      '@algolia/requester-fetch': 5.20.0
-      '@algolia/requester-node-http': 5.20.0
-
   ansi-regex@5.0.1: {}
 
   ansi-styles@4.3.0:
@@ -3229,8 +3050,6 @@ snapshots:
   binary-extensions@2.3.0: {}
 
   blueimp-canvas-to-blob@3.29.0: {}
-
-  blurhash@1.1.5: {}
 
   boolbase@1.0.0: {}
 
@@ -3902,8 +3721,6 @@ snapshots:
 
   inherits@2.0.4: {}
 
-  instantsearch.css@8.5.1: {}
-
   internal-slot@1.0.7:
     dependencies:
       es-errors: 1.3.0
@@ -4095,8 +3912,6 @@ snapshots:
       uc.micro: 2.1.0
 
   mdurl@2.0.0: {}
-
-  meilisearch@0.50.0: {}
 
   merge2@1.4.1: {}
 
@@ -4869,10 +4684,6 @@ snapshots:
       fsevents: 2.3.3
       sass: 1.83.4
       sass-embedded: 1.83.4
-
-  vue-blurhash@0.1.4(blurhash@1.1.5):
-    dependencies:
-      blurhash: 1.1.5
 
   vue-demi@0.13.11(vue@3.5.13(typescript@5.7.2)):
     dependencies:
