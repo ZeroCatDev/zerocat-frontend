@@ -183,7 +183,7 @@
 </template>
 
 <script>
-import { getProjectById } from "@/services/proxy/projectService";
+import { getProject } from "@/services/proxy/projectService";
 import Comment from "../../../../components/Comment.vue";
 import ProxyShowUsers from "../../../../components/proxy/ProxyShowUsers.vue";
 import ProxyShowProjects from "../../../../components/proxy/ProxyShowProjects.vue";
@@ -264,12 +264,12 @@ export default {
   methods: {
     async fetchProjectData() {
       try {
-        const res = await getProjectById(this.$route.params.id);
+        const res = await getProject(this.$route.params.id);
         this.project = res.data;
         this.embedurl = `${this.scratch_proxy_gui}/embed.html#${this.$route.params.id}`;
         if (this.project.remix.parent) {
           this.parentProject = (
-            await getProjectById(this.project.remix.parent)
+            await getProject(this.project.remix.parent)
           ).data;
         }
         if (
@@ -277,7 +277,7 @@ export default {
           this.project.remix.root != this.project.remix.parent
         ) {
           this.rootProject = (
-            await getProjectById(this.project.remix.root)
+            await getProject(this.project.remix.root)
           ).data;
         }
       } catch (err) {
