@@ -1,9 +1,9 @@
 import axios from "axios";
+import { localuser } from "../services/localAccount";
 // 基本配置
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API, // 根据实际情况修改API地址
   //  timeout: 5000 // 设置超时时间，单位为ms
-
 });
 
 // 存储正在刷新token的promise
@@ -17,14 +17,16 @@ const subscribeTokenRefresh = (cb) => {
 
 // 用于执行队列中的请求
 const onRefreshed = (token) => {
-  refreshSubscribers.forEach(cb => cb(token));
+  refreshSubscribers.forEach((cb) => cb(token));
   refreshSubscribers = [];
 };
 
 // 请求拦截器
 axiosInstance.interceptors.request.use(
   (requestConfig) => {
-    requestConfig.headers["Authorization"] = `Bearer ${localStorage.getItem("token")}`; // 设置请求头部分，这里举例使用了localStorage存储的token作为身份标识
+    requestConfig.headers["Authorization"] = `Bearer ${localStorage.getItem(
+      "token"
+    )}`; // 设置请求头部分，这里举例使用了localStorage存储的token作为身份标识
     return requestConfig;
   },
   (error) => {
@@ -48,12 +50,17 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
 
     // 如果响应状态码是401（未授权）且不是刷新token的请求，尝试刷新token
-    if (error.response && error.response.status === 401 && !originalRequest._retry &&
-        originalRequest.url !== '/account/refresh-token') {
-
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry &&
+      originalRequest.url !== "/account/refresh-token"
+    ) {
       // 检查是否是ZC_ERROR_NEED_LOGIN错误
-      if (error.response.data && error.response.data.code === 'ZC_ERROR_NEED_LOGIN') {
-        const { localuser } = await import('../services/localAccount');
+      if (
+        error.response.data &&
+        error.response.data.code === "ZC_ERROR_NEED_LOGIN"
+      ) {
         localuser.logout(false);
         return Promise.reject(error);
       }
@@ -62,7 +69,7 @@ axiosInstance.interceptors.response.use(
         // 如果已经在刷新token，将请求加入队列等待token刷新完成
         return new Promise((resolve) => {
           subscribeTokenRefresh((token) => {
-            originalRequest.headers['Authorization'] = token;
+            originalRequest.headers["Authorization"] = token;
             resolve(axiosInstance(originalRequest));
           });
         });
@@ -73,11 +80,11 @@ axiosInstance.interceptors.response.use(
 
       try {
         // 从localStorage获取刷新令牌
-        const refreshToken = localStorage.getItem('refreshToken');
+        const refreshToken = localStorage.getItem("refreshToken");
 
         if (!refreshToken) {
           // 如果没有刷新令牌，执行登出操作
-          const { localuser } = await import('../services/localAccount');
+
           localuser.logout(false);
           return Promise.reject(error);
         }
@@ -88,13 +95,13 @@ axiosInstance.interceptors.response.use(
           { refresh_token: refreshToken }
         );
 
-        if (response.data.status === 'success') {
+        if (response.data.status === "success") {
           // 更新localStorage中的令牌
-          localStorage.setItem('token', response.data.token);
-          localStorage.setItem('tokenExpiresAt', response.data.expires_at);
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("tokenExpiresAt", response.data.expires_at);
 
           // 更新请求头并重发请求
-          originalRequest.headers['Authorization'] = response.data.token;
+          originalRequest.headers["Authorization"] = response.data.token;
 
           // 执行队列中的请求
           onRefreshed(response.data.token);
@@ -103,13 +110,13 @@ axiosInstance.interceptors.response.use(
           return axiosInstance(originalRequest);
         } else {
           // 刷新失败，执行登出操作
-          const { localuser } = await import('../services/localAccount');
+
           localuser.logout(false);
           return Promise.reject(error);
         }
       } catch (refreshError) {
         // 刷新失败，执行登出操作
-        const { localuser } = await import('../services/localAccount');
+
         localuser.logout(false);
         isRefreshing = false;
         return Promise.reject(error);

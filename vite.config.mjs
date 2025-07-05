@@ -8,6 +8,7 @@ import VueRouter from "unplugin-vue-router/vite";
 import Vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+import * as sass from "sass";
 
 // Utilities
 import { defineConfig, loadEnv } from "vite";
@@ -15,6 +16,22 @@ import { fileURLToPath, URL } from "node:url";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  css:{
+    preprocessorOptions:{
+      scss: {
+        api: "modern",
+        importers: [
+          new sass.NodePackageImporter()
+        ]
+      },
+      sass: {
+        api: "modern",
+        importers: [
+          new sass.NodePackageImporter()
+        ]
+      },
+    }
+  },
   plugins: [
     VueRouter(),
     Layouts(),

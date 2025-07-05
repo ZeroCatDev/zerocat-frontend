@@ -86,7 +86,7 @@
 </template>
 
 <script>
-import { getUserById } from "@/services/proxy/userService";
+import { getUser } from "@/services/proxy/userService";
 import Comment from "../../../../components/Comment.vue";
 import ProxyShowUsers from "../../../../components/proxy/ProxyShowUsers.vue";
 import ProxyShowProjects from "../../../../components/proxy/ProxyShowProjects.vue";
@@ -144,7 +144,7 @@ export default {
   methods: {
     async fetchUserData() {
       try {
-        const res = await getUserById(this.$route.params.username);
+        const res = await getUser(this.$route.params.username);
         this.userinfo = res.data;
       } catch (err) {
         console.log(err);

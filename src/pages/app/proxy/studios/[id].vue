@@ -128,7 +128,7 @@
 </template>
 
 <script>
-import { getStudioInfo, getStudioProjects, getStudioCurators, getStudioManagers } from "@/services/proxy/studioService";
+import { getStudio, getStudioProjects, getStudioCurators, getStudioManagers } from "@/services/proxy/studioService";
 import Comment from "../../../../components/Comment.vue";
 import ProxyShowProjects from "@/components/proxy/ProxyShowProjects.vue";
 import ProxyShowUsers from "@/components/proxy/ProxyShowUsers.vue";
@@ -192,7 +192,7 @@ export default {
   methods: {
     async fetchStudioInfo() {
       try {
-        const res = await getStudioInfo(this.$route.params.id);
+        const res = await getStudio(this.$route.params.id);
         this.studioinfo = res.data;
       } catch (err) {
         console.log(err);
