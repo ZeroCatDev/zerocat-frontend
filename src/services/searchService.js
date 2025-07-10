@@ -1,5 +1,5 @@
 import { get } from './serverConfig';
-import axios from '@/axios/axios';
+import axios from 'axios';
 import { getProjectInfo } from '@/services/projectService';
 const SEARCH_HISTORY_KEY = 'search_history';
 const MAX_HISTORY_ITEMS = 10;
@@ -55,6 +55,7 @@ export const performSearch = async (query, page) => {
   const searchParams = getSearchParams(query, page);
 
   const response = await axios({
+
     url: `${baseUrl}/indexes/${indexName}/search`,
     method: 'POST',
     headers: {
