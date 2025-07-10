@@ -58,14 +58,12 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./dist
         publish_branch: build
-    - uses: jakejarvis/s3-sync-action@master
+    - name: Publish to Cloudflare Pages
+      uses: cloudflare/pages-action@v1
       with:
-        args: --follow-symlinks --delete --exclude '.git/*'
-      env:
-        AWS_S3_BUCKET: zerocat
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION: 'cn-east-1'
-        AWS_S3_ENDPOINT: 'https://s3.bitiful.net/'
-        SOURCE_DIR: 'dist'
-        DEST_DIR: '/'
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: zerocat-frontend
+          directory: dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
