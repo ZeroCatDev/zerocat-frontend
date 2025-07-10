@@ -37,12 +37,6 @@ jobs:
     - name: Build
       env:
           VITE_APP_BASE_API: https://zerocat-api.houlangs.com
-          VITE_APP_SCRATCH_PROXY: https://scratch.192325.xyz
-          VITE_APP_SCRATCH_PROXY_GUI: https://scratch-editor.192325.xyz
-          VITE_APP_CLARITY_PROJECT_ID: mp11rvtms0
-          VITE_APP_MEILISEARCH_URL: https://search-1.192325.xyz
-          VITE_APP_MEILISEARCH_API_KEY: 34ab22b5131cebd1e2a2459fec77c1b50bfb67560a7cdaf7774d5545c16e6a1c
-          VITE_APP_MEILISEARCH_INDEX: zerocat
       run: |
         git submodule update --init --recursive
         npm install
@@ -64,3 +58,14 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./dist
         publish_branch: build
+    - uses: jakejarvis/s3-sync-action@master
+      with:
+        args: --follow-symlinks --delete --exclude '.git/*'
+      env:
+        AWS_S3_BUCKET: zerocat
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: 'cn-east-1'
+        AWS_S3_ENDPOINT: 's3.bitiful.net'
+        SOURCE_DIR: 'dist'
+        DEST_DIR: '/'
