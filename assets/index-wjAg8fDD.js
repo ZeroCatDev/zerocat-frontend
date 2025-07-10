@@ -1,1 +1,0 @@
-import{_ as n}from"./OAuthManager-Dr8nfQC7.js";import{_ as t,Y as e,o as r}from"./index-DLVtWvMv.js";import"./oauth_providers-BTwCArWd.js";import"./VSpacer-BapvIcN2.js";const _={};function c(s,a){const o=n;return r(),e(o)}const u=t(_,[["render",c]]);export{u as default};
