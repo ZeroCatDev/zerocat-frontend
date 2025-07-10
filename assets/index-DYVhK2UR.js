@@ -1,0 +1,1 @@
+import{_ as o}from"./EmailManager-CJVWpHlr.js";import{Y as r,o as t}from"./index-k6-8hKoX.js";import"./VSpacer-BY-Xu9R1.js";import"./VTable-Wrn9kVmP.js";const n={__name:"index",setup(e){return(_,a)=>(t(),r(o))}};export{n as default};
