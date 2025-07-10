@@ -66,6 +66,6 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: 'cn-east-1'
-        AWS_S3_ENDPOINT: 's3.bitiful.net'
+        AWS_S3_ENDPOINT: 'https://s3.bitiful.net/'
         SOURCE_DIR: 'dist'
         DEST_DIR: '/'
