@@ -125,70 +125,25 @@
       </v-col>
     </v-row>
 
-    <!-- Region Selection Dialog -->
-    <v-dialog v-model="showRegionDialog" max-width="600">
-      <v-card>
-        <v-card-title class="text-h5 pa-4">
-          选择区域
-          <v-spacer></v-spacer>
-          <v-btn icon="mdi-close" variant="text" @click="showRegionDialog = false"></v-btn>
-        </v-card-title>
-
-        <v-card-text class="pa-4">
-          <v-text-field
-            v-model="regionSearch"
-            label="搜索区域"
-            variant="outlined"
-            density="comfortable"
-            prepend-inner-icon="mdi-magnify"
-            clearable
-            hide-details
-            class="mb-4"
-          ></v-text-field>
-
-          <v-list lines="two" class="region-list">
-            <v-list-item
-              v-for="region in filteredRegions"
-              :key="region.value"
-              :title="region.text"
-              :subtitle="region.value"
-              @click="selectRegion(region)"
-            >
-              <template v-slot:prepend>
-                <v-icon :color="profileData.region?.value === region.value ? 'primary' : undefined">
-                  {{ profileData.region?.value === region.value ? 'mdi-check-circle' : 'mdi-earth' }}
-                </v-icon>
-              </template>
-            </v-list-item>
-          </v-list>
-        </v-card-text>
-
-        <v-card-actions class="pa-4">
-          <v-spacer></v-spacer>
-          <v-btn
-            variant="text"
-            @click="clearRegion"
-          >
-            清除选择
-          </v-btn>
-          <v-btn
-            color="primary"
-            @click="showRegionDialog = false"
-          >
-            确定
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <RegionSelector
+      v-model="showRegionDialog"
+      :selected-region="profileData.region"
+      @select="selectRegion"
+      @clear="clearRegion"
+    />
   </v-form>
 </template>
 
 <script>
 import { updateUserInfo } from "@/services/accountService";
 import region_zh_CN from "@/constants/region_zh-CN.json";
+import RegionSelector from "./RegionSelector.vue";
 
 export default {
   name: "ProfileEditor",
+  components: {
+    RegionSelector
+  },
   props: {
     userData: {
       type: Object,
@@ -200,7 +155,6 @@ export default {
       loading: false,
       valid: false,
       showRegionDialog: false,
-      regionSearch: '',
       profileData: {
         display_name: this.userData.display_name || '',
         motto: this.userData.motto || '',
@@ -214,10 +168,6 @@ export default {
         birthday: this.userData.birthday || '',
         featured_projects: this.userData.featured_projects || ''
       },
-      regionOptions: Object.entries(region_zh_CN).map(([value, text]) => ({
-        value,
-        text
-      })),
       selectedGender: { state: "未知", abbr: "3" },
       genderOptions: [
         { state: "男", abbr: "0" },
@@ -248,15 +198,6 @@ export default {
     };
   },
   computed: {
-    filteredRegions() {
-      if (!this.regionSearch) return this.regionOptions;
-
-      const search = this.regionSearch.toLowerCase();
-      return this.regionOptions.filter(region =>
-        region.text.toLowerCase().includes(search) ||
-        region.value.toLowerCase().includes(search)
-      );
-    }
   },
   watch: {
     userData: {

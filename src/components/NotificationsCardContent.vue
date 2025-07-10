@@ -180,22 +180,11 @@ export default {
     },
     notification: {
       type: Object,
-      required: true,
+      required: false,
+      default: () => ({})
     },
   },
   emits: ["update:unread-count"],
-  data() {
-    return {
-      loading: false,
-      error: null,
-      s3BucketUrl: '',
-      projectCache: {},
-      projectListCache: {},
-    };
-  },
-  async mounted() {
-    this.s3BucketUrl = await get('s3.staticurl');
-  },
   async setup(props, { emit }) {
     const router = useRouter();
     const notifications = ref([]);
@@ -206,6 +195,19 @@ export default {
     const hasMoreNotifications = ref(false);
     const loadMoreUrl = ref(null);
     const notificationsContainer = ref(null);
+    const s3BucketUrl = ref('');
+    const projectCache = ref({});
+    const projectListCache = ref({});
+
+    // Initialize s3BucketUrl
+    onMounted(async () => {
+      try {
+        s3BucketUrl.value = await get('s3.staticurl');
+      } catch (err) {
+        console.error('Failed to get s3BucketUrl:', err);
+        s3BucketUrl.value = '';
+      }
+    });
 
     const hasUnread = computed(() => unreadCount.value > 0);
 
@@ -603,6 +605,8 @@ export default {
       processNotificationTemplates,
       prepareTemplateData,
       s3BucketUrl,
+      projectCache,
+      projectListCache,
     };
   },
 };

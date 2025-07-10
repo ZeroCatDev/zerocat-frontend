@@ -1,0 +1,34 @@
+<template>
+  <v-list-item>
+    <template #prepend>
+      <v-avatar size="40">
+        <v-img :src="avatarUrl" :alt="comment.user?.display_name || '未知用户'"></v-img>
+      </v-avatar>
+    </template>
+
+    <v-list-item-title>{{ comment.user?.display_name || '未知用户' }}</v-list-item-title>
+    <v-list-item-subtitle>{{ comment.text }}</v-list-item-subtitle>
+  </v-list-item>
+</template>
+
+<script setup>
+import { computed } from 'vue'
+
+const props = defineProps({
+  comment: {
+    type: Object,
+    required: true
+  },
+  s3BucketUrl: {
+    type: String,
+    required: true
+  }
+})
+
+const avatarUrl = computed(() => {
+  if (props.comment?.user?.avatar) {
+    return props.s3BucketUrl + '/user/' + props.comment.user.avatar
+  }
+  return ''
+})
+</script>

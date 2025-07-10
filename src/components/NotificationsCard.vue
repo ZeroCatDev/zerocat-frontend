@@ -27,24 +27,38 @@
 
     <!-- 选项卡 (仅在menuMode=true时显示) -->
     <template v-if="menuMode">
-      <NotificationsCardContent
-        ref="contentRef"
-        :maxHeight="'420px'"
-        :autoFetch="autoFetch"
-        @update:unread-count="updateUnreadCount"
-      />
+      <Suspense>
+        <NotificationsCardContent
+          ref="contentRef"
+          :maxHeight="'420px'"
+          :autoFetch="autoFetch"
+          @update:unread-count="updateUnreadCount"
+        />
+        <template #fallback>
+          <div class="d-flex justify-center align-center py-4">
+            <v-progress-circular indeterminate></v-progress-circular>
+          </div>
+        </template>
+      </Suspense>
     </template>
 
     <!-- 仅通知内容 (menuMode=false) -->
     <template v-else>
       <v-card-text>
-        <NotificationsCardContent
-          ref="contentRef"
-          :maxHeight="'auto'"
-          :showPagination="showPagination"
-          :autoFetch="autoFetch"
-          @update:unread-count="updateUnreadCount"
-        />
+        <Suspense>
+          <NotificationsCardContent
+            ref="contentRef"
+            :maxHeight="'auto'"
+            :showPagination="showPagination"
+            :autoFetch="autoFetch"
+            @update:unread-count="updateUnreadCount"
+          />
+          <template #fallback>
+            <div class="d-flex justify-center align-center py-4">
+              <v-progress-circular indeterminate></v-progress-circular>
+            </div>
+          </template>
+        </Suspense>
       </v-card-text>
     </template>
   </v-card>

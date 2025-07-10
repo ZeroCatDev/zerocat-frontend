@@ -1,0 +1,812 @@
+<template>
+  <v-container>
+    <div class="users-admin">
+      <!-- 统计信息卡片 -->
+      <v-row class="mb-4">
+        <v-col
+          v-for="stat in userStats"
+          :key="stat.title"
+          cols="12"
+          sm="6"
+          md="3"
+        >
+          <v-card :class="['stat-card', `stat-${stat.type}`]" elevation="2">
+            <v-card-text>
+              <div class="text-overline mb-2">{{ stat.title }}</div>
+              <div class="text-h4">{{ stat.value }}</div>
+              <v-icon class="stat-icon" large>{{ stat.icon }}</v-icon>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- 搜索和过滤工具栏 -->
+      <v-card class="mb-4">
+        <v-card-text>
+          <v-row align="center">
+            <v-col cols="12" sm="4">
+              <v-text-field
+                v-model="searchQuery"
+                label="搜索用户"
+                prepend-icon="mdi-magnify"
+                clearable
+                @input="debounceSearch"
+                hide-details
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="3">
+              <v-select
+                v-model="statusFilter"
+                :items="statusOptions"
+                label="状态过滤"
+                prepend-icon="mdi-filter"
+                clearable
+                @change="loadUsers"
+                hide-details
+              ></v-select>
+            </v-col>
+            <v-col cols="12" sm="3">
+              <v-select
+                v-model="typeFilter"
+                :items="typeOptions"
+                label="类型过滤"
+                prepend-icon="mdi-account-filter"
+                clearable
+                @change="loadUsers"
+                hide-details
+              ></v-select>
+            </v-col>
+            <v-col cols="12" sm="2" class="d-flex justify-end">
+              <v-btn
+                color="primary"
+                @click="refreshData"
+                :loading="refreshing"
+                :disabled="loading"
+              >
+                <v-icon left :class="{ rotate: refreshing }"
+                  >mdi-refresh</v-icon
+                >
+                刷新
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+
+      <!-- 用户列表表格 -->
+      <v-card>
+        <v-data-table-server
+          :headers="headers"
+          :items="users"
+          :items-length="total"
+          :loading="loading"
+          v-model:items-per-page="options.itemsPerPage"
+          v-model:page="options.page"
+          @update:options="loadUsers"
+          :no-data-text="'暂无数据'"
+          :no-results-text="'未找到匹配的数据'"
+          :loading-text="'加载中...'"
+        >
+          <!-- 用户头像和名称列 -->
+          <template v-slot:item.username="{ item }">
+            <div class="d-flex align-center">
+              <v-avatar size="32" class="mr-2">
+                <v-img
+                  :src="getAvatarUrl(item.avatar)"
+                  :alt="item.username"
+                ></v-img>
+              </v-avatar>
+              <div>
+                <div class="font-weight-medium">{{ item.username }}</div>
+                <div class="caption grey--text">{{ item.display_name }}</div>
+              </div>
+            </div>
+          </template>
+
+          <!-- 状态列自定义渲染 -->
+          <template v-slot:item.status="{ item }">
+            <v-chip
+              :color="getStatusColor(item.status)"
+              small
+              class="status-chip"
+            >
+              {{ getStatusText(item.status) }}
+            </v-chip>
+          </template>
+
+          <!-- 类型列自定义渲染 -->
+          <template v-slot:item.type="{ item }">
+            {{ getTypeText(item.type) }}
+          </template>
+
+          <!-- 注册时间列格式化 -->
+          <template v-slot:item.regTime="{ item }">
+            <div>{{ formatDate(item.regTime) }}</div>
+            <div class="caption grey--text">
+              {{ formatTimeAgo(item.regTime) }}
+            </div>
+          </template>
+
+          <!-- 操作按钮列 -->
+          <template v-slot:item.actions="{ item }">
+            <v-slide-x-transition group>
+              <v-btn
+                icon
+                small
+                class="action-btn"
+                @click.stop="editUser(item)"
+                v-tooltip="'编辑用户'"
+              >
+                <v-icon>mdi-pencil</v-icon>
+              </v-btn>
+              <v-btn
+                icon
+                small
+                class="action-btn"
+                @click.stop="confirmDelete(item)"
+                v-tooltip="'删除用户'"
+                v-if="item.type !== 'administrator'"
+              >
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+            </v-slide-x-transition>
+          </template>
+        </v-data-table-server>
+      </v-card>
+
+      <!-- 用户编辑对话框 -->
+      <user-editor v-model="editDialog" :user="selectedUser" @save="saveUser" />
+
+      <!-- 删除确认对话框 -->
+      <v-dialog
+        v-model="deleteDialog"
+        max-width="400px"
+        transition="dialog-bottom-transition"
+      >
+        <v-card>
+          <v-card-title class="headline error--text">确认删除</v-card-title>
+          <v-card-text class="pt-4">
+            <v-alert type="warning" text dense>
+              此操作将永久删除用户
+              <strong>{{ selectedUser?.username }}</strong>
+              及其所有相关数据，此操作不可撤销。
+            </v-alert>
+            <v-text-field
+              v-model="deleteConfirmation"
+              label="请输入用户名以确认删除"
+              :rules="[
+                (v) => !v || v === selectedUser?.username || '用户名不匹配',
+              ]"
+              outlined
+              dense
+              class="mt-4"
+            ></v-text-field>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn text @click="deleteDialog = false">取消</v-btn>
+            <v-btn
+              color="error"
+              text
+              :disabled="deleteConfirmation !== selectedUser?.username"
+              @click="deleteUser"
+              :loading="deleting"
+            >
+              确认删除
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <!-- 全局提示 -->
+      <v-snackbar
+        v-model="snackbar.show"
+        :color="snackbar.color"
+        :timeout="snackbar.timeout"
+        top
+      >
+        {{ snackbar.text }}
+        <template v-slot:action="{ attrs }">
+          <v-btn text v-bind="attrs" @click="snackbar.show = false">
+            关闭
+          </v-btn>
+        </template>
+      </v-snackbar>
+    </div></v-container
+  >
+</template>
+
+<script>
+import axios from "@/axios/axios";
+import { debounce } from "lodash-es";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import "dayjs/locale/zh-cn";
+import UserEditor from "@/components/admin/UserEditor.vue";
+
+dayjs.extend(relativeTime);
+dayjs.locale("zh-cn");
+
+export default {
+  name: "UsersAdmin",
+  components: {
+    UserEditor,
+  },
+
+  data: () => ({
+    // 表格数据
+    users: [],
+    total: 0,
+    loading: false,
+    refreshing: false,
+
+    // 表格配置
+    options: {
+      page: 1,
+      itemsPerPage: 10,
+      sortBy: ["id"],
+      sortDesc: [false],
+      groupBy: [],
+      groupDesc: [],
+      multiSort: false,
+    },
+
+    // 表头定义
+    headers: [
+      { title: "ID", value: "id", width: "80px", sortable: false },
+      { title: "用户", value: "username", width: "250px", sortable: false },
+      { title: "邮箱", value: "email", sortable: false },
+      { title: "状态", value: "status", width: "120px", sortable: false },
+      { title: "类型", value: "type", width: "120px", sortable: false },
+      { title: "注册时间", value: "regTime", width: "180px", sortable: false     },
+      {
+        title: "操作",
+        value: "actions",
+        sortable: false,
+        width: "150px",
+        align: "center",
+      },
+    ],
+
+    // 搜索和过滤
+    searchQuery: "",
+    statusFilter: "",
+    typeFilter: "",
+
+    // 选项配置
+    statusOptions: [
+      { title: "活跃", value: "active" },
+      { title: "已暂停", value: "suspended" },
+      { title: "已封禁", value: "banned" },
+      { title: "待验证", value: "pending" },
+    ],
+    typeOptions: [
+      { title: "访客", value: "guest" },
+      { title: "普通用户", value: "user" },
+      { title: "管理员", value: "administrator" },
+    ],
+    sexOptions: [
+      { title: "男", value: "male" },
+      { title: "女", value: "female" },
+      { title: "其他", value: "other" },
+    ],
+    contactTypes: [
+      { text: "邮箱", value: "email" },
+      { text: "电话", value: "phone" },
+      { text: "QQ", value: "qq" },
+      { text: "Google", value: "oauth_google" },
+      { text: "GitHub", value: "oauth_github" },
+      { text: "Microsoft", value: "oauth_microsoft" },
+      { text: "40code", value: "oauth_40code" },
+      { text: "LinuxDo", value: "oauth_linuxdo" },
+      { text: "其他", value: "other" },
+    ],
+
+    // 统计信息
+    userStats: [
+      { title: "总用户数", value: 0, type: "total", icon: "mdi-account-group" },
+      {
+        title: "活跃用户",
+        value: 0,
+        type: "active",
+        icon: "mdi-account-check",
+      },
+      //  { title: '新增用户', value: 0, type: 'new', icon: 'mdi-account-plus' },
+      //{ title: '异常用户', value: 0, type: 'abnormal', icon: 'mdi-account-alert' }
+    ],
+
+    // 对话框控制
+    editDialog: false,
+    deleteDialog: false,
+    showRegionSelector: false,
+    editTabIndex: 0,
+    editFormValid: true,
+
+    // 操作状态
+    saving: false,
+    deleting: false,
+    updatingStatus: false,
+
+    // 临时数据
+    deleteConfirmation: "",
+    newStatus: "",
+    selectedRegion: null,
+
+    // 编辑用户数据（按API接口分类）
+    selectedUser: null,
+    editedUser: {
+      // 基本信息
+      id: null,
+      username: "",
+      display_name: "",
+      status: "active",
+      type: "user",
+
+      // 个人资料
+      motto: "",
+      bio: "",
+      location: "",
+      region: "",
+      birthday: "",
+      sex: "",
+      url: "",
+
+      // 自定义状态
+      custom_status: {
+        emoji: "",
+        text: "",
+      },
+
+      // 头像
+      avatar: "",
+
+      // 特色项目
+      featured_projects: [],
+
+      // 联系方式
+      contacts: [],
+    },
+
+    // 提示消息
+    snackbar: {
+      show: false,
+      text: "",
+      color: "success",
+      timeout: 3000,
+    },
+  }),
+
+  computed: {
+    // 获取状态显示文本
+    getStatusText() {
+      return (status) => {
+        const option = this.statusOptions.find((opt) => opt.value === status);
+        return option ? option.title : status;
+      };
+    },
+
+    // 获取类型显示文本
+    getTypeText() {
+      return (type) => {
+        const option = this.typeOptions.find((opt) => opt.value === type);
+        return option ? option.title : type;
+      };
+    },
+  },
+
+  created() {
+    this.loadUsers();
+    this.loadUserStats();
+    this.debounceSearch = debounce(this.loadUsers, 300);
+  },
+
+  methods: {
+    // 加载用户列表
+    async loadUsers() {
+      this.loading = true;
+      try {
+        // 构建排序参数
+        const sortField = this.options.sortBy[0] || "id";
+        const sortOrder = this.options.sortDesc[0] ? "desc" : "asc";
+
+        const params = {
+          page: this.options.page,
+          itemsPerPage: this.options.itemsPerPage,
+          sort_by: sortField,
+          sort_order: sortOrder,
+        };
+
+        // 添加可选的过滤参数
+        if (this.searchQuery) params.search = this.searchQuery;
+        if (this.statusFilter) params.status = this.statusFilter;
+        if (this.typeFilter) params.type = this.typeFilter;
+
+        const { data } = await axios.get("/admin/users", { params });
+
+        // 更新表格数据
+        this.users = data.items.map((user) => ({
+          ...user,
+          // 确保所有必需的字段都存在
+          id: user.id,
+          username: user.username,
+          email: user.email || "",
+          status: user.status || "pending",
+          type: user.type || "user",
+          regTime: user.regTime,
+          avatar: user.avatar,
+        }));
+
+        // 更新总数，用于分页
+        this.total = Number(data.total);
+      } catch (error) {
+        this.showError("加载用户列表失败");
+        console.error("Error loading users:", error);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    // 加载用户统计
+    async loadUserStats() {
+      try {
+        const { data } = await axios.get("/admin/users/stats/overview");
+        this.userStats[0].value = data.totalUsers;
+        this.userStats[1].value =
+          data.usersByStatus.find((s) => s.status === "active")?._count ||
+          (0)
+            .filter((s) => ["suspended", "banned"].includes(s.status))
+            .reduce((acc, curr) => acc + curr._count, 0);
+      } catch (error) {
+        console.error("Error loading user stats:", error);
+      }
+    },
+
+    // 刷新数据
+    async refreshData() {
+      if (this.refreshing || this.loading) return;
+
+      this.refreshing = true;
+      try {
+        await Promise.all([this.loadUsers(), this.loadUserStats()]);
+        this.showSuccess("数据已更新");
+      } catch (error) {
+        this.showError("刷新数据失败");
+        console.error("Error refreshing data:", error);
+      } finally {
+        this.refreshing = false;
+      }
+    },
+
+    // 编辑用户
+    editUser(user) {
+      this.selectedUser = user;
+      this.editDialog = true;
+    },
+
+    // 关闭编辑对话框
+    closeEditDialog() {
+      this.editDialog = false;
+      this.$nextTick(() => {
+        this.editedUser = {
+          // 基本信息
+          id: null,
+          username: "",
+          display_name: "",
+          status: "active",
+          type: "user",
+
+          // 个人资料
+          motto: "",
+          bio: "",
+          location: "",
+          region: "",
+          birthday: "",
+          sex: "",
+          url: "",
+
+          // 自定义状态
+          custom_status: {
+            emoji: "",
+            text: "",
+          },
+
+          // 头像
+          avatar: "",
+
+          // 特色项目
+          featured_projects: [],
+
+          // 联系方式
+          contacts: [],
+        };
+        this.selectedRegion = null;
+        this.editTabIndex = 0;
+        if (this.$refs.editForm) {
+          this.$refs.editForm.reset();
+        }
+      });
+    },
+
+    // 添加联系方式
+    addContact() {
+      this.editedUser.contacts.push({
+        contact_type: "",
+        contact_value: "",
+        is_primary: false,
+      });
+    },
+
+    // 移除联系方式
+    removeContact(index) {
+      this.editedUser.contacts.splice(index, 1);
+    },
+
+    // 保存用户信息
+    async saveUser(userData) {
+      try {
+        const { data } = await axios.put(
+          `/admin/users/${userData.id}`,
+          userData
+        );
+
+        // 更新本地数据
+        const index = this.users.findIndex((u) => u.id === userData.id);
+        if (index !== -1) {
+          this.users[index] = { ...this.users[index], ...data };
+        }
+
+        this.showSuccess("用户信息更新成功");
+      } catch (error) {
+        this.showError(error.response?.data?.error || "保存用户信息失败");
+        console.error("Error saving user:", error);
+        throw error; // 向上传播错误
+      }
+    },
+
+    // 确认删除对话框
+    confirmDelete(user) {
+      this.selectedUser = user;
+      this.deleteConfirmation = "";
+      this.deleteDialog = true;
+    },
+
+    // 执行删除操作
+    async deleteUser() {
+      this.deleting = true;
+      try {
+        await axios.delete(`/admin/users/${this.selectedUser.id}`);
+        this.showSuccess("用户删除成功");
+        this.loadUsers();
+        this.loadUserStats();
+        this.deleteDialog = false;
+      } catch (error) {
+        this.showError("删除用户失败");
+        console.error("Error deleting user:", error);
+      } finally {
+        this.deleting = false;
+      }
+    },
+
+    // 地区选择器相关方法
+    onRegionSelect(region) {
+      this.selectedRegion = region;
+      this.editedUser.region = region.value;
+      this.showRegionSelector = false;
+    },
+    onRegionClear() {
+      this.selectedRegion = null;
+      this.editedUser.region = null;
+      this.showRegionSelector = false;
+    },
+
+    getRegionText(regionValue) {
+      const region = this.regionOptions?.find((r) => r.value === regionValue);
+      return region ? region.text : regionValue;
+    },
+
+    // 工具方法
+    formatDate(date) {
+      return dayjs(date).format("YYYY-MM-DD HH:mm:ss");
+    },
+
+    formatTimeAgo(date) {
+      return dayjs(date).fromNow();
+    },
+
+    getStatusColor(status) {
+      return (
+        {
+          active: "success",
+          suspended: "warning",
+          banned: "error",
+          pending: "info",
+        }[status] || "grey"
+      );
+    },
+
+    // 获取头像URL
+    getAvatarUrl(avatar) {
+      if (!avatar) return "/default-avatar.png";
+      // 如果avatar是完整URL则直接返回
+      if (avatar.startsWith("http")) return avatar;
+      // 否则拼接为完整URL
+      return `/api/avatar/${avatar}`;
+    },
+
+    // 提示消息
+    showSuccess(text) {
+      this.snackbar = {
+        show: true,
+        text,
+        color: "success",
+        timeout: 3000,
+      };
+    },
+
+    showError(text) {
+      this.snackbar = {
+        show: true,
+        text,
+        color: "error",
+        timeout: 5000,
+      };
+    },
+
+    showInfo(text) {
+      this.snackbar = {
+        show: true,
+        text,
+        color: "info",
+        timeout: 3000,
+      };
+    },
+  },
+
+  watch: {
+    // 移除 options 的 watch，因为我们已经使用 @update:options 事件
+    searchQuery: debounce(function () {
+      this.loadUsers();
+    }, 300),
+    statusFilter() {
+      this.loadUsers();
+    },
+    typeFilter() {
+      this.loadUsers();
+    },
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.users-admin {
+  .stat-card {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+
+    .stat-icon {
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
+      opacity: 0.2;
+      font-size: 48px;
+    }
+
+    &.stat-total {
+      background: linear-gradient(135deg, #1976d2, #64b5f6);
+      color: white;
+    }
+
+    &.stat-active {
+      background: linear-gradient(135deg, #43a047, #81c784);
+      color: white;
+    }
+
+    &.stat-new {
+      background: linear-gradient(135deg, #7b1fa2, #ba68c8);
+      color: white;
+    }
+
+    &.stat-abnormal {
+      background: linear-gradient(135deg, #d32f2f, #e57373);
+      color: white;
+    }
+  }
+
+  .status-chip {
+    cursor: pointer;
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  .action-btn {
+    margin: 0 2px;
+    opacity: 0.7;
+    transition: opacity 0.2s, transform 0.2s;
+
+    &:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  }
+
+  .v-data-table {
+    .v-data-table__wrapper {
+      transition: opacity 0.3s;
+    }
+
+    &.v-data-table--loading {
+      .v-data-table__wrapper {
+        opacity: 0.5;
+      }
+    }
+  }
+
+  .rotate {
+    animation: rotate 1s linear infinite;
+  }
+
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .v-dialog {
+    .v-card {
+      .v-card-title {
+        position: relative;
+        .v-btn {
+          position: absolute;
+          right: 8px;
+          top: 8px;
+        }
+      }
+    }
+  }
+
+  // 新增样式
+  .region-field {
+    cursor: pointer;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+  }
+
+  .contact-list {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .custom-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .emoji-picker {
+      width: 80px;
+    }
+
+    .status-text {
+      flex: 1;
+    }
+  }
+
+  .featured-projects {
+    border: 1px dashed rgba(0, 0, 0, 0.12);
+    border-radius: 4px;
+    padding: 8px;
+    margin-top: 8px;
+  }
+}
+</style>
