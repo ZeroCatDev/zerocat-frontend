@@ -33,8 +33,6 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '20.x'
-# 《神奇的action构建喵与呆萌的npm酱相爱相杀の一天》
-
     - name: Build
       env:
           VITE_APP_BASE_API: https://zerocat-api.houlangs.com

@@ -46,81 +46,87 @@
   </v-container>
 </template>
 
-<script setup>
-import { ref, onMounted, computed } from 'vue'
+<script>
 import ConfigItemGroup from '@/components/admin/ConfigItemGroup.vue'
 import axios from '@/axios/axios'
 
-// 状态变量
-const loading = ref(false)
-const configs = ref([])
-const searchQuery = ref('')
-
-const snackbar = ref({
-  show: false,
-  text: '',
-  color: 'success'
-})
-
-// 过滤后的配置项
-const filteredConfigs = computed(() => {
-  if (!searchQuery.value) return configs.value
-
-  const query = searchQuery.value.toLowerCase()
-  return configs.value.filter(config =>
-    config.key.toLowerCase().includes(query) ||
-    (config.description && config.description.toLowerCase().includes(query))
-  )
-})
-
-// 方法
-const loadConfigs = async () => {
-  loading.value = true
-  try {
-    const unified = await axios.get('/admin/config/unified')
-    if (unified.status === 200) {
-      configs.value = unified.data.configs
+export default {
+  name: 'ConfigPage',
+  components: {
+    ConfigItemGroup
+  },
+  data() {
+    return {
+      loading: false,
+      configs: [],
+      searchQuery: '',
+      snackbar: {
+        show: false,
+        text: '',
+        color: 'success'
+      }
     }
-  } catch (error) {
-    showError('加载配置失败')
-  }
-  loading.value = false
-}
+  },
+  computed: {
+    filteredConfigs() {
+      if (!this.searchQuery) return this.configs
 
-const handleSaveError = (key) => {
-  const config = configs.value.find(c => c.key === key)
-  showError(`保存 ${config?.description || key} 失败`)
-}
-
-const showSuccess = (text) => {
-  snackbar.value = {
-    show: true,
-    text,
-    color: 'success'
-  }
-}
-
-const showError = (text) => {
-  snackbar.value = {
-    show: true,
-    text,
-    color: 'error'
-  }
-}
-
-const reload = () => {
-  axios.get('/api/admin/config/reload').then(res => {
-    if (res.status === 200) {
-      showSuccess('重载配置成功')
+      const query = this.searchQuery.toLowerCase()
+      return this.configs.filter(config =>
+        config.key.toLowerCase().includes(query) ||
+        (config.description && config.description.toLowerCase().includes(query))
+      )
     }
-  })
-}
+  },
+  methods: {
+    async loadConfigs() {
+      this.loading = true
+      try {
+        const unified = await axios.get('/admin/config/unified')
+        if (unified.status === 200) {
+          this.configs = unified.data.configs
+        }
+      } catch (error) {
+        this.showError('加载配置失败')
+      }
+      this.loading = false
+    },
 
-// 生命周期
-onMounted(() => {
-  loadConfigs()
-})
+    handleSaveError(key) {
+      const config = this.configs.find(c => c.key === key)
+      this.showError(`保存 ${config?.description || key} 失败`)
+    },
+
+    showSuccess(text) {
+      this.snackbar = {
+        show: true,
+        text,
+        color: 'success'
+      }
+    },
+
+    showError(text) {
+      this.snackbar = {
+        show: true,
+        text,
+        color: 'error'
+      }
+    },
+
+    reload() {
+      axios.get('/api/admin/config/reload').then(res => {
+        if (res.status === 200) {
+          this.showSuccess('重载配置成功')
+        }
+      })
+    }
+  },
+  mounted() {
+    this.loadConfigs()
+  }
+}
 </script>
+
 
 <style scoped>
 .v-card {

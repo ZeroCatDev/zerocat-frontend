@@ -77,8 +77,8 @@
 
             <v-col cols="12" md="6" class="d-none d-md-flex justify-center">
               <v-img
-                src="https://cdn.jsdelivr.net/gh/houlangs/houlangs@main/hero-image.webp"
-                max-width="400"
+                src="/src/assets/logo.svg"
+                max-width="200"
                 contain
                 class="hero-image"
               ></v-img>

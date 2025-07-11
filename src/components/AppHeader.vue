@@ -185,7 +185,7 @@
       </transition>
     </template>
   </v-app-bar>
-  <v-navigation-drawer v-model="drawer" :rail="drawerRail" expand-on-hover>
+  <v-navigation-drawer v-model="drawer" :rail="drawerRail" expand-on-hover v-if="!isAdminRoute">
     <!-- 导航部分 -->
     <v-list>
       <v-list-subheader>
@@ -284,6 +284,65 @@
         to="/app/tools/comparer"
         prepend-icon="mdi-xml"
         title="项目比较器"
+        rounded="xl"
+      ></v-list-item>
+    </v-list>
+
+    <v-divider></v-divider>
+
+    <!-- 主题和抽屉控制 -->
+    <v-list>
+      <v-list-item
+        @click="toggleTheme"
+        :prepend-icon="isDarkTheme ? 'mdi-weather-sunny' : 'mdi-weather-night'"
+        rounded="xl"
+      ></v-list-item>
+      <v-list-item
+        @click="drawerRail = !drawerRail"
+        :prepend-icon="drawerRail ? 'mdi-chevron-right' : 'mdi-chevron-left'"
+        rounded="xl"
+      ></v-list-item>
+    </v-list>
+  </v-navigation-drawer>
+
+  <v-navigation-drawer v-model="drawer" :rail="drawerRail" expand-on-hover v-else>
+    <v-list>
+      <v-list-item
+        to="/"
+        prepend-icon="mdi-arrow-left"
+        title="返回"
+        rounded="xl"
+      ></v-list-item>
+      <v-list-subheader>
+        <v-icon icon="mdi-shield" size="small"></v-icon>
+        管理
+      </v-list-subheader>
+
+      <v-list-item
+        to="/app/admin/users"
+        prepend-icon="mdi-account-group"
+        title="用户管理"
+        rounded="xl"
+      ></v-list-item>
+
+      <v-list-item
+        to="/app/admin/project"
+        prepend-icon="mdi-xml"
+        title="项目管理"
+        rounded="xl"
+      ></v-list-item>
+
+      <v-list-item
+        to="/app/admin/config"
+        prepend-icon="mdi-cog"
+        title="系统设置"
+        rounded="xl"
+      ></v-list-item>
+
+      <v-list-item
+        to="/app/admin/sitemap"
+        prepend-icon="mdi-sitemap"
+        title="站点地图"
         rounded="xl"
       ></v-list-item>
     </v-list>
@@ -559,6 +618,9 @@ export default {
         pathSegments.length >= 2 &&
         !this.hideNavPaths.some((path) => this.$route.path.startsWith(path))
       );
+    },
+    isAdminRoute() {
+      return this.$route.path.startsWith('/app/admin');
     },
   },
 };

@@ -132,104 +132,109 @@
   </v-container>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
+<script>
 import axios from '@/axios/axios'
-// 状态变量
-const loading = ref(false)
-const generating = ref(false)
-const settings = ref({
-  enabled: false,
-  autoUpdate: false
-})
-const status = ref({
-  enabled: false,
-  autoUpdate: false,
-  updateCron: '',
-  currentFileHash: '',
-  lastFullUpdate: '',
-  lastIncrementalUpdate: '',
-  isGenerating: false,
-  isTaskScheduled: false
-})
 
-const snackbar = ref({
-  show: false,
-  text: '',
-  color: 'success'
-})
-
-// 方法
-const loadStatus = async () => {
-  loading.value = true
-  try {
-    const response = await axios.get('/admin/sitemap/status')
-    if (response.status === 200 && response.data.status === 'success') {
-      const data = response.data.data
-      status.value = data
-      settings.value.enabled = data.enabled
-      settings.value.autoUpdate = data.autoUpdate
+export default {
+  name: 'SitemapPage',
+  data() {
+    return {
+      loading: false,
+      generating: false,
+      settings: {
+        enabled: false,
+        autoUpdate: false
+      },
+      status: {
+        enabled: false,
+        autoUpdate: false,
+        updateCron: '',
+        currentFileHash: '',
+        lastFullUpdate: '',
+        lastIncrementalUpdate: '',
+        isGenerating: false,
+        isTaskScheduled: false
+      },
+      snackbar: {
+        show: false,
+        text: '',
+        color: 'success'
+      }
     }
-  } catch (error) {
-    showError('加载状态失败')
-  }
-  loading.value = false
-}
+  },
+  methods: {
+    async loadStatus() {
+      this.loading = true
+      try {
+        const response = await axios.get('/admin/sitemap/status')
+        if (response.status === 200 && response.data.status === 'success') {
+          const data = response.data.data
+          this.status = data
+          this.settings.enabled = data.enabled
+          this.settings.autoUpdate = data.autoUpdate
+        }
+      } catch (error) {
+        this.showError('加载状态失败')
+      }
+      this.loading = false
+    },
 
-const saveSettings = async () => {
-  loading.value = true
-  try {
-    const response = await axios.post('/admin/sitemap/settings', {
-      enabled: settings.value.enabled,
-      autoUpdate: settings.value.autoUpdate
-    })
-    if (response.status === 200 && response.data.status === 'success') {
-      showSuccess('设置已更新')
-      loadStatus()
+    async saveSettings() {
+      this.loading = true
+      try {
+        const response = await axios.post('/admin/sitemap/settings', {
+          enabled: this.settings.enabled,
+          autoUpdate: this.settings.autoUpdate
+        })
+        if (response.status === 200 && response.data.status === 'success') {
+          this.showSuccess('设置已更新')
+          this.loadStatus()
+        }
+      } catch (error) {
+        this.showError('保存设置失败')
+        // 回滚设置
+        this.loadStatus()
+      }
+      this.loading = false
+    },
+
+    async generateSitemap(type) {
+      this.generating = true
+      try {
+        const response = await axios.post('/admin/sitemap/generate', { type })
+        if (response.status === 200 && response.data.status === 'success') {
+          this.showSuccess('站点地图生成成功')
+          this.loadStatus()
+        }
+      } catch (error) {
+        this.showError('生成站点地图失败')
+      }
+      this.generating = false
+    },
+
+    showSuccess(text) {
+      this.snackbar = {
+        show: true,
+        text,
+        color: 'success'
+      }
+    },
+
+    showError(text) {
+      this.snackbar = {
+        show: true,
+        text,
+        color: 'error'
+      }
     }
-  } catch (error) {
-    showError('保存设置失败')
-    // 回滚设置
-    loadStatus()
-  }
-  loading.value = false
-}
-
-const generateSitemap = async (type) => {
-  generating.value = true
-  try {
-    const response = await axios.post('/admin/sitemap/generate', { type })
-    if (response.status === 200 && response.data.status === 'success') {
-      showSuccess('站点地图生成成功')
-      loadStatus()
-    }
-  } catch (error) {
-    showError('生成站点地图失败')
-  }
-  generating.value = false
-}
-
-const showSuccess = (text) => {
-  snackbar.value = {
-    show: true,
-    text,
-    color: 'success'
+  },
+  mounted() {
+    this.loadStatus()
   }
 }
-
-const showError = (text) => {
-  snackbar.value = {
-    show: true,
-    text,
-    color: 'error'
-  }
-}
-
-// 生命周期
-onMounted(() => {
-  loadStatus()
-})
 </script>
+
+
 
 <style scoped>
 .v-card {
