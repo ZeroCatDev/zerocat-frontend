@@ -18,6 +18,8 @@
     "@unhead/vue": "^1.11.18",
     "@vueuse/core": "^13.3.0",
     "@vueuse/rxjs": "^12.5.0",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
     "axios": "^1.7.9",
     "compressorjs": "^1.2.1",
     "core-js": "^3.40.0",
