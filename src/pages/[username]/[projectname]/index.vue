@@ -18,6 +18,7 @@
             :branch="player.branch"
             :commit-id="player.commit.id"
             :showplayer="showplayer"
+            :type="project.type"
           />
           <br />
           <v-card>

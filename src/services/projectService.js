@@ -65,10 +65,10 @@ export async function getProjectInfoByNamespace(username, projectname) {
   }
 }
 
-export async function initProject(projectid) {
+export async function initProject(projectid, type) {
   try {
     const { data } = await request.post(
-      `/project/initlize?projectid=${projectid}`
+      `/project/initlize?projectid=${projectid}&type=${type}`
     );
     return data;
   } catch (error) {
@@ -246,6 +246,57 @@ export async function queryProjects(type, target, limit = 20, offset = 0) {
         limit,
         offset
       }
+    };
+  }
+}
+
+/**
+ * 获取项目文件内容
+ * @param {number} projectId - 项目ID
+ * @param {string} branch - 分支名称
+ * @param {string} commitId - 提交ID或'latest'
+ * @returns {Promise<{code: string, language: string}>}
+ */
+export async function getProjectContent(projectId, branch = 'main', commitId = 'latest') {
+  try {
+    // 获取提交信息和访问令牌
+    const commitResponse = await request.get(`/project/${projectId}/${branch}/${commitId}`);
+
+    if (!commitResponse.data.commit || !commitResponse.data.commit.commit_file) {
+      throw new Error('No commit information available');
+    }
+
+    const { commit_file: sha256 } = commitResponse.data.commit;
+    const { accessFileToken } = commitResponse.data;
+
+    // 获取文件内容
+    const fileResponse = await request.get(`/project/files/${sha256}`, {
+      params: {
+        accessFileToken,
+        content: true
+      }
+    });
+
+    // 从文件名或内容中推断语言
+    const fileExtension = sha256.split('.').pop().toLowerCase();
+    const languageMap = {
+      'py': 'python',
+      'js': 'javascript',
+      'java': 'java',
+      'go': 'golang',
+      'rs': 'rust',
+      'rb': 'ruby'
+    };
+
+    return {
+      code: fileResponse.data,
+      language: languageMap[fileExtension] || 'python'
+    };
+  } catch (error) {
+    console.error('Failed to get project content:', error);
+    return {
+      code: '',
+      language: 'python'
     };
   }
 }

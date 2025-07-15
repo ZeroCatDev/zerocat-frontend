@@ -464,7 +464,7 @@ export default {
         console.log('准备保存文件，内容长度:', contentToSave.length)
 
         // 保存文件 - 使用不同的方式处理JSON和非JSON内容
-        const saveResponse = await axios.post('/project/savefile',
+        const saveResponse = await axios.post('/project/savefile?json=false&source=index',
           isValidJson ? contentToSave : JSON.stringify({ "index": this.fileContent }),
           {
             headers: {
@@ -480,16 +480,13 @@ export default {
           throw new Error(saveResponse.data.message || '保存文件失败')
         }
 
-        // 更新访问令牌
+        // 更新访问令牌和文件SHA256
         this.accessFileToken = saveResponse.data.accessFileToken
-
-        // 从accessFileToken中提取sha256或使用本地记录的sha256
-        // 注意：这里我们使用本地记录的sha256，因为服务器没有直接返回
-        // 如果需要从token中解析，需要额外的逻辑
+        this.fileSha256 = saveResponse.data.sha256 // 从响应中获取新的SHA256
 
         if (!this.fileSha256) {
-          console.error('没有文件SHA256信息')
-          throw new Error('没有文件SHA256信息，无法完成提交')
+          console.error('服务器未返回文件SHA256')
+          throw new Error('服务器未返回文件SHA256，无法完成提交')
         }
 
         console.log('文件保存成功，使用SHA256:', this.fileSha256)

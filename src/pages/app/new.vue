@@ -47,21 +47,15 @@
         </template></v-radio
       > </v-radio-group
     ><v-divider></v-divider><br />
-    <v-select
-      :items="['scratch', 'python', 'text']"
-      label="使用以下类型初始化此作品："
-      required
+    <LanguageSelector
       v-model="projectinfo.type"
-    ></v-select>
+      label="选择作品类型"
+      required
+    />
 
     <LicenseSelector v-model="projectinfo.license" />
 
-    <p class="text-caption text-medium-emphasis">
-      许可证告诉其他人他们可以和不能使用您的代码。<a
-        href="https://docs.github.com/zh/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository"
-        >了解有关许可证的更多信息</a
-      >或<a href="https://choosealicense.com/">选择一个许可证</a>。
-    </p>
+
     <br /><v-divider></v-divider><br />
 
     <div class="d-flex justify-end">
@@ -84,10 +78,12 @@ import { useHead } from "@unhead/vue";
 import { localuser } from "@/services/localAccount";
 import { generate } from "random-words";
 import LicenseSelector from "@/components/LicenseSelector.vue";
+import LanguageSelector from "@/components/LanguageSelector.vue";
 
 export default {
   components: {
-    LicenseSelector
+    LicenseSelector,
+    LanguageSelector
   },
   setup() {
     useHead({

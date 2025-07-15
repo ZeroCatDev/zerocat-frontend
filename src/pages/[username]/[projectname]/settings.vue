@@ -38,14 +38,12 @@
         ></v-textarea>
       </v-col>
       <v-col cols="12" sm="6">
-        <v-select
-          :items="['scratch', 'python', 'text']"
+        <LanguageSelector
+          v-model="project.type"
           label="类型"
           required
           hint="不建议你改"
-          v-model="project.type"
-          variant="outlined"
-        ></v-select>
+        />
       </v-col>
 
       <v-col cols="12" sm="6">
@@ -233,10 +231,12 @@ import { localuser } from "@/services/localAccount";
 import { useHead } from "@unhead/vue";
 import { getProjectInfoByNamespace } from "@/services/projectService";
 import LicenseSelector from "@/components/LicenseSelector.vue";
+import LanguageSelector from "@/components/LanguageSelector.vue";
 
 export default {
   components: {
-    LicenseSelector
+    LicenseSelector,
+    LanguageSelector
   },
   data() {
     return {
