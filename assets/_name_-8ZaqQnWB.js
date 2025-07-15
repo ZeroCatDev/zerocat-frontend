@@ -1,0 +1,1 @@
+import{_ as e}from"./ProjectQueryView-DxCrA_gq.js";import{_ as r,Y as n,o as _}from"./index-CQDSP-11.js";import"./ProjectCard-DjfUDoRD.js";const a={components:{ProjectQueryView:e}};function c(o,p,s,m,u,i){const t=e;return _(),n(t,{type:"author",target:o.$route.params.name},null,8,["target"])}const d=r(a,[["render",c]]);export{d as default};
