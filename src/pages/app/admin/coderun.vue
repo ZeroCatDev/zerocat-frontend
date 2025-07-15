@@ -14,6 +14,15 @@
               <v-icon left>mdi-refresh</v-icon>
               刷新
             </v-btn>
+            <v-btn
+              color="error"
+              class="ml-2"
+              @click="confirmDeleteInactive"
+              :loading="loading"
+            >
+              <v-icon left>mdi-delete-sweep</v-icon>
+              删除所有不活跃设备
+            </v-btn>
           </v-card-title>
 
           <!-- 设备列表表格 -->
@@ -239,6 +248,35 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- 删除所有不活跃设备确认对话框 -->
+    <v-dialog
+      v-model="deleteInactiveDialog"
+      max-width="400px"
+    >
+      <v-card>
+        <v-card-title>确认批量删除</v-card-title>
+        <v-card-text>
+          确定要删除所有不活跃的设备吗？此操作无法撤销。
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            text
+            @click="deleteInactiveDialog = false"
+          >
+            取消
+          </v-btn>
+          <v-btn
+            color="error"
+            @click="deleteAllInactive"
+            :loading="deletingInactive"
+          >
+            删除
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -256,9 +294,11 @@ export default {
     const detailsDialog = ref(false)
     const configDialog = ref(false)
     const deleteDialog = ref(false)
+    const deleteInactiveDialog = ref(false) // New dialog for deleting all inactive
     const activeTab = ref(0)
     const saving = ref(false)
     const deleting = ref(false)
+    const deletingInactive = ref(false) // New loading state for deleting all inactive
     const editConfig = ref({
       request_url: '',
       status: '',
@@ -313,6 +353,10 @@ export default {
       deleteDialog.value = true
     }
 
+    const confirmDeleteInactive = () => {
+      deleteInactiveDialog.value = true
+    }
+
     const saveDeviceConfig = async () => {
       saving.value = true
       try {
@@ -344,6 +388,21 @@ export default {
         console.error('Failed to delete device:', error)
       } finally {
         deleting.value = false
+      }
+    }
+
+    const deleteAllInactive = async () => {
+      deletingInactive.value = true
+      try {
+        const response = await axios.delete('/admin/coderun/devices/inactive/all')
+        if (response.data.success) {
+          await refreshDevices()
+          deleteInactiveDialog.value = false
+        }
+      } catch (error) {
+        console.error('Failed to delete all inactive devices:', error)
+      } finally {
+        deletingInactive.value = false
       }
     }
 
@@ -387,19 +446,23 @@ export default {
       detailsDialog,
       configDialog,
       deleteDialog,
+      deleteInactiveDialog, // New data property
       activeTab,
       editConfig,
       statusOptions,
       saving,
       deleting,
+      deletingInactive, // New data property
 
       // 方法
       refreshDevices,
       openDeviceDetails,
       openDeviceConfig,
       confirmDelete,
+      confirmDeleteInactive, // New method
       saveDeviceConfig,
       deleteDevice,
+      deleteAllInactive, // New method
       getStatusColor,
       formatDateTime,
       validateJson
