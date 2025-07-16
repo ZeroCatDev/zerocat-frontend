@@ -1,1 +1,0 @@
-import{_ as o}from"./ProjectQueryView-DxCrA_gq.js";import{_ as r,Y as n,o as _}from"./index-CQDSP-11.js";import"./ProjectCard-DjfUDoRD.js";const c={components:{ProjectQueryView:o}};function p(e,s,a,i,m,u){const t=o;return _(),n(t,{type:"fork",target:e.$route.params.id},null,8,["target"])}const $=r(c,[["render",p]]);export{$ as default};
