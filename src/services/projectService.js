@@ -198,7 +198,7 @@ export const deleteBranch = async (projectId, branchName) => {
 
 export async function getProjectAnalytics(projectId, startDate, endDate) {
   try {
-    const response = await request.get(`/analytics/${projectId}`, {
+    const response = await request.get(`/project/analytics/${projectId}`, {
       params: {
         start_date: startDate,
         end_date: endDate

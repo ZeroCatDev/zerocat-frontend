@@ -68,7 +68,7 @@
             </v-btn>
           </template>
           <template v-else>
-            <v-btn to="/app/account/login" text="登录" rounded="xl"></v-btn>
+            <LoginDialog @login-success="handleLoginSuccess" @login-error="handleLoginError" />
             <v-btn
               to="/app/account/register"
               text="注册"
@@ -371,12 +371,14 @@ import { useTheme } from "vuetify";
 import { ref, onMounted, watch, nextTick } from "vue";
 import NotificationsCard from "@/components/NotificationsCard.vue";
 import SearchDialog from "@/components/SearchDialog.vue";
+import LoginDialog from "@/components/account/LoginDialog.vue";
 import { get } from "@/services/serverConfig";
 
 export default {
   components: {
     NotificationsCard,
     SearchDialog,
+    LoginDialog,
   },
   async mounted() {
     this.s3BucketUrl = await get('s3.staticurl');
@@ -606,6 +608,14 @@ export default {
             ]
           : []),
       ];
+    },
+    handleLoginSuccess(response) {
+      // 刷新用户信息
+      localuser.loadUser(true);
+    },
+
+    handleLoginError(error) {
+      console.error('Login error:', error);
     },
   },
   computed: {
