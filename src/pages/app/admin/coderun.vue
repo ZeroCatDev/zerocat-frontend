@@ -189,6 +189,11 @@
         <v-card-text>
           <v-form ref="configForm">
             <v-text-field
+              v-model="editConfig.device_name"
+              label="设备名称"
+              required
+            ></v-text-field>
+            <v-text-field
               v-model="editConfig.request_url"
               label="请求 URL"
               required
@@ -300,6 +305,7 @@ export default {
     const deleting = ref(false)
     const deletingInactive = ref(false) // New loading state for deleting all inactive
     const editConfig = ref({
+      device_name: '',
       request_url: '',
       status: '',
       device_config: ''
@@ -341,6 +347,7 @@ export default {
     const openDeviceConfig = (device) => {
       selectedDevice.value = device
       editConfig.value = {
+        device_name: device.device_name || '',
         request_url: device.request_url || '',
         status: device.status || 'active',
         device_config: JSON.stringify(device.device_config || {}, null, 2)

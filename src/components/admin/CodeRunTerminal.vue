@@ -235,8 +235,10 @@ export default {
         return
       }
 
-      // Convert code to base64
-      const base64Code = btoa(this.code)
+      // Convert code to base64 with UTF-8 support
+      const encoder = new TextEncoder()
+      const utf8Bytes = encoder.encode(this.code)
+      const base64Code = btoa(String.fromCharCode.apply(null, utf8Bytes))
       const command = langConfig.command.replace('{code}', base64Code)
 
       this.ws.send(command + '\n')
