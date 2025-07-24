@@ -4,10 +4,10 @@
       <v-col>
         <div class="d-flex align-center">
           <v-btn
-            variant="text"
             :to="'/app/oauth/applications'"
-            prepend-icon="mdi-arrow-left"
             class="mr-4"
+            prepend-icon="mdi-arrow-left"
+            variant="text"
           >
             返回应用列表
           </v-btn>
@@ -19,35 +19,35 @@
     <v-row>
       <v-col cols="12" md="8">
         <v-card>
-          <v-form @submit.prevent="saveApplication" ref="form">
+          <v-form ref="form" @submit.prevent="saveApplication">
             <v-card-text>
               <!-- 基本信息 -->
               <h2 class="text-h6 mb-4">基本信息</h2>
 
               <v-text-field
                 v-model="form.name"
-                label="应用名称"
                 :rules="[v => !!v || '应用名称是必填的']"
-                required
                 class="mb-4"
+                label="应用名称"
+                required
               ></v-text-field>
 
               <v-textarea
                 v-model="form.description"
-                label="应用描述"
-                hint="简要描述你的应用，帮助用户了解应用的用途"
-                rows="3"
                 class="mb-4"
+                hint="简要描述你的应用，帮助用户了解应用的用途"
+                label="应用描述"
+                rows="3"
               ></v-textarea>
 
               <v-text-field
                 v-model="form.homepage_url"
-                label="应用主页"
-                hint="你的应用的完整URL"
                 :rules="[
                   v => !v || /^https?:\/\/.+/.test(v) || '请输入有效的URL（以http://或https://开头）'
                 ]"
                 class="mb-4"
+                hint="你的应用的完整URL"
+                label="应用主页"
               ></v-text-field>
 
               <!-- 回调设置 -->
@@ -56,27 +56,27 @@
               <div v-for="(uri, index) in form.redirect_uris" :key="index" class="d-flex mb-2">
                 <v-text-field
                   v-model="form.redirect_uris[index]"
-                  label="授权回调URL"
                   :rules="[
                     v => !!v || '回调URL是必填的',
                     v => /^https?:\/\/.+/.test(v) || '请输入有效的URL（以http://或https://开头）'
                   ]"
-                  required
                   class="mr-2"
+                  label="授权回调URL"
+                  required
                 ></v-text-field>
                 <v-btn
+                  :disabled="form.redirect_uris.length === 1"
+                  color="error"
                   icon="mdi-delete"
                   variant="text"
-                  color="error"
                   @click="removeRedirectUri(index)"
-                  :disabled="form.redirect_uris.length === 1"
                 ></v-btn>
               </div>
 
               <v-btn
+                class="mt-2"
                 prepend-icon="mdi-plus"
                 variant="text"
-                class="mt-2"
                 @click="addRedirectUri"
               >
                 添加回调URL
@@ -89,16 +89,16 @@
             <v-card-actions class="pa-4">
               <v-spacer></v-spacer>
               <v-btn
-                variant="outlined"
-                class="mr-2"
                 :to="'/app/oauth/applications'"
+                class="mr-2"
+                variant="outlined"
               >
                 取消
               </v-btn>
               <v-btn
+                :loading="loading"
                 color="primary"
                 type="submit"
-                :loading="loading"
               >
                 创建应用
               </v-btn>
@@ -118,9 +118,9 @@
             </p>
 
             <v-alert
+              class="mb-4"
               type="info"
               variant="tonal"
-              class="mb-4"
             >
               <h4 class="text-subtitle-1 font-weight-bold mb-2">重要提示</h4>
               <ul class="ml-4">
@@ -132,7 +132,7 @@
 
             <p class="text-body-2">
               需要帮助？查看我们的
-              <a href="#" target="_blank" class="text-decoration-none">OAuth应用开发指南</a>。
+              <a class="text-decoration-none" href="#" target="_blank">OAuth应用开发指南</a>。
             </p>
           </v-card-text>
         </v-card>
@@ -151,8 +151,9 @@
 </template>
 
 <script>
-import { useRouter } from 'vue-router'
+import {useRouter} from 'vue-router'
 import axios from '@/axios/axios'
+
 export default {
   name: 'NewOAuthApplication',
 

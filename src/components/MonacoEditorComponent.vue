@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import {ref, onMounted, onBeforeUnmount, watch} from "vue";
 
 export default {
   name: "MonacoEditorComponent",
@@ -26,7 +26,7 @@ export default {
     },
   },
   emits: ["update:modelValue", "change"],
-  setup(props, { emit }) {
+  setup(props, {emit}) {
     const editorContainer = ref(null);
     let editor = null;
     let contentChangeDisposable = null;
@@ -56,10 +56,10 @@ export default {
           base: "vs-dark",
           inherit: true,
           rules: [
-            { token: "comment", foreground: "88846f", fontStyle: "italic" },
-            { token: "keyword", foreground: "f92672" },
-            { token: "string", foreground: "e6db74" },
-            { token: "number", foreground: "ae81ff" },
+            {token: "comment", foreground: "88846f", fontStyle: "italic"},
+            {token: "keyword", foreground: "f92672"},
+            {token: "string", foreground: "e6db74"},
+            {token: "number", foreground: "ae81ff"},
           ],
           colors: {
             "editor.background": "#272822",
@@ -85,7 +85,7 @@ export default {
         theme: "monokai", // 使用新定义的主题
         fontSize: 14,
         tabSize: 2,
-        minimap: { enabled: true },
+        minimap: {enabled: true},
         scrollBeyondLastLine: false,
         automaticLayout: true,
         wordWrap: "on",
@@ -104,7 +104,7 @@ export default {
         },
       };
 
-      const options = { ...defaultOptions, ...props.options };
+      const options = {...defaultOptions, ...props.options};
 
       // 创建编辑器
       editor = monaco.editor.create(editorContainer.value, options);
@@ -182,7 +182,7 @@ export default {
           editor.updateOptions(newOptions);
         }
       },
-      { deep: true }
+      {deep: true}
     );
 
     // 监听 locale 变化

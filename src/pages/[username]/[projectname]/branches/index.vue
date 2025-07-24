@@ -10,7 +10,8 @@
               color="primary"
               prepend-icon="mdi-source-branch-plus"
               @click="showNewBranchDialog = true"
-              >新建分支</v-btn
+            >新建分支
+            </v-btn
             >
           </v-card-title>
           <v-card-text>
@@ -23,7 +24,8 @@
                 <template v-slot:prepend>
                   <v-icon
                     :color="branch.name === project.default_branch ? 'primary' : ''"
-                    >mdi-source-branch</v-icon
+                  >mdi-source-branch
+                  </v-icon
                   >
                 </template>
 
@@ -34,16 +36,18 @@
 
                 <template v-slot:append>
                   <v-btn
-                    variant="text"
                     :to="`/${$route.params.username}/${$route.params.projectname}/tree/${branch.name}`"
-                    >查看</v-btn
+                    variant="text"
+                  >查看
+                  </v-btn
                   >
                   <v-btn
-                    variant="text"
-                    color="error"
                     v-if="branch.name !== project.default_branch"
+                    color="error"
+                    variant="text"
                     @click="confirmDeleteBranch(branch.name)"
-                    >删除</v-btn
+                  >删除
+                  </v-btn
                   >
                 </template>
               </v-list-item>
@@ -61,17 +65,17 @@
           <v-form ref="form" v-model="valid">
             <v-text-field
               v-model="newBranch.name"
-              label="分支名称"
               :rules="[v => !!v || '分支名称不能为空']"
+              label="分支名称"
               required
             ></v-text-field>
             <v-select
               v-model="newBranch.source"
               :items="branches"
+              :rules="[v => !!v || '请选择源分支']"
               item-title="name"
               item-value="name"
               label="源分支"
-              :rules="[v => !!v || '请选择源分支']"
               required
             ></v-select>
           </v-form>
@@ -79,14 +83,16 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="primary" text @click="showNewBranchDialog = false"
-            >取消</v-btn
+          >取消
+          </v-btn
           >
           <v-btn
-            color="primary"
-            @click="createBranch"
             :disabled="!valid"
             :loading="loading"
-            >创建</v-btn
+            color="primary"
+            @click="createBranch"
+          >创建
+          </v-btn
           >
         </v-card-actions>
       </v-card>
@@ -102,13 +108,15 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="primary" text @click="showDeleteDialog = false"
-            >取消</v-btn
+          >取消
+          </v-btn
           >
           <v-btn
+            :loading="loading"
             color="error"
             @click="deleteBranch"
-            :loading="loading"
-            >删除</v-btn
+          >删除
+          </v-btn
           >
         </v-card-actions>
       </v-card>
@@ -117,14 +125,14 @@
 </template>
 
 <script>
-import { use404Helper } from '@/composables/use404';
+import {use404Helper} from '@/composables/use404';
 import {
   getProjectInfoByNamespace,
   getBranchs,
   createBranch as createBranchApi,
   deleteBranch as deleteBranchApi,
 } from "@/services/projectService";
-import { useHead } from "@unhead/vue";
+import {useHead} from "@unhead/vue";
 
 export default {
   data() {
@@ -168,7 +176,7 @@ export default {
 
       this.project = projectFromCloud;
       await this.loadBranches();
-      useHead({ title: `分支 · ${this.project.title}` });
+      useHead({title: `分支 · ${this.project.title}`});
     },
     async loadBranches() {
       const res = await getBranchs(this.project.id);

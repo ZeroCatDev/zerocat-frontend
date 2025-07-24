@@ -7,33 +7,34 @@
         我的项目
         <v-spacer></v-spacer>
         <v-btn
-          to="/app/new"
           color="success"
-          variant="tonal"
           prepend-icon="mdi-plus"
           size="small"
-          >新建</v-btn
+          to="/app/new"
+          variant="tonal"
+        >新建
+        </v-btn
         >
       </v-card-title>
 
       <v-card-text class="pt-2 pb-0">
         <v-text-field
           v-model="search.title"
-          density="compact"
-          variant="outlined"
-          label="项目名称"
-          hide-details
           class="mb-2"
-          @input="searchProjects"
-          @keyup.enter="searchProjects"
+          density="compact"
+          hide-details
+          label="项目名称"
           placeholder="输入项目名称搜索"
           single-line
+          variant="outlined"
+          @input="searchProjects"
+          @keyup.enter="searchProjects"
         ></v-text-field>
       </v-card-text>
 
       <v-list density="compact">
         <template v-if="isLoadingTopProjects">
-          <v-skeleton-loader type="text" width="80%" />
+          <v-skeleton-loader type="text" width="80%"/>
         </template>
         <template v-else-if="topProjects.length === 0">
           <v-list-item>
@@ -59,10 +60,11 @@
               {{ project.title }}
               <v-chip
                 v-if="project.state === 'private'"
-                size="x-small"
-                color="error"
                 class="ml-2"
-                >私密</v-chip
+                color="error"
+                size="x-small"
+              >私密
+              </v-chip
               >
             </v-list-item-title>
             <v-list-item-subtitle class="text-caption">
@@ -71,11 +73,11 @@
             <template v-slot:append>
               <div class="d-flex align-center gap-2">
                 <div class="d-flex align-center">
-                  <v-icon size="small" class="mr-1">mdi-eye</v-icon>
+                  <v-icon class="mr-1" size="small">mdi-eye</v-icon>
                   <span class="text-caption">{{ project.view_count }}</span>
                 </div>
                 <div class="d-flex align-center">
-                  <v-icon size="small" class="mr-1">mdi-star</v-icon>
+                  <v-icon class="mr-1" size="small">mdi-star</v-icon>
                   <span class="text-caption">{{ project.star_count }}</span>
                 </div>
               </div>
@@ -84,7 +86,7 @@
         </template>
       </v-list>
       <v-card-actions class="justify-center">
-        <v-btn variant="text" block to="/app/project" class="text-none">
+        <v-btn block class="text-none" to="/app/project" variant="text">
           查看全部
           <v-icon end>mdi-chevron-right</v-icon>
         </v-btn>
@@ -93,16 +95,18 @@
     <v-row>
       <!-- Main Content -->
       <v-col cols="12" md="9">
-        <!-- Feed -->    <SearchComponent mode="dialog" /><br/>
+        <!-- Feed -->
+        <SearchComponent mode="dialog"/>
+        <br/>
         <v-card class="mb-4" variant="flat">
           <v-card-title class="d-flex align-center">
-            <v-icon icon="mdi-timeline-clock" color="primary" class="mr-2" />
+            <v-icon class="mr-2" color="primary" icon="mdi-timeline-clock"/>
             时间线
           </v-card-title>
           <v-card-text>
             <Timeline
-              :timeline="timeline"
               :is-loading-more="isLoadingMore"
+              :timeline="timeline"
               @load-more="loadMoreEvents"
             />
           </v-card-text>
@@ -118,14 +122,14 @@
               v-for="project in exploreProjects"
               :key="project.id"
               cols="3"
-              sm="4"
-              md="4"
               lg="3"
+              md="4"
+              sm="4"
               xl="3"
-              >
+            >
               <project-card
-                :project="project"
                 :author="project.author"
+                :project="project"
                 :show-author="true"
                 :to="project.author ? `/${project.author.username}/${project.name}` : `/app/link/project?id=${project.id}`"
               />
@@ -135,8 +139,8 @@
           <div class="d-flex justify-center my-4">
             <v-progress-linear
               v-if="isLoadingExplore"
-              indeterminate
               color="primary"
+              indeterminate
             ></v-progress-linear>
             <v-chip
               v-else-if="!exploreSearch.hasMore"
@@ -160,7 +164,7 @@
       </v-col>
       <v-col cols="12" md="3">
         <!-- Recent Activity -->
-        <v-card variant="tonal" >
+        <v-card variant="tonal">
           <v-card-title class="text-subtitle-1 font-weight-bold">
             <v-icon start>mdi-clock-outline</v-icon>
             最近活动
@@ -173,32 +177,34 @@
               <template v-slot:prepend>
                 <v-icon :color="activity.color" size="small">{{
                   activity.icon
-                }}</v-icon>
+                  }}
+                </v-icon>
               </template>
               <v-list-item-title class="text-body-2">{{
                 activity.text
-              }}</v-list-item-title>
+                }}
+              </v-list-item-title>
               <v-list-item-subtitle>
-                <TimeAgo :date="activity.date" />
+                <TimeAgo :date="activity.date"/>
               </v-list-item-subtitle>
             </v-list-item>
           </v-list>
         </v-card>
         <!-- Explore Projects -->
-        <v-card variant="flat" class="mt-4"> </v-card>
+        <v-card class="mt-4" variant="flat"></v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-import { useHead } from "@unhead/vue";
+import {useHead} from "@unhead/vue";
 import request from "@/axios/axios";
 import Timeline from "@/components/timeline/Timeline.vue";
 import TimeAgo from "@/components/TimeAgo.vue";
 import ProjectCard from "@/components/project/ProjectCard.vue";
-import { localuser } from "@/services/localAccount";
-import { get } from "@/services/serverConfig";
+import {localuser} from "@/services/localAccount";
+import {get} from "@/services/serverConfig";
 
 export default {
   name: "Dashboard",

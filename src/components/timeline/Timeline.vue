@@ -1,10 +1,10 @@
 <template>
-  <v-timeline side="end" align="start" class="mt-4">
+  <v-timeline align="start" class="mt-4" side="end">
     <v-timeline-item
       v-for="event in timeline.events"
       :key="event.id"
-      size="small"
       dot-color="primary"
+      size="small"
     >
       <template v-slot:opposite>
         {{ new Date(event.created_at).toLocaleString() }}
@@ -22,18 +22,18 @@
             {{ eventTypes[event.type]?.text || "进行了操作" }}
           </h3>
           <v-chip
-            size="x-small"
             :color="eventTypes[event.type]?.color || 'primary'"
             class="ml-2"
+            size="x-small"
           >
             {{ eventTypes[event.type]?.label || event.type }}
           </v-chip>
         </div>
 
         <router-link
+          v-if="eventTypes[event.type]?.isProject"
           :to="getProjectLink(event.target?.id)"
           class="text-decoration-none"
-          v-if="eventTypes[event.type]?.isProject"
         >
           {{ event.event_data?.project_title }}
         </router-link>
@@ -46,15 +46,15 @@
             eventTypes[event.type]?.isProject &&
             !['project_rename', 'project_commit'].includes(event.type)
           "
-          class="mb-3 project-event"
           :to="getProjectLink(event.target?.id)"
+          class="mb-3 project-event"
         >
           <v-card-text>
             <div class="project-info">
               <v-icon
-                icon="mdi-source-repository"
-                color="primary"
                 class="mr-2"
+                color="primary"
+                icon="mdi-source-repository"
               />
               <span class="font-weight-medium">{{
                 event.event_data?.project_name || "未命名项目"
@@ -80,12 +80,12 @@
           <!-- Rename Event -->
           <template v-if="event.type === 'project_rename'">
             <v-card
-              class="rename-card mb-3"
               :to="getProjectLink(event.target?.id)"
+              class="rename-card mb-3"
             >
               <v-card-text>
                 <div class="d-flex align-center mb-2">
-                  <v-icon icon="mdi-rename-box" color="warning" class="mr-2" />
+                  <v-icon class="mr-2" color="warning" icon="mdi-rename-box"/>
                   <span class="font-weight-medium">{{
                     event.event_data?.project_title
                   }}</span>
@@ -93,13 +93,13 @@
                 <div class="rename-details text-body-2">
                   <div class="d-flex align-center">
                     <span class="text-medium-emphasis">从</span>
-                    <v-chip size="small" class="mx-2" color="surface-variant">
+                    <v-chip class="mx-2" color="surface-variant" size="small">
                       {{ event.event_data?.old_name }}
                     </v-chip>
                   </div>
                   <div class="d-flex align-center mt-1">
                     <span class="text-medium-emphasis">到</span>
-                    <v-chip size="small" class="mx-2" color="warning">
+                    <v-chip class="mx-2" color="warning" size="small">
                       {{ event.event_data?.new_name }}
                     </v-chip>
                   </div>
@@ -107,12 +107,14 @@
                 <div
                   class="project-meta text-caption text-medium-emphasis mt-2"
                 >
-                  <v-chip size="x-small" class="mr-1">{{
+                  <v-chip class="mr-1" size="x-small">{{
                     event.event_data?.project_type
-                  }}</v-chip>
+                    }}
+                  </v-chip>
                   <v-chip size="x-small">{{
                     event.event_data?.project_state
-                  }}</v-chip>
+                    }}
+                  </v-chip>
                 </div>
               </v-card-text>
             </v-card>
@@ -121,14 +123,14 @@
           <!-- Commit Event -->
           <template v-else-if="event.type === 'project_commit'">
             <v-card
-              class="commit-card mb-3"
               :to="getProjectLink(event.target?.id)"
+              class="commit-card mb-3"
             >
               <v-card-text>
                 <div class="d-flex align-center mb-2">
-                  <v-icon icon="mdi-source-commit" color="info" class="mr-2" />
+                  <v-icon class="mr-2" color="info" icon="mdi-source-commit"/>
                   <span class="font-weight-medium"
-                    >分支: {{ event.event_data?.branch }}</span
+                  >分支: {{ event.event_data?.branch }}</span
                   >
                 </div>
                 <div class="commit-message text-body-2">
@@ -144,15 +146,15 @@
           <!-- Project Info Update Event -->
           <template v-else-if="event.type === 'project_info_update'">
             <v-card
-              class="info-update-card mb-3"
               :to="getProjectLink(event.target?.id)"
+              class="info-update-card mb-3"
             >
               <v-card-text>
                 <div class="d-flex align-center mb-2">
                   <v-icon
-                    icon="mdi-file-document-edit"
-                    color="info"
                     class="mr-2"
+                    color="info"
+                    icon="mdi-file-document-edit"
                   />
                   <span class="font-weight-medium">{{
                     event.event_data?.project_title
@@ -166,9 +168,10 @@
                   >
                     <div class="update-item mb-2">
                       <div class="d-flex align-center">
-                        <v-chip size="x-small" color="info" class="mr-2">{{
+                        <v-chip class="mr-2" color="info" size="x-small">{{
                           getFieldDisplayName(field)
-                        }}</v-chip>
+                          }}
+                        </v-chip>
                       </div>
                       <div class="d-flex flex-column mt-1 field-changes">
                         <div class="old-value">
@@ -191,12 +194,14 @@
                 <div
                   class="project-meta text-caption text-medium-emphasis mt-2"
                 >
-                  <v-chip size="x-small" class="mr-1">{{
+                  <v-chip class="mr-1" size="x-small">{{
                     event.event_data?.project_type
-                  }}</v-chip>
+                    }}
+                  </v-chip>
                   <v-chip size="x-small">{{
                     event.event_data?.project_state
-                  }}</v-chip>
+                    }}
+                  </v-chip>
                 </div>
               </v-card-text>
             </v-card>
@@ -221,9 +226,9 @@
                 class="text-decoration-none ml-1"
               >
                 {{
-                  event.event_data?.project_name ||
-                  event.target.title ||
-                  `项目 #${event.target.id}`
+                event.event_data?.project_name ||
+                event.target.title ||
+                `项目 #${event.target.id}`
                 }}
               </router-link>
             </div>
@@ -254,8 +259,8 @@
 </template>
 
 <script>
-import { get } from "@/services/serverConfig";
-import { getProjectInfo } from "@/services/projectService";
+import {get} from "@/services/serverConfig";
+import {getProjectInfo} from "@/services/projectService";
 
 export default {
   name: "Timeline",

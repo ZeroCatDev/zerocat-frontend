@@ -2,31 +2,31 @@
   <v-menu v-model="menu" :close-on-content-click="false">
     <template v-slot:activator="{ props }">
       <v-btn
-        v-bind="props"
-        color="primary"
-        variant="tonal"
-        prepend-icon="mdi-playlist-plus"
         :loading="loading"
+        color="primary"
+        prepend-icon="mdi-playlist-plus"
+        v-bind="props"
+        variant="tonal"
       >
         添加到列表
       </v-btn>
     </template>
-    
-    <v-card min-width="300" max-width="400">
+
+    <v-card max-width="400" min-width="300">
       <v-card-title class="text-subtitle-1">
         选择列表
         <v-spacer></v-spacer>
         <v-btn
+          color="primary"
           icon="mdi-plus"
           size="small"
           variant="text"
-          color="primary"
           @click="openNewListDialog"
         ></v-btn>
       </v-card-title>
-      
+
       <v-divider></v-divider>
-      
+
       <v-list v-if="loading">
         <v-list-item>
           <template v-slot:prepend>
@@ -35,22 +35,22 @@
           <v-list-item-title>加载中...</v-list-item-title>
         </v-list-item>
       </v-list>
-      
+
       <v-list v-else-if="myLists.length === 0">
         <v-list-item>
           <v-list-item-title>暂无列表</v-list-item-title>
           <v-list-item-subtitle>点击右上角加号创建</v-list-item-subtitle>
         </v-list-item>
       </v-list>
-      
+
       <v-list v-else>
         <v-list-item
           v-for="list in myLists"
           :key="list.id"
-          :title="list.title"
-          :subtitle="list.description || '无描述'"
-          @click="toggleListItem(list.id)"
           :active="isInList(list.id)"
+          :subtitle="list.description || '无描述'"
+          :title="list.title"
+          @click="toggleListItem(list.id)"
         >
           <template v-slot:prepend>
             <v-icon :color="isInList(list.id) ? 'success' : ''">
@@ -59,24 +59,24 @@
           </template>
         </v-list-item>
       </v-list>
-      
+
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn text="关闭" variant="text" @click="menu = false"></v-btn>
       </v-card-actions>
     </v-card>
-    
+
     <v-dialog v-model="newListDialog" max-width="600px">
-      <NewProjectList 
-        :callback="fetchMyLists" 
-        :close="() => newListDialog = false" 
+      <NewProjectList
+        :callback="fetchMyLists"
+        :close="() => newListDialog = false"
       />
     </v-dialog>
   </v-menu>
 </template>
 
 <script>
-import { getMyProjectLists, addProjectToList, removeProjectFromList } from "../../services/projectListService";
+import {getMyProjectLists, addProjectToList, removeProjectFromList} from "../../services/projectListService";
 import request from "../../axios/axios";
 import NewProjectList from "./NewProjectList.vue";
 
@@ -121,7 +121,7 @@ export default {
         this.loading = false;
       }
     },
-    
+
     async checkProjectLists() {
       try {
         const response = await request.get(`/projectlist/lists/check?projectid=${this.projectId}`);
@@ -132,18 +132,18 @@ export default {
         console.error("检查项目列表失败:", error);
       }
     },
-    
+
     isInList(listId) {
       return this.projectLists.some(list => list.id === listId);
     },
-    
+
     async toggleListItem(listId) {
       this.loading = true;
       try {
         if (this.isInList(listId)) {
           // 如果已在列表中，则移除
           const response = await removeProjectFromList(listId, this.projectId);
-          
+
           if (response.status === "success") {
             this.$toast.add({
               severity: "success",
@@ -156,7 +156,7 @@ export default {
         } else {
           // 如果不在列表中，则添加
           const response = await addProjectToList(listId, this.projectId);
-          
+
           if (response.status === "success") {
             this.$toast.add({
               severity: "success",
@@ -179,10 +179,10 @@ export default {
         this.loading = false;
       }
     },
-    
+
     openNewListDialog() {
       this.newListDialog = true;
     }
   }
 };
-</script> 
+</script>

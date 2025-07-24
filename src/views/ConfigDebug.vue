@@ -5,7 +5,7 @@
     <div class="card">
       <div class="card-header">
         <h3>当前配置信息</h3>
-        <span class="last-update" v-if="lastUpdateTime">
+        <span v-if="lastUpdateTime" class="last-update">
           最后更新: {{ formatTime(lastUpdateTime) }}
         </span>
       </div>
@@ -15,7 +15,7 @@
       </div>
 
       <div class="actions">
-        <button class="refresh-btn" @click="handleRefresh" :disabled="isRefreshing">
+        <button :disabled="isRefreshing" class="refresh-btn" @click="handleRefresh">
           {{ isRefreshing ? '刷新中...' : '手动刷新' }}
         </button>
       </div>
@@ -24,8 +24,8 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
-import config, { getConfig, refreshConfig } from '@/services/serverConfig';
+import {ref, onMounted} from 'vue';
+import config, {getConfig, refreshConfig} from '@/services/serverConfig';
 
 export default {
   name: 'ConfigDebug',

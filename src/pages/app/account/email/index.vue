@@ -1,5 +1,5 @@
 <template>
-  <EmailManager />
+  <EmailManager/>
 </template>
 
 <script setup>

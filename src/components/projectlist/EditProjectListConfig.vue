@@ -1,11 +1,11 @@
 <template>
-  <v-card border :title="`${listInfo.title || '加载中...'}`" :subtitle="`ID: ${listInfo.id || ''}`" :loading="loading">
+  <v-card :loading="loading" :subtitle="`ID: ${listInfo.id || ''}`" :title="`${listInfo.title || '加载中...'}`" border>
     <v-card-text>
       <v-text-field
         v-model="newListInfo.title"
+        :rules="[v => !!v || '名称不能为空']"
         label="名称"
         required
-        :rules="[v => !!v || '名称不能为空']"
       ></v-text-field>
       <v-text-field
         v-model="newListInfo.description"
@@ -22,35 +22,35 @@
     </v-card-text>
     <v-card-actions>
       <v-btn
+        color="error"
+        prepend-icon="mdi-delete"
         text="删除"
         variant="plain"
         @click="confirmDelete"
-        color="error"
-        prepend-icon="mdi-delete"
       ></v-btn>
 
       <v-spacer></v-spacer>
       <v-btn
+        :disabled="!hasChanges"
+        prepend-icon="mdi-refresh"
         text="重置"
         variant="plain"
         @click="newListInfo = JSON.parse(JSON.stringify(listInfo))"
-        prepend-icon="mdi-refresh"
-        :disabled="!hasChanges"
       ></v-btn>
 
       <v-btn text="关闭" variant="plain" @click="close()"></v-btn>
 
       <v-btn
+        :disabled="!hasChanges || !newListInfo.title"
+        :loading="saving"
         color="primary"
+        prepend-icon="mdi-content-save"
         text="保存"
         variant="tonal"
         @click="updateProjectList"
-        :loading="saving"
-        :disabled="!hasChanges || !newListInfo.title"
-        prepend-icon="mdi-content-save"
       ></v-btn>
     </v-card-actions>
-    
+
     <v-dialog v-model="deleteDialog" max-width="500px">
       <v-card>
         <v-card-title class="text-h5">确认删除</v-card-title>
@@ -60,7 +60,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="primary" variant="text" @click="deleteDialog = false">取消</v-btn>
-          <v-btn color="error" variant="text" @click="deleteProjectList" :loading="deleting">删除</v-btn>
+          <v-btn :loading="deleting" color="error" variant="text" @click="deleteProjectList">删除</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -69,12 +69,13 @@
 
 <script>
 import request from "../../axios/axios";
+
 export default {
   data() {
     return {
       listStates: [
-        { state: "私密", abbr: "private" },
-        { state: "公开", abbr: "public" },
+        {state: "私密", abbr: "private"},
+        {state: "公开", abbr: "public"},
       ],
       loading: true,
       saving: false,
@@ -108,7 +109,7 @@ export default {
       this.loading = true;
       try {
         const res = await request.get(`/projectlist/lists/listid/${listid}`);
-        
+
         if (res.data.status === "success") {
           this.listInfo = JSON.parse(JSON.stringify(res.data.data));
           this.newListInfo = JSON.parse(JSON.stringify(res.data.data));
@@ -132,21 +133,21 @@ export default {
         this.loading = false;
       }
     },
-    
+
     async updateProjectList() {
       if (!this.newListInfo.title) return;
-      
+
       this.saving = true;
       try {
         const res = await request.post(`/projectlist/lists/update/${this.listid}`, this.newListInfo);
-        
+
         this.$toast.add({
           severity: res.data.status === "success" ? "success" : "error",
           summary: res.data.status === "success" ? "成功" : "错误",
           detail: res.data.message || "更新列表信息",
           life: 3000,
         });
-        
+
         if (res.data.status === "success") {
           this.listInfo = JSON.parse(JSON.stringify(this.newListInfo));
           if (this.callback) this.callback();
@@ -163,23 +164,23 @@ export default {
         this.saving = false;
       }
     },
-    
+
     confirmDelete() {
       this.deleteDialog = true;
     },
-    
+
     async deleteProjectList() {
       this.deleting = true;
       try {
-        const res = await request.post(`/projectlist/lists/delete`, { id: this.listid });
-        
+        const res = await request.post(`/projectlist/lists/delete`, {id: this.listid});
+
         this.$toast.add({
           severity: res.data.status === "success" ? "info" : "error",
           summary: res.data.status === "success" ? "成功" : "错误",
           detail: res.data.message || "删除列表",
           life: 3000,
         });
-        
+
         if (res.data.status === "success") {
           this.deleteDialog = false;
           if (this.callback) this.callback();

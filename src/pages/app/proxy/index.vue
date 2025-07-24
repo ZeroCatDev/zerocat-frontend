@@ -1,6 +1,7 @@
 <template>
   <v-container>
-    <proxylicense url="https://scratch.mit.edu/explore/projects/all"></proxylicense><br />
+    <proxylicense url="https://scratch.mit.edu/explore/projects/all"></proxylicense>
+    <br/>
     <v-progress-linear
       :active="ProjectsLoading"
       height="4"
@@ -8,30 +9,33 @@
     ></v-progress-linear>
     <div class="mb-2">
       <v-chip
-        ><v-icon icon="mdi-clock" start></v-icon>本页加载用时{{
-          Math.abs(usetime / 1000)
+      >
+        <v-icon icon="mdi-clock" start></v-icon>
+        本页加载用时{{
+        Math.abs(usetime / 1000)
         }}秒
       </v-chip>
     </div>
     <div v-for="(name, key) in projects" :key="name">
       <h1>{{ translate[key] || key }}</h1>
-      <br />
+      <br/>
       <v-row>
-        <v-col cols="4" md="2" v-for="info in name" :key="info">
-          <v-card :to="'/app/proxy/' + info.id" v-if="info.type == 'project'">
+        <v-col v-for="info in name" :key="info" cols="4" md="2">
+          <v-card v-if="info.type == 'project'" :to="'/app/proxy/' + info.id">
             <v-img
               :src="`${scratch_proxy}/thumbnails/${info.id}`"
               cover
               lazy-src="../../../assets/43-lazyload.png"
             ></v-img
-            ><v-card-item>
+            >
+            <v-card-item>
               <v-card-title>{{ info.title }}</v-card-title>
               <v-card-subtitle>{{ info.creator }}</v-card-subtitle>
             </v-card-item>
           </v-card>
           <v-card
-            :to="'/app/proxy/studios/' + info.id"
             v-if="info.type == 'gallery'"
+            :to="'/app/proxy/studios/' + info.id"
           >
             <v-card-item>
               <v-card-title>{{ info.title }}</v-card-title>
@@ -39,16 +43,18 @@
               <v-card-subtitle>{{ info.id }}</v-card-subtitle>
             </v-card-item>
           </v-card>
-        </v-col> </v-row
-      ><br /><br /><br /><br />
+        </v-col>
+      </v-row
+      >
+      <br/><br/><br/><br/>
     </div>
   </v-container>
 </template>
 
 <script>
-import { getFeaturedProjects } from "@/services/proxy/projectService";
-import { useHead } from "@unhead/vue";
-import { get } from '@/services/serverConfig';
+import {getFeaturedProjects} from "@/services/proxy/projectService";
+import {useHead} from "@unhead/vue";
+import {get} from '@/services/serverConfig';
 
 export default {
   setup() {
@@ -59,18 +65,18 @@ export default {
   data() {
     return {
       orderitems: [
-        { name: "热门的", type: "trending" },
-        { name: "最受欢迎的", type: "popular" },
-        { name: "新建的", type: "recent" },
+        {name: "热门的", type: "trending"},
+        {name: "最受欢迎的", type: "popular"},
+        {name: "新建的", type: "recent"},
       ],
       tagitems: [
-        { name: "全部", type: "*" },
-        { name: "动画", type: "animations" },
-        { name: "艺术", type: "art" },
-        { name: "游戏", type: "games" },
-        { name: "音乐", type: "music" },
-        { name: "故事", type: "stories" },
-        { name: "教程", type: "tutorials" },
+        {name: "全部", type: "*"},
+        {name: "动画", type: "animations"},
+        {name: "艺术", type: "art"},
+        {name: "游戏", type: "games"},
+        {name: "音乐", type: "music"},
+        {name: "故事", type: "stories"},
+        {name: "教程", type: "tutorials"},
       ],
       search: {
         order: "trending",

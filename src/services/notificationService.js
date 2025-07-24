@@ -23,7 +23,7 @@ export const markNotificationAsRead = async (notificationId) => {
     return response.data;
   } catch (error) {
     console.error("Error marking notification as read:", error);
-    return { status: "error" };
+    return {status: "error"};
   }
 };
 
@@ -33,7 +33,7 @@ export const debugNotificationTest = async () => {
     return response.data;
   } catch (error) {
     console.error("Error marking notification as read:", error);
-    return { status: "error" };
+    return {status: "error"};
   }
 };
 export const markAllNotificationsAsRead = async () => {
@@ -42,6 +42,6 @@ export const markAllNotificationsAsRead = async () => {
     return response.data;
   } catch (error) {
     console.error("Error marking all notifications as read:", error);
-    return { status: "error" };
+    return {status: "error"};
   }
 };

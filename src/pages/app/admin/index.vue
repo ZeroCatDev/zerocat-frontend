@@ -5,20 +5,20 @@
       <v-card-item>
         <template v-slot:prepend>
           <v-icon
-            icon="mdi-code-braces"
-            size="large"
             class="me-4"
             color="primary"
+            icon="mdi-code-braces"
+            size="large"
           ></v-icon>
         </template>
         <v-card-title class="text-h5">系统管理</v-card-title>
-        <v-card-subtitle class="mt-2"> 系统管理 </v-card-subtitle>
+        <v-card-subtitle class="mt-2"> 系统管理</v-card-subtitle>
       </v-card-item>
     </v-card>
 
     <v-row>
       <!-- OAuth 应用卡片 -->
-      <v-col cols="6" md="6" v-for="item in config" :key="item.path">
+      <v-col v-for="item in config" :key="item.path" cols="6" md="6">
         <v-card :to="item.path" elevation="1" hover>
           <v-card-item>
             <v-card-title>{{ item.name }}</v-card-title>
@@ -41,10 +41,10 @@ export default {
   data() {
     return {
       config: [
-        { name: "配置管理", path: "/app/admin/config" },
-        { name: "Sitemap", path: "/app/admin/sitemap" },
-        { name: "用户管理", path: "/app/admin/users" },
-        { name: "项目管理", path: "/app/admin/project" },
+        {name: "配置管理", path: "/app/admin/config"},
+        {name: "Sitemap", path: "/app/admin/sitemap"},
+        {name: "用户管理", path: "/app/admin/users"},
+        {name: "项目管理", path: "/app/admin/project"},
       ],
     };
   },

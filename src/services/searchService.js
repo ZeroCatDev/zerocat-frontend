@@ -1,6 +1,7 @@
-import { get } from './serverConfig';
+import {get} from './serverConfig';
 import axios from 'axios';
-import { getProjectInfo } from '@/services/projectService';
+import {getProjectInfo} from '@/services/projectService';
+
 const SEARCH_HISTORY_KEY = 'search_history';
 const MAX_HISTORY_ITEMS = 10;
 const ITEMS_PER_PAGE = 20;
@@ -51,7 +52,7 @@ export const addToSearchHistory = (term, currentHistory = []) => {
 };
 
 export const performSearch = async (query, page) => {
-  const { baseUrl, apiKey, indexName } = await getSearchConfig();
+  const {baseUrl, apiKey, indexName} = await getSearchConfig();
   const searchParams = getSearchParams(query, page);
 
   const response = await axios({
@@ -99,7 +100,7 @@ export const updateUrlMap = async (searchResults, currentUrlMap = {}) => {
     }
 
     const projectInfos = await getProjectInfo(projectIds);
-    const newUrlMap = { ...currentUrlMap };
+    const newUrlMap = {...currentUrlMap};
 
     if (!projectInfos || !Array.isArray(projectInfos)) {
       console.warn('No project infos returned from API');

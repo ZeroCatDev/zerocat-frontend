@@ -1,4 +1,4 @@
-import { ref, watch } from "vue";
+import {ref, watch} from "vue";
 import axiosInstance from "@/axios/axios";
 
 // Constants for storage keys
@@ -138,7 +138,7 @@ const refreshAccessToken = async () => {
     if (data.status !== "success") {
       // Only logout if the error indicates refresh token is invalid
       if (data.code === "ZC_ERROR_INVALID_REFRESH_TOKEN" ||
-          data.code === "ZC_ERROR_REFRESH_TOKEN_EXPIRED") {
+        data.code === "ZC_ERROR_REFRESH_TOKEN_EXPIRED") {
         logout(false);
       }
       return false;

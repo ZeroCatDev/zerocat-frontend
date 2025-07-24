@@ -7,18 +7,18 @@
             CodeRun 设备管理
             <v-spacer></v-spacer>
             <v-btn
+              :loading="loading"
               color="primary"
               @click="refreshDevices"
-              :loading="loading"
             >
               <v-icon left>mdi-refresh</v-icon>
               刷新
             </v-btn>
             <v-btn
-              color="error"
-              class="ml-2"
-              @click="confirmDeleteInactive"
               :loading="loading"
+              class="ml-2"
+              color="error"
+              @click="confirmDeleteInactive"
             >
               <v-icon left>mdi-delete-sweep</v-icon>
               删除所有不活跃设备
@@ -29,8 +29,8 @@
           <v-data-table
             :headers="headers"
             :items="devices"
-            :loading="loading"
             :items-per-page="10"
+            :loading="loading"
             class="elevation-1"
           >
             <!-- 状态列 -->
@@ -65,9 +65,9 @@
                 <v-icon>mdi-cog</v-icon>
               </v-btn>
               <v-btn
+                color="error"
                 icon
                 small
-                color="error"
                 @click="confirmDelete(item)"
               >
                 <v-icon>mdi-delete</v-icon>
@@ -206,18 +206,18 @@
             ></v-select>
             <v-textarea
               v-model="editConfig.device_config"
+              :rules="[validateJson]"
               label="设备配置 (JSON)"
               rows="10"
-              :rules="[validateJson]"
             ></v-textarea>
           </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
+            :loading="saving"
             color="primary"
             @click="saveDeviceConfig"
-            :loading="saving"
           >
             保存
           </v-btn>
@@ -244,9 +244,9 @@
             取消
           </v-btn>
           <v-btn
+            :loading="deleting"
             color="error"
             @click="deleteDevice"
-            :loading="deleting"
           >
             删除
           </v-btn>
@@ -273,9 +273,9 @@
             取消
           </v-btn>
           <v-btn
+            :loading="deletingInactive"
             color="error"
             @click="deleteAllInactive"
-            :loading="deletingInactive"
           >
             删除
           </v-btn>
@@ -286,7 +286,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import {ref, onMounted} from 'vue'
 import axios from '@/axios/axios'
 
 export default {
@@ -313,12 +313,12 @@ export default {
 
     // 表格列定义
     const headers = [
-      { title: '设备名称', value: 'device_name' },
-      { title: '设备ID', value: 'id' },
-      { title: '请求地址', value: 'request_url' },
-      { title: '状态', value: 'status' },
-      { title: '最后报告', value: 'last_report' },
-      { title: '操作', value: 'actions', sortable: false }
+      {title: '设备名称', value: 'device_name'},
+      {title: '设备ID', value: 'id'},
+      {title: '请求地址', value: 'request_url'},
+      {title: '状态', value: 'status'},
+      {title: '最后报告', value: 'last_report'},
+      {title: '操作', value: 'actions', sortable: false}
     ]
 
     // 状态选项

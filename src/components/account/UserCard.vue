@@ -1,5 +1,5 @@
 <template>
-  <v-card hover border variant="elevated" :loading="loading" class="mb-4">
+  <v-card :loading="loading" border class="mb-4" hover variant="elevated">
     <template v-slot:prepend>
       <v-avatar class="ma-3" size="64">
         <v-img
@@ -17,24 +17,25 @@
 
       <v-card-subtitle class="mt-2">
         <v-chip class="mr-2" size="small">
-          <v-icon icon="mdi-account-circle" start size="small"></v-icon>
+          <v-icon icon="mdi-account-circle" size="small" start></v-icon>
           ID: {{ userData.id || '—' }}
         </v-chip>
         <v-chip size="small">
-          <v-icon icon="mdi-tag" start size="small"></v-icon>
+          <v-icon icon="mdi-tag" size="small" start></v-icon>
           创作者
         </v-chip>
       </v-card-subtitle>
     </v-card-item>
 
     <v-card-text v-if="userData.bio"><!--超出一行则显示...-->
-      <div class="text-body-2 text-medium-emphasis" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+      <div class="text-body-2 text-medium-emphasis"
+           style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
         {{ userData.bio }}
       </div>
     </v-card-text>
 
     <template v-slot:loader="{ isActive }">
-      <v-progress-linear :active="isActive" height="4" indeterminate color="primary"></v-progress-linear>
+      <v-progress-linear :active="isActive" color="primary" height="4" indeterminate></v-progress-linear>
     </template>
   </v-card>
 </template>

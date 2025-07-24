@@ -1,8 +1,8 @@
 <template>
   <v-dialog
     :model-value="modelValue"
-    @update:model-value="$emit('update:modelValue', $event)"
     max-width="600"
+    @update:model-value="$emit('update:modelValue', $event)"
   >
     <v-card>
       <v-card-item>
@@ -17,21 +17,21 @@
       <v-card-text class="pa-4">
         <v-text-field
           v-model="regionSearch"
-          label="搜索区域"
-          variant="outlined"
-          density="comfortable"
-          prepend-inner-icon="mdi-magnify"
-          clearable
-          hide-details
           class="mb-4"
+          clearable
+          density="comfortable"
+          hide-details
+          label="搜索区域"
+          prepend-inner-icon="mdi-magnify"
+          variant="outlined"
         ></v-text-field>
 
-        <v-list lines="two" class="region-list">
+        <v-list class="region-list" lines="two">
           <v-list-item
             v-for="region in filteredRegions"
             :key="region.value"
-            :title="region.text"
             :subtitle="region.value"
+            :title="region.text"
             @click="selectRegion(region)"
           >
             <template v-slot:prepend>

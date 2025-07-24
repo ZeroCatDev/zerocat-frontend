@@ -1,18 +1,18 @@
 <template>
-  <v-card v-if="type === 'scratch'" hover border  style="aspect-ratio: 4 / 3">
-      <iframe
-        :src="embedurl"
-        scrolling="no"
-        frameborder="0"
-        style="width: 100%; height: 100%"
-      ></iframe>
+  <v-card v-if="type === 'scratch'" border hover style="aspect-ratio: 4 / 3">
+    <iframe
+      :src="embedurl"
+      frameborder="0"
+      scrolling="no"
+      style="width: 100%; height: 100%"
+    ></iframe>
   </v-card>
   <div v-if="type === 'python'">
     <div style="width: 100%; height: 100%; aspect-ratio: 4 / 3">
       <iframe
         :src="pythonplayer"
-        scrolling="no"
         frameborder="0"
+        scrolling="no"
         style="width: 100%; height: 100%"
       ></iframe>
     </div>
@@ -21,7 +21,8 @@
 </template>
 <script>
 import request from "../../axios/axios";
-import { ref } from "vue";
+import {ref} from "vue";
+
 export default {
 
   data() {

@@ -1,5 +1,5 @@
 <template>
-  <NotificationsPage />
+  <NotificationsPage/>
 </template>
 
 <script setup>
@@ -8,8 +8,8 @@ import NotificationsPage from "@/views/NotificationsPage.vue";
 
 <route>
 {
-  meta: {
-    requiresAuth: true
-  }
+meta: {
+requiresAuth: true
+}
 }
 </route>

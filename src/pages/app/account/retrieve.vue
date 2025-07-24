@@ -5,110 +5,110 @@
         <v-row>
           <v-col cols="12">
             <v-text-field
+              v-model="email"
+              :disabled="step > 1"
+              :rules="emailRules"
               label="邮箱"
               type="text"
-              v-model="email"
               variant="outlined"
-              :rules="emailRules"
-              :disabled="step > 1"
             ></v-text-field>
           </v-col>
 
           <!-- 验证码输入 -->
-          <v-col cols="12" v-if="step >= 2">
+          <v-col v-if="step >= 2" cols="12">
             <v-text-field
               v-model="verificationCode"
-              label="验证码"
-              variant="outlined"
-              maxlength="6"
               :rules="[rules.required, rules.length]"
+              label="验证码"
+              maxlength="6"
+              variant="outlined"
             ></v-text-field>
             <v-btn
+              :disabled="countdown > 0"
               class="mb-4"
               variant="text"
               @click="sendVerificationCode"
-              :disabled="countdown > 0"
             >
               {{ countdown > 0 ? `${countdown}秒后重新发送` : "重新发送验证码" }}
             </v-btn>
           </v-col>
 
           <!-- 密码输入 -->
-          <v-col cols="12" v-if="step >= 2">
+          <v-col v-if="step >= 2" cols="12">
             <v-text-field
-              label="新密码"
               v-model="password"
-              variant="outlined"
-              :rules="passwordRules"
               :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+              :rules="passwordRules"
               :type="showPassword ? 'text' : 'password'"
+              label="新密码"
+              variant="outlined"
               @click:append="showPassword = !showPassword"
             ></v-text-field>
             <v-text-field
-              label="确认密码"
               v-model="confirmPassword"
-              variant="outlined"
-              :rules="confirmPasswordRules"
               :append-icon="showConfirmPassword ? 'mdi-eye' : 'mdi-eye-off'"
+              :rules="confirmPasswordRules"
               :type="showConfirmPassword ? 'text' : 'password'"
+              label="确认密码"
+              variant="outlined"
               @click:append="showConfirmPassword = !showConfirmPassword"
             ></v-text-field>
           </v-col>
 
           <v-col cols="12">
             <v-btn
+              :loading="loading"
+              :text="step === 1 ? '获取验证码' : '重设密码'"
+              append-icon="mdi-arrow-right"
               class="text-none"
               color="primary"
               rounded="xl"
-              :text="step === 1 ? '获取验证码' : '重设密码'"
-              variant="flat"
               size="large"
+              variant="flat"
               @click="step === 1 ? sendVerificationCode() : resetPassword()"
-              append-icon="mdi-arrow-right"
-              :loading="loading"
             ></v-btn>
           </v-col>
 
           <v-col cols="12">
             <v-btn
+              append-icon="mdi-arrow-right"
               class="text-none"
               color="white"
               rounded="xl"
-              text="登录"
-              variant="text"
               size="large"
-              append-icon="mdi-arrow-right"
+              text="登录"
               to="/app/account/login"
+              variant="text"
             ></v-btn>
             <v-btn
+              append-icon="mdi-arrow-right"
               class="text-none"
               color="white"
               rounded="xl"
-              text="注册"
-              variant="text"
               size="large"
-              append-icon="mdi-arrow-right"
+              text="注册"
               to="/app/account/register"
+              variant="text"
             ></v-btn>
           </v-col>
         </v-row>
       </v-form>
     </AuthCard>
-    <LoadingDialog :show="loading" :text="loadingText" />
+    <LoadingDialog :show="loading" :text="loadingText"/>
   </div>
 </template>
 
 <script>
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
-import { localuser } from "@/services/localAccount";
+import {ref, computed} from "vue";
+import {useRouter} from "vue-router";
+import {localuser} from "@/services/localAccount";
 import AuthService from "@/services/authService";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import AuthCard from "@/components/AuthCard.vue";
-import { useHead } from "@unhead/vue";
+import {useHead} from "@unhead/vue";
 
 export default {
-  components: { LoadingDialog, AuthCard },
+  components: {LoadingDialog, AuthCard},
 
   setup() {
     const router = useRouter();

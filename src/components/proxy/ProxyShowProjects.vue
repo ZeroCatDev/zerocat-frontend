@@ -2,15 +2,15 @@
   <div>
     <v-row>
       <v-col
-        cols="12"
-        xs="12"
-        sm="6"
-        md="4"
-        lg="3"
-        xl="2"
-        xxl="2"
         v-for="project in projects"
         :key="project.id"
+        cols="12"
+        lg="3"
+        md="4"
+        sm="6"
+        xl="2"
+        xs="12"
+        xxl="2"
       >
         <v-card :to="'/app/proxy/' + project.id" border hover>
           <v-img
@@ -34,7 +34,8 @@
               </v-list-item-title>
               <v-list-item-subtitle>{{
                 project.author?.id||project.creator_id
-              }}</v-list-item-subtitle>
+                }}
+              </v-list-item-subtitle>
             </v-list-item>
             <v-list-item v-if="project.actor_id">
               <template v-slot:prepend>
@@ -49,26 +50,32 @@
             </v-list-item>
           </v-list>
         </v-card>
-      </v-col> </v-row
-    ><br /><v-card :title="title" :subtitle="subtitle" border hover>
+      </v-col>
+    </v-row
+    >
+    <br/>
+    <v-card :subtitle="subtitle" :title="title" border hover>
       <v-progress-linear
         :active="loading"
         height="4"
         indeterminate
       ></v-progress-linear>
       <v-card-actions>
-        <v-btn @click="fetchProjects" :disabled="!canLoad"
-          >继续加载</v-btn
-        ></v-card-actions
-      ></v-card
+        <v-btn :disabled="!canLoad" @click="fetchProjects"
+        >继续加载
+        </v-btn
+        >
+      </v-card-actions
+      >
+    </v-card
     >
-    <br /><br />
+    <br/><br/>
   </div>
 </template>
 
 <script>
 import request from "@/axios/axios";
-import { get } from '@/services/serverConfig';
+import {get} from '@/services/serverConfig';
 
 export default {
   props: {

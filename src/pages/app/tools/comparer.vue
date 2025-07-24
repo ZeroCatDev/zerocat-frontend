@@ -22,8 +22,8 @@
     ></v-btn>
     <v-progress-linear v-if='isLoading' indeterminate></v-progress-linear>
 
-    <br />
-    <br /><br />
+    <br/>
+    <br/><br/>
     <v-card
       :title="`${(final * 100).toFixed(0)}%的概率为抄袭`"
       subtitle="推测数据，请以实际为准"
@@ -37,22 +37,22 @@
           >
             <v-card-text>
               {{
-                (
-                  (resultjson.assets.objectSameAmount0 /
-                    resultjson.assets.objectAmount0) *
-                  100
-                ).toFixed(4)
+              (
+              (resultjson.assets.objectSameAmount0 /
+              resultjson.assets.objectAmount0) *
+              100
+              ).toFixed(4)
               }}%（{{ resultjson.assets.objectSameAmount0 }}/{{
-                resultjson.assets.objectAmount0
+              resultjson.assets.objectAmount0
               }}）的素材与右侧相同
 
-              <br />
+              <br/>
               {{
-                ((proj0samularty / resultjson.code.code0length) * 100).toFixed(
-                  4
-                )
+              ((proj0samularty / resultjson.code.code0length) * 100).toFixed(
+              4
+              )
               }}%（{{ proj0samularty }}/{{
-                resultjson.code.code0length
+              resultjson.code.code0length
               }}）的项目树与右侧相同
             </v-card-text>
           </v-card>
@@ -64,22 +64,22 @@
           >
             <v-card-text>
               {{
-                (
-                  (resultjson.assets.objectSameAmount1 /
-                    resultjson.assets.objectAmount1) *
-                  100
-                ).toFixed(4)
+              (
+              (resultjson.assets.objectSameAmount1 /
+              resultjson.assets.objectAmount1) *
+              100
+              ).toFixed(4)
               }}（{{ resultjson.assets.objectSameAmount1 }}/{{
-                resultjson.assets.objectAmount1
+              resultjson.assets.objectAmount1
               }}）的素材与左侧相同
 
-              <br />
+              <br/>
               {{
-                ((proj1samularty / resultjson.code.code1length) * 100).toFixed(
-                  4
-                )
+              ((proj1samularty / resultjson.code.code1length) * 100).toFixed(
+              4
+              )
               }}%（{{ proj1samularty }}/{{
-                resultjson.code.code1length
+              resultjson.code.code1length
               }}）的项目树与左侧相同
             </v-card-text>
           </v-card>
@@ -98,33 +98,34 @@
         <v-btn @click="printpage">打印</v-btn>
       </v-card-actions>
     </v-card>
-    <br />
+    <br/>
     <v-card border>
       <v-card-title>关于</v-card-title>
       <v-card-subtitle>致谢~</v-card-subtitle>
       <v-card-text>
         本工具使用由<a href="https://github.com/Steve-xmh">Steve-xmh</a>开发的<a
-          href="https://github.com/Steve-xmh/scratch-source-comparer"
-          >scratch-source-comparer</a
-        >进行比对，网页版本由<a href="https://github.com/52black">52black</a
-        >制作，开源于<a
-          href="https://github.com/52black/scratch-source-comparer-web"
-          >Github</a
-        >
-        <br />在此感谢 Steve-xmh , 52black 以及这些项目的贡献者们
-        <br />此版本由孙悟元制作，同ZeroCat一同开源于<a
-          href="https://github.com/zerocatdev/zerocat-frontend"
-          >Github</a
-        >
-        <br />本项目目前使用GPLv3许可证。
-      </v-card-text> </v-card
+        href="https://github.com/Steve-xmh/scratch-source-comparer"
+      >scratch-source-comparer</a
+      >进行比对，网页版本由<a href="https://github.com/52black">52black</a
+      >制作，开源于<a
+        href="https://github.com/52black/scratch-source-comparer-web"
+      >Github</a
+      >
+        <br/>在此感谢 Steve-xmh , 52black 以及这些项目的贡献者们
+        <br/>此版本由孙悟元制作，同ZeroCat一同开源于<a
+        href="https://github.com/zerocatdev/zerocat-frontend"
+      >Github</a
+      >
+        <br/>本项目目前使用GPLv3许可证。
+      </v-card-text>
+    </v-card
     >
   </v-container>
 </template>
 
 <script>
-import { ref } from "vue";
-import { useHead } from "@unhead/vue";
+import {ref} from "vue";
+import {useHead} from "@unhead/vue";
 import md5 from "crypto-js/md5";
 import prettydiff from "prettydiff";
 import JSZip from "jszip";
@@ -208,8 +209,8 @@ export default {
         code: {
           code0length: 0,
           code1length: 0,
-          code0: { same: {}, length: 0 },
-          code1: { same: {}, length: 0 },
+          code0: {same: {}, length: 0},
+          code1: {same: {}, length: 0},
         },
       }),
       proj0samularty: ref(0),
@@ -265,7 +266,7 @@ export default {
 
         this.final =
           (result.assets.objectSameAmount0 / result.assets.objectAmount1) *
-            0.3 +
+          0.3 +
           (this.proj1samularty / result.code.code1length) * 0.7;
         this.resultjson = result;
         this.progresstext = "完成！";
@@ -282,7 +283,7 @@ export default {
       reader1.readAsArrayBuffer(file1);
       this.name1 = file1.name;
       reader1.onload = async () => {
-        this.blob1 = new Blob([reader1.result], { type: file1.type });
+        this.blob1 = new Blob([reader1.result], {type: file1.type});
         await this.c();
       };
 
@@ -290,7 +291,7 @@ export default {
       reader2.readAsArrayBuffer(file2);
       this.name2 = file2.name;
       reader2.onload = async () => {
-        this.blob2 = new Blob([reader2.result], { type: file2.type });
+        this.blob2 = new Blob([reader2.result], {type: file2.type});
         await this.c();
       };
     },
@@ -354,7 +355,7 @@ export default {
     },
 
     async compareTree(codeTrees0, codeTrees1, total, cur) {
-      const result = { same: {}, length: 0 };
+      const result = {same: {}, length: 0};
       const sameObj = result.same;
       for (const tree0 of codeTrees0) {
         prettydiff.options.source = tree0.code;
@@ -423,7 +424,7 @@ export default {
       return result;
     },
 
-    async compareAssets({ o0, o1, h0, h1 }) {
+    async compareAssets({o0, o1, h0, h1}) {
       console.log(o0, o1);
       const result = {
         objectSameAmount0: 0,
@@ -483,14 +484,14 @@ export default {
     },
 
     async compare(project0, project1) {
-      this.updateProgress({ text: "正在转换工程版本", progress: 0 });
+      this.updateProgress({text: "正在转换工程版本", progress: 0});
       const [zip0, zip1] = await Promise.all([
         JSZip.loadAsync(project0),
         JSZip.loadAsync(project1),
       ]);
       this.transferSb2IfNeed(zip0);
       this.transferSb2IfNeed(zip1);
-      this.updateProgress({ text: "正在打开", progress: 0 });
+      this.updateProgress({text: "正在打开", progress: 0});
       const md50 = {};
       const md51 = {};
       const imgHash0 = {};
@@ -543,7 +544,7 @@ export default {
           JSON.parse(await zip1.file("project.json").async("string")))(),
       ]);
       result.code = await this.compareCode(projectJson0, projectJson1);
-      this.updateProgress({ text: "完成！", progress: 1 });
+      this.updateProgress({text: "完成！", progress: 1});
       return result;
     },
 

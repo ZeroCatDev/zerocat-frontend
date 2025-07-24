@@ -5,25 +5,25 @@
       <div class="d-flex align-center gap-2">
         <v-text-field
           v-model="searchQuery"
+          :loading="isLoading"
+          class="search-input"
           clearable
+          hide-details
           label="键入以搜索"
           variant="outlined"
-          hide-details
-          class="search-input"
           @keyup.enter="handleSearch"
-          :loading="isLoading"
         >
           <template v-slot:prepend-inner>
             <v-icon icon="mdi-magnify"></v-icon>
           </template>
         </v-text-field>
         <v-btn
-          color="primary"
           :loading="isLoading"
-          @click="handleSearch"
           class="search-button"
+          color="primary"
           height="56"
           min-width="56"
+          @click="handleSearch"
         >
           <v-icon>mdi-magnify</v-icon>
         </v-btn>
@@ -32,7 +32,7 @@
 
     <!-- 搜索历史和热门搜索 -->
     <v-expand-transition style="padding-top: 16px !important">
-      <v-card v-if="!searchQuery" flat class="suggestions-card">
+      <v-card v-if="!searchQuery" class="suggestions-card" flat>
         <v-card-text>
           <div v-if="searchHistory.length > 0">
             <div class="text-subtitle-2">搜索历史</div>
@@ -40,9 +40,9 @@
               <v-chip
                 v-for="(term, index) in searchHistory"
                 :key="index"
+                class="history-chip"
                 size="small"
                 @click="handleHistoryClick(term)"
-                class="history-chip"
               >
                 {{ term }}
               </v-chip>
@@ -55,9 +55,9 @@
               <v-chip
                 v-for="(term, index) in hotSearches"
                 :key="index"
+                class="hot-chip"
                 size="small"
                 @click="handleHistoryClick(term)"
-                class="hot-chip"
               >
                 {{ term }}
               </v-chip>
@@ -74,9 +74,9 @@
           <!-- 加载进度条 -->
           <v-progress-linear
             v-if="isLoading"
-            indeterminate
-            color="primary"
             class="mt-4"
+            color="primary"
+            indeterminate
           ></v-progress-linear>
 
           <!-- 搜索结果展示 -->
@@ -84,55 +84,55 @@
             <template v-if="!isLoading">
               <v-row v-if="searchResults.length > 0">
                 <v-col
-                  cols="12"
-                  xs="12"
-                  sm="6"
-                  md="4"
-                  lg="3"
-                  xl="2"
-                  xxl="2"
                   v-for="item in searchResults"
                   :key="item.id"
+                  cols="12"
+                  lg="3"
+                  md="4"
+                  sm="6"
+                  xl="2"
+                  xs="12"
+                  xxl="2"
                 >
                   <v-hover v-slot="{ isHovering, props }">
                     <v-card
-                      v-bind="props"
-                      :to="urlMap[item.id]"
                       :elevation="isHovering ? 8 : 2"
-                      style="aspect-ratio: 4/3"
-                      rounded="lg"
+                      :to="urlMap[item.id]"
                       class="result-card"
+                      rounded="lg"
+                      style="aspect-ratio: 4/3"
+                      v-bind="props"
                     >
                       <v-img
                         :src="s3BucketUrl + '/scratch_slt/' + item.id"
                         class="align-end"
-                        lazy-src="../assets/43-lazyload.png"
-                        error-src="../assets/43-lazyload.png"
-                        height="100%"
-                        gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
                         cover
+                        error-src="../assets/43-lazyload.png"
+                        gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+                        height="100%"
+                        lazy-src="../assets/43-lazyload.png"
                       >
                         <template v-slot:placeholder>
                           <v-progress-linear
-                            indeterminate
                             color="primary"
+                            indeterminate
                           ></v-progress-linear>
                         </template>
                         <v-card-item>
                           <v-chip
-                            size="small"
-                            color="primary"
-                            variant="tonal"
                             class="type-chip"
+                            color="primary"
+                            size="small"
+                            variant="tonal"
                           >
                             {{ item.type }}
                           </v-chip>
                           <v-chip
                             v-if="item.license !== 'no'"
-                            size="small"
-                            color="primary"
-                            variant="tonal"
                             class="license-chip"
+                            color="primary"
+                            size="small"
+                            variant="tonal"
                           >
                             {{ item.license }}
                           </v-chip>
@@ -151,8 +151,8 @@
                 </v-col>
               </v-row>
               <v-row v-else class="mt-4" justify="center">
-                <v-col cols="12" class="text-center">
-                  <v-alert type="info" variant="tonal" class="no-results-alert">
+                <v-col class="text-center" cols="12">
+                  <v-alert class="no-results-alert" type="info" variant="tonal">
                     <template v-slot:prepend>
                       <v-icon icon="mdi-information"></v-icon>
                     </template>
@@ -162,14 +162,14 @@
               </v-row>
 
               <!-- 分页 -->
-              <v-row class="mt-4" v-if="searchResults.length > 0">
+              <v-row v-if="searchResults.length > 0" class="mt-4">
                 <v-col>
                   <div class="text-center">
                     <v-pagination
+                      v-model="currentPage"
                       :length="totalPages"
                       :total-visible="7"
                       rounded="circle"
-                      v-model="currentPage"
                       @update:model-value="handlePageChange"
                     ></v-pagination>
                   </div>
@@ -183,7 +183,7 @@
   </div>
 
   <!-- 错误提示 -->
-  <v-snackbar v-model="showError" color="error" :timeout="3000">
+  <v-snackbar v-model="showError" :timeout="3000" color="error">
     {{ errorMessage }}
     <template v-slot:actions>
       <v-btn color="white" variant="text" @click="showError = false">
@@ -194,8 +194,8 @@
 </template>
 
 <script>
-import { get } from '@/services/serverConfig';
-import { getProjectInfo } from '@/services/projectService';
+import {get} from '@/services/serverConfig';
+import {getProjectInfo} from '@/services/projectService';
 import {
   loadSearchHistory,
   addToSearchHistory,
@@ -296,14 +296,14 @@ export default {
         this.$emit('search-submitted');
         this.$router.push({
           path: '/app/search',
-          query: { q: trimmedQuery }
+          query: {q: trimmedQuery}
         });
         return;
       }
 
       if (this.$route.query.q !== trimmedQuery) {
         this.$router.replace({
-          query: { ...this.$route.query, q: trimmedQuery }
+          query: {...this.$route.query, q: trimmedQuery}
         });
       }
 
@@ -408,7 +408,7 @@ export default {
 }
 
 .search-results {
-  padding-top: 0px !important;
+  padding-top: 0 !important;
   animation: fadeIn 0.3s ease;
 }
 

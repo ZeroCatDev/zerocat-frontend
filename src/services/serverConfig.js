@@ -2,84 +2,84 @@ import axios from '@/axios/axios';
 
 // 配置常量
 const CONFIG_CONSTANTS = {
-    STORAGE_KEY: {
-        DATA: 'config_data',
-        LAST_FETCH: 'config_last_fetch_time',
-    },
-    MAX_AGE: 5 * 60 * 1000, // 5分钟
-    REFRESH_INTERVAL: 5 * 60 * 1000, // 5分钟
+  STORAGE_KEY: {
+    DATA: 'config_data',
+    LAST_FETCH: 'config_last_fetch_time',
+  },
+  MAX_AGE: 5 * 60 * 1000, // 5分钟
+  REFRESH_INTERVAL: 5 * 60 * 1000, // 5分钟
 };
 
 // 从localStorage获取数据
 function getStoredData() {
-    try {
-        const stored = localStorage.getItem(CONFIG_CONSTANTS.STORAGE_KEY.DATA);
-        return stored ? JSON.parse(stored) : {};
-    } catch (error) {
-        console.error('Failed to parse stored config:', error);
-        return {};
-    }
+  try {
+    const stored = localStorage.getItem(CONFIG_CONSTANTS.STORAGE_KEY.DATA);
+    return stored ? JSON.parse(stored) : {};
+  } catch (error) {
+    console.error('Failed to parse stored config:', error);
+    return {};
+  }
 }
 
 // 保存数据到localStorage
 function setStoredData(data) {
-    try {
-        localStorage.setItem(CONFIG_CONSTANTS.STORAGE_KEY.DATA, JSON.stringify(data));
-    } catch (error) {
-        console.error('Failed to store config:', error);
-    }
+  try {
+    localStorage.setItem(CONFIG_CONSTANTS.STORAGE_KEY.DATA, JSON.stringify(data));
+  } catch (error) {
+    console.error('Failed to store config:', error);
+  }
 }
 
 // 获取最后刷新时间
 function getLastFetchTime() {
-    const timestamp = localStorage.getItem(CONFIG_CONSTANTS.STORAGE_KEY.LAST_FETCH);
-    return timestamp ? parseInt(timestamp, 10) : 0;
+  const timestamp = localStorage.getItem(CONFIG_CONSTANTS.STORAGE_KEY.LAST_FETCH);
+  return timestamp ? parseInt(timestamp, 10) : 0;
 }
 
 // 更新最后刷新时间
 function updateLastFetchTime() {
-    localStorage.setItem(CONFIG_CONSTANTS.STORAGE_KEY.LAST_FETCH, Date.now().toString());
+  localStorage.setItem(CONFIG_CONSTANTS.STORAGE_KEY.LAST_FETCH, Date.now().toString());
 }
 
 // 检查是否需要刷新
 function needsRefresh() {
-    const lastFetch = getLastFetchTime();
-    const now = Date.now();
-    return now - lastFetch > CONFIG_CONSTANTS.MAX_AGE;
+  const lastFetch = getLastFetchTime();
+  const now = Date.now();
+  return now - lastFetch > CONFIG_CONSTANTS.MAX_AGE;
 }
 
 // 获取配置数据
 export async function fetchConfig() {
-    try {
-        const response = await axios.get('/api/config');
-        setStoredData(response.data);
-        updateLastFetchTime();
-        return response.data;
-    } catch (error) {
-        console.error('Failed to fetch config:', error);
-        // 如果获取失败，返回缓存的数据
-        return getStoredData();
-    }
+  try {
+    const response = await axios.get('/api/config');
+    setStoredData(response.data);
+    updateLastFetchTime();
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch config:', error);
+    // 如果获取失败，返回缓存的数据
+    return getStoredData();
+  }
 }
 
 // 智能获取配置
 export async function get(key) {
-    let data;
+  let data;
 
-    // 如果需要刷新，先获取新数据
-    if (needsRefresh()) {
-        data = await fetchConfig();
-    } else {
-        data = getStoredData();
-    }
+  // 如果需要刷新，先获取新数据
+  if (needsRefresh()) {
+    data = await fetchConfig();
+  } else {
+    data = getStoredData();
+  }
 
-    // 如果指定了key，返回对应的值
-    if (key !== undefined) {
-        return data[key];
-    }
+  // 如果指定了key，返回对应的值
+  if (key !== undefined) {
+    return data[key];
+  }
 
-    // 否则返回所有数据
-    return data;
+  // 否则返回所有数据
+  return data;
 }
 
 // 启动自动刷新

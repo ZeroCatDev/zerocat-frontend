@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col cols="12">
-        <NotificationsCard :showPagination="true" />
+        <NotificationsCard :showPagination="true"/>
       </v-col>
     </v-row>
   </v-container>

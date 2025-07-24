@@ -1,6 +1,6 @@
 <template>
   <div class="auth-wrapper d-flex align-center justify-center pa-4">
-    <v-card class="auth-card pa-4 pt-7" max-width="448" border  rounded="lg">
+    <v-card border class="auth-card pa-4 pt-7" max-width="448" rounded="lg">
       <v-row>
         <v-col cols="12">
           <v-cardtext>
@@ -9,7 +9,8 @@
             </h5>
             <p class="mb-0">重设密码</p>
           </v-cardtext>
-        </v-col></v-row
+        </v-col>
+      </v-row
       >
 
       <v-cardtext>
@@ -18,28 +19,28 @@
             <!-- email -->
             <v-col cols="12">
               <v-text-field
-                label="密码"
                 v-model="password"
-                variant="outlined"
-                :rules="passwordRules"
                 :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                :rules="passwordRules"
                 :type="show1 ? 'text' : 'password'"
+                label="密码"
+                variant="outlined"
                 @click:append="show1 = !show1"
               >
               </v-text-field>
               <v-text-field
-                label="确认密码"
                 v-model="password2"
-                variant="outlined"
-                :rules="password2Rules"
                 :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
+                :rules="password2Rules"
                 :type="show2 ? 'text' : 'password'"
+                label="确认密码"
+                variant="outlined"
                 @click:append="show2 = !show2"
               >
               </v-text-field>
             </v-col>
             <v-col cols="9">
-              <Recaptcha ref="recaptcha" recaptchaId="recaptcha-div" />
+              <Recaptcha ref="recaptcha" recaptchaId="recaptcha-div"/>
             </v-col>
             <!-- password -->
             <v-col cols="12">
@@ -51,27 +52,27 @@
               </div>-->
 
               <v-btn
+                append-icon="mdi-arrow-right"
                 class="text-none"
                 color="primary"
                 rounded="xl"
+                size="large"
                 text="重设密码"
                 variant="flat"
-                size="large"
                 @click="login"
-                append-icon="mdi-arrow-right"
               ></v-btn>
               <!-- login button -->
             </v-col>
             <v-col cols="12">
               <v-btn
+                append-icon="mdi-arrow-right"
                 class="text-none"
                 color="white"
                 rounded="xl"
-                text="登录"
-                variant="text"
                 size="large"
-                append-icon="mdi-arrow-right"
+                text="登录"
                 to="/app/account/login"
+                variant="text"
               ></v-btn>
               <!-- login button -->
             </v-col>
@@ -81,19 +82,19 @@
       </v-cardtext>
     </v-card>
   </div>
-  <LoadingDialog :show="loading" text="正在重设密码" />
+  <LoadingDialog :show="loading" text="正在重设密码"/>
 </template>
 
 <script>
-import { localuser } from "@/services/localAccount";
+import {localuser} from "@/services/localAccount";
 import request from "../../../axios/axios";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
-import { useHead } from "@unhead/vue";
-import { resetPassword } from "@/services/accountService";
+import {useHead} from "@unhead/vue";
+import {resetPassword} from "@/services/accountService";
 
 export default {
-  components: { LoadingDialog, Recaptcha },
+  components: {LoadingDialog, Recaptcha},
   data() {
     return {
       BASE_API: import.meta.env.VITE_APP_BASE_API,

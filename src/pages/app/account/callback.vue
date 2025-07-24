@@ -1,16 +1,18 @@
 <template>
   <v-container>
-    <v-card class="mx-auto" rel="noopener" target="_blank" border>
-      <template v-slot:title> <span>您正在登录一个账户</span> </template
-      ><template v-slot:subtitle>
+    <v-card border class="mx-auto" rel="noopener" target="_blank">
+      <template v-slot:title><span>您正在登录一个账户</span></template
+      >
+      <template v-slot:subtitle>
         <span
-          >其他页面传来了一个登录请求，正常情况下它会被自动处理</span
-        > </template
-      ><v-card-text class="bg-surface-light pt-4"
-        >传入的token是：<br />
+        >其他页面传来了一个登录请求，正常情况下它会被自动处理</span
+        ></template
+      >
+      <v-card-text class="bg-surface-light pt-4"
+      >传入的token是：<br/>
         {{ token }}
-        <br />
-        <br />处理后的数据是：<br />
+        <br/>
+        <br/>处理后的数据是：<br/>
         {{ user }}
       </v-card-text>
     </v-card>
@@ -18,11 +20,12 @@
 </template>
 
 <script>
-import { jwtDecode } from "jwt-decode";
-import { localuser } from "@/services/localAccount";
-import { useHead } from "@unhead/vue";
+import {jwtDecode} from "jwt-decode";
+import {localuser} from "@/services/localAccount";
+import {useHead} from "@unhead/vue";
 
 import request from "../../../axios/axios";
+
 export default {
   data() {
     return {
@@ -44,7 +47,7 @@ export default {
         this.user = jwtDecode(localStorage.getItem("token")); // 从本地存储中获取并解码JWT令牌
         console.log(this.user);
         await localuser.loadUser();
-        this.$router.push({ path: "/" });
+        this.$router.push({path: "/"});
       } catch (error) {
         this.user = error;
       }

@@ -4,13 +4,13 @@
       <v-col cols="12">
         <v-text-field
           v-model="search.title"
+          clearable
           label="作品名"
           prepend-inner-icon="mdi-magnify"
-          clearable
         ></v-text-field>
       </v-col>
       <v-col cols="12">
-        <v-btn @click="toggleAdvancedSearch" variant="text">
+        <v-btn variant="text" @click="toggleAdvancedSearch">
           <v-icon>{{ showAdvancedSearch ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
           高级搜索
         </v-btn>
@@ -20,75 +20,75 @@
             <v-col cols="6">
               <v-text-field
                 v-model="search.description"
+                clearable
                 label="作品描述"
                 prepend-inner-icon="mdi-text"
-                clearable
               ></v-text-field>
             </v-col>
             <v-col cols="6">
               <v-text-field
                 v-model="search.source"
+                clearable
                 label="作品内容"
                 prepend-inner-icon="mdi-file"
-                clearable
               ></v-text-field>
             </v-col>
             <v-col cols="6">
               <v-text-field
                 v-model="search.authorid"
+                clearable
                 label="用户ID"
                 prepend-inner-icon="mdi-account"
-                clearable
               ></v-text-field>
             </v-col>
             <v-col cols="6">
               <v-autocomplete
                 v-model="search.tag"
                 :items="tags"
+                clearable
                 label="标签"
                 prepend-inner-icon="mdi-tag"
-                clearable
               ></v-autocomplete>
             </v-col>
             <v-col cols="4">
               <v-select
                 v-model="search.order"
                 :items="orderitems"
+                clearable
                 item-title="name"
                 item-value="type"
                 label="排序"
                 prepend-inner-icon="mdi-sort"
-                clearable
               ></v-select>
             </v-col>
             <v-col cols="4">
               <v-select
                 v-model="search.type"
                 :items="typeitems"
+                clearable
                 item-title="name"
                 item-value="type"
                 label="项目类型"
                 prepend-inner-icon="mdi-format-list-bulleted"
-                clearable
               ></v-select>
             </v-col>
 
           </v-row>
         </v-expand-transition>
       </v-col>
-      <v-col cols="12" class="d-flex justify-end">
-        <v-btn color="primary" @click="onPageChange" append-icon="mdi-magnify" class="mr-2">
+      <v-col class="d-flex justify-end" cols="12">
+        <v-btn append-icon="mdi-magnify" class="mr-2" color="primary" @click="onPageChange">
           搜索
         </v-btn>
-        <v-btn @click="resetSearch" append-icon="mdi-refresh">
+        <v-btn append-icon="mdi-refresh" @click="resetSearch">
           重置
         </v-btn>
       </v-col>
-      <v-col cols="12" class="d-flex justify-end mt-4">
-        <v-btn color="secondary" @click="viewLatest" append-icon="mdi-new-box" class="mr-2">
+      <v-col class="d-flex justify-end mt-4" cols="12">
+        <v-btn append-icon="mdi-new-box" class="mr-2" color="secondary" @click="viewLatest">
           最新作品
         </v-btn>
-        <v-btn color="secondary" @click="viewPopular" append-icon="mdi-fire">
+        <v-btn append-icon="mdi-fire" color="secondary" @click="viewPopular">
           最热门作品
         </v-btn>
       </v-col>
@@ -99,12 +99,12 @@
 
 <script>
 import Projects from "../../../components/project/Projects.vue";
-import { useHead } from "@unhead/vue";
+import {useHead} from "@unhead/vue";
 
 export default {
-  components: { Projects },
+  components: {Projects},
   setup() {
-    useHead({ title: "项目" });
+    useHead({title: "项目"});
   },
   data() {
     return {
@@ -121,19 +121,19 @@ export default {
       },
       showAdvancedSearch: false,
       typeitems: [
-        { name: "所有", type: "" },
-        { name: "Scratch", type: "scratch" },
-        { name: "Python", type: "python" },
+        {name: "所有", type: ""},
+        {name: "Scratch", type: "scratch"},
+        {name: "Python", type: "python"},
       ],
       orderitems: [
-        { name: "观看量升序", type: "view_up" },
-        { name: "观看量降序", type: "view_down" },
-        { name: "星标升序", type: "star_up" },
-        { name: "星标降序", type: "star_down" },
-        { name: "时间升序", type: "time_up" },
-        { name: "时间降序", type: "time_down" },
-        { name: "序号升序", type: "id_up" },
-        { name: "序号降序", type: "id_down" },
+        {name: "观看量升序", type: "view_up"},
+        {name: "观看量降序", type: "view_down"},
+        {name: "星标升序", type: "star_up"},
+        {name: "星标降序", type: "star_down"},
+        {name: "时间升序", type: "time_up"},
+        {name: "时间降序", type: "time_down"},
+        {name: "序号升序", type: "id_up"},
+        {name: "序号降序", type: "id_down"},
       ],
       tags: ["", "动画", "故事", "音乐", "硬核", "艺术", "水"],
       url: "",

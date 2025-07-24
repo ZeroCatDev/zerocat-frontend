@@ -1,6 +1,6 @@
 <template>
   <div>
-    <PageAnalytics target-type="user" :target-id="user.id" />
+    <PageAnalytics :target-id="user.id" target-type="user"/>
 
     <v-container>
       <!-- <v-tabs align="center" v-model="tab" bg-color="primary">
@@ -18,7 +18,7 @@
               <v-col>
                 <p class="font-weight-medium text-primary">
                   {{
-                    user.type === "administrator" ? "ZeroCat 管理员" : "开发者"
+                  user.type === "administrator" ? "ZeroCat 管理员" : "开发者"
                   }}
                 </p>
                 <p
@@ -28,8 +28,8 @@
                   <!--   <span v-if="user.custom_status" class="ml-2" style="font-size: 1.2rem;">
                     {{ user.custom_status.emoji }} {{ user.custom_status.text }}
                   </span>-->
-                  <v-avatar size="52" class="ma-2">
-                    <v-img :src="s3BucketUrl + '/user/' + user.avatar" />
+                  <v-avatar class="ma-2" size="52">
+                    <v-img :src="s3BucketUrl + '/user/' + user.avatar"/>
                   </v-avatar>
                 </p>
                 <p class="mt-2 text-body-1 text-medium-emphasis user-motto">
@@ -42,27 +42,28 @@
                   </v-chip>
                   <v-chip class="mr-2">
                     <v-icon icon="mdi-clock" start></v-icon>
-                    <TimeAgo :date="user.regTime"></TimeAgo> 注册
+                    <TimeAgo :date="user.regTime"></TimeAgo>
+                    注册
                   </v-chip>
-                  <v-chip class="mr-2" v-if="user.location">
+                  <v-chip v-if="user.location" class="mr-2">
                     <v-icon icon="mdi-map-marker" start></v-icon>
                     {{ user.location }}
                   </v-chip>
-                  <v-chip class="mr-2" v-if="user.birthday">
+                  <v-chip v-if="user.birthday" class="mr-2">
                     <v-icon icon="mdi-cake-variant" start></v-icon>
                     {{ new Date(user.birthday).toLocaleDateString() }}
                   </v-chip>
                   <v-chip
-                    class="mr-2"
                     v-if="user.url"
                     append-icon="mdi-open-in-new"
+                    class="mr-2"
                   >
                     <v-icon icon="mdi-web" start></v-icon>
                     <a
                       :href="user.url"
-                      target="_blank"
                       class="text-decoration-none"
-                      >{{ user.url }}</a
+                      target="_blank"
+                    >{{ user.url }}</a
                     >
                   </v-chip>
                   <v-chip v-if="!user.isActive" color="error">
@@ -71,9 +72,9 @@
                   </v-chip>
                 </p>
                 <user-relation-controls
+                  :display-name="user.display_name"
                   :user-id="user.id"
                   :username="username"
-                  :display-name="user.display_name"
                 />
                 <follow-stats
                   :user-id="user.id"
@@ -83,41 +84,43 @@
               </v-col>
             </v-row>
           </v-responsive>
-          <br />
-          <v-card title="关于我" subtitle="README.md">
+          <br/>
+          <v-card subtitle="README.md" title="关于我">
             <v-card-text class="markdown-body">
-              <br />
+              <br/>
               <Markdown>{{ user.bio }}</Markdown>
             </v-card-text>
           </v-card>
           <Projects :url="url"></Projects>
           <v-row>
             <v-col
-              cols="12"
-              xs="12"
-              sm="6"
-              md="4"
-              lg="3"
-              xl="2"
-              xxl="2"
               v-for="item in lists"
               :key="item.id"
+              cols="12"
+              lg="3"
+              md="4"
+              sm="6"
+              xl="2"
+              xs="12"
+              xxl="2"
             >
               <v-card rounded="lg">
                 <v-card
-                  :to="'/app/projectlist/' + item.id"
-                  rounded="lg"
-                  :title="item.title"
                   :subtitle="item.description"
+                  :title="item.title"
+                  :to="'/app/projectlist/' + item.id"
                   color="primary"
+                  rounded="lg"
                   variant="tonal"
                 >
                 </v-card>
               </v-card>
-            </v-col> </v-row
-          ><br />
-          <user-project-lists :user-id="user.id" :project-lists="lists" />
-          <br />
+            </v-col>
+          </v-row
+          >
+          <br/>
+          <user-project-lists :project-lists="lists" :user-id="user.id"/>
+          <br/>
           <Comment :url="'user-' + user.id" name="用户"></Comment>
         </v-tabs-window-item>
         <v-tabs-window-item value="comment">
@@ -126,25 +129,25 @@
         <v-tabs-window-item value="followers">
           <v-container>
             <h2 class="text-h5 mb-4">关注者</h2>
-            <user-followers :user-id="user.id" :show-all="false" />
+            <user-followers :show-all="false" :user-id="user.id"/>
           </v-container>
         </v-tabs-window-item>
         <v-tabs-window-item value="following">
           <v-container>
             <h2 class="text-h5 mb-4">正在关注</h2>
-            <user-following :user-id="user.id" :show-all="false" />
+            <user-following :show-all="false" :user-id="user.id"/>
           </v-container>
         </v-tabs-window-item>
         <v-tabs-window-item value="timeline">
           <v-card class="mt-4" variant="flat">
             <v-card-title class="d-flex align-center">
-              <v-icon icon="mdi-timeline-clock" color="primary" class="mr-2" />
+              <v-icon class="mr-2" color="primary" icon="mdi-timeline-clock"/>
               {{ user.display_name }} 的动态
             </v-card-title>
             <v-card-text>
               <Timeline
-                :timeline="timeline"
                 :is-loading-more="isLoadingMore"
+                :timeline="timeline"
                 @load-more="loadMoreEvents"
               />
             </v-card-text>
@@ -157,8 +160,8 @@
 
 <script>
 import Comment from "../../components/Comment.vue";
-import { useHead } from "@unhead/vue";
-import { getUserByUsername } from "../../stores/user.js";
+import {useHead} from "@unhead/vue";
+import {getUserByUsername} from "../../stores/user.js";
 import request from "../../axios/axios.js";
 import Markdown from "@/components/Markdown.vue";
 import "github-markdown-css";
@@ -166,13 +169,13 @@ import TimeAgo from "@/components/TimeAgo.vue";
 import UserProjectLists from "@/components/projectlist/UserProjectLists.vue";
 import UserRelationControls from "@/components/user/UserRelationControls.vue";
 import FollowStats from "@/components/user/FollowStats.vue";
-import { localuser } from "@/services/localAccount";
+import {localuser} from "@/services/localAccount";
 import UserFollowers from "@/components/user/UserFollowers.vue";
 import UserFollowing from "@/components/user/UserFollowing.vue";
 import Timeline from "@/components/timeline/Timeline.vue";
 import PageAnalytics from "@/components/analytics/PageAnalytics.vue";
-import { ref, onMounted } from "vue";
-import { get } from "@/services/serverConfig";
+import {ref, onMounted} from "vue";
+import {get} from "@/services/serverConfig";
 
 export default {
   components: {

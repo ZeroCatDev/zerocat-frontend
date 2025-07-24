@@ -3,15 +3,15 @@
     <v-container>
       <!-- Overview Cards -->
       <v-row>
-        <v-col cols="12" sm="6" md="2.4">
+        <v-col cols="12" md="2.4" sm="6">
           <v-card>
             <v-card-text>
               <div class="text-subtitle-2 mb-1">浏览量</div>
               <div class="text-h5">{{ analytics?.overview?.pageviews?.value || 0 }}</div>
               <v-chip
                 :color="getGrowthColor(analytics?.overview?.pageviews?.value, analytics?.overview?.pageviews?.prev)"
-                size="small"
                 class="mt-2"
+                size="small"
               >
                 {{ calculateGrowth(analytics?.overview?.pageviews?.value, analytics?.overview?.pageviews?.prev) }}%
               </v-chip>
@@ -19,15 +19,15 @@
           </v-card>
         </v-col>
 
-        <v-col cols="12" sm="6" md="2.4">
+        <v-col cols="12" md="2.4" sm="6">
           <v-card>
             <v-card-text>
               <div class="text-subtitle-2 mb-1">访客数</div>
               <div class="text-h5">{{ analytics?.overview?.visitors?.value || 0 }}</div>
               <v-chip
                 :color="getGrowthColor(analytics?.overview?.visitors?.value, analytics?.overview?.visitors?.prev)"
-                size="small"
                 class="mt-2"
+                size="small"
               >
                 {{ calculateGrowth(analytics?.overview?.visitors?.value, analytics?.overview?.visitors?.prev) }}%
               </v-chip>
@@ -35,15 +35,15 @@
           </v-card>
         </v-col>
 
-        <v-col cols="12" sm="6" md="2.4">
+        <v-col cols="12" md="2.4" sm="6">
           <v-card>
             <v-card-text>
               <div class="text-subtitle-2 mb-1">访问次数</div>
               <div class="text-h5">{{ analytics?.overview?.visits?.value || 0 }}</div>
               <v-chip
                 :color="getGrowthColor(analytics?.overview?.visits?.value, analytics?.overview?.visits?.prev)"
-                size="small"
                 class="mt-2"
+                size="small"
               >
                 {{ calculateGrowth(analytics?.overview?.visits?.value, analytics?.overview?.visits?.prev) }}%
               </v-chip>
@@ -51,15 +51,17 @@
           </v-card>
         </v-col>
 
-        <v-col cols="12" sm="6" md="2.4">
+        <v-col cols="12" md="2.4" sm="6">
           <v-card>
             <v-card-text>
               <div class="text-subtitle-2 mb-1">跳出率</div>
-              <div class="text-h5">{{ calculateBounceRate(analytics?.overview?.bounces?.value, analytics?.overview?.visits?.value) }}%</div>
+              <div class="text-h5">{{ calculateBounceRate(analytics?.overview?.bounces?.value,
+                analytics?.overview?.visits?.value) }}%
+              </div>
               <v-chip
                 :color="getGrowthColor(analytics?.overview?.bounces?.value, analytics?.overview?.bounces?.prev, true)"
-                size="small"
                 class="mt-2"
+                size="small"
               >
                 {{ calculateGrowth(analytics?.overview?.bounces?.value, analytics?.overview?.bounces?.prev) }}%
               </v-chip>
@@ -80,14 +82,15 @@
                 <v-select
                   v-model="timeRange"
                   :items="timeRanges"
+                  class="w-25"
                   density="compact"
                   hide-details
-                  class="w-25"
                 ></v-select>
               </div>
-              <v-chart v-if="analytics?.timeseries?.pageviews?.length > 0" class="chart" :option="chartOption" autoresize />
+              <v-chart v-if="analytics?.timeseries?.pageviews?.length > 0" :option="chartOption" autoresize
+                       class="chart"/>
               <div v-else class="d-flex justify-center align-center chart">
-                <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                <v-progress-circular color="primary" indeterminate></v-progress-circular>
               </div>
             </v-card-text>
           </v-card>
@@ -102,19 +105,19 @@
               <div class="text-h6 mb-4">来源域名</div>
               <v-table density="compact">
                 <thead>
-                  <tr>
-                    <th>域名</th>
-                    <th class="text-right">访问次数</th>
-                  </tr>
+                <tr>
+                  <th>域名</th>
+                  <th class="text-right">访问次数</th>
+                </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(item, index) in analytics?.referrers || []" :key="index">
-                    <td>{{ item?.x || '未知' }}</td>
-                    <td class="text-right">{{ item?.y || 0 }}</td>
-                  </tr>
-                  <tr v-if="!analytics?.referrers?.length">
-                    <td colspan="2" class="text-center">暂无数据</td>
-                  </tr>
+                <tr v-for="(item, index) in analytics?.referrers || []" :key="index">
+                  <td>{{ item?.x || '未知' }}</td>
+                  <td class="text-right">{{ item?.y || 0 }}</td>
+                </tr>
+                <tr v-if="!analytics?.referrers?.length">
+                  <td class="text-center" colspan="2">暂无数据</td>
+                </tr>
                 </tbody>
               </v-table>
             </v-card-text>
@@ -127,19 +130,19 @@
               <div class="text-h6 mb-4">浏览器</div>
               <v-table density="compact">
                 <thead>
-                  <tr>
-                    <th>浏览器</th>
-                    <th class="text-right">使用次数</th>
-                  </tr>
+                <tr>
+                  <th>浏览器</th>
+                  <th class="text-right">使用次数</th>
+                </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(item, index) in analytics?.browsers || []" :key="index">
-                    <td>{{ formatBrowserName(item?.x) || '未知' }}</td>
-                    <td class="text-right">{{ item?.y || 0 }}</td>
-                  </tr>
-                  <tr v-if="!analytics?.browsers?.length">
-                    <td colspan="2" class="text-center">暂无数据</td>
-                  </tr>
+                <tr v-for="(item, index) in analytics?.browsers || []" :key="index">
+                  <td>{{ formatBrowserName(item?.x) || '未知' }}</td>
+                  <td class="text-right">{{ item?.y || 0 }}</td>
+                </tr>
+                <tr v-if="!analytics?.browsers?.length">
+                  <td class="text-center" colspan="2">暂无数据</td>
+                </tr>
                 </tbody>
               </v-table>
             </v-card-text>
@@ -152,19 +155,19 @@
               <div class="text-h6 mb-4">操作系统</div>
               <v-table density="compact">
                 <thead>
-                  <tr>
-                    <th>系统</th>
-                    <th class="text-right">使用次数</th>
-                  </tr>
+                <tr>
+                  <th>系统</th>
+                  <th class="text-right">使用次数</th>
+                </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(item, index) in analytics?.os || []" :key="index">
-                    <td>{{ item?.x || '未知' }}</td>
-                    <td class="text-right">{{ item?.y || 0 }}</td>
-                  </tr>
-                  <tr v-if="!analytics?.os?.length">
-                    <td colspan="2" class="text-center">暂无数据</td>
-                  </tr>
+                <tr v-for="(item, index) in analytics?.os || []" :key="index">
+                  <td>{{ item?.x || '未知' }}</td>
+                  <td class="text-right">{{ item?.y || 0 }}</td>
+                </tr>
+                <tr v-if="!analytics?.os?.length">
+                  <td class="text-center" colspan="2">暂无数据</td>
+                </tr>
                 </tbody>
               </v-table>
             </v-card-text>
@@ -179,19 +182,19 @@
               <div class="text-h6 mb-4">设备类型</div>
               <v-table density="compact">
                 <thead>
-                  <tr>
-                    <th>类型</th>
-                    <th class="text-right">使用次数</th>
-                  </tr>
+                <tr>
+                  <th>类型</th>
+                  <th class="text-right">使用次数</th>
+                </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(item, index) in analytics?.devices || []" :key="index">
-                    <td>{{ formatDeviceType(item?.x) || '未知' }}</td>
-                    <td class="text-right">{{ item?.y || 0 }}</td>
-                  </tr>
-                  <tr v-if="!analytics?.devices?.length">
-                    <td colspan="2" class="text-center">暂无数据</td>
-                  </tr>
+                <tr v-for="(item, index) in analytics?.devices || []" :key="index">
+                  <td>{{ formatDeviceType(item?.x) || '未知' }}</td>
+                  <td class="text-right">{{ item?.y || 0 }}</td>
+                </tr>
+                <tr v-if="!analytics?.devices?.length">
+                  <td class="text-center" colspan="2">暂无数据</td>
+                </tr>
                 </tbody>
               </v-table>
             </v-card-text>
@@ -204,19 +207,19 @@
               <div class="text-h6 mb-4">国家/地区</div>
               <v-table density="compact">
                 <thead>
-                  <tr>
-                    <th>国家/地区</th>
-                    <th class="text-right">访问次数</th>
-                  </tr>
+                <tr>
+                  <th>国家/地区</th>
+                  <th class="text-right">访问次数</th>
+                </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(item, index) in analytics?.countries || []" :key="index">
-                    <td>{{ formatCountryName(item?.x) || '未知' }}</td>
-                    <td class="text-right">{{ item?.y || 0 }}</td>
-                  </tr>
-                  <tr v-if="!analytics?.countries?.length">
-                    <td colspan="2" class="text-center">暂无数据</td>
-                  </tr>
+                <tr v-for="(item, index) in analytics?.countries || []" :key="index">
+                  <td>{{ formatCountryName(item?.x) || '未知' }}</td>
+                  <td class="text-right">{{ item?.y || 0 }}</td>
+                </tr>
+                <tr v-if="!analytics?.countries?.length">
+                  <td class="text-center" colspan="2">暂无数据</td>
+                </tr>
                 </tbody>
               </v-table>
             </v-card-text>
@@ -228,18 +231,19 @@
 </template>
 
 <script>
-import { use404Helper } from '@/composables/use404';
-import { use } from 'echarts/core';
-import { CanvasRenderer } from 'echarts/renderers';
-import { BarChart } from 'echarts/charts';
+import {use404Helper} from '@/composables/use404';
+import {use} from 'echarts/core';
+import {CanvasRenderer} from 'echarts/renderers';
+import {BarChart} from 'echarts/charts';
 import {
   GridComponent,
   TooltipComponent,
   LegendComponent,
 } from 'echarts/components';
 import VChart from 'vue-echarts';
-import { getProjectAnalytics, getProjectInfoByNamespace } from '@/services/projectService';
+import {getProjectAnalytics, getProjectInfoByNamespace} from '@/services/projectService';
 import axios from '@/axios/axios';
+
 use([
   CanvasRenderer,
   BarChart,
@@ -259,11 +263,11 @@ export default {
       },
       analytics: {
         overview: {
-          pageviews: { value: 0, prev: 0 },
-          visitors: { value: 0, prev: 0 },
-          visits: { value: 0, prev: 0 },
-          bounces: { value: 0, prev: 0 },
-          totaltime: { value: 0, prev: 0 }
+          pageviews: {value: 0, prev: 0},
+          visitors: {value: 0, prev: 0},
+          visits: {value: 0, prev: 0},
+          bounces: {value: 0, prev: 0},
+          totaltime: {value: 0, prev: 0}
         },
         referrers: [],
         browsers: [],
@@ -277,11 +281,11 @@ export default {
       },
       timeRange: '24h',
       timeRanges: [
-        { title: '最近 24 小时', value: '24h' },
-        { title: '最近 7 天', value: '7d' },
-        { title: '最近 30 天', value: '30d' },
-        { title: '本月', value: 'this-month' },
-        { title: '上月', value: 'last-month' },
+        {title: '最近 24 小时', value: '24h'},
+        {title: '最近 7 天', value: '7d'},
+        {title: '最近 30 天', value: '30d'},
+        {title: '本月', value: 'this-month'},
+        {title: '上月', value: 'last-month'},
       ],
     };
   },
@@ -359,7 +363,7 @@ export default {
   methods: {
     getDateRange(range) {
       const now = new Date();
-      const endDate = new Date(now);
+      let endDate = new Date(now);
       let startDate = new Date(now);
 
       switch (range) {
@@ -414,7 +418,7 @@ export default {
         const projectId = this.project?.id;
         if (!projectId) return;
 
-        const { startDate, endDate } = this.getDateRange(this.timeRange);
+        const {startDate, endDate} = this.getDateRange(this.timeRange);
         const response = await getProjectAnalytics(projectId, startDate, endDate);
         if (response.status === 'success') {
           this.analytics = response.data;

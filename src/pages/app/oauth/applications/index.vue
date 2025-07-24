@@ -6,9 +6,9 @@
           <h1 class="text-h4">OAuth 应用</h1>
           <v-spacer></v-spacer>
           <v-btn
+            :to="'/app/oauth/applications/new'"
             color="primary"
             prepend-icon="mdi-plus"
-            :to="'/app/oauth/applications/new'"
           >
             新建应用
           </v-btn>
@@ -31,19 +31,19 @@
             class="text-center py-8"
           >
             <v-icon
+              class="mb-4"
+              color="grey"
               icon="mdi-apps"
               size="64"
-              color="grey"
-              class="mb-4"
             ></v-icon>
             <h3 class="text-h6 mb-2">还没有OAuth应用</h3>
             <p class="text-body-1 text-grey">
               创建一个新的OAuth应用来让其他用户通过OAuth授权访问你的应用。
             </p>
             <v-btn
-              color="primary"
-              class="mt-4"
               :to="'/app/oauth/applications/new'"
+              class="mt-4"
+              color="primary"
             >
               创建第一个应用
             </v-btn>
@@ -55,15 +55,15 @@
               <v-list-item
                 v-for="app in applications"
                 :key="app.client_id"
-                :to="`/app/oauth/applications/${app.client_id}`"
                 :style="{ display: app.status == 'deleted' ? 'none' : '' }"
+                :to="`/app/oauth/applications/${app.client_id}`"
                 class="app-list-item"
               >
                 <template v-slot:prepend>
                   <v-avatar
                     :image="app.logo_url || '/default-app-logo.png'"
-                    size="48"
                     class="mr-4"
+                    size="48"
                   ></v-avatar>
                 </template>
 
@@ -71,9 +71,9 @@
                   {{ app.name }}
                   <v-chip
                     v-if="app.is_verified"
+                    class="ml-2"
                     color="success"
                     size="small"
-                    class="ml-2"
                   >
                     已验证
                   </v-chip>
@@ -82,18 +82,18 @@
                 <v-list-item-subtitle>
                   <div class="d-flex align-center text-grey">
                     <v-icon
+                      class="mr-1"
                       icon="mdi-identifier"
                       size="small"
-                      class="mr-1"
                     ></v-icon>
                     <span class="mr-4">{{ app.client_id }}</span>
                     <v-icon
+                      class="mr-1"
                       icon="mdi-clock-outline"
                       size="small"
-                      class="mr-1"
                     ></v-icon>
                     <span
-                      >创建于
+                    >创建于
                       {{ new Date(app.created_at).toLocaleDateString() }}</span
                     >
                   </div>
@@ -114,7 +114,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import {ref, onMounted} from "vue";
 import axios from "@/axios/axios";
 
 // 状态变量

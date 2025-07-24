@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row>
-      <v-col cols="12" class="d-flex align-center mb-4">
+      <v-col class="d-flex align-center mb-4" cols="12">
         <h2 class="text-h5">我的项目列表</h2>
         <v-spacer></v-spacer>
         <v-btn
@@ -15,8 +15,8 @@
     </v-row>
 
     <v-row v-if="loading">
-      <v-col cols="12" class="text-center">
-        <v-progress-circular indeterminate color="primary"></v-progress-circular>
+      <v-col class="text-center" cols="12">
+        <v-progress-circular color="primary" indeterminate></v-progress-circular>
       </v-col>
     </v-row>
 
@@ -33,9 +33,9 @@
         v-for="list in myLists"
         :key="list.id"
         cols="12"
-        sm="6"
-        md="4"
         lg="3"
+        md="4"
+        sm="6"
       >
         <project-list-item
           :list="list"
@@ -56,16 +56,16 @@
     <v-dialog v-model="editDialog" max-width="600px">
       <EditProjectListConfig
         v-if="selectedListId"
-        :listid="selectedListId"
         :callback="fetchMyLists"
         :close="() => editDialog = false"
+        :listid="selectedListId"
       />
     </v-dialog>
   </v-container>
 </template>
 
 <script>
-import { getMyProjectLists } from "../../services/projectListService";
+import {getMyProjectLists} from "../../services/projectListService";
 import NewProjectList from "./NewProjectList.vue";
 import EditProjectListConfig from "./EditProjectListConfig.vue";
 import ProjectListItem from "./ProjectListItem.vue";

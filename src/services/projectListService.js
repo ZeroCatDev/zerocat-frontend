@@ -7,7 +7,7 @@ export async function getMyProjectLists() {
     return response.data;
   } catch (error) {
     console.error("获取我的项目列表失败:", error);
-    return { status: "error", data: [] };
+    return {status: "error", data: []};
   }
 }
 
@@ -18,7 +18,7 @@ export async function getProjectListById(id) {
     return response.data;
   } catch (error) {
     console.error("获取项目列表失败:", error);
-    return { status: "error", data: { projects: [] } };
+    return {status: "error", data: {projects: []}};
   }
 }
 
@@ -29,7 +29,7 @@ export async function getUserPublicLists(userId) {
     return response.data;
   } catch (error) {
     console.error("获取用户公开列表失败:", error);
-    return { status: "error", data: [] };
+    return {status: "error", data: []};
   }
 }
 
@@ -40,7 +40,7 @@ export async function createProjectList(listData) {
     return response.data;
   } catch (error) {
     console.error("创建项目列表失败:", error);
-    return { status: "error", message: "创建失败" };
+    return {status: "error", message: "创建失败"};
   }
 }
 
@@ -51,68 +51,68 @@ export async function updateProjectList(id, listData) {
     return response.data;
   } catch (error) {
     console.error("更新项目列表失败:", error);
-    return { status: "error", message: "更新失败" };
+    return {status: "error", message: "更新失败"};
   }
 }
 
 // 删除项目列表
 export async function deleteProjectList(id) {
   try {
-    const response = await request.post(`/projectlist/lists/delete`, { id });
+    const response = await request.post(`/projectlist/lists/delete`, {id});
     return response.data;
   } catch (error) {
     console.error("删除项目列表失败:", error);
-    return { status: "error", message: "删除失败" };
+    return {status: "error", message: "删除失败"};
   }
 }
 
 // 添加项目到列表
 export async function addProjectToList(listId, projectId) {
   try {
-    const response = await request.post('/projectlist/lists/add', { 
-      listid: listId, 
-      projectid: projectId 
+    const response = await request.post('/projectlist/lists/add', {
+      listid: listId,
+      projectid: projectId
     });
     return response.data;
   } catch (error) {
     console.error("添加项目到列表失败:", error);
-    return { status: "error", message: "添加失败" };
+    return {status: "error", message: "添加失败"};
   }
 }
 
 // 从列表中移除项目
 export async function removeProjectFromList(listId, projectId) {
   try {
-    const response = await request.post('/projectlist/lists/remove', { 
-      listid: listId, 
-      projectid: projectId 
+    const response = await request.post('/projectlist/lists/remove', {
+      listid: listId,
+      projectid: projectId
     });
     return response.data;
   } catch (error) {
     console.error("从列表中移除项目失败:", error);
-    return { status: "error", message: "移除失败" };
+    return {status: "error", message: "移除失败"};
   }
 }
 
 // 收藏项目
 export async function starProject(projectId) {
   try {
-    const response = await request.post('/projectlist/stars/star', { projectid: projectId });
+    const response = await request.post('/projectlist/stars/star', {projectid: projectId});
     return response.data;
   } catch (error) {
     console.error("收藏项目失败:", error);
-    return { status: "error", message: "收藏失败" };
+    return {status: "error", message: "收藏失败"};
   }
 }
 
 // 取消收藏
 export async function unstarProject(projectId) {
   try {
-    const response = await request.post('/projectlist/stars/unstar', { projectid: projectId });
+    const response = await request.post('/projectlist/stars/unstar', {projectid: projectId});
     return response.data;
   } catch (error) {
     console.error("取消收藏失败:", error);
-    return { status: "error", message: "取消收藏失败" };
+    return {status: "error", message: "取消收藏失败"};
   }
 }
 
@@ -123,7 +123,7 @@ export async function checkStarStatus(projectId) {
     return response.data;
   } catch (error) {
     console.error("检查收藏状态失败:", error);
-    return { status: "error", star: false };
+    return {status: "error", star: false};
   }
 }
 
@@ -134,6 +134,6 @@ export async function getProjectStarCount(projectId) {
     return response.data;
   } catch (error) {
     console.error("获取项目收藏数失败:", error);
-    return { status: "error", data: 0 };
+    return {status: "error", data: 0};
   }
-} 
+}

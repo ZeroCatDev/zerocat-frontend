@@ -2,24 +2,25 @@
   <v-container>
     <v-row>
       <v-col cols="12">
-        <v-card class="mb-4"><v-card-item>
-          <v-card-title class="d-flex align-center">
-            <span>{{ getTitle }}</span>
-            <v-chip class="ml-2" color="primary" size="small">
-              {{ total }} 个项目
-            </v-chip>
-          </v-card-title>
-          <v-card-subtitle v-if="getDescription">
-            {{ getDescription }}
-          </v-card-subtitle>
-        </v-card-item>
+        <v-card class="mb-4">
+          <v-card-item>
+            <v-card-title class="d-flex align-center">
+              <span>{{ getTitle }}</span>
+              <v-chip class="ml-2" color="primary" size="small">
+                {{ total }} 个项目
+              </v-chip>
+            </v-card-title>
+            <v-card-subtitle v-if="getDescription">
+              {{ getDescription }}
+            </v-card-subtitle>
+          </v-card-item>
         </v-card>
       </v-col>
     </v-row>
 
     <v-row v-if="loading">
-      <v-col cols="12" class="text-center">
-        <v-progress-circular indeterminate color="primary"></v-progress-circular>
+      <v-col class="text-center" cols="12">
+        <v-progress-circular color="primary" indeterminate></v-progress-circular>
       </v-col>
     </v-row>
 
@@ -36,23 +37,23 @@
         v-for="project in projects"
         :key="project.id"
         cols="12"
-        xs="12"
-        sm="6"
-        md="4"
         lg="3"
+        md="4"
+        sm="6"
         xl="2"
+        xs="12"
         xxl="2"
       >
         <project-card
-          :project="project"
           :author="project.author"
+          :project="project"
           :show-author="true"
         />
       </v-col>
     </v-row>
 
     <v-row v-if="total > limit">
-      <v-col cols="12" class="text-center">
+      <v-col class="text-center" cols="12">
         <v-pagination
           v-model="currentPage"
           :length="Math.ceil(total / limit)"
@@ -65,7 +66,7 @@
 </template>
 
 <script>
-import { queryProjects } from "@/services/projectService";
+import {queryProjects} from "@/services/projectService";
 import ProjectCard from "./ProjectCard.vue";
 
 export default {

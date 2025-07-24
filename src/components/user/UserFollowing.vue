@@ -1,13 +1,13 @@
 <template>
   <div class="user-following">
     <v-row v-if="loading">
-      <v-col cols="12" class="text-center">
-        <v-progress-circular indeterminate color="primary" />
+      <v-col class="text-center" cols="12">
+        <v-progress-circular color="primary" indeterminate/>
       </v-col>
     </v-row>
 
     <v-row v-else-if="following.length === 0">
-      <v-col cols="12" class="text-center">
+      <v-col class="text-center" cols="12">
         <p class="text-medium-emphasis">暂无关注的用户</p>
       </v-col>
     </v-row>
@@ -18,7 +18,8 @@
           <template v-slot:prepend>
             <router-link :to="`/${followedUser.user.username}`">
               <v-avatar size="50">
-                <v-img :src="s3BucketUrl + '/user/' + (followedUser.user.avatar || followedUser.user.avatar)" alt="用户头像" />
+                <v-img :src="s3BucketUrl + '/user/' + (followedUser.user.avatar || followedUser.user.avatar)"
+                       alt="用户头像"/>
               </v-avatar>
             </router-link>
           </template>
@@ -33,16 +34,16 @@
 
           <template v-slot:append>
             <div class="d-flex align-center">
-              <v-chip v-if="followedUser.followsYou" color="secondary" size="small" class="mr-2">
+              <v-chip v-if="followedUser.followsYou" class="mr-2" color="secondary" size="small">
                 关注了你
               </v-chip>
               <v-btn
                 v-if="localuser.user.id && localuser.user.id !== followedUser.user.id"
                 :loading="unfollowingId === followedUser.user.id"
-                variant="outlined"
                 color="primary"
-                size="small"
                 prepend-icon="mdi-account-minus"
+                size="small"
+                variant="outlined"
                 @click="unfollowUser(followedUser.user.id, followedUser.user.display_name)"
               >
                 取消关注
@@ -82,9 +83,9 @@
 
 <script>
 import request from "@/axios/axios.js";
-import { localuser } from "@/services/localAccount";
-import { ref, onMounted } from "vue";
-import { get } from "@/services/serverConfig";
+import {localuser} from "@/services/localAccount";
+import {ref, onMounted} from "vue";
+import {get} from "@/services/serverConfig";
 
 export default {
   name: "UserFollowing",

@@ -1,10 +1,10 @@
 <template>
   <v-app>
-    <Toast />
+    <Toast/>
     <v-main>
       <router-view v-slot="{ Component, route }">
-        <transition name="md3" mode="out-in">
-          <component :is="Component" :key="route.path" />
+        <transition mode="out-in" name="md3">
+          <component :is="Component" :key="route.path"/>
         </transition>
       </router-view>
     </v-main>
@@ -13,8 +13,8 @@
 
 <script setup>
 import Toast from "primevue/toast";
-import { onMounted } from 'vue';
-import { useTheme } from 'vuetify';
+import {onMounted} from 'vue';
+import {useTheme} from 'vuetify';
 
 const theme = useTheme();
 
@@ -38,4 +38,4 @@ onMounted(() => {
   opacity: 0;
   transform: translateY(10px);
 }
-</style> 
+</style>

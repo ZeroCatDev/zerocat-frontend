@@ -4,16 +4,16 @@
       v-for="project in projects"
       :key="project.id"
       cols="12"
-      xs="12"
-      sm="6"
-      md="4"
       lg="3"
+      md="4"
+      sm="6"
       xl="2"
+      xs="12"
       xxl="2"
     >
       <project-card
-        :project="project"
         :author="project.author"
+        :project="project"
         :show-author="showAuthor"
       />
     </v-col>

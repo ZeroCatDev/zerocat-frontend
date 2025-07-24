@@ -11,7 +11,7 @@
     </v-card-title>
 
     <v-card-subtitle>
-      <TimeAgo :date="comment.insertedAt" />
+      <TimeAgo :date="comment.insertedAt"/>
       {{ comment.most_specific_country_or_region }}
       {{ userAgent }}
       {{ comment.addr }}
@@ -23,10 +23,10 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import {computed} from 'vue'
 import TimeAgo from '../TimeAgo.vue'
 import Markdown from '../Markdown.vue'
-import { UAParser } from 'ua-parser-js'
+import {UAParser} from 'ua-parser-js'
 
 const props = defineProps({
   comment: {

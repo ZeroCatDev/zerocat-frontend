@@ -3,7 +3,7 @@
   <v-container>
     <!-- Header -->
     <v-row class="mb-4">
-      <v-col cols="12" class="d-flex justify-space-between align-center">
+      <v-col class="d-flex justify-space-between align-center" cols="12">
         <h1 class="text-h4">缓存管理</h1>
         <v-btn
           color="primary"
@@ -20,14 +20,14 @@
       <v-col cols="12" sm="6">
         <v-text-field
           v-model="searchQuery"
-          label="缓存键"
-          prepend-inner-icon="mdi-key"
-          variant="outlined"
+          clearable
           density="comfortable"
           hide-details
-          @input="handleSearch"
-          clearable
+          label="缓存键"
           placeholder="输入缓存键以读取特定缓存"
+          prepend-inner-icon="mdi-key"
+          variant="outlined"
+          @input="handleSearch"
         ></v-text-field>
       </v-col>
     </v-row>
@@ -37,13 +37,13 @@
       <v-data-table-server
         :headers="headers"
         :items="items"
-        :loading="loading"
-        :items-per-page="itemsPerPage"
-        :page="page"
         :items-length="totalItems"
-        @update:options="handleTableUpdate"
+        :items-per-page="itemsPerPage"
         :items-per-page-options="[10, 25, 50, 100]"
+        :loading="loading"
+        :page="page"
         class="elevation-1"
+        @update:options="handleTableUpdate"
       >
         <!-- Key Column -->
         <template v-slot:item.key="{ item }">
@@ -69,17 +69,17 @@
         <!-- Actions Column -->
         <template v-slot:item.actions="{ item }">
           <v-btn
+            color="primary"
             icon="mdi-pencil"
             size="small"
-            color="primary"
             variant="text"
             @click="editItem(item.columns)"
           >
           </v-btn>
           <v-btn
+            color="error"
             icon="mdi-delete"
             size="small"
-            color="error"
             variant="text"
             @click="confirmDelete(item.columns.key)"
           >
@@ -96,25 +96,25 @@
         </v-card-title>
 
         <v-card-text class="pa-4">
-          <v-form @submit.prevent="handleSubmit" ref="form">
+          <v-form ref="form" @submit.prevent="handleSubmit">
             <v-text-field
               v-model="formData.key"
-              label="缓存键"
               :readonly="!!editingItem"
               :rules="[v => !!v || 'Key is required']"
-              variant="outlined"
               class="mb-4"
+              label="缓存键"
+              variant="outlined"
             ></v-text-field>
 
             <v-textarea
               v-model="formData.value"
-              label="缓存值"
-              :rules="[v => !!v || '缓存值是必填的']"
-              variant="outlined"
               :hint="'支持 JSON 格式'"
-              persistent-hint
+              :rules="[v => !!v || '缓存值是必填的']"
               class="font-monospace"
+              label="缓存值"
+              persistent-hint
               rows="8"
+              variant="outlined"
             ></v-textarea>
           </v-form>
         </v-card-text>
@@ -128,9 +128,9 @@
             取消
           </v-btn>
           <v-btn
+            :loading="saving"
             color="primary"
             @click="handleSubmit"
-            :loading="saving"
           >
             {{ editingItem ? '更新' : '创建' }}
           </v-btn>
@@ -156,9 +156,9 @@
             取消
           </v-btn>
           <v-btn
+            :loading="deleting"
             color="error"
             @click="deleteItem"
-            :loading="deleting"
 
           >
             删除
@@ -187,16 +187,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { get, set, remove, list, info } from '../../../services/cachekv';
-
+import {ref, onMounted} from 'vue';
+import {get, set, remove, list, info} from '../../../services/cachekv';
 
 
 // Table headers
 const headers = [
-  { title: '缓存键', key: 'key', sortable: true },
-  { title: '缓存值', key: 'value', sortable: false },
-  { title: '操作', key: 'actions', sortable: false, align: 'end' }
+  {title: '缓存键', key: 'key', sortable: true},
+  {title: '缓存值', key: 'value', sortable: false},
+  {title: '操作', key: 'actions', sortable: false, align: 'end'}
 ];
 
 // State
@@ -351,7 +350,7 @@ async function deleteItem() {
 function closeDialog() {
   showCreateDialog.value = false;
   editingItem.value = null;
-  formData.value = { key: '', value: '' };
+  formData.value = {key: '', value: ''};
 }
 
 function showSuccess(text) {

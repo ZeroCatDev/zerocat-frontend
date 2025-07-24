@@ -1,6 +1,6 @@
 <template>
-<v-footer height="40" app>
-      <a
+  <v-footer app height="40">
+    <a
       v-for="item in items"
       :key="item.title"
       :href="item.href"
@@ -9,7 +9,7 @@
       rel="noopener noreferrer"
       target="_blank"
     >
-      <v-icon :icon="item.icon" :size="item.icon === 'mdi-earth' ? 24 : 16" />
+      <v-icon :icon="item.icon" :size="item.icon === 'mdi-earth' ? 24 : 16"/>
     </a>
 
     <div

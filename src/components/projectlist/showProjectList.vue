@@ -1,8 +1,8 @@
 <template>
   <v-container>
     <v-row v-if="loading">
-      <v-col cols="12" class="text-center">
-        <v-progress-circular indeterminate color="primary"></v-progress-circular>
+      <v-col class="text-center" cols="12">
+        <v-progress-circular color="primary" indeterminate></v-progress-circular>
       </v-col>
     </v-row>
 
@@ -12,17 +12,17 @@
           <v-card class="mb-4">
             <v-card-title class="d-flex align-center">
               <span>{{ listInfo.title || '未命名列表' }}</span>
-              <v-chip class="ml-2" :color="listInfo.state === 'public' ? 'success' : 'warning'" size="small">
+              <v-chip :color="listInfo.state === 'public' ? 'success' : 'warning'" class="ml-2" size="small">
                 {{ listInfo.state === 'public' ? '公开' : '私密' }}
               </v-chip>
               <v-spacer></v-spacer>
               <v-btn
                 v-if="isOwner"
-                icon="mdi-pencil"
-                variant="text"
-                size="small"
-                @click="openEditDialog"
                 color="primary"
+                icon="mdi-pencil"
+                size="small"
+                variant="text"
+                @click="openEditDialog"
               ></v-btn>
             </v-card-title>
 
@@ -32,7 +32,7 @@
 
             <v-card-text>
               <div class="d-flex align-center mb-2">
-                <v-avatar size="24" class="mr-2">
+                <v-avatar class="mr-2" size="24">
                   <v-img :src="getUserAvatar(listInfo.author)" alt="用户头像"></v-img>
                 </v-avatar>
                 <span class="text-caption">{{ listInfo.author?.display_name || listInfo.author?.username || '未知用户' }}</span>
@@ -47,7 +47,7 @@
       </v-row>
 
       <v-row v-if="!hasProjects">
-        <v-col cols="12" class="text-center">
+        <v-col class="text-center" cols="12">
           <v-alert type="info" variant="tonal">
             此列表暂无项目
           </v-alert>
@@ -61,11 +61,11 @@
             <v-col
               v-for="project in listInfo.projects"
               :key="project.id"
-              cols="12" sm="6" md="4" lg="3"
+              cols="12" lg="3" md="4" sm="6"
             >
               <project-card
-                :project="project"
                 :author="project.author"
+                :project="project"
                 :show-author="true"
               />
             </v-col>
@@ -76,9 +76,9 @@
 
     <v-dialog v-model="editDialog" max-width="600px">
       <EditProjectListConfig
-        :listid="listId"
         :callback="fetchProjectList"
         :close="() => editDialog = false"
+        :listid="listId"
       />
     </v-dialog>
   </v-container>
@@ -87,10 +87,10 @@
 <script>
 import request from "../../axios/axios";
 import EditProjectListConfig from "./EditProjectListConfig.vue";
-import { localuser } from "../../services/localAccount";
+import {localuser} from "../../services/localAccount";
 import ProjectCard from "../project/ProjectCard.vue";
-import { ref, onMounted } from "vue";
-import { get } from "@/services/serverConfig";
+import {ref, onMounted} from "vue";
+import {get} from "@/services/serverConfig";
 
 export default {
   props: {

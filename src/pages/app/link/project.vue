@@ -1,15 +1,15 @@
 <template>
   <v-container class="fill-height" fluid>
     <v-row align="center" justify="center">
-      <v-col cols="12" sm="8" md="6">
+      <v-col cols="12" md="6" sm="8">
         <v-card class="text-center pa-4">
           <v-progress-circular
             v-if="loading"
-            indeterminate
             color="primary"
+            indeterminate
           ></v-progress-circular>
           <template v-else-if="error">
-            <v-alert type="error" text>
+            <v-alert text type="error">
               {{ error }}
             </v-alert>
           </template>
@@ -25,9 +25,9 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { getProjectInfo } from '@/services/projectService'
+import {onMounted, ref} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
+import {getProjectInfo} from '@/services/projectService'
 
 const route = useRoute()
 const router = useRouter()

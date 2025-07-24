@@ -3,26 +3,26 @@
     <template #prepend>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
     </template>
-    <v-btn variant="text" icon @click="goHome" :active="false">
+    <v-btn :active="false" icon variant="text" @click="goHome">
       <v-icon>
         <svg
-          xmlns="http://www.w3.org/2000/svg"
-          xmlns:xlink="http://www.w3.org/1999/xlink"
-          width="200"
+          fill="none"
           height="200"
           viewBox="0 0 200 200"
-          fill="none"
+          width="200"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
         >
-          <circle cx="100" cy="100" r="100" fill="#FFFFFF"></circle>
+          <circle cx="100" cy="100" fill="#FFFFFF" r="100"></circle>
           <path
             d="M38 162.867L100.5 100.367L100.5 162.867L38 162.867ZM163 100.367L100.5 100.367L100.5 162.867L163 100.367Z"
-            fill-rule="evenodd"
             fill="#415F91"
+            fill-rule="evenodd"
           ></path>
           <path
             d="M38 100.367L100.5 37.8672L100.5 100.367L38 100.367ZM163 37.8672L100.5 37.8672L100.5 100.367L163 37.8672Z"
-            fill-rule="evenodd"
             fill="#8EACE3"
+            fill-rule="evenodd"
           ></path>
         </svg>
       </v-icon>
@@ -31,30 +31,31 @@
       <template v-if="isProjectPath">
         <div class="d-flex align-center">
           <v-btn
-            variant="text"
             :to="`/${getPathSegments[0]}`"
             class="text-none"
+            variant="text"
           >
             {{ getPathSegments[0] }}
           </v-btn>
           <span class="mx-1">/</span>
           <v-btn
-            variant="text"
             :to="`/${getPathSegments[0]}/${getPathSegments[1]}`"
             class="text-none"
+            variant="text"
           >
             {{ getPathSegments[1] }}
           </v-btn>
         </div>
       </template>
-      <template v-else> <strong>Zero</strong>Cat </template>
+      <template v-else><strong>Zero</strong>Cat</template>
     </v-app-bar-title>
     <template #append>
-      <SearchDialog />
+      <SearchDialog/>
       <v-btn icon="mdi-plus" to="/app/new"></v-btn>
       <v-menu :close-on-content-click="false" location="bottom">
         <template #activator="{ props, isActive }"
-          ><template v-if="localuser.isLogin.value">
+        >
+          <template v-if="localuser.isLogin.value">
             <v-btn
               icon
               v-bind="props"
@@ -68,12 +69,12 @@
             </v-btn>
           </template>
           <template v-else>
-            <LoginDialog @login-success="handleLoginSuccess" @login-error="handleLoginError" />
+            <LoginDialog @login-success="handleLoginSuccess" @login-error="handleLoginError"/>
             <v-btn
-              to="/app/account/register"
-              text="注册"
-              rounded="xl"
               color="primary"
+              rounded="xl"
+              text="注册"
+              to="/app/account/register"
               variant="tonal"
             ></v-btn>
           </template>
@@ -87,8 +88,8 @@
                 v-if="unreadCount > 0"
                 :content="unreadCount"
                 color="error"
-                floating
                 dot
+                floating
               ></v-badge>
             </v-tab>
             <v-tab value="profile">
@@ -104,9 +105,9 @@
                 <NotificationsCard
                   ref="notificationsCard"
                   :autoFetch="true"
+                  :maxHeight="'auto'"
                   :menuMode="true"
                   :showHeader="false"
-                  :maxHeight="'auto'"
                 >
                 </NotificationsCard>
               </v-window-item>
@@ -114,68 +115,70 @@
               <!-- 个人资料选项卡内容 -->
               <v-window-item value="profile">
                 <v-card
-                  @click="localuser.loadUser(true)"
-                  :title="localuser.user.value.display_name"
-                  :subtitle="localuser.user.value.username"
                   :append-avatar="
                     s3BucketUrl + '/user/' + localuser.user.value.avatar
                   "
+                  :subtitle="localuser.user.value.username"
+                  :title="localuser.user.value.display_name"
+                  @click="localuser.loadUser(true)"
                 ></v-card>
                 <v-list>
                   <v-list-item
                     :to="`/${localuser.user.value.username}`"
+                    color="primary"
                     prepend-icon="mdi-account"
+                    rounded="xl"
                     title="个人主页"
-                    rounded="xl"
-                    color="primary"
                   ></v-list-item>
                   <v-list-item
-                    to="/app/account"
+                    color="primary"
                     prepend-icon="mdi-cog"
+                    rounded="xl"
                     title="设置"
-                    rounded="xl"
-                    color="primary"
+                    to="/app/account"
                   ></v-list-item>
                   <v-list-item
-                    to="/app/project"
+                    color="primary"
                     prepend-icon="mdi-xml"
-                    title="项目"
                     rounded="xl"
-                    color="primary"
+                    title="项目"
+                    to="/app/project"
                   ></v-list-item>
                   <v-list-item
-                    to="/app/projectlist"
-                    prepend-icon="mdi-format-list-bulleted"
-                    title="列表"
-                    rounded="xl"
                     color="primary"
+                    prepend-icon="mdi-format-list-bulleted"
+                    rounded="xl"
+                    title="列表"
+                    to="/app/projectlist"
                   ></v-list-item>
                 </v-list>
                 <v-divider></v-divider>
                 <v-list>
                   <v-list-item
-                    to="/app/account/logout"
-                    prepend-icon="mdi-logout"
-                    title="退出"
-                    color="error"
                     active
-                    variant="plain"
+                    color="error"
+                    prepend-icon="mdi-logout"
                     rounded="xl"
+                    title="退出"
+                    to="/app/account/logout"
+                    variant="plain"
                   ></v-list-item>
                 </v-list>
               </v-window-item>
-            </v-window> </v-card-text
-        ></v-card>
+            </v-window>
+          </v-card-text
+          >
+        </v-card>
       </v-menu>
     </template>
-    <template v-slot:extension v-if="subNavItems.length">
+    <template v-if="subNavItems.length" v-slot:extension>
       <transition name="fade">
-        <v-tabs align-tabs="center" v-model="activeTab">
+        <v-tabs v-model="activeTab" align-tabs="center">
           <div v-for="item in subNavItems" :key="item.name">
             <v-tab
+              :disabled="item.disabled"
               :to="item.link"
               :value="item.name"
-              :disabled="item.disabled"
               rounded="lg"
             >
               {{ item.title }}
@@ -185,7 +188,7 @@
       </transition>
     </template>
   </v-app-bar>
-  <v-navigation-drawer v-model="drawer" :rail="drawerRail" expand-on-hover v-if="!isAdminRoute">
+  <v-navigation-drawer v-if="!isAdminRoute" v-model="drawer" :rail="drawerRail" expand-on-hover>
     <!-- 导航部分 -->
     <v-list>
       <v-list-subheader>
@@ -194,32 +197,32 @@
       </v-list-subheader>
 
       <v-list-item
-        to="/"
         prepend-icon="mdi-home"
-        title="首页"
         rounded="xl"
+        title="首页"
+        to="/"
       ></v-list-item>
 
       <v-list-item
         v-if="localuser.isLogin"
-        to="/app/dashboard"
         prepend-icon="mdi-view-dashboard"
+        rounded="xl"
         title="仪表盘"
-        rounded="xl"
+        to="/app/dashboard"
       ></v-list-item>
 
       <v-list-item
-        to="/app/explore"
         prepend-icon="mdi-xml"
-        title="项目"
         rounded="xl"
+        title="项目"
+        to="/app/explore"
       ></v-list-item>
 
       <v-list-item
-        to="/app/search"
         prepend-icon="mdi-earth"
-        title="搜索"
         rounded="xl"
+        title="搜索"
+        to="/app/search"
       ></v-list-item>
     </v-list>
 
@@ -231,38 +234,38 @@
       </v-list-subheader>
 
       <v-list-item
-        to="/app/proxy"
         prepend-icon="mdi-home"
+        rounded="xl"
         title="首页"
-        rounded="xl"
+        to="/app/proxy"
       ></v-list-item>
 
       <v-list-item
-        to="/app/proxy/explore"
         prepend-icon="mdi-earth"
+        rounded="xl"
         title="探索"
-        rounded="xl"
+        to="/app/proxy/explore"
       ></v-list-item>
 
       <v-list-item
-        to="/app/proxy/search"
         prepend-icon="mdi-xml"
+        rounded="xl"
         title="搜索"
-        rounded="xl"
+        to="/app/proxy/search"
       ></v-list-item>
 
       <v-list-item
-        to="/app/proxy/news"
         prepend-icon="mdi-newspaper"
-        title="新闻"
         rounded="xl"
+        title="新闻"
+        to="/app/proxy/news"
       ></v-list-item>
 
       <v-list-item
-        to="/app/proxy/open"
         prepend-icon="mdi-link"
-        title="打开"
         rounded="xl"
+        title="打开"
+        to="/app/proxy/open"
       ></v-list-item>
     </v-list>
 
@@ -274,17 +277,17 @@
       </v-list-subheader>
 
       <v-list-item
-        to="/app/tools/asdm"
         prepend-icon="mdi-download"
-        title="桌面版镜像"
         rounded="xl"
+        title="桌面版镜像"
+        to="/app/tools/asdm"
       ></v-list-item>
 
       <v-list-item
-        to="/app/tools/comparer"
         prepend-icon="mdi-xml"
-        title="项目比较器"
         rounded="xl"
+        title="项目比较器"
+        to="/app/tools/comparer"
       ></v-list-item>
     </v-list>
 
@@ -293,25 +296,25 @@
     <!-- 主题和抽屉控制 -->
     <v-list>
       <v-list-item
-        @click="toggleTheme"
         :prepend-icon="isDarkTheme ? 'mdi-weather-sunny' : 'mdi-weather-night'"
         rounded="xl"
+        @click="toggleTheme"
       ></v-list-item>
       <v-list-item
-        @click="drawerRail = !drawerRail"
         :prepend-icon="drawerRail ? 'mdi-chevron-right' : 'mdi-chevron-left'"
         rounded="xl"
+        @click="drawerRail = !drawerRail"
       ></v-list-item>
     </v-list>
   </v-navigation-drawer>
 
-  <v-navigation-drawer v-model="drawer" :rail="drawerRail" expand-on-hover v-else>
+  <v-navigation-drawer v-else v-model="drawer" :rail="drawerRail" expand-on-hover>
     <v-list>
       <v-list-item
-        to="/"
         prepend-icon="mdi-arrow-left"
-        title="返回"
         rounded="xl"
+        title="返回"
+        to="/"
       ></v-list-item>
       <v-list-subheader>
         <v-icon icon="mdi-shield" size="small"></v-icon>
@@ -319,31 +322,31 @@
       </v-list-subheader>
 
       <v-list-item
-        to="/app/admin/users"
         prepend-icon="mdi-account-group"
+        rounded="xl"
         title="用户管理"
-        rounded="xl"
+        to="/app/admin/users"
       ></v-list-item>
 
       <v-list-item
-        to="/app/admin/project"
         prepend-icon="mdi-xml"
+        rounded="xl"
         title="项目管理"
-        rounded="xl"
+        to="/app/admin/project"
       ></v-list-item>
 
       <v-list-item
-        to="/app/admin/config"
         prepend-icon="mdi-cog"
-        title="系统设置"
         rounded="xl"
+        title="系统设置"
+        to="/app/admin/config"
       ></v-list-item>
 
       <v-list-item
-        to="/app/admin/sitemap"
         prepend-icon="mdi-sitemap"
-        title="站点地图"
         rounded="xl"
+        title="站点地图"
+        to="/app/admin/sitemap"
       ></v-list-item>
     </v-list>
 
@@ -352,27 +355,27 @@
     <!-- 主题和抽屉控制 -->
     <v-list>
       <v-list-item
-        @click="toggleTheme"
         :prepend-icon="isDarkTheme ? 'mdi-weather-sunny' : 'mdi-weather-night'"
         rounded="xl"
+        @click="toggleTheme"
       ></v-list-item>
       <v-list-item
-        @click="drawerRail = !drawerRail"
         :prepend-icon="drawerRail ? 'mdi-chevron-right' : 'mdi-chevron-left'"
         rounded="xl"
+        @click="drawerRail = !drawerRail"
       ></v-list-item>
     </v-list>
   </v-navigation-drawer>
 </template>
 
 <script>
-import { localuser } from "@/services/localAccount";
-import { useTheme } from "vuetify";
-import { ref, onMounted, watch, nextTick } from "vue";
+import {localuser} from "@/services/localAccount";
+import {useTheme} from "vuetify";
+import {ref, onMounted, watch, nextTick} from "vue";
 import NotificationsCard from "@/components/NotificationsCard.vue";
 import SearchDialog from "@/components/SearchDialog.vue";
 import LoginDialog from "@/components/account/LoginDialog.vue";
-import { get } from "@/services/serverConfig";
+import {get} from "@/services/serverConfig";
 
 export default {
   components: {
@@ -491,7 +494,7 @@ export default {
           icon: "mdi-menu",
           login: false,
           list: [
-            { title: "首页", link: "/", icon: "mdi-home" , login: false },
+            {title: "首页", link: "/", icon: "mdi-home", login: false},
             {
               title: "仪表盘",
               link: "/app/dashboard",
@@ -504,7 +507,7 @@ export default {
               icon: "mdi-xml",
               login: false,
             },
-            { title: "搜索", link: "/app/search", icon: "mdi-earth", login: false },
+            {title: "搜索", link: "/app/search", icon: "mdi-earth", login: false},
           ],
         },
         tools: {
@@ -535,11 +538,11 @@ export default {
           icon: "mdi-link-variant",
           login: true,
           list: [
-            { title: "首页", link: "/app/proxy", icon: "mdi-home", login: false  },
-            { title: "探索", link: "/app/proxy/explore", icon: "mdi-earth" , login: false },
-            { title: "搜索", link: "/app/proxy/search", icon: "mdi-xml" , login: false },
-            { title: "新闻", link: "/app/proxy/news", icon: "mdi-newspaper" , login: false },
-            { title: "打开", link: "/app/proxy/open", icon: "mdi-link" , login: false },
+            {title: "首页", link: "/app/proxy", icon: "mdi-home", login: false},
+            {title: "探索", link: "/app/proxy/explore", icon: "mdi-earth", login: false},
+            {title: "搜索", link: "/app/proxy/search", icon: "mdi-xml", login: false},
+            {title: "新闻", link: "/app/proxy/news", icon: "mdi-newspaper", login: false},
+            {title: "打开", link: "/app/proxy/open", icon: "mdi-link", login: false},
           ],
         };
       }
@@ -578,21 +581,21 @@ export default {
     },
     getUserSubNavItems(userId) {
       return [
-        { title: "主页", link: `/${userId}`, name: "home" },
-        { title: "评论", link: `/${userId}/?tab=comment`, name: "comment" },
-        { title: "关注", link: `/${userId}/?tab=following`, name: "following" },
+        {title: "主页", link: `/${userId}`, name: "home"},
+        {title: "评论", link: `/${userId}/?tab=comment`, name: "comment"},
+        {title: "关注", link: `/${userId}/?tab=following`, name: "following"},
         {
           title: "关注者",
           link: `/${userId}/?tab=followers`,
           name: "followers",
         },
-        { title: "时间线", link: `/${userId}/?tab=timeline`, name: "timeline" },
+        {title: "时间线", link: `/${userId}/?tab=timeline`, name: "timeline"},
       ];
     },
     getProjectSubNavItems(projectname, authorname) {
       const isAuthor = localuser.user.value.username == authorname;
       return [
-        { title: "代码", link: `/${authorname}/${projectname}`, name: "home" },
+        {title: "代码", link: `/${authorname}/${projectname}`, name: "home"},
         {
           title: "分析",
           link: `/${authorname}/${projectname}/analytics`,
@@ -600,12 +603,12 @@ export default {
         },
         ...(isAuthor
           ? [
-              {
-                title: "设置",
-                link: `/${authorname}/${projectname}/settings`,
-                name: "settings",
-              },
-            ]
+            {
+              title: "设置",
+              link: `/${authorname}/${projectname}/settings`,
+              name: "settings",
+            },
+          ]
           : []),
       ];
     },

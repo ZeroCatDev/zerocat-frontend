@@ -22,18 +22,18 @@
           <v-list-item
             v-for="notification in notifications"
             :key="notification.id"
-            :to="notification.redirect_url"
-            lines="three"
-            color="primary"
             :active="!notification.read"
-            @click="handleNotificationClick(notification)"
             :class="{ 'clickable-item': !!notification.redirect_url }"
+            :to="notification.redirect_url"
+            color="primary"
+            lines="three"
+            @click="handleNotificationClick(notification)"
           >
             <template v-slot:prepend>
               <!-- 使用actor用户的头像 -->
               <v-avatar
-                size="42"
                 v-if="notification.actor?.avatar"
+                size="42"
               >
                 <v-img
                   :src="s3BucketUrl + '/user/' + notification.actor.avatar"
@@ -42,13 +42,13 @@
               </v-avatar>
               <v-avatar
                 v-else-if="notification.template_info?.icon"
+                class="system-avatar"
                 color="primary"
                 size="42"
-                class="system-avatar"
               >
                 <v-icon>{{ getIconForType(notification.template_info.icon) }}</v-icon>
               </v-avatar>
-              <v-avatar v-else color="primary" size="42" class="system-avatar">
+              <v-avatar v-else class="system-avatar" color="primary" size="42">
                 <v-icon>mdi-bell</v-icon>
               </v-avatar>
             </template>
@@ -61,8 +61,8 @@
 
               <v-icon
                 v-if="notification.template_info?.icon"
-                size="small"
                 class="ml-2"
+                size="small"
               >
                 {{ getIconForType(notification.template_info.icon) }}
               </v-icon>
@@ -75,10 +75,10 @@
                 </template>
                 <template v-else>
                   <v-progress-circular
+                    class="mr-2"
                     indeterminate
                     size="16"
                     width="2"
-                    class="mr-2"
                   ></v-progress-circular>
                   加载中...
                 </template>
@@ -93,14 +93,15 @@
             <template v-slot:append>
               <v-chip
                 v-if="notification.high_priority"
+                class="mr-2"
                 color="error"
                 size="small"
-                class="mr-2"
               >
                 重要
               </v-chip>
               <v-icon v-if="!notification.read" color="primary" size="small"
-                >mdi-circle-small</v-icon
+              >mdi-circle-small
+              </v-icon
               >
             </template>
           </v-list-item>
@@ -108,7 +109,7 @@
 
         <!-- 无通知状态 -->
         <div v-else class="py-8 text-center">
-          <v-icon size="large" color="grey">mdi-bell-off</v-icon>
+          <v-icon color="grey" size="large">mdi-bell-off</v-icon>
           <div class="text-body-2 text-grey mt-2">暂无通知</div>
         </div>
 
@@ -116,8 +117,8 @@
         <div v-if="hasMoreNotifications" class="text-center py-4">
           <v-btn
             v-if="!autoLoadMore"
-            variant="text"
             :loading="loadingMore"
+            variant="text"
             @click="loadMoreNotifications"
           >
             加载更多
@@ -135,14 +136,14 @@
         <v-divider class="my-1"></v-divider>
         <div class="d-flex align-center justify-space-between pa-2">
           <v-btn
-            variant="text"
-            size="small"
-            @click="markAllAsRead"
             :disabled="!hasUnread"
+            size="small"
+            variant="text"
+            @click="markAllAsRead"
           >
             标记全部已读
           </v-btn>
-          <v-btn variant="text" size="small" to="/app/notifications">
+          <v-btn size="small" to="/app/notifications" variant="text">
             查看全部通知
             <v-icon end>mdi-arrow-right</v-icon>
           </v-btn>
@@ -153,15 +154,15 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import {ref, computed, onMounted} from "vue";
+import {useRouter} from "vue-router";
 import {
   getNotifications,
   markNotificationAsRead,
   markAllNotificationsAsRead,
 } from "@/services/notificationService";
-import { getProjectInfo, getProjectListById } from "@/services/projectService";
-import { get } from "@/services/serverConfig";
+import {getProjectInfo, getProjectListById} from "@/services/projectService";
+import {get} from "@/services/serverConfig";
 
 export default {
   name: "NotificationsCardContent",
@@ -185,7 +186,7 @@ export default {
     },
   },
   emits: ["update:unread-count"],
-  async setup(props, { emit }) {
+  async setup(props, {emit}) {
     const router = useRouter();
     const notifications = ref([]);
     const loading = ref(false);
@@ -247,7 +248,7 @@ export default {
 
       loadingMore.value = true;
       try {
-        const data = await getNotifications({ url: loadMoreUrl.value });
+        const data = await getNotifications({url: loadMoreUrl.value});
         const newNotifications = data.notifications || [];
         notifications.value = [...notifications.value, ...newNotifications];
         loadMoreUrl.value = data.load_more_url || null;
@@ -338,7 +339,7 @@ export default {
                 .catch((err) => {
                   console.error(`获取项目列表${projectListId}失败:`, err);
                   // 缓存空对象以避免重复请求不存在的资源
-                  projectListCache.value[projectListId] = { error: true };
+                  projectListCache.value[projectListId] = {error: true};
                 })
             );
           }
@@ -419,7 +420,7 @@ export default {
       if (!template) return "";
 
       let result = template;
-      const { actor, target_type, target_id, data } = notification;
+      const {actor, target_type, target_id, data} = notification;
 
       // 使用actor信息
       if (actor) {
@@ -496,7 +497,7 @@ export default {
         return;
 
       const container = event.target;
-      const { scrollHeight, scrollTop, clientHeight } = container;
+      const {scrollHeight, scrollTop, clientHeight} = container;
       const scrollBottom = scrollHeight - scrollTop - clientHeight;
 
       if (scrollBottom < 50) {

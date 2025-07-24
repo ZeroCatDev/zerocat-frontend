@@ -1,17 +1,17 @@
 <template>
-  <v-card rounded="lg"  class="box-shadow">
+  <v-card class="box-shadow" rounded="lg">
     <v-card
       :to="getProjectLink()"
-      style="aspect-ratio: 4/3"
       rounded="lg"
+      style="aspect-ratio: 4/3"
     >
       <v-img
         :src="project ? s3BucketUrl + '/scratch_slt/' + project.id : ''"
         class="align-end"
-        lazy-src="../../assets/43-lazyload.png"
-        height="100%"
-        gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
         cover
+        gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+        height="100%"
+        lazy-src="../../assets/43-lazyload.png"
       >
         <v-card-item>
           <v-card-title>{{ project?.title || "加载中..." }}</v-card-title>
@@ -20,7 +20,8 @@
       </v-img>
     </v-card>
     <!-- 作者信息区域 -->
-    <v-card-item v-if="showAuthor && author" :append-avatar="author.avatar ? s3BucketUrl + '/user/' + author.avatar : ''">
+    <v-card-item v-if="showAuthor && author"
+                 :append-avatar="author.avatar ? s3BucketUrl + '/user/' + author.avatar : ''">
       <v-card-title>{{ author.display_name || author.username || "未知用户" }}</v-card-title>
       <v-card-subtitle>{{ author.username || "" }}</v-card-subtitle>
     </v-card-item>
@@ -28,8 +29,8 @@
 </template>
 
 <script>
-import { getProjectInfo } from "@/services/projectService";
-import { get } from "@/services/serverConfig";
+import {getProjectInfo} from "@/services/projectService";
+import {get} from "@/services/serverConfig";
 
 export default {
   props: {
@@ -128,19 +129,19 @@ export default {
 
     async fetchAuthor(authorId) {
       // 不再需要单独获取作者信息，因为已经包含在项目数据中
-      return;
+
     }
   }
 };
 </script>
 <style scoped>
 .box-shadow {
-  box-shadow:
-    0px 0px 0px 1px rgba(14, 63, 126, 0.04),
-    0px 1px 1px -0.5px rgba(42, 51, 70, 0.04),
-    0px 3px 3px -1.5px rgba(42, 51, 70, 0.04),
-    0px 6px 6px -3px rgba(42, 51, 70, 0.04),
-    0px 12px 12px -6px rgba(14, 63, 126, 0.04),
-    0px 24px 24px -12px rgba(14, 63, 126, 0.04);}
+  box-shadow: 0 0 0 1px rgba(14, 63, 126, 0.04),
+  0 1px 1px -0.5px rgba(42, 51, 70, 0.04),
+  0 3px 3px -1.5px rgba(42, 51, 70, 0.04),
+  0 6px 6px -3px rgba(42, 51, 70, 0.04),
+  0 12px 12px -6px rgba(14, 63, 126, 0.04),
+  0 24px 24px -12px rgba(14, 63, 126, 0.04);
+}
 </style>
 

@@ -1,5 +1,5 @@
 <template>
-  <v-card hover border>
+  <v-card border hover>
     <v-card-item>
       <v-card-title>{{ project.title }}</v-card-title>
       <v-card-subtitle>{{ project.description }}</v-card-subtitle>
@@ -9,28 +9,32 @@
         <v-avatar start>
           <v-img
             :src="s3BucketUrl + '/user/' + author.avatar"
-          ></v-img> </v-avatar
-        >{{ author.display_name }}
+          ></v-img>
+        </v-avatar
+        >
+        {{ author.display_name }}
       </v-chip>
     </div>
     <div class="px-4 d-flex ga-2 mb-2">
       <v-chip pill prepend-icon="mdi-chart-line">{{ stats.pageviews }}浏览</v-chip>
       <v-chip pill prepend-icon="mdi-account-multiple">{{ stats.visitors }}访客</v-chip>
       <v-chip pill prepend-icon="mdi-clock">
-        <TimeAgo :date="project.time" />
+        <TimeAgo :date="project.time"/>
       </v-chip>
     </div>
     <div class="px-4 d-flex ga-2 mb-2">
-      <v-chip pill prepend-icon="mdi-xml" v-if="project.state == 'public'"
-        >开源作品</v-chip
+      <v-chip v-if="project.state == 'public'" pill prepend-icon="mdi-xml"
+      >开源作品
+      </v-chip
       >
       <v-chip
-        pill
-        prepend-icon="mdi-xml"
         v-if="project.state == 'private'"
         color="red"
+        pill
+        prepend-icon="mdi-xml"
         variant="outlined"
-        >私密作品</v-chip
+      >私密作品
+      </v-chip
       >
       <v-chip pill prepend-icon="mdi-application">{{ project.type }}</v-chip>
     </div>
@@ -40,30 +44,34 @@
       </div>
     </div>
     <div class="px-4 d-flex ga-2 mb-2">
-      <ProjectStar :projectId="project.id" :starcount="project.star_count" />
+      <ProjectStar :projectId="project.id" :starcount="project.star_count"/>
     </div>
     <div class="px-4 d-flex ga-2 mb-2">
-      <v-btn-group  border density="compact" rounded="lg" size="x-small">
-      <v-btn
-        :to="`/${username}/${projectname}/fork`"
-        variant="tonal"
-        class="text-none"
-      >
-      分叉
-      </v-btn><v-btn text :to="`/app/projects/fork/${project.id}`">{{stats.forks}}</v-btn></v-btn-group>
+      <v-btn-group border density="compact" rounded="lg" size="x-small">
+        <v-btn
+          :to="`/${username}/${projectname}/fork`"
+          class="text-none"
+          variant="tonal"
+        >
+          分叉
+        </v-btn>
+        <v-btn :to="`/app/projects/fork/${project.id}`" text>{{stats.forks}}</v-btn>
+      </v-btn-group>
     </div>
     <div class="px-4 d-flex ga-2 mb-2">
-      <v-btn @click="openEditor(project.id, project.type)" variant="text"
-        >打开创造页</v-btn
+      <v-btn variant="text" @click="openEditor(project.id, project.type)"
+      >打开创造页
+      </v-btn
       >
       <v-btn :to="`/${username}/${projectname}/edit`" variant="text"
-        >编辑源文件</v-btn
+      >编辑源文件
+      </v-btn
       >
     </div>
     <div class="px-4">
-      <ProjectAuthorCard :author="author" />
+      <ProjectAuthorCard :author="author"/>
     </div>
-    <br />
+    <br/>
   </v-card>
 </template>
 
@@ -72,9 +80,9 @@ import TimeAgo from "@/components/TimeAgo.vue";
 import ProjectStar from "@/components/project/ProjectStar.vue";
 import ProjectAuthorCard from "@/components/project/ProjectAuthorCard.vue";
 import openEditor from "@/stores/openEdit";
-import { getProjectStats } from "@/services/projectService";
-import { ref, onMounted } from "vue";
-import { get } from "@/services/serverConfig";
+import {getProjectStats} from "@/services/projectService";
+import {ref, onMounted} from "vue";
+import {get} from "@/services/serverConfig";
 
 export default {
   name: "ProjectInfoCard",

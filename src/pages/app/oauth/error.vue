@@ -1,14 +1,14 @@
 <template>
   <v-container class="d-flex align-center justify-center" style="min-height: 80vh">
     <v-row justify="center">
-      <v-col cols="12" sm="8" md="6" lg="5">
+      <v-col cols="12" lg="5" md="6" sm="8">
         <v-card class="error-card">
           <v-card-item class="text-center">
             <v-icon
-              icon="mdi-alert-circle"
-              color="error"
-              size="64"
               class="mb-4"
+              color="error"
+              icon="mdi-alert-circle"
+              size="64"
             ></v-icon>
             <v-card-title class="text-h4 mb-2">
               授权错误
@@ -27,9 +27,9 @@
           <v-card-actions class="justify-center pb-6">
             <v-btn
               color="primary"
+              prepend-icon="mdi-home"
               variant="outlined"
               @click="goHome"
-              prepend-icon="mdi-home"
             >
               返回首页
             </v-btn>
@@ -41,7 +41,7 @@
           <v-expansion-panel>
             <v-expansion-panel-title>
               <div class="d-flex align-center">
-                <v-icon icon="mdi-code-tags" class="mr-2"></v-icon>
+                <v-icon class="mr-2" icon="mdi-code-tags"></v-icon>
                 技术细节
               </div>
             </v-expansion-panel-title>
@@ -81,8 +81,8 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import {computed} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()

@@ -1,7 +1,7 @@
 <template>
   <v-container class="fill-height">
     <v-responsive class="align-centerfill-height mx-auto" max-width="900">
-      <v-img class="mb-4" height="150" src="@/assets/logo.png" />
+      <v-img class="mb-4" height="150" src="@/assets/logo.png"/>
 
       <div class="text-center">
         <div class="text-body-2 font-weight-light mb-n1">Welcome to</div>
@@ -9,21 +9,21 @@
         <h1 class="text-h2 font-weight-bold">ZeroCat</h1>
       </div>
 
-      <div class="py-4" />
+      <div class="py-4"/>
 
       <v-row>
         <v-col cols="12">
           <v-card
+            append-icon="mdi-arrow-right"
             class="py-4"
             color="surface-variant"
             prepend-icon="mdi-rocket-launch-outline"
-            append-icon="mdi-arrow-right"
             rounded="lg"
-            variant="outlined"
             to="/projects"
+            variant="outlined"
           >
             <template #image>
-              <v-img position="top right" />
+              <v-img position="top right"/>
             </template>
 
             <template #title>
@@ -32,18 +32,23 @@
 
             <template #subtitle>
               <div class="text-subtitle-1">
-                立刻浏览zerocat上的<v-kbd> Scratch </v-kbd>和<v-kbd>
-                  Python </v-kbd
-                >作品！
+                立刻浏览zerocat上的
+                <v-kbd> Scratch</v-kbd>
+                和
+                <v-kbd>
+                  Python
+                </v-kbd
+                >
+                作品！
               </div>
             </template>
 
             <v-overlay
-              opacity=".12"
-              scrim="primary"
               contained
               model-value
+              opacity=".12"
               persistent
+              scrim="primary"
             />
           </v-card>
         </v-col>
@@ -111,11 +116,11 @@
             variant="text"
           >
             <v-overlay
-              opacity=".06"
-              scrim="primary"
               contained
               model-value
+              opacity=".06"
               persistent
+              scrim="primary"
             />
           </v-card>
         </v-col>
@@ -135,11 +140,11 @@
             variant="text"
           >
             <v-overlay
-              opacity=".06"
-              scrim="primary"
               contained
               model-value
+              opacity=".06"
               persistent
+              scrim="primary"
             />
           </v-card>
         </v-col>

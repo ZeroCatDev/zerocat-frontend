@@ -7,33 +7,33 @@
 
 
           <v-btn
-            color="primary"
-            variant="flat"
+            :loading="resendLoading"
             block
             class="mb-3"
-            :loading="resendLoading"
-            @click="resendVerificationEmail"
+            color="primary"
             prepend-icon="mdi-email-outline"
+            variant="flat"
+            @click="resendVerificationEmail"
           >
             重新发送激活电子邮件
           </v-btn>
 
           <v-btn
-            color="secondary"
-            variant="flat"
             block
-            @click="showChangeEmailDialog = true"
+            color="secondary"
             prepend-icon="mdi-pencil"
+            variant="flat"
+            @click="showChangeEmailDialog = true"
           >
             更改电子邮件地址
           </v-btn>
         </div>
 
         <div v-if="verificationStep === 'success'" class="text-center my-4">
-          <v-icon color="success" icon="mdi-check-circle-outline" size="x-large" class="mb-2" />
+          <v-icon class="mb-2" color="success" icon="mdi-check-circle-outline" size="x-large"/>
           <div class="text-h6 mb-1">邮箱验证成功！</div>
           <div class="text-body-1 mb-4">您的账户已激活，现在可以使用所有功能。</div>
-          <v-btn color="primary" variant="flat" to="/app/dashboard">
+          <v-btn color="primary" to="/app/dashboard" variant="flat">
             开始使用
           </v-btn>
         </div>
@@ -46,11 +46,11 @@
           <v-form ref="emailForm" @submit.prevent="changeEmail">
             <v-text-field
               v-model="newEmail"
-              label="新的电子邮件地址"
-              type="email"
               :rules="emailRules"
-              variant="outlined"
+              label="新的电子邮件地址"
               required
+              type="email"
+              variant="outlined"
             ></v-text-field>
           </v-form>
         </v-card-text>
@@ -58,22 +58,22 @@
           <v-spacer></v-spacer>
           <v-btn text="取消" @click="showChangeEmailDialog = false"></v-btn>
           <v-btn
+            :loading="changeEmailLoading"
             color="primary"
             text="确认"
-            :loading="changeEmailLoading"
             @click="changeEmail"
           ></v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <LoadingDialog :show="loading" text="请稍候" />
+    <LoadingDialog :show="loading" text="请稍候"/>
   </div>
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import {ref, onMounted, computed} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
 import LoadingDialog from '@/components/LoadingDialog.vue';
 import AuthCard from '@/components/AuthCard.vue';
 import AuthService from '@/services/authService';
@@ -158,7 +158,7 @@ export default {
     const changeEmail = async () => {
       if (!emailForm.value) return;
 
-      const { valid } = await emailForm.value.validate();
+      const {valid} = await emailForm.value.validate();
       if (!valid) return;
 
       changeEmailLoading.value = true;

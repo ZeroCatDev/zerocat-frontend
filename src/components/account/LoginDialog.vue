@@ -1,19 +1,19 @@
 <template>
   <v-dialog v-model="dialog" width="400">
     <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" rounded="xl">登录</v-btn>
+      <v-btn rounded="xl" v-bind="props">登录</v-btn>
     </template>
 
     <v-card rounded="xl">
-      <v-card-title> </v-card-title>
+      <v-card-title></v-card-title>
       <v-card-text>
         <v-btn
+          class="float-right"
           icon="mdi-open-in-new"
-          variant="text"
           size="small"
           to="/app/account/login"
+          variant="text"
           @click="dialog = false"
-          class="float-right"
         ></v-btn>
 
         <h5 class="text-h5 font-weight-semibold mb-1">欢迎来到ZeroCat！ 👋🏻</h5>
@@ -22,9 +22,9 @@
         <LoginForm
           :showLinks="true"
           :showOAuth="true"
+          @close="dialog = false"
           @login-success="handleLoginSuccess"
           @login-error="handleLoginError"
-          @close="dialog = false"
         />
       </v-card-text>
     </v-card>
@@ -32,14 +32,14 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import {ref} from "vue";
 import LoginForm from "./LoginForm.vue";
 
 export default {
   name: "LoginDialog",
-  components: { LoginForm },
+  components: {LoginForm},
 
-  setup(props, { emit }) {
+  setup(props, {emit}) {
     const dialog = ref(false);
 
     const handleLoginSuccess = (response) => {

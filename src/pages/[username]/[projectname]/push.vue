@@ -3,8 +3,8 @@
     <div class="d-flex justify-space-between">
       <h1 class="text-h4">推送 <span v-text="project.title"></span></h1>
     </div>
-    <br />
-    <v-card hover border>
+    <br/>
+    <v-card border hover>
       <template v-slot:title>
         {{ project.title }}
       </template>
@@ -15,12 +15,14 @@
 
       <template v-slot:text>
         {{ project.description }}
-      </template> </v-card
-    ><br />
-    <v-card hover border>
-      <template v-slot:title> 你正在推送你的项目 </template>
+      </template>
+    </v-card
+    >
+    <br/>
+    <v-card border hover>
+      <template v-slot:title> 你正在推送你的项目</template>
 
-      <template v-slot:subtitle> 等等，确认点事 </template>
+      <template v-slot:subtitle> 等等，确认点事</template>
 
       <template v-slot:text>
         你正在推送
@@ -29,17 +31,17 @@
       </template>
     </v-card>
 
-    <br />
+    <br/>
     <v-btn
+      :disabled="!checkprotect"
+      append-icon="mdi-arrow-right"
       class="text-none"
       color="primary"
       rounded="xl"
+      size="large"
       text="Push"
       variant="flat"
-      size="large"
       @click="pushproject(project.id)"
-      append-icon="mdi-arrow-right"
-      :disabled="!checkprotect"
     ></v-btn>
     <!-- login button -->
   </v-container>
@@ -47,9 +49,10 @@
 
 <script>
 import request from "../../../axios/axios";
-import { localuser } from "@/services/localAccount";
-import { useHead } from "@unhead/vue";
-import { getProjectInfoByNamespace } from "@/services/projectService";
+import {localuser} from "@/services/localAccount";
+import {useHead} from "@unhead/vue";
+import {getProjectInfoByNamespace} from "@/services/projectService";
+
 export default {
   data() {
     return {

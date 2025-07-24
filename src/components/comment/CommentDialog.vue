@@ -1,14 +1,14 @@
 <template>
   <v-dialog v-model="dialogModel" width="auto">
-    <v-card hover border>
+    <v-card border hover>
       <v-container>
         <!-- Main Comment -->
-        <v-card class="mb-2" elevation hover border>
-          <CommentContent :comment="comment" :s3-bucket-url="s3BucketUrl" />
+        <v-card border class="mb-2" elevation hover>
+          <CommentContent :comment="comment" :s3-bucket-url="s3BucketUrl"/>
           <v-card-actions>
             <v-menu>
               <template v-slot:activator="{ props }">
-                <v-btn icon="mdi-dots-vertical" v-bind="props" border></v-btn>
+                <v-btn border icon="mdi-dots-vertical" v-bind="props"></v-btn>
               </template>
               <v-list border>
                 <v-list-item
@@ -33,16 +33,16 @@
         <v-card
           v-for="child in comment?.children || []"
           :key="child.id"
+          border
           class="mb-2"
           elevation
           hover
-          border
         >
-          <CommentContent :comment="child" :s3-bucket-url="s3BucketUrl" />
+          <CommentContent :comment="child" :s3-bucket-url="s3BucketUrl"/>
           <v-card-actions>
             <v-menu>
               <template v-slot:activator="{ props }">
-                <v-btn icon="mdi-dots-vertical" v-bind="props" border></v-btn>
+                <v-btn border icon="mdi-dots-vertical" v-bind="props"></v-btn>
               </template>
               <v-list border>
                 <v-list-item
@@ -64,14 +64,14 @@
         </v-card>
 
         <!-- Reply Form -->
-        <v-card class="mt-4" elevation hover border>
+        <v-card border class="mt-4" elevation hover>
           <v-card-title class="headline d-flex align-center">
             回复评论 {{ replyId }}
             <v-btn
               v-if="replyId"
               class="ml-2"
-              @click="replyId = null"
               variant="text"
+              @click="replyId = null"
             >
               取消
             </v-btn>
@@ -80,16 +80,16 @@
             <v-form @submit.prevent>
               <v-textarea
                 v-model="replyText"
-                label="评论"
-                dense
-                auto-grow
                 :rules="rules"
+                auto-grow
+                dense
+                label="评论"
                 required
               ></v-textarea>
               <v-btn
+                border
                 color="primary"
                 @click="handleReply"
-                border
               >
                 评论
               </v-btn>
@@ -102,8 +102,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { localuser } from "@/services/localAccount"
+import {ref, computed} from 'vue'
+import {localuser} from "@/services/localAccount"
 import CommentContent from './CommentContent.vue'
 
 const props = defineProps({

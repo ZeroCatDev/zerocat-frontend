@@ -1,6 +1,6 @@
 <template>
   <!-- 使用默认插槽传入的内容 -->
-  <div v-html="sanitizedHtmlContent" ></div>
+  <div v-html="sanitizedHtmlContent"></div>
 </template>
 
 <script>
@@ -8,7 +8,8 @@ import MarkdownIt from "markdown-it";
 import hljs from "highlight.js";
 import "highlight.js/styles/atom-one-dark.css";
 import createDOMPurify from "dompurify";
-import { full as emojiPlugin } from "markdown-it-emoji";
+import {full as emojiPlugin} from "markdown-it-emoji";
+
 // 初始化并配置 MarkdownIt 实例
 function createMarkdownInstance() {
   const md = new MarkdownIt({
@@ -16,7 +17,7 @@ function createMarkdownInstance() {
       if (lang && hljs.getLanguage(lang)) {
         try {
           return `<pre class="hljs"><code>${
-            hljs.highlight(str, { language: lang, ignoreIllegals: true }).value
+            hljs.highlight(str, {language: lang, ignoreIllegals: true}).value
           }</code></pre>`;
         } catch (error) {
           console.error("代码高亮出错：", error);

@@ -1,13 +1,13 @@
 <template>
   <div>
     <div v-if="showNormal" :id="recaptchaId"></div>
-    <v-btn v-if="showNormal" @click="resetCaptcha" variant="text">刷新</v-btn>
+    <v-btn v-if="showNormal" variant="text" @click="resetCaptcha">刷新</v-btn>
   </div>
 </template>
 
 <script>
 import "https://static.geetest.com/v4/gt4.js";
-import { get } from '@/services/serverConfig';
+import {get} from '@/services/serverConfig';
 
 export default {
   props: {

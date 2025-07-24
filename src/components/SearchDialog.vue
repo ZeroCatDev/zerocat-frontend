@@ -2,35 +2,35 @@
   <v-dialog
     v-if="!isMobileOrTablet"
     v-model="dialog"
-    width="80%"
     :scrim="false"
-    transition="dialog-bottom-transition"
     class="search-dialog"
+    transition="dialog-bottom-transition"
+    width="80%"
   >
     <template v-slot:activator="{ props }">
       <v-btn
-        v-bind="props"
-        icon="mdi-magnify"
-        variant="text"
         class="search-trigger"
+        icon="mdi-magnify"
+        v-bind="props"
+        variant="text"
       ></v-btn>
     </template>
     <v-card
-      max-height="90vh"
-      class="d-flex flex-column search-dialog-card bg-surface-light"
       border
+      class="d-flex flex-column search-dialog-card bg-surface-light"
       hover
+      max-height="90vh"
     >
       <v-card-text class="pa-0 flex-grow-0" style="margin: 16px">
-        <SearchComponent mode="dialog" @search-submitted="closeDialog" />
+        <SearchComponent mode="dialog" @search-submitted="closeDialog"/>
       </v-card-text>
     </v-card>
   </v-dialog>
   <v-btn
     v-else
+    class="search-trigger"
     icon="mdi-magnify"
     variant="text"
-    class="search-trigger"
     @click="navigateToSearch"
   ></v-btn>
 </template>

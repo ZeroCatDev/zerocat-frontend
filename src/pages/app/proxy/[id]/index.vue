@@ -1,70 +1,91 @@
 <template>
   <v-container>
     <v-row
-      ><v-col cols="8" md="8" lg="8" xl="8" sm="8" xs="8">
+    >
+      <v-col cols="8" lg="8" md="8" sm="8" xl="8" xs="8">
         <v-card border hover style="aspect-ratio: 4 / 3"
-          ><iframe
+        >
+          <iframe
             :src="embedurl"
-            scrolling="no"
             frameborder="0"
+            scrolling="no"
             style="width: 100%; height: 100%"
           ></iframe
-        ></v-card>
-        <br /><br /><v-card border hover>
-          <v-card-title>操作说明 </v-card-title>
-          <v-card-text>{{ project.instructions }}</v-card-text></v-card
-        ><br />
+          >
+        </v-card>
+        <br/><br/>
+        <v-card border hover>
+          <v-card-title>操作说明</v-card-title>
+          <v-card-text>{{ project.instructions }}</v-card-text>
+        </v-card
+        >
+        <br/>
         <v-card border hover>
           <v-card-title>备注与鸣谢</v-card-title>
-          <v-card-text>{{ project.description }}</v-card-text></v-card
+          <v-card-text>{{ project.description }}</v-card-text>
+        </v-card
         >
-        <br /><br /><ProxyShowProjects
+        <br/><br/>
+        <ProxyShowProjects
           :showUserInfo="true"
-          title="forks"
-          subtitle="对此项目的fork"
           :url="`/projects/${project.id}/remixes?`"
           autoload="false"
+          subtitle="对此项目的fork"
+          title="forks"
         ></ProxyShowProjects>
       </v-col>
 
       <v-col cols="4">
         <v-card border hover>
           <v-card-list
-            ><v-card-item>
+          >
+            <v-card-item>
               <v-card-title>{{ project.title }}</v-card-title>
-              <v-card-subtitle>{{ project.id }}</v-card-subtitle> </v-card-item
-            ><v-card-item> </v-card-item>
+              <v-card-subtitle>{{ project.id }}</v-card-subtitle>
+            </v-card-item
+            >
+            <v-card-item></v-card-item>
             <v-card-item>
               <v-chip pill>
                 <v-avatar start>
                   <v-img
                     :src="`${this.scratch_proxy}/avatars/${project.author.id}`"
-                  ></v-img> </v-avatar
-                >{{ project.author.username || "加载中" }}</v-chip
+                  ></v-img>
+                </v-avatar
+                >
+                {{ project.author.username || "加载中" }}
+              </v-chip
               >
             </v-card-item>
             <v-card-item>
               <v-chip pill prepend-icon="mdi-eye"
-                >{{ project.stats.views }}浏览</v-chip
+              >{{ project.stats.views }}浏览
+              </v-chip
               >
               <v-chip pill prepend-icon="mdi-heart"
-                >{{ project.stats.loves }}赞</v-chip
+              >{{ project.stats.loves }}赞
+              </v-chip
               >
               <v-chip pill prepend-icon="mdi-star"
-                >{{ project.stats.favorites }}star</v-chip
+              >{{ project.stats.favorites }}star
+              </v-chip
               >
               <v-chip pill prepend-icon="mdi-source-fork"
-                >{{ project.stats.remixes }}fork</v-chip
+              >{{ project.stats.remixes }}fork
+              </v-chip
               >
 
               <v-chip pill prepend-icon="mdi-clock"
-                >{{ project.history.created }}创建</v-chip
+              >{{ project.history.created }}创建
+              </v-chip
               >
               <v-chip pill prepend-icon="mdi-clock"
-                >{{ project.history.modified }}更新</v-chip
+              >{{ project.history.modified }}更新
+              </v-chip
               >
               <v-chip pill prepend-icon="mdi-clock"
-                >{{ project.history.shared }}公开</v-chip
+              >{{ project.history.shared }}公开
+              </v-chip
               >
             </v-card-item>
             <v-card-item v-if="project.project_tags && project.project_tags.length > 0">
@@ -83,17 +104,18 @@
           <div class="px-4 d-flex ga-2 mb-2">
             <v-btn
               :href="scratch_proxy_gui + '/editor.html#' + project.id"
-              variant="text"
               target="_blank"
-              >打开创造页</v-btn
+              variant="text"
+            >打开创造页
+            </v-btn
             >
           </div>
 
           <div class="px-4">
             <v-card
+              :to="'/app/proxy/user/' + project.author.username"
               hover
               variant="tonal"
-              :to="'/app/proxy/user/' + project.author.username"
             >
               <v-card-item>
                 <template v-slot:prepend>
@@ -109,27 +131,32 @@
                 <v-card-subtitle class="text-white">
                   {{ project.author.id }}
                 </v-card-subtitle>
-              </v-card-item></v-card
+              </v-card-item>
+            </v-card
             >
           </div>
 
-          <br />
+          <br/>
         </v-card>
-        <br />
+        <br/>
         <v-card
           v-if="parentProject"
+          :to="'/app/proxy/' + parentProject.id"
           border
           hover
-          :to="'/app/proxy/' + parentProject.id"
         >
           <v-card-item>
             <v-card-title>{{
               parentProject.id == project.remix.root ? "根项目" : "父项目为"
-            }}</v-card-title>
+              }}
+            </v-card-title>
             <v-card-subtitle>{{
               parentProject.id == project.remix.root ? "最初的项目" : "父项目"
-            }}</v-card-subtitle> </v-card-item
-          ><v-img
+              }}
+            </v-card-subtitle>
+          </v-card-item
+          >
+          <v-img
             :src="`${scratch_proxy}/thumbnails/${parentProject.id}`"
             cover
             lazy-src="../../../../assets/43-lazyload.png"
@@ -139,17 +166,19 @@
             <v-card-subtitle>{{ parentProject.description }}</v-card-subtitle>
           </v-card-item>
         </v-card>
-        <br />
+        <br/>
         <v-card
           v-if="rootProject"
+          :to="'/app/proxy/' + rootProject.id"
           border
           hover
-          :to="'/app/proxy/' + rootProject.id"
         >
           <v-card-item>
             <v-card-title>根项目为</v-card-title>
-            <v-card-subtitle>最初的项目</v-card-subtitle> </v-card-item
-          ><v-img
+            <v-card-subtitle>最初的项目</v-card-subtitle>
+          </v-card-item
+          >
+          <v-img
             :src="`${scratch_proxy}/thumbnails/${rootProject.id}`"
             cover
             lazy-src="../../../../assets/43-lazyload.png"
@@ -157,7 +186,7 @@
           <v-card-title>{{ rootProject.title }}</v-card-title>
           <v-card-subtitle>{{ rootProject.description }}</v-card-subtitle>
         </v-card>
-        <br />
+        <br/>
         <!--<v-card subtitle="此项目可以被存储到ZeroCat服务器" title="存储此项目">
           <v-card-text class="bg-surface-light pt-4">
             此项目可以被存储到ZeroCat服务器
@@ -183,14 +212,14 @@
 </template>
 
 <script>
-import { getProject } from "@/services/proxy/projectService";
+import {getProject} from "@/services/proxy/projectService";
 import Comment from "../../../../components/Comment.vue";
 import ProxyShowUsers from "../../../../components/proxy/ProxyShowUsers.vue";
 import ProxyShowProjects from "../../../../components/proxy/ProxyShowProjects.vue";
-import { get } from '@/services/serverConfig';
+import {get} from '@/services/serverConfig';
 
 export default {
-  components: { Comment, ProxyShowProjects },
+  components: {Comment, ProxyShowProjects},
   data() {
     return {
       project: {

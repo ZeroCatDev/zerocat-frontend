@@ -1,47 +1,48 @@
 <template>
   <v-container class="pa-0">
-    <v-row v-for="item in Array.from(new Set(configs.map(c => c.key))).map(key => configs.find(c => c.key === key))" :key="item.key" class="mb-4">
+    <v-row v-for="item in Array.from(new Set(configs.map(c => c.key))).map(key => configs.find(c => c.key === key))"
+           :key="item.key" class="mb-4">
 
       <v-col cols="12">
         <div class="d-flex align-center mb-2">
           <span class="text-subtitle-1">{{ item.description||item.key }}</span>
           <v-chip
             v-if="isItemEdited(item)"
+            class="ml-2"
             color="warning"
             size="small"
-            class="ml-2"
           >
             未保存
           </v-chip>
           <v-chip
             v-else-if="isDifferentFromDefault(item)"
+            class="ml-2"
             color="info"
             size="small"
-            class="ml-2"
           >
             已修改
           </v-chip>
           <v-chip
             v-if="item.public"
+            class="ml-2"
             color="success"
             size="small"
-            class="ml-2"
           >
             公开
           </v-chip>
           <v-chip
             v-if="item.required"
+            class="ml-2"
             color="error"
             size="small"
-            class="ml-2"
           >
             必填
           </v-chip>
           <v-chip
             v-if="item.fromSystem"
+            class="ml-2"
             color="primary"
             size="small"
-            class="ml-2"
           >
             系统
           </v-chip>
@@ -51,20 +52,20 @@
               <v-btn
                 icon="mdi-dots-vertical"
                 size="small"
-                variant="text"
                 v-bind="props"
+                variant="text"
               />
             </template>
             <v-list>
               <v-list-item
-                @click="copyToClipboard(item.key)"
                 prepend-icon="mdi-key"
+                @click="copyToClipboard(item.key)"
               >
                 <v-list-item-title>复制键名</v-list-item-title>
               </v-list-item>
               <v-list-item
-                @click="copyToClipboard(localValues[item.key])"
                 prepend-icon="mdi-content-copy"
+                @click="copyToClipboard(localValues[item.key])"
               >
                 <v-list-item-title>复制值</v-list-item-title>
               </v-list-item>
@@ -74,46 +75,46 @@
 
         <div class="d-flex align-center">
           <div
-            class="flex-grow-1"
             :style="item.type === 'array' ? {} : { maxWidth: '400px' }"
+            class="flex-grow-1"
           >
             <!-- 字符串类型 -->
             <v-text-field
               v-if="item.type === 'string'"
+              :loading="savingItems[item.key]"
               :model-value="localValues[item.key]"
               :placeholder="item.default"
-              variant="outlined"
               density="comfortable"
               hide-details="auto"
+              variant="outlined"
               @update:model-value="(value) => handleUpdate(item.key, value)"
               @keydown.enter="saveItem(item)"
-              :loading="savingItems[item.key]"
             >
               <template v-slot:append>
                 <v-btn
                   v-if="isItemEdited(item)"
+                  :loading="savingItems[item.key]"
                   color="success"
+                  icon="mdi-check"
                   size="small"
                   variant="tonal"
                   @click="saveItem(item)"
-                  :loading="savingItems[item.key]"
-                  icon="mdi-check"
                 >
                 </v-btn>
                 <v-btn
                   v-if="isItemEdited(item)"
                   color="error"
-                  size="small"
                   icon="mdi-close"
-                  @click="revertEdit(item)"
+                  size="small"
                   variant="tonal"
+                  @click="revertEdit(item)"
                 >
                 </v-btn>
                 <v-btn
                   v-if="isDifferentFromDefault(item) && !isItemEdited(item)"
                   color="warning"
-                  size="small"
                   icon="mdi-refresh"
+                  size="small"
                   variant="tonal"
                   @click="resetToDefault(item)"
                 >
@@ -143,10 +144,11 @@
               </div>
               <v-text-field
                 v-model="newArrayItem"
-                variant="outlined"
+                :loading="savingItems[item.key]"
                 density="comfortable"
                 hide-details="auto"
                 placeholder="输入新项目，多个项目用逗号分隔"
+                variant="outlined"
                 @keydown.enter="
                   (e) => {
                     handleArrayItemAdd(item, e.target.value);
@@ -154,11 +156,11 @@
                     newArrayItem = '';
                   }
                 "
-                :loading="savingItems[item.key]"
               >
                 <template v-slot:append>
                   <v-btn
                     color="primary"
+                    icon="mdi-plus"
                     size="small"
                     variant="tonal"
                     @click="
@@ -167,34 +169,33 @@
                         newArrayItem = '';
                       }
                     "
-                    icon="mdi-plus"
                   >
 
                   </v-btn>
                   <v-btn
                     v-if="isItemEdited(item)"
+                    :loading="savingItems[item.key]"
                     color="success"
+                    icon="mdi-check"
                     size="small"
                     variant="tonal"
                     @click="saveItem(item)"
-                    :loading="savingItems[item.key]"
-                    icon="mdi-check"
                   >
                   </v-btn>
                   <v-btn
                     v-if="isItemEdited(item)"
                     color="error"
-                    size="small"
                     icon="mdi-close"
-                    @click="revertEdit(item)"
+                    size="small"
                     variant="tonal"
+                    @click="revertEdit(item)"
                   >
                   </v-btn>
                   <v-btn
                     v-if="isDifferentFromDefault(item) && !isItemEdited(item)"
                     color="warning"
-                    size="small"
                     icon="mdi-refresh"
+                    size="small"
                     variant="tonal"
                     @click="resetToDefault(item)"
                   >
@@ -207,15 +208,15 @@
             <!-- 选择类型 -->
             <v-select
               v-else-if="item.type === 'enum'"
-              :model-value="localValues[item.key]"
+              :append-inner-icon="getAppendInnerIcon(item)"
               :items="item.options"
-              variant="outlined"
+              :loading="savingItems[item.key]"
+              :model-value="localValues[item.key]"
               density="comfortable"
               hide-details="auto"
+              variant="outlined"
               @update:model-value="(value) => handleUpdate(item.key, value)"
-              :append-inner-icon="getAppendInnerIcon(item)"
               @click:append-inner="handleAppendInnerClick(item)"
-              :loading="savingItems[item.key]"
             >
               <template v-slot:append>
                 <v-icon
@@ -230,8 +231,8 @@
             <!-- 布尔类型 -->
             <v-switch
               v-else-if="item.type === 'boolean'"
-              :model-value="localValues[item.key]"
               :label="localValues[item.key] ? '启用' : '禁用'"
+              :model-value="localValues[item.key]"
               color="primary"
               hide-details="auto"
               @update:model-value="(value) => handleUpdate(item.key, value)"
@@ -240,11 +241,11 @@
                 <div class="d-flex align-center">
                   <v-icon
                     v-if="isItemEdited(item)"
+                    :loading="savingItems[item.key]"
+                    class="mr-2"
                     color="success"
                     icon="mdi-check"
-                    class="mr-2"
                     @click="saveItem(item)"
-                    :loading="savingItems[item.key]"
                   />
                   <v-icon
                     v-if="isItemEdited(item)"
@@ -265,18 +266,18 @@
             <!-- 数字类型 -->
             <v-text-field
               v-else-if="item.type === 'number'"
+              :append-inner-icon="getAppendInnerIcon(item)"
+              :loading="savingItems[item.key]"
               :model-value="localValues[item.key]"
               :placeholder="String(item.default)"
-              type="number"
-              variant="outlined"
               density="comfortable"
               hide-details="auto"
+              type="number"
+              variant="outlined"
               @update:model-value="
                 (value) => handleUpdate(item.key, Number(value))
               "
-              :append-inner-icon="getAppendInnerIcon(item)"
               @click:append-inner="handleAppendInnerClick(item)"
-              :loading="savingItems[item.key]"
             >
               <template v-slot:append>
                 <v-icon
@@ -298,9 +299,9 @@
                 <v-chip
                   v-for="(value, index) in item.default"
                   :key="index"
+                  class="ml-1"
                   size="x-small"
                   variant="flat"
-                  class="ml-1"
                 >
                   {{ value }}
                 </v-chip>
@@ -314,7 +315,9 @@
           </div>
           <v-spacer></v-spacer>
           <div v-if="isItemEdited(item)" class="text-caption ">
-            点击 <v-icon size="x-small" icon="mdi-check" color="success" /> 保存修改
+            点击
+            <v-icon color="success" icon="mdi-check" size="x-small"/>
+            保存修改
           </div>
           <!--<div v-else-if="isDifferentFromDefault(item)" class="text-caption">
             点击 <v-icon size="x-small" icon="mdi-refresh" color="warning" /> 恢复默认值
@@ -326,7 +329,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import {ref, onMounted, watch} from "vue";
 import axios from "@/axios/axios";
 import draggable from "vuedraggable";
 
@@ -570,7 +573,7 @@ watch(
   () => {
     initializeValues();
   },
-  { deep: true }
+  {deep: true}
 );
 </script>
 

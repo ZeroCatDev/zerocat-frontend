@@ -1,38 +1,38 @@
 <template>
   <v-btn-group border density="compact" rounded="lg" size="x-small">
     <v-btn
-      @click="toggleStar"
-      variant="tonal"
+      :loading="starLoading"
       class="text-none"
       text="Star"
-      :loading="starLoading"
+      variant="tonal"
+      @click="toggleStar"
     >
       <template v-slot:prepend>
         <v-icon
-          :icon="isStarred ? 'mdi-star' : 'mdi-star-outline'"
           :color="isStarred ? 'yellow' : ''"
+          :icon="isStarred ? 'mdi-star' : 'mdi-star-outline'"
         />
       </template>
       {{ isStarred ? "Starred" : "Star" }} {{ starCount }}
     </v-btn>
-    <v-divider color="surface-light" vertical />
-    <v-menu :close-on-content-click="false" v-model="menu">
+    <v-divider color="surface-light" vertical/>
+    <v-menu v-model="menu" :close-on-content-click="false">
       <template v-slot:activator="{ props }">
-        <v-btn class="px-5" icon="mdi-menu-down" v-bind="props" />
+        <v-btn class="px-5" icon="mdi-menu-down" v-bind="props"/>
       </template>
 
-      <v-card min-width="300" max-width="400">
+      <v-card max-width="400" min-width="300">
         <v-progress-linear
           v-if="listLoading"
-          indeterminate
           color="primary"
+          indeterminate
         ></v-progress-linear>
 
         <v-list>
           <div v-for="list in myLists" :key="list.id">
             <v-list-item
-              :prepend-icon="list.hasProject ? 'mdi-check-circle' : 'mdi-playlist-plus'"
               :active="list.hasProject"
+              :prepend-icon="list.hasProject ? 'mdi-check-circle' : 'mdi-playlist-plus'"
               :prepend-icon-color="list.hasProject ? 'success' : undefined"
               @click.stop="toggleListItem(list.id)"
             >
@@ -55,20 +55,20 @@
         </v-card-actions>
       </v-card>
 
-      <v-dialog v-model="isVisibleDialog" width="auto" min-width="400" @click:outside="isVisibleDialog = false">
-        <v-card prepend-icon="mdi-format-list-bulleted" title="新建列表" border>
+      <v-dialog v-model="isVisibleDialog" min-width="400" width="auto" @click:outside="isVisibleDialog = false">
+        <v-card border prepend-icon="mdi-format-list-bulleted" title="新建列表">
           <v-card-text>
             <v-text-field
-              label="标题"
-              required
-              hint="将便于查找"
               v-model="newListInfo.title"
               :rules="[v => !!v || '标题不能为空']"
+              hint="将便于查找"
+              label="标题"
+              required
             ></v-text-field>
             <v-text-field
-              label="简介"
-              hint="简要描述列表内容"
               v-model="newListInfo.description"
+              hint="简要描述列表内容"
+              label="简介"
             ></v-text-field>
             <v-select
               v-model="newListInfo.state"
@@ -87,12 +87,12 @@
               @click="isVisibleDialog = false"
             ></v-btn>
             <v-btn
+              :disabled="!newListInfo.title"
+              :loading="creatingList"
               color="primary"
               text="创建"
               variant="tonal"
               @click.stop="createNewList"
-              :loading="creatingList"
-              :disabled="!newListInfo.title"
             ></v-btn>
           </v-card-actions>
         </v-card>
@@ -143,8 +143,8 @@ export default {
         state: "private"
       },
       listStates: [
-        { state: "私密", abbr: "private" },
-        { state: "公开", abbr: "public" },
+        {state: "私密", abbr: "private"},
+        {state: "公开", abbr: "public"},
       ],
       error: null
     };
@@ -152,8 +152,8 @@ export default {
   computed: {
     isValidProjectId() {
       return this.projectId !== undefined &&
-             this.projectId !== null &&
-             (typeof this.projectId === 'string' ? this.projectId.trim() !== '' : !isNaN(this.projectId) && this.projectId > 0);
+        this.projectId !== null &&
+        (typeof this.projectId === 'string' ? this.projectId.trim() !== '' : !isNaN(this.projectId) && this.projectId > 0);
     }
   },
   async created() {

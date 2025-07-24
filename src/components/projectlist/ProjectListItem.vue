@@ -1,13 +1,13 @@
 <template>
   <v-card
-    :title="list.title"
     :subtitle="list.description || '无描述'"
-    class="h-100"
+    :title="list.title"
     :to="`/app/projectlist/${list.id}`"
+    class="h-100"
   >
     <v-card-text>
       <div class="d-flex align-center">
-        <v-chip :color="list.state === 'public' ? 'success' : 'warning'" size="small" class="mr-2">
+        <v-chip :color="list.state === 'public' ? 'success' : 'warning'" class="mr-2" size="small">
           {{ list.state === 'public' ? '公开' : '私密' }}
         </v-chip>
         <span class="text-caption">{{ formatDate(list.updateTime || list.updatedAt) }}</span>
@@ -16,7 +16,7 @@
         <span class="text-caption">项目数: {{ projectCount }}</span>
         <v-spacer></v-spacer>
         <span v-if="list.author" class="text-caption">
-          <v-avatar size="16" class="mr-1">
+          <v-avatar class="mr-1" size="16">
             <v-img :src="getUserAvatar(list.author)" alt="用户头像"></v-img>
           </v-avatar>
           {{ list.author.display_name || list.author.username || `用户${list.authorid}` }}
@@ -27,28 +27,28 @@
     <v-card-actions>
       <v-btn
         v-if="isOwner"
-        icon="mdi-pencil"
-        variant="text"
-        size="small"
-        @click.stop.prevent="$emit('edit', list.id)"
         color="primary"
+        icon="mdi-pencil"
+        size="small"
+        variant="text"
+        @click.stop.prevent="$emit('edit', list.id)"
       ></v-btn>
       <v-spacer></v-spacer>
       <v-btn
-        icon="mdi-eye"
-        variant="text"
-        size="small"
         :to="`/app/projectlist/${list.id}`"
+        icon="mdi-eye"
+        size="small"
+        variant="text"
       ></v-btn>
     </v-card-actions>
   </v-card>
 </template>
 
 <script>
-import { localuser } from "../../services/localAccount";
-import { getProjectListById } from "../../services/projectListService";
-import { ref, onMounted } from "vue";
-import { get } from "@/services/serverConfig";
+import {localuser} from "../../services/localAccount";
+import {getProjectListById} from "../../services/projectListService";
+import {ref, onMounted} from "vue";
+import {get} from "@/services/serverConfig";
 
 export default {
   props: {

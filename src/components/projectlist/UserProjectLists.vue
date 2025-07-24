@@ -2,7 +2,7 @@
   <div>
     <v-card v-if="loading" class="mb-4">
       <v-card-text class="text-center">
-        <v-progress-circular indeterminate color="primary"></v-progress-circular>
+        <v-progress-circular color="primary" indeterminate></v-progress-circular>
       </v-card-text>
     </v-card>
 
@@ -16,10 +16,10 @@
       </v-card>
 
       <v-row v-else>
-        <v-col cols="12" xs="12" sm="6" md="4" lg="3" xl="2" xxl="2" v-for="item in lists" :key="item.id">
+        <v-col v-for="item in lists" :key="item.id" cols="12" lg="3" md="4" sm="6" xl="2" xs="12" xxl="2">
           <v-card rounded="lg">
-            <v-card :to="'/app/projectlist/' + item.id" rounded="lg" :title="item.title" :subtitle="item.description"
-              variant="tonal">
+            <v-card :subtitle="item.description" :title="item.title" :to="'/app/projectlist/' + item.id" rounded="lg"
+                    variant="tonal">
             </v-card>
           </v-card>
         </v-col>
@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { getUserPublicLists } from "../../services/projectListService";
+import {getUserPublicLists} from "../../services/projectListService";
 
 export default {
   name: "UserProjectLists",

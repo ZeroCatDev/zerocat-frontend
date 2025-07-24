@@ -2,70 +2,79 @@
   <v-container>
     <h1>创建一个新的作品</h1>
     <p>作品包含你的代码文件，包括修订历史记录。作品信息可以随时修改。</p>
-    <br />
+    <br/>
 
     <v-text-field
-      width="40%"
+      v-model="projectinfo.name"
+      :prefix="localuser.user.username + '/'"
+      active
       label="项目名称"
       required
-      :prefix="localuser.user.username + '/'"
-      v-model="projectinfo.name"
-      active
       variant="outlined"
+      width="40%"
     ></v-text-field>
     <p>
       优秀的项目名称简短而令人难忘。需要灵感吗？<a
-        style="text-decoration: none"
-        color="primary"
-        @click.native="projectinfo.name = examplename"
-        href="javascript:void(0)"
-        >{{ examplename }}</a
-      >
+      color="primary"
+      href="javascript:void(0)"
+      style="text-decoration: none"
+      @click.native="projectinfo.name = examplename"
+    >{{ examplename }}</a
+    >
       如何？
     </p>
-    <br />
+    <br/>
     <v-textarea
-    counter="1000"
-      label="简介（不必填）"
-      required
       v-model="projectinfo.description"
       active
+      counter="1000"
+      label="简介（不必填）"
+      required
       variant="outlined"
     ></v-textarea
-    ><v-divider></v-divider><br />
+    >
+    <v-divider></v-divider>
+    <br/>
     <v-radio-group v-model="projectinfo.state" row>
       <v-radio value="public">
         <template v-slot:label>
           <div>
-            <strong>公开</strong><br />互联网上的任何人都可以看到这个作品。
+            <strong>公开</strong><br/>互联网上的任何人都可以看到这个作品。
           </div>
-        </template></v-radio
+        </template>
+      </v-radio
       >
       <v-radio value="private">
         <template v-slot:label>
-          <div><strong>私密</strong><br />只有你可以看到这个作品。</div>
-        </template></v-radio
-      > </v-radio-group
-    ><v-divider></v-divider><br />
+          <div><strong>私密</strong><br/>只有你可以看到这个作品。</div>
+        </template>
+      </v-radio
+      >
+    </v-radio-group
+    >
+    <v-divider></v-divider>
+    <br/>
     <LanguageSelector
       v-model="projectinfo.type"
       label="选择作品类型"
       required
     />
 
-    <LicenseSelector v-model="projectinfo.license" />
+    <LicenseSelector v-model="projectinfo.license"/>
 
 
-    <br /><v-divider></v-divider><br />
+    <br/>
+    <v-divider></v-divider>
+    <br/>
 
     <div class="d-flex justify-end">
       <v-btn
+        :disabled="created"
         border
         color="primary"
         text="创建"
         variant="tonal"
         @click="newProject()"
-        :disabled="created"
       ></v-btn>
     </div>
   </v-container>
@@ -74,9 +83,9 @@
 <script>
 import openEdit from "../../stores/openEdit";
 import request from "@/axios/axios";
-import { useHead } from "@unhead/vue";
-import { localuser } from "@/services/localAccount";
-import { generate } from "random-words";
+import {useHead} from "@unhead/vue";
+import {localuser} from "@/services/localAccount";
+import {generate} from "random-words";
 import LicenseSelector from "@/components/LicenseSelector.vue";
 import LanguageSelector from "@/components/LanguageSelector.vue";
 

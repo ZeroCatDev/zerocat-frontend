@@ -1,5 +1,5 @@
 <template>
-  <project-query-view type="fork" :target="$route.params.id" />
+  <project-query-view :target="$route.params.id" type="fork"/>
 </template>
 
 <script>

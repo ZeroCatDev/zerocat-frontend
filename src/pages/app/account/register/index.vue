@@ -5,50 +5,50 @@
         <v-row>
           <v-col cols="12">
             <v-text-field
-              label="邮箱"
-              type="email"
               v-model="email"
-              variant="outlined"
-              required
               :rules="emailRules"
+              label="邮箱"
+              required
+              type="email"
+              variant="outlined"
             ></v-text-field>
             <v-text-field
-              label="用户名"
-              type="text"
               v-model="username"
-              variant="outlined"
-              required
               :rules="usernameRules"
+              label="用户名"
+              required
+              type="text"
+              variant="outlined"
             ></v-text-field>
             <v-text-field
-              label="密码"
               v-model="password"
-              variant="outlined"
-              required
-              :rules="passwordRules"
               :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+              :rules="passwordRules"
               :type="showPassword ? 'text' : 'password'"
+              label="密码"
+              required
+              variant="outlined"
               @click:append="showPassword = !showPassword"
             ></v-text-field>
           </v-col>
 
           <v-col cols="12">
-            <Recaptcha ref="recaptcha" recaptchaId="recaptcha-div" />
+            <Recaptcha ref="recaptcha" recaptchaId="recaptcha-div"/>
           </v-col>
 
           <v-col cols="12">
             <v-dialog persistent>
               <template v-slot:activator="{ props: activatorProps }">
                 <v-btn
-                  v-bind="activatorProps"
+                  :loading="loading"
+                  append-icon="mdi-arrow-right"
                   class="text-none"
                   color="primary"
                   rounded="xl"
-                  text="注册"
-                  variant="flat"
                   size="large"
-                  append-icon="mdi-arrow-right"
-                  :loading="loading"
+                  text="注册"
+                  v-bind="activatorProps"
+                  variant="flat"
                 ></v-btn>
               </template>
 
@@ -137,23 +137,23 @@
                     </v-checkbox>
 
                     <v-btn
+                      :loading="loading"
+                      append-icon="mdi-arrow-right"
                       class="text-none mt-4"
                       color="primary"
                       rounded="xl"
+                      size="large"
                       text="注册"
                       variant="flat"
-                      size="large"
                       @click="register"
-                      append-icon="mdi-arrow-right"
-                      :loading="loading"
                     ></v-btn>
 
                     <v-alert
+                      border="start"
                       class="mt-4"
+                      density="comfortable"
                       type="warning"
                       variant="tonal"
-                      border="start"
-                      density="comfortable"
                     >
                       对于技术手段绕过此页面的行为视为对 ZeroCat
                       的基础设施进行攻击，涉嫌非法入侵计算机系统，我们将保留追究法律责任的权利，违规获得的账户不被授权访问网站，账户将不受保护，如果您同意以上内容，请点击"复选框"以完成注册流程。
@@ -177,52 +177,52 @@
 
           <v-col cols="12">
             <v-btn
+              append-icon="mdi-arrow-right"
               class="text-none"
               color="white"
               rounded="xl"
-              text="登录"
-              variant="text"
               size="large"
-              append-icon="mdi-arrow-right"
+              text="登录"
               to="/app/account/login"
+              variant="text"
             ></v-btn>
             <v-btn
+              append-icon="mdi-arrow-right"
               class="text-none"
               color="white"
               rounded="xl"
-              text="找回密码"
-              variant="text"
               size="large"
-              append-icon="mdi-arrow-right"
+              text="找回密码"
               to="/app/account/retrieve"
+              variant="text"
             ></v-btn>
           </v-col>
 
 
-            <v-col cols="12">
-              <OAuthButtons mode="register" />
-            </v-col>
+          <v-col cols="12">
+            <OAuthButtons mode="register"/>
+          </v-col>
         </v-row>
       </v-form>
     </AuthCard>
-    <LoadingDialog :show="loading" text="正在注册" />
+    <LoadingDialog :show="loading" text="正在注册"/>
   </div>
 </template>
 
 <script>
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { localuser } from "@/services/localAccount";
+import {ref} from "vue";
+import {useRouter} from "vue-router";
+import {localuser} from "@/services/localAccount";
 import AuthService from "@/services/authService";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
 import AuthCard from "@/components/AuthCard.vue";
-import { useHead } from "@unhead/vue";
+import {useHead} from "@unhead/vue";
 import oauthProviders from '@/constants/oauth_providers.json';
 import OAuthButtons from "@/components/account/OAuthButtons.vue";
 
 export default {
-  components: { LoadingDialog, Recaptcha, AuthCard, OAuthButtons },
+  components: {LoadingDialog, Recaptcha, AuthCard, OAuthButtons},
 
   setup() {
     const router = useRouter();

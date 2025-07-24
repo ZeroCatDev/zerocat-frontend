@@ -43,11 +43,11 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn
+              :disabled="!isExpired && isRefreshing"
               :loading="isRefreshing"
-              @click="handleRefresh"
               color="primary"
               variant="tonal"
-              :disabled="!isExpired && isRefreshing"
+              @click="handleRefresh"
             >
               {{ getRefreshButtonText() }}
             </v-btn>
@@ -59,11 +59,11 @@
             <span class="text-h6">配置内容</span>
             <v-text-field
               v-model="searchKey"
-              label="查找配置项"
-              density="compact"
-              hide-details
               class="max-width-200"
               clearable
+              density="compact"
+              hide-details
+              label="查找配置项"
             ></v-text-field>
           </v-card-title>
 
@@ -72,9 +72,9 @@
 
             <v-alert
               v-else-if="searchResult === undefined"
-              type="warning"
-              text="未找到对应的配置项"
               class="mt-2"
+              text="未找到对应的配置项"
+              type="warning"
             ></v-alert>
             <v-code v-else class="mt-2">
               <pre>{{ JSON.stringify({ [searchKey]: searchResult }, null, 2) }}</pre>
@@ -87,8 +87,8 @@
 </template>
 
 <script>
-import { ref, onMounted, computed, watch } from 'vue'
-import { fetchConfig, get } from '@/services/serverConfig'
+import {ref, onMounted, computed, watch} from 'vue'
+import {fetchConfig, get} from '@/services/serverConfig'
 
 const MAX_AGE = 5 * 60 * 1000 // 5分钟，与serverConfig.js中保持一致
 const STORAGE_KEY = {

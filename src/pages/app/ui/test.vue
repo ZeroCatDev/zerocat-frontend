@@ -1,14 +1,14 @@
 <template>
   <v-container>
-    <v-btn @click="drawer = !drawer" color="primary" dark>
+    <v-btn color="primary" dark @click="drawer = !drawer">
       Toggle drawer
     </v-btn>
     <v-navigation-drawer
       v-model="drawer"
+      :width="$vuetify.display.mdAndUp ? 420 : 280"
       floating
       location="end"
       temporary
-      :width="$vuetify.display.mdAndUp ? 420 : 280"
     >
       <template #prepend>
         <v-card-item
@@ -28,8 +28,8 @@
         </v-card-item>
       </template>
       <div class="pa-4">
-        <v-text-field dirty label="Project name" variant="outlined" />
-        <v-textarea dirty label="Description" variant="outlined" />
+        <v-text-field dirty label="Project name" variant="outlined"/>
+        <v-textarea dirty label="Description" variant="outlined"/>
         <v-input>
           <v-field dirty label="Team members" variant="outlined">
             <div class="d-flex ga-2 pa-4">
@@ -64,11 +64,11 @@
         <v-input>
           <v-field dirty label="Tags" variant="outlined">
             <v-chip-group class="pa-2" column>
-              <v-chip color="primary" text="Design" />
-              <v-chip color="primary" text="Development" />
-              <v-chip color="primary" text="Marketing" />
-              <v-chip color="primary" text="SEO" />
-              <v-chip color="primary" text="Management" />
+              <v-chip color="primary" text="Design"/>
+              <v-chip color="primary" text="Development"/>
+              <v-chip color="primary" text="Marketing"/>
+              <v-chip color="primary" text="SEO"/>
+              <v-chip color="primary" text="Management"/>
             </v-chip-group>
           </v-field>
         </v-input>
@@ -98,7 +98,7 @@
             </template>
           </v-radio>
         </v-radio-group>
-        <v-divider class="mb-4" />
+        <v-divider class="mb-4"/>
         <v-btn
           class="text-none"
           color="primary"
@@ -107,7 +107,7 @@
           text="Copy link"
           variant="text"
         />
-        <br />
+        <br/>
         <v-btn
           class="text-none"
           color="medium-emphasis"
@@ -118,9 +118,9 @@
         />
       </div>
       <template #append>
-        <v-divider />
+        <v-divider/>
         <div class="d-flex justify-end px-4 py-2 ga-4">
-          <v-btn border class="text-none" flat rounded="lg" text="Cancel" />
+          <v-btn border class="text-none" flat rounded="lg" text="Cancel"/>
           <v-btn
             class="text-none"
             color="primary"
@@ -151,7 +151,7 @@
               offset-x="4"
               offset-y="8"
             >
-              <v-avatar color="surface-variant" />
+              <v-avatar color="surface-variant"/>
             </v-badge>
           </template>
           <template #title>
@@ -173,18 +173,18 @@
           </template>
         </v-list-item>
         <v-list
+          :lines="false"
           bg-color="surface-light"
           class="mx-4 pb-5"
           color="surface-light"
           density="compact"
-          :lines="false"
           rounded="lg"
         >
           <v-list-item>
             <template #prepend>
-              <v-avatar class="me-n2" color="surface-variant" size="18" />
+              <v-avatar class="me-n2" color="surface-variant" size="18"/>
             </template>
-            <template #title> <strong>vuetifyjs/one</strong> </template>
+            <template #title><strong>vuetifyjs/one</strong></template>
             <template #append>
               <v-btn-group
                 border
@@ -198,8 +198,8 @@
                   prepend-icon="mdi-star-outline"
                   text="Star"
                 />
-                <v-divider color="surface-light" vertical />
-                <v-btn class="px-5" icon="mdi-menu-down" />
+                <v-divider color="surface-light" vertical/>
+                <v-btn class="px-5" icon="mdi-menu-down"/>
               </v-btn-group>
             </template>
           </v-list-item>
@@ -209,10 +209,12 @@
             </div>
             <div class="d-flex align-center text-caption">
               <div class="me-4">
-                <v-badge color="primary" dot inline /> TypeScript
+                <v-badge color="primary" dot inline/>
+                TypeScript
               </div>
               <div class="d-flex align-center">
-                <v-icon icon="mdi-star-outline" /> 431
+                <v-icon icon="mdi-star-outline"/>
+                431
               </div>
             </div>
           </div>
@@ -276,10 +278,10 @@
         <v-btn
           v-for="link in links"
           :key="link.text"
+          :href="link.url"
+          :text="link.text"
           class="mx-2 text-none"
           rounded
-          :text="link.text"
-          :href="link.url"
           variant="text"
         />
       </v-row>
@@ -287,9 +289,9 @@
         <v-btn
           v-for="social in socialIcons"
           :key="social.icon"
-          class="mx-4"
-          :icon="social.icon"
           :href="social.url"
+          :icon="social.icon"
+          class="mx-4"
           variant="text"
         />
       </div>
@@ -306,11 +308,11 @@ export default {
     return {
       drawer: false,
       links: [
-        { text: "主页", url: "/" },
-        { text: "在线状态", url: "https://status.wuyuan.dev" },
-        { text: "博客", url: "https://wuyuan.dev" },],
+        {text: "主页", url: "/"},
+        {text: "在线状态", url: "https://status.wuyuan.dev"},
+        {text: "博客", url: "https://wuyuan.dev"},],
       socialIcons: [
-        { icon: "mdi-github", url: "https://github.com/sunwuyuan" },
+        {icon: "mdi-github", url: "https://github.com/sunwuyuan"},
       ]
     };
   },

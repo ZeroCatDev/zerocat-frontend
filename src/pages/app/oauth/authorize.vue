@@ -1,15 +1,15 @@
 <template>
   <v-container class="pa-4">
     <v-row justify="center">
-      <v-col cols="12" sm="10" md="8" lg="6">
+      <v-col cols="12" lg="6" md="8" sm="10">
         <!-- 应用信息卡片 -->
-        <v-card class="mb-4" v-if="application">
+        <v-card v-if="application" class="mb-4">
           <v-card-item>
             <template v-slot:prepend>
               <v-avatar
                 :image="application.logo_url || '/default-app-logo.png'"
-                size="64"
                 class="mr-4"
+                size="64"
               ></v-avatar>
             </template>
             <v-card-title class="text-h5">
@@ -25,8 +25,8 @@
           <!-- 应用信息 -->
           <v-card-text class="pt-4">
             <div class="d-flex align-center mb-4">
-              <v-icon icon="mdi-web" class="mr-2"></v-icon>
-              <a :href="application.homepage_url" target="_blank" class="text-decoration-none">
+              <v-icon class="mr-2" icon="mdi-web"></v-icon>
+              <a :href="application.homepage_url" class="text-decoration-none" target="_blank">
                 {{ application.homepage_url }}
               </a>
             </div>
@@ -67,12 +67,12 @@
             <v-select
               v-model="selectedEmail"
               :items="emails"
+              class="mb-4"
+              density="comfortable"
               item-title="email"
               item-value="email"
               label="选择要授权的邮箱"
               variant="outlined"
-              density="comfortable"
-              class="mb-4"
             ></v-select>
           </v-card-text>
 
@@ -81,18 +81,18 @@
           <!-- 操作按钮 -->
           <v-card-actions class="pa-4">
             <v-btn
+              class="mr-2"
               color="error"
               variant="outlined"
               @click="cancel"
-              class="mr-2"
             >
               取消
             </v-btn>
             <v-btn
+              :disabled="!selectedEmail"
+              :loading="loading"
               color="primary"
               @click="authorize"
-              :loading="loading"
-              :disabled="!selectedEmail"
             >
               授权应用
             </v-btn>
@@ -102,10 +102,10 @@
         <!-- 错误提示 -->
         <v-alert
           v-if="error"
+          class="mb-4"
+          closable
           type="error"
           variant="tonal"
-          closable
-          class="mb-4"
         >
           {{ error }}
         </v-alert>
@@ -114,10 +114,10 @@
 
     <!-- 加载中状态 -->
     <v-row v-if="loading && !application" justify="center">
-      <v-col cols="12" class="text-center">
+      <v-col class="text-center" cols="12">
         <v-progress-circular
-          indeterminate
           color="primary"
+          indeterminate
           size="64"
         ></v-progress-circular>
       </v-col>
@@ -126,8 +126,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import {ref, onMounted, computed} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
 import axios from '@/axios/axios'
 
 const route = useRoute()

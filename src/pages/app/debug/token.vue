@@ -7,68 +7,69 @@
       <v-divider class="my-3"></v-divider>
 
       <!-- 当前Token状态 -->
-      <v-card outlined class="mb-4">
+      <v-card class="mb-4" outlined>
         <v-card-title class="subtitle-1">
           当前Token状态
           <v-spacer></v-spacer>
-          <v-btn color="primary" @click="refreshTokenState" small>
-            <v-icon left small>mdi-refresh</v-icon>刷新
+          <v-btn color="primary" small @click="refreshTokenState">
+            <v-icon left small>mdi-refresh</v-icon>
+            刷新
           </v-btn>
         </v-card-title>
         <v-card-text>
           <v-simple-table dense>
             <tbody>
-              <tr>
-                <td class="font-weight-bold">登录状态</td>
-                <td>
-                  <v-chip
-                    :color="isLogin ? 'success' : 'error'"
-                    small
-                    text-color="white"
-                  >
-                    {{ isLogin ? '已登录' : '未登录' }}
-                  </v-chip>
-                </td>
-              </tr>
-              <tr>
-                <td class="font-weight-bold">Access Token</td>
-                <td class="text-truncate" style="max-width: 300px;">
-                  {{ token || '无' }}
-                </td>
-              </tr>
-              <tr>
-                <td class="font-weight-bold">Access Token有效性</td>
-                <td>
-                  <v-chip
-                    :color="isTokenValid ? 'success' : 'error'"
-                    small
-                    text-color="white"
-                  >
-                    {{ isTokenValid ? '有效' : '无效' }}
-                  </v-chip>
-                  <span v-if="tokenExpiration > 0" class="ml-2">
+            <tr>
+              <td class="font-weight-bold">登录状态</td>
+              <td>
+                <v-chip
+                  :color="isLogin ? 'success' : 'error'"
+                  small
+                  text-color="white"
+                >
+                  {{ isLogin ? '已登录' : '未登录' }}
+                </v-chip>
+              </td>
+            </tr>
+            <tr>
+              <td class="font-weight-bold">Access Token</td>
+              <td class="text-truncate" style="max-width: 300px;">
+                {{ token || '无' }}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-weight-bold">Access Token有效性</td>
+              <td>
+                <v-chip
+                  :color="isTokenValid ? 'success' : 'error'"
+                  small
+                  text-color="white"
+                >
+                  {{ isTokenValid ? '有效' : '无效' }}
+                </v-chip>
+                <span v-if="tokenExpiration > 0" class="ml-2">
                     (剩余{{ formatTime(tokenExpiration) }})
                   </span>
-                </td>
-              </tr>
-              <tr>
-                <td class="font-weight-bold">Refresh Token</td>
-                <td class="text-truncate" style="max-width: 300px;">
-                  {{ refreshToken || '无' }}
-                </td>
-              </tr>
-              <tr>
-                <td class="font-weight-bold">Refresh Token有效性</td>
-                <td>
-                  <v-chip
-                    :color="isRefreshTokenValid ? 'success' : 'error'"
-                    small
-                    text-color="white"
-                  >
-                    {{ isRefreshTokenValid ? '有效' : '无效' }}
-                  </v-chip>
-                </td>
-              </tr>
+              </td>
+            </tr>
+            <tr>
+              <td class="font-weight-bold">Refresh Token</td>
+              <td class="text-truncate" style="max-width: 300px;">
+                {{ refreshToken || '无' }}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-weight-bold">Refresh Token有效性</td>
+              <td>
+                <v-chip
+                  :color="isRefreshTokenValid ? 'success' : 'error'"
+                  small
+                  text-color="white"
+                >
+                  {{ isRefreshTokenValid ? '有效' : '无效' }}
+                </v-chip>
+              </td>
+            </tr>
             </tbody>
           </v-simple-table>
         </v-card-text>
@@ -84,7 +85,7 @@
           <v-expansion-panel-content>
             <v-card flat>
               <v-card-text>
-                <v-alert type="info" outlined class="mb-3">
+                <v-alert class="mb-3" outlined type="info">
                   自动刷新功能已默认启用，将在令牌即将过期前自动更新，保持登录状态。
                 </v-alert>
 
@@ -102,29 +103,29 @@
 
                   <v-btn
                     v-if="isAutoRefreshActive"
+                    :disabled="!isLogin"
                     color="warning"
                     small
                     @click="stopAutoRefresh"
-                    :disabled="!isLogin"
                   >
                     临时停用自动刷新
                   </v-btn>
                   <v-btn
                     v-else
+                    :disabled="!isLogin"
                     color="primary"
                     small
                     @click="startAutoRefresh"
-                    :disabled="!isLogin"
                   >
                     重新启用自动刷新
                   </v-btn>
                 </div>
 
-                <div class="d-flex align-center mb-4" v-if="tokenExpiration > 0">
+                <div v-if="tokenExpiration > 0" class="d-flex align-center mb-4">
                   <v-icon
                     :color="tokenExpiration <= 300 ? 'error' : 'success'"
-                    small
                     class="mr-2"
+                    small
                   >
                     {{ tokenExpiration <= 300 ? 'mdi-clock-alert-outline' : 'mdi-clock-outline' }}
                   </v-icon>
@@ -134,16 +135,16 @@
                   </span>
                 </div>
 
-                <v-alert v-if="autoRefreshStatus" :type="autoRefreshStatus.type" text outlined>
+                <v-alert v-if="autoRefreshStatus" :type="autoRefreshStatus.type" outlined text>
                   {{ autoRefreshStatus.message }}
                 </v-alert>
 
                 <v-btn
+                  :disabled="!isLogin"
+                  :loading="checkingStatus"
+                  class="mb-4"
                   color="primary"
                   @click="checkTokenRefreshStatus"
-                  :loading="checkingStatus"
-                  :disabled="!isLogin"
-                  class="mb-4"
                 >
                   检查刷新状态
                 </v-btn>
@@ -162,10 +163,10 @@
               <v-card-text>
                 <p class="mb-3">手动刷新Access Token，使用当前的Refresh Token获取新的Access Token。</p>
                 <v-btn
+                  :disabled="!isRefreshTokenValid"
+                  :loading="refreshLoading"
                   color="primary"
                   @click="refreshAccessToken"
-                  :loading="refreshLoading"
-                  :disabled="!isRefreshTokenValid"
                 >
                   刷新令牌
                 </v-btn>
@@ -183,11 +184,11 @@
             <v-card flat>
               <v-card-text>
                 <v-btn
+                  :disabled="!isLogin"
+                  :loading="devicesLoading"
+                  class="mb-4"
                   color="primary"
                   @click="fetchDevicesList"
-                  :loading="devicesLoading"
-                  :disabled="!isLogin"
-                  class="mb-4"
                 >
                   获取设备列表
                 </v-btn>
@@ -195,24 +196,24 @@
                 <div v-if="devicesData && devicesData.length > 0">
                   <v-simple-table>
                     <thead>
-                      <tr>
-                        <th>设备ID</th>
-                        <th>设备名称</th>
-                        <th>最后登录时间</th>
-                        <th>IP地址</th>
-                      </tr>
+                    <tr>
+                      <th>设备ID</th>
+                      <th>设备名称</th>
+                      <th>最后登录时间</th>
+                      <th>IP地址</th>
+                    </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="device in devicesData" :key="device.id">
-                        <td>{{ device.id }}</td>
-                        <td>{{ device.device_name }}</td>
-                        <td>{{ formatDate(device.last_login) }}</td>
-                        <td>{{ device.ip }}</td>
-                      </tr>
+                    <tr v-for="device in devicesData" :key="device.id">
+                      <td>{{ device.id }}</td>
+                      <td>{{ device.device_name }}</td>
+                      <td>{{ formatDate(device.last_login) }}</td>
+                      <td>{{ device.ip }}</td>
+                    </tr>
                     </tbody>
                   </v-simple-table>
                 </div>
-                <v-alert v-else-if="devicesData" type="info" outlined>
+                <v-alert v-else-if="devicesData" outlined type="info">
                   没有设备数据
                 </v-alert>
               </v-card-text>
@@ -230,15 +231,15 @@
               <v-card-text>
                 <v-checkbox
                   v-model="includeLocation"
-                  label="包含位置信息"
                   :disabled="!isLogin"
+                  label="包含位置信息"
                 ></v-checkbox>
                 <v-btn
+                  :disabled="!isLogin"
+                  :loading="tokensLoading"
+                  class="mb-4"
                   color="primary"
                   @click="fetchActiveTokens"
-                  :loading="tokensLoading"
-                  :disabled="!isLogin"
-                  class="mb-4"
                 >
                   获取活跃令牌
                 </v-btn>
@@ -246,46 +247,46 @@
                 <div v-if="tokensData && tokensData.length > 0">
                   <v-simple-table>
                     <thead>
-                      <tr>
-                        <th>令牌ID</th>
-                        <th>设备名称</th>
-                        <th>创建时间</th>
-                        <th>过期时间</th>
-                        <th>位置信息</th>
-                        <th>操作</th>
-                      </tr>
+                    <tr>
+                      <th>令牌ID</th>
+                      <th>设备名称</th>
+                      <th>创建时间</th>
+                      <th>过期时间</th>
+                      <th>位置信息</th>
+                      <th>操作</th>
+                    </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="token in tokensData" :key="token.id">
-                        <td>{{ token.id }}</td>
-                        <td>{{ token.device_name }}</td>
-                        <td>{{ formatDate(token.created_at) }}</td>
-                        <td>{{ formatDate(token.expires_at) }}</td>
-                        <td>{{ token.location || '无' }}</td>
-                        <td>
-                          <v-btn
-                            color="error"
-                            small
-                            text
-                            @click="revokeSelectedToken(token.id)"
-                            :loading="revokeLoading === token.id"
-                          >
-                            撤销
-                          </v-btn>
-                          <v-btn
-                            color="info"
-                            small
-                            text
-                            @click="getTokenDetail(token.id)"
-                          >
-                            详情
-                          </v-btn>
-                        </td>
-                      </tr>
+                    <tr v-for="token in tokensData" :key="token.id">
+                      <td>{{ token.id }}</td>
+                      <td>{{ token.device_name }}</td>
+                      <td>{{ formatDate(token.created_at) }}</td>
+                      <td>{{ formatDate(token.expires_at) }}</td>
+                      <td>{{ token.location || '无' }}</td>
+                      <td>
+                        <v-btn
+                          :loading="revokeLoading === token.id"
+                          color="error"
+                          small
+                          text
+                          @click="revokeSelectedToken(token.id)"
+                        >
+                          撤销
+                        </v-btn>
+                        <v-btn
+                          color="info"
+                          small
+                          text
+                          @click="getTokenDetail(token.id)"
+                        >
+                          详情
+                        </v-btn>
+                      </td>
+                    </tr>
                     </tbody>
                   </v-simple-table>
                 </div>
-                <v-alert v-else-if="tokensData" type="info" outlined>
+                <v-alert v-else-if="tokensData" outlined type="info">
                   没有活跃令牌数据
                 </v-alert>
               </v-card-text>
@@ -303,10 +304,10 @@
               <v-card-text>
                 <v-simple-table dense>
                   <tbody>
-                    <tr v-for="(value, key) in tokenDetail" :key="key">
-                      <td class="font-weight-bold">{{ formatKey(key) }}</td>
-                      <td>{{ formatValue(key, value) }}</td>
-                    </tr>
+                  <tr v-for="(value, key) in tokenDetail" :key="key">
+                    <td class="font-weight-bold">{{ formatKey(key) }}</td>
+                    <td>{{ formatValue(key, value) }}</td>
+                  </tr>
                   </tbody>
                 </v-simple-table>
               </v-card-text>
@@ -322,14 +323,14 @@
           <v-expansion-panel-content>
             <v-card flat>
               <v-card-text>
-                <v-alert type="warning" outlined class="mb-3">
+                <v-alert class="mb-3" outlined type="warning">
                   警告：此操作将使所有设备上的会话失效，包括当前会话。
                 </v-alert>
                 <v-btn
+                  :disabled="!isLogin"
+                  :loading="logoutAllLoading"
                   color="error"
                   @click="confirmLogoutAllDevices"
-                  :loading="logoutAllLoading"
-                  :disabled="!isLogin"
                 >
                   登出所有设备
                 </v-btn>
@@ -340,7 +341,7 @@
       </v-expansion-panels>
 
       <!-- 响应数据 -->
-      <v-card outlined class="mt-4" v-if="lastResponse">
+      <v-card v-if="lastResponse" class="mt-4" outlined>
         <v-card-title class="subtitle-1">
           最近API响应
           <v-spacer></v-spacer>
@@ -353,8 +354,8 @@
             <div class="font-weight-bold mr-2">状态:</div>
             <v-chip
               :color="getStatusColor(lastResponseStatus)"
-              text-color="white"
               small
+              text-color="white"
             >
               {{ lastResponseStatus }}
             </v-chip>
@@ -391,7 +392,7 @@
 </template>
 
 <script>
-import { localuser } from '@/services/localAccount';
+import {localuser} from '@/services/localAccount';
 import request from '@/axios/axios';
 
 export default {
@@ -571,7 +572,7 @@ export default {
         const success = await localuser.refreshAccessToken();
         this.lastResponseTime = Date.now() - startTime;
 
-        this.lastResponse = { success, message: success ? '令牌刷新成功' : '令牌刷新失败' };
+        this.lastResponse = {success, message: success ? '令牌刷新成功' : '令牌刷新失败'};
         this.lastResponseStatus = success ? 200 : 400;
 
         // 刷新状态

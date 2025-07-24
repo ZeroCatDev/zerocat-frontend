@@ -36,7 +36,7 @@ export function uploadUserAvatar(queryParams, formData) {
     url: `/my/set/avatar?${queryParams}`,
     method: "post",
     data: formData,
-    headers: { "Content-Type": "multipart/form-data" },
+    headers: {"Content-Type": "multipart/form-data"},
   });
 }
 

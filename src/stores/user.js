@@ -15,31 +15,32 @@ const defaultUser = (id) => ({
 export async function getUserById(ids) {
   if (Array.isArray(ids)) {
     try {
-      const { data } = await request.post(`/user/batch/id`, { users: ids });
+      const {data} = await request.post(`/user/batch/id`, {users: ids});
       return data.data;
     } catch (error) {
       return ids.map((id) => defaultUser(id));
     }
   } else {
     try {
-      const { data } = await request.get(`/user/id/${ids}`);
+      const {data} = await request.get(`/user/id/${ids}`);
       return data.data;
     } catch (error) {
       return defaultUser(ids);
     }
   }
 }
+
 export async function getUserByUsername(names) {
   if (Array.isArray(names)) {
     try {
-      const { data } = await request.post(`/user/batch/name`, { users: names });
+      const {data} = await request.post(`/user/batch/name`, {users: names});
       return data.data;
     } catch (error) {
       return names.map((id) => defaultUser(id));
     }
   } else {
     try {
-      const { data } = await request.get(`/user/username/${names}`);
+      const {data} = await request.get(`/user/username/${names}`);
       return data.data;
     } catch (error) {
       return defaultUser(names);

@@ -1,59 +1,70 @@
 <template>
   <v-container>
     <v-row>
-      <v-col xs="12" sm="12" md="8" lg="8" xl="8" xxl="8" cols="12">
-        <div style="display: flex; justify-content: space-between" class="mb-2">
+      <v-col cols="12" lg="8" md="8" sm="12" xl="8" xs="12" xxl="8">
+        <div class="mb-2" style="display: flex; justify-content: space-between">
           <div>
             <v-menu :close-on-content-click="false">
               <template v-slot:activator="{ props }">
                 <v-btn
-                  rounded="lg"
-                  variant="tonal"
                   class="text-none"
                   prepend-icon="mdi-source-commit"
+                  rounded="lg"
                   v-bind="props"
-                  ><template v-slot:prepend><v-icon /></template
-                  >{{ commitInfo ? commitInfo.commit.branch : "加载中..." }}</v-btn
+                  variant="tonal"
+                >
+                  <template v-slot:prepend>
+                    <v-icon/>
+                  </template
+                  >
+                  {{ commitInfo ? commitInfo.commit.branch : "加载中..." }}
+                </v-btn
                 >
               </template>
             </v-menu>
           </div>
           <v-btn
-            variant="tonal"
-            class="text-none"
-            prepend-icon="mdi-source-branch"
-            rounded="lg"
             :to="`/${$route.params.username}/${
               $route.params.projectname
             }/tree/${commitInfo?.commit.branch || 'main'}`"
-            ><template v-slot:prepend><v-icon /></template>返回最新提交</v-btn
+            class="text-none"
+            prepend-icon="mdi-source-branch"
+            rounded="lg"
+            variant="tonal"
+          >
+            <template v-slot:prepend>
+              <v-icon/>
+            </template>
+            返回最新提交
+          </v-btn
           >
         </div>
 
         <ProjectPlayer
-          :project-id="project.id"
           :commit-id="$route.params.commitId"
+          :project-id="project.id"
           :showplayer="showplayer"
         />
-        <br />
+        <br/>
         <v-card
-          hover
-          border
-          :title="commitInfo ? commitInfo.commit.commit_message : '加载中...'"
           :subtitle="commitInfo ? commitInfo.commit.commit_date : '加载中...'"
+          :title="commitInfo ? commitInfo.commit.commit_message : '加载中...'"
+          border
+          hover
         >
           <v-card-text>{{
             commitInfo ? commitInfo.commit.commit_description : "加载中..."
-          }}</v-card-text>
+            }}
+          </v-card-text>
         </v-card>
-        <br />
+        <br/>
       </v-col>
-      <v-col xs="12" sm="12" md="4" lg="4" xl="4" xxl="8" cols="12">
+      <v-col cols="12" lg="4" md="4" sm="12" xl="4" xs="12" xxl="8">
         <ProjectInfoCard
-          :project="project"
           :author="author"
-          :username="$route.params.username"
+          :project="project"
           :projectname="$route.params.projectname"
+          :username="$route.params.username"
         />
       </v-col>
     </v-row>
@@ -61,9 +72,9 @@
 </template>
 
 <script>
-import { use404Helper } from "@/composables/use404";
-import { localuser } from "@/services/localAccount";
-import { useHead } from "@unhead/vue";
+import {use404Helper} from "@/composables/use404";
+import {localuser} from "@/services/localAccount";
+import {useHead} from "@unhead/vue";
 import {
   getProjectInfoByNamespace,
   initProject,

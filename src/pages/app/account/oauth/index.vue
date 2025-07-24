@@ -1,6 +1,6 @@
 <template>
-    <OAuthManager />
+  <OAuthManager/>
 </template>
 
 <script setup>
-    </script>
+</script>

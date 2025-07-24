@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex align-center justify-center pa-4">
-    <v-card class="pa-4 pt-7" max-width="448" border rounded="lg">
+    <v-card border class="pa-4 pt-7" max-width="448" rounded="lg">
       <v-card-title class="text-h5 font-weight-semibold">
         {{ pageTitle }}
       </v-card-title>
@@ -8,12 +8,12 @@
       <v-card-subtitle>{{ pageSubtitle }}</v-card-subtitle>
 
       <v-card-text v-if="loading">
-        <v-progress-circular indeterminate color="primary" class="mx-auto d-block mb-4"></v-progress-circular>
+        <v-progress-circular class="mx-auto d-block mb-4" color="primary" indeterminate></v-progress-circular>
         <p class="text-center">正在验证您的登录链接...</p>
       </v-card-text>
 
       <v-card-text v-else-if="error">
-        <v-alert type="error" variant="tonal" border="start" class="mb-4">
+        <v-alert border="start" class="mb-4" type="error" variant="tonal">
           {{ error }}
         </v-alert>
         <p class="text-body-2">
@@ -22,7 +22,7 @@
       </v-card-text>
 
       <v-card-text v-else-if="success">
-        <v-alert type="success" variant="tonal" border="start" class="mb-4">
+        <v-alert border="start" class="mb-4" type="success" variant="tonal">
           {{ success }}
         </v-alert>
         <p class="text-body-2">
@@ -33,18 +33,18 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn
-          color="primary"
-          variant="text"
-          to="/app/account/login"
           :disabled="loading || countdown > 0"
+          color="primary"
+          to="/app/account/login"
+          variant="text"
         >
           {{ countdown > 0 ? `${countdown}秒后跳转` : '返回登录' }}
         </v-btn>
         <v-btn
-          color="primary"
-          variant="flat"
-          to="/app/dashboard"
           :disabled="loading || !loginSuccess || countdown > 0"
+          color="primary"
+          to="/app/dashboard"
+          variant="flat"
         >
           去主页
         </v-btn>
@@ -54,10 +54,10 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, onBeforeUnmount } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useHead } from "@unhead/vue";
-import { localuser } from "@/services/localAccount";
+import {ref, computed, onMounted, onBeforeUnmount} from "vue";
+import {useRoute, useRouter} from "vue-router";
+import {useHead} from "@unhead/vue";
+import {localuser} from "@/services/localAccount";
 import AuthService from "@/services/authService";
 
 export default {

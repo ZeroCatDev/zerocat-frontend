@@ -1,43 +1,44 @@
 <template>
   <v-container>
     <v-row>
-      <v-col xs="12" sm="12" md="8" lg="8" xl="8" xxl="8" cols="12">
+      <v-col cols="12" lg="8" md="8" sm="12" xl="8" xs="12" xxl="8">
         <ProjectBranchNav
-          :username="$route.params.username"
-          :projectname="$route.params.projectname"
+          :branch-history="projectbranchhistory"
+          :branches="projectbranchs"
           :current-branch="$route.params.branch"
           :current-commit-id="currentCommitId"
-          :branches="projectbranchs"
-          :branch-history="projectbranchhistory"
+          :projectname="$route.params.projectname"
+          :username="$route.params.username"
         />
 
         <ProjectPlayer
-          :project-id="project.id"
           :branch="$route.params.branch"
           :commit-id="currentCommitId"
+          :project-id="project.id"
           :showplayer="showplayer"
         />
-        <br />
+        <br/>
       </v-col>
-      <v-col xs="12" sm="12" md="4" lg="4" xl="4" xxl="8" cols="12">
+      <v-col cols="12" lg="4" md="4" sm="12" xl="4" xs="12" xxl="8">
         <ProjectInfoCard
-          :project="project"
           :author="author"
-          :username="$route.params.username"
+          :project="project"
           :projectname="$route.params.projectname"
+          :username="$route.params.username"
         />
       </v-col>
-      <v-col xxl="8" xl="8" lg="8" md="8" sm="12" xs="12" cols="12">
-        <Comment :url="'project-' + project.id+'#'+$route.params.branch" :name="` ${project.title} 的分支：${$route.params.branch} `"></Comment>
+      <v-col cols="12" lg="8" md="8" sm="12" xl="8" xs="12" xxl="8">
+        <Comment :name="` ${project.title} 的分支：${$route.params.branch} `"
+                 :url="'project-' + project.id+'#'+$route.params.branch"></Comment>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-import { use404Helper } from "@/composables/use404";
-import { localuser } from "@/services/localAccount";
-import { useHead } from "@unhead/vue";
+import {use404Helper} from "@/composables/use404";
+import {localuser} from "@/services/localAccount";
+import {useHead} from "@unhead/vue";
 import {
   getProjectInfoByNamespace,
   initProject,
@@ -116,7 +117,7 @@ export default {
       this.currentCommitId = currentBranch.latest_commit_hash;
       this.loadBranchHistory();
 
-      useHead({ title: `${this.project.title} at ${branch}` });
+      useHead({title: `${this.project.title} at ${branch}`});
       this.author = this.project.author;
     },
     async loadBranchHistory() {

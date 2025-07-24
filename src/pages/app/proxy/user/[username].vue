@@ -2,9 +2,9 @@
   <v-container>
     <div class="mb-2">
       <v-card
-        class="mx-auto mb-4"
         :disabled="UserCardLoading"
         :loading="UserCardLoading"
+        class="mx-auto mb-4"
       >
         <template v-slot:prepend>
           <v-avatar class="mb-2">
@@ -38,12 +38,14 @@
           <v-chip>
             <v-icon icon="mdi-tag" start></v-icon>
 
-            {{ scratchteam ? "Scratch Team" : "普通用户" }}</v-chip
+            {{ scratchteam ? "Scratch Team" : "普通用户" }}
+          </v-chip
           >
           <v-chip>
             <v-icon icon="mdi-earth" start></v-icon>
 
-            {{ userinfo.profile.country }}</v-chip
+            {{ userinfo.profile.country }}
+          </v-chip
           >
           <span class=""></span>
         </template>
@@ -57,23 +59,23 @@
       </v-card>
 
       <ProxyShowProjects
-      autoload="true"
- title="作品"
-        subtitle="此用户的作品"
         :url="`/users/${userinfo.username}/projects?`"
+        autoload="true"
+        subtitle="此用户的作品"
+        title="作品"
       ></ProxyShowProjects>
-      <br />
+      <br/>
 
       <ProxyShowUsers
-        title="他关注的人"
         :url="`/users/${userinfo.username}/following?`"
+        title="他关注的人"
       ></ProxyShowUsers>
-      <br />
+      <br/>
       <ProxyShowUsers
-        title="关注他的人"
         :url="`/users/${userinfo.username}/followers?`"
+        title="关注他的人"
       ></ProxyShowUsers>
-      <br />
+      <br/>
       <proxylicense
         :url="'https://scratch.mit.edu/users/' + userinfo.username"
       ></proxylicense>
@@ -86,14 +88,14 @@
 </template>
 
 <script>
-import { getUser } from "@/services/proxy/userService";
+import {getUser} from "@/services/proxy/userService";
 import Comment from "../../../../components/Comment.vue";
 import ProxyShowUsers from "../../../../components/proxy/ProxyShowUsers.vue";
 import ProxyShowProjects from "../../../../components/proxy/ProxyShowProjects.vue";
-import { get } from '@/services/serverConfig';
+import {get} from '@/services/serverConfig';
 
 export default {
-  components: { Comment, ProxyShowUsers, ProxyShowProjects },
+  components: {Comment, ProxyShowUsers, ProxyShowProjects},
 
   data() {
     return {

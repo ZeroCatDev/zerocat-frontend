@@ -54,8 +54,8 @@ axiosInstance.interceptors.response.use(
       if (
         error.response.data &&
         (error.response.data.code === "ZC_ERROR_NEED_LOGIN" ||
-         error.response.data.code === "ZC_ERROR_INVALID_REFRESH_TOKEN" ||
-         error.response.data.code === "ZC_ERROR_REFRESH_TOKEN_EXPIRED")
+          error.response.data.code === "ZC_ERROR_INVALID_REFRESH_TOKEN" ||
+          error.response.data.code === "ZC_ERROR_REFRESH_TOKEN_EXPIRED")
       ) {
         // 发出登出事件，让 localAccount.js 处理
         window.dispatchEvent(new CustomEvent('forceLogout'));
@@ -87,7 +87,7 @@ axiosInstance.interceptors.response.use(
         // 调用刷新令牌接口
         const response = await axios.post(
           `${import.meta.env.VITE_APP_BASE_API}/account/refresh-token`,
-          { refresh_token: refreshToken }
+          {refresh_token: refreshToken}
         );
 
         if (response.data.status === "success") {
@@ -107,7 +107,7 @@ axiosInstance.interceptors.response.use(
         } else {
           // 只在刷新令牌确实无效时才登出
           if (response.data.code === "ZC_ERROR_INVALID_REFRESH_TOKEN" ||
-              response.data.code === "ZC_ERROR_REFRESH_TOKEN_EXPIRED") {
+            response.data.code === "ZC_ERROR_REFRESH_TOKEN_EXPIRED") {
             window.dispatchEvent(new CustomEvent('forceLogout'));
           }
           isRefreshing = false;

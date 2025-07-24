@@ -29,8 +29,8 @@
       </v-btn>
       <v-btn
         v-if="connected"
-        color="primary"
         class="mr-2"
+        color="primary"
         @click="runCode"
       >
         Run
@@ -47,12 +47,12 @@
 </template>
 
 <script>
-import { Terminal } from '@xterm/xterm'
-import { FitAddon } from '@xterm/addon-fit'
+import {Terminal} from '@xterm/xterm'
+import {FitAddon} from '@xterm/addon-fit'
 import '@xterm/xterm/css/xterm.css'
 import programmingLanguages from '@/constants/programming_languages.js'
 import axios from '@/axios/axios'
-import { localuser } from '@/services/localAccount'
+import {localuser} from '@/services/localAccount'
 
 export default {
   name: 'CodeRunTerminal',

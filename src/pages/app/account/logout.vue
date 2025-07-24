@@ -1,18 +1,20 @@
 <template>
   <v-container>
-    <v-card class="mx-auto" rel="noopener" target="_blank" border>
+    <v-card border class="mx-auto" rel="noopener" target="_blank">
       <template v-slot:title>
-        <span>{{ titlemessage }}</span> </template
-      ><template v-slot:subtitle>
-        <span>正在退出您的ZeroCat账户</span> </template
-      ><v-card-text class="bg-surface-light pt-4">{{ log }}</v-card-text>
+        <span>{{ titlemessage }}</span></template
+      >
+      <template v-slot:subtitle>
+        <span>正在退出您的ZeroCat账户</span></template
+      >
+      <v-card-text class="bg-surface-light pt-4">{{ log }}</v-card-text>
     </v-card>
   </v-container>
 </template>
 
 <script>
-import { localuser } from "@/services/localAccount";
-import { useHead } from "@unhead/vue";
+import {localuser} from "@/services/localAccount";
+import {useHead} from "@unhead/vue";
 
 export default {
   data() {

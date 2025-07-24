@@ -2,9 +2,9 @@
   <v-container>
     <div class="mb-2">
       <v-card
-        class="mx-auto mb-4"
         :disabled="UserCardLoading"
         :loading="UserCardLoading"
+        class="mx-auto mb-4"
       >
         <template v-slot:prepend>
           <v-avatar class="mb-2">
@@ -36,45 +36,58 @@
             <v-chip>
               <v-icon icon="mdi-clock" start></v-icon>
 
-              {{ studioinfo.history.modified }}更新</v-chip
+              {{ studioinfo.history.modified }}更新
+            </v-chip
             >
             <v-chip>
               <v-icon icon="mdi-earth" start></v-icon>
 
-              {{ studioinfo.public == true ? "公开" : "私密" }}</v-chip
-            >
-            <v-chip>
-              <v-icon icon="mdi-earth" start></v-icon>
-
-              {{
-                studioinfo.open_to_all == true ? "对所有人开放" : "需要邀请"
-              }}</v-chip
+              {{ studioinfo.public == true ? "公开" : "私密" }}
+            </v-chip
             >
             <v-chip>
               <v-icon icon="mdi-earth" start></v-icon>
 
               {{
-                studioinfo.comments_allowed == true
-                  ? "Scratch官网允许评论"
-                  : "Scratch官网不允许评论"
-              }}</v-chip
-            ><v-chip>
+              studioinfo.open_to_all == true ? "对所有人开放" : "需要邀请"
+              }}
+            </v-chip
+            >
+            <v-chip>
               <v-icon icon="mdi-earth" start></v-icon>
 
-              Scratch官网{{ studioinfo.stats.comments }}评论</v-chip
-            ><v-chip>
+              {{
+              studioinfo.comments_allowed == true
+              ? "Scratch官网允许评论"
+              : "Scratch官网不允许评论"
+              }}
+            </v-chip
+            >
+            <v-chip>
               <v-icon icon="mdi-earth" start></v-icon>
 
-              {{ studioinfo.stats.followers }}被关注</v-chip
-            ><v-chip>
+              Scratch官网{{ studioinfo.stats.comments }}评论
+            </v-chip
+            >
+            <v-chip>
               <v-icon icon="mdi-earth" start></v-icon>
 
-              {{ studioinfo.stats.managers }}成员</v-chip
-            ><v-chip>
+              {{ studioinfo.stats.followers }}被关注
+            </v-chip
+            >
+            <v-chip>
               <v-icon icon="mdi-earth" start></v-icon>
 
-              {{ studioinfo.stats.projects }}项目</v-chip
-            ></v-chip-group
+              {{ studioinfo.stats.managers }}成员
+            </v-chip
+            >
+            <v-chip>
+              <v-icon icon="mdi-earth" start></v-icon>
+
+              {{ studioinfo.stats.projects }}项目
+            </v-chip
+            >
+          </v-chip-group
           >
         </template>
         <v-tabs v-model="tab">
@@ -91,18 +104,18 @@
             <v-tabs-window-item value="members">
 
               <ProxyShowUsers
-              title="管理员"
-              subtitle="用户列表"
-                :url="`/studios/${studioinfo.id}/managers?`"
                 :autoload="true"
+                :url="`/studios/${studioinfo.id}/managers?`"
+                subtitle="用户列表"
+                title="管理员"
               ></ProxyShowUsers>
-<br/>
+              <br/>
 
               <ProxyShowUsers
-                title="成员"
-                subtitle="用户列表"
-                :url="`/studios/${studioinfo.id}/curators?`"
                 :autoload="true"
+                :url="`/studios/${studioinfo.id}/curators?`"
+                subtitle="用户列表"
+                title="成员"
               ></ProxyShowUsers>
             </v-tabs-window-item>
           </v-tabs-window>
@@ -110,11 +123,11 @@
       </v-card>
 
       <ProxyShowProjects
-        :url="`/studios/${studioinfo.id}/projects?`"
         :autoload="true"
-        title="项目"
-        subtitle="项目列表"
         :showUserInfo="true"
+        :url="`/studios/${studioinfo.id}/projects?`"
+        subtitle="项目列表"
+        title="项目"
       ></ProxyShowProjects>
       <proxylicense :url="'https://scratch.mit.edu/studios/' + studioinfo.id"></proxylicense>
 
@@ -128,14 +141,14 @@
 </template>
 
 <script>
-import { getStudio, getStudioProjects, getStudioCurators, getStudioManagers } from "@/services/proxy/studioService";
+import {getStudio, getStudioProjects, getStudioCurators, getStudioManagers} from "@/services/proxy/studioService";
 import Comment from "../../../../components/Comment.vue";
 import ProxyShowProjects from "@/components/proxy/ProxyShowProjects.vue";
 import ProxyShowUsers from "@/components/proxy/ProxyShowUsers.vue";
-import { get } from '@/services/serverConfig';
+import {get} from '@/services/serverConfig';
 
 export default {
-  components: { Comment,ProxyShowUsers,ProxyShowProjects },
+  components: {Comment, ProxyShowUsers, ProxyShowProjects},
   data() {
     return {
       tab: ref(null),

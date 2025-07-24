@@ -1,10 +1,10 @@
 <template>
   <div>
-    <PageAnalytics target-type="home" target-id="1" />
+    <PageAnalytics target-id="1" target-type="home"/>
 
     <div class="landing-page">
       <!-- 顶部导航 -->
-      <v-toolbar flat color="surface" class="px-4 px-sm-10">
+      <v-toolbar class="px-4 px-sm-10" color="surface" flat>
         <template v-slot:prepend>
           <div class="d-flex align-center">
             <span class="font-weight-bold primary--text">ZeroCat</span>
@@ -14,19 +14,21 @@
         <v-spacer></v-spacer>
 
         <v-btn
-          variant="text"
+          class="hidden-sm-and-down"
           href="https://github.com/ZeroCatDev/ZeroCat"
           target="_blank"
-          class="hidden-sm-and-down"
+          variant="text"
         >
-          <v-icon class="mr-2">mdi-github</v-icon>开源仓库
+          <v-icon class="mr-2">mdi-github</v-icon>
+          开源仓库
         </v-btn>
 
-        <v-btn variant="text" to="/app/explore" class="hidden-sm-and-down">
-          <v-icon class="mr-2">mdi-rocket-launch</v-icon>浏览作品
+        <v-btn class="hidden-sm-and-down" to="/app/explore" variant="text">
+          <v-icon class="mr-2">mdi-rocket-launch</v-icon>
+          浏览作品
         </v-btn>
 
-        <v-btn variant="flat" color="primary" class="ml-4" to="/app/explore">
+        <v-btn class="ml-4" color="primary" to="/app/explore" variant="flat">
           立即开始
         </v-btn>
       </v-toolbar>
@@ -37,7 +39,7 @@
       <section class="hero-section py-16">
         <v-container>
           <v-row align="center">
-            <v-col cols="12" md="6" class="text-center text-md-left">
+            <v-col class="text-center text-md-left" cols="12" md="6">
               <div class="mb-8">
                 <h1 class="mb-2 font-weight-bold hero-title text-gradient text-glow">
                   ZeroCat
@@ -53,34 +55,34 @@
                 </h2>
                 <p class="mb-8 text-medium-emphasis">新一代，开源，编程社区</p>
                 <v-btn
-                  color="primary"
-                  variant="flat"
                   class="mr-4"
+                  color="primary"
                   to="/app/explore"
+                  variant="flat"
                 >
                   浏览作品
                 </v-btn>
-                <v-btn variant="outlined" href="https://langs.ink/article/houlangs/" target="_blank"> 了解更多 </v-btn>
+                <v-btn href="https://langs.ink/article/houlangs/" target="_blank" variant="outlined"> 了解更多</v-btn>
               </div>
 
               <v-chip
-                variant="outlined"
-                color="primary"
-                size="small"
                 class="mt-4"
+                color="primary"
                 href="https://www.rainyun.com/wuyuan_?s=zerocat"
+                size="small"
                 target="_blank"
+                variant="outlined"
               >
                 由雨云提供技术支持
               </v-chip>
             </v-col>
 
-            <v-col cols="12" md="6" class="d-none d-md-flex justify-center">
+            <v-col class="d-none d-md-flex justify-center" cols="12" md="6">
               <v-img
-                src="/src/assets/logo.svg"
-                max-width="200"
-                contain
                 class="hero-image"
+                contain
+                max-width="200"
+                src="/src/assets/logo.svg"
               ></v-img>
             </v-col>
           </v-row>
@@ -90,8 +92,8 @@
       <!-- 特性区域 -->
       <section class="features-section py-12 bg-surface">
         <v-container>
-          <v-row justify="center" class="mb-8">
-            <v-col cols="12" md="8" class="text-center">
+          <v-row class="mb-8" justify="center">
+            <v-col class="text-center" cols="12" md="8">
               <span class="text-overline text-primary">ZeroCat 特性</span>
               <h2 class="mb-2 font-weight-medium">为什么选择我们？</h2>
               <p class="text-medium-emphasis">
@@ -105,13 +107,14 @@
               v-for="(feature, i) in features"
               :key="i"
               cols="12"
-              sm="6"
               md="4"
+              sm="6"
             >
               <v-card class="h-100 pa-4 card-glass">
-                <v-icon :color="feature.color" size="36" class="mb-4">{{
+                <v-icon :color="feature.color" class="mb-4" size="36">{{
                   feature.icon
-                }}</v-icon>
+                  }}
+                </v-icon>
                 <div class="font-weight-medium mb-2">{{ feature.title }}</div>
                 <p class="text-caption text-medium-emphasis">
                   {{ feature.text }}
@@ -126,8 +129,8 @@
       <section class="stats-section py-12">
         <v-container>
           <v-row justify="center">
-            <v-col v-for="(stat, i) in stats" :key="i" cols="6" sm="4" lg="3">
-              <v-card variant="flat" class="text-center py-6 card-glass">
+            <v-col v-for="(stat, i) in stats" :key="i" cols="6" lg="3" sm="4">
+              <v-card class="text-center py-6 card-glass" variant="flat">
                 <div class="text-primary font-weight-bold mb-1">
                   {{ stat.title }}
                 </div>
@@ -144,26 +147,26 @@
       <section class="community-section py-12 bg-surface">
         <v-container>
           <v-row align="center">
-            <v-col cols="12" md="6" class="order-2 order-md-1">
+            <v-col class="order-2 order-md-1" cols="12" md="6">
               <span class="text-overline text-primary">面向Scratcher</span>
               <h2 class="mb-4 font-weight-medium">寻找更广阔的编程社区？</h2>
               <p class="text-medium-emphasis mb-6">
                 欢迎各位Scratcher加入ZeroCat，这里不仅有丰富的作品展示，还有更多编程资源和学习机会。
               </p>
-              <v-btn color="primary" variant="flat" to="/app/explore">
+              <v-btn color="primary" to="/app/explore" variant="flat">
                 探索社区
               </v-btn>
             </v-col>
 
             <v-col
+              class="order-1 order-md-2 text-center mb-6 mb-md-0"
               cols="12"
               md="6"
-              class="order-1 order-md-2 text-center mb-6 mb-md-0"
             >
               <v-img
-                src="https://cdn.jsdelivr.net/gh/houlangs/houlangs@main/community.webp"
-                max-width="320"
                 class="mx-auto"
+                max-width="320"
+                src="https://cdn.jsdelivr.net/gh/houlangs/houlangs@main/community.webp"
               ></v-img>
             </v-col>
           </v-row>
@@ -173,8 +176,8 @@
       <!-- 团队成员 -->
       <section class="team-section py-12">
         <v-container>
-          <v-row justify="center" class="mb-8">
-            <v-col cols="12" md="8" class="text-center">
+          <v-row class="mb-8" justify="center">
+            <v-col class="text-center" cols="12" md="8">
               <span class="text-overline text-primary">团队介绍</span>
               <h2 class="mb-2 font-weight-medium">厚浪开发组</h2>
               <p class="text-medium-emphasis">一支朝气蓬勃、热爱代码的创新团队</p>
@@ -184,12 +187,12 @@
           <v-row>
             <v-col v-for="(member, i) in teamMembers" :key="i" cols="6" sm="3">
               <v-card
-                variant="flat"
-                class="text-center pa-4 card-glass"
                 :href="member.link"
+                class="text-center pa-4 card-glass"
                 target="_blank"
+                variant="flat"
               >
-                <v-avatar size="80" class="mb-3">
+                <v-avatar class="mb-3" size="80">
                   <v-img :src="member.avatar" alt="团队成员"></v-img>
                 </v-avatar>
                 <div class="font-weight-medium">{{ member.title }}</div>
@@ -200,19 +203,19 @@
             </v-col>
           </v-row>
 
-          <v-row justify="center" class="mt-6">
-            <v-col cols="12" md="8" class="text-center">
+          <v-row class="mt-6" justify="center">
+            <v-col class="text-center" cols="12" md="8">
               <p class="text-caption bg-surface pa-3 rounded">
                 <q>长江后浪推前浪，浮世新人换旧人</q> -
                 我们致力于使用最新技术，助力青少年上云
               </p>
               <v-btn
-                variant="text"
-                color="primary"
-                size="small"
                 class="mt-2"
+                color="primary"
                 href="https://langs.ink/article/houlangs/"
+                size="small"
                 target="_blank"
+                variant="text"
               >
                 了解更多团队信息
               </v-btn>
@@ -225,7 +228,7 @@
       <section class="opensource-section py-12 bg-surface">
         <v-container>
           <v-row align="center">
-            <v-col cols="12" md="6" class="text-center mb-6 mb-md-0">
+            <v-col class="text-center mb-6 mb-md-0" cols="12" md="6">
               <v-icon color="primary" size="64">mdi-github</v-icon>
             </v-col>
 
@@ -237,10 +240,10 @@
               </p>
               <v-btn
                 color="primary"
-                variant="flat"
                 href="https://github.com/zerocatdev"
-                target="_blank"
                 prepend-icon="mdi-github"
+                target="_blank"
+                variant="flat"
               >
                 访问 GitHub
               </v-btn>
@@ -252,8 +255,8 @@
       <!-- 用户评价轮播 -->
       <section class="testimonials-section py-12">
         <v-container>
-          <v-row justify="center" class="mb-8">
-            <v-col cols="12" md="8" class="text-center">
+          <v-row class="mb-8" justify="center">
+            <v-col class="text-center" cols="12" md="8">
               <span class="text-overline text-primary">用户评价</span>
               <h2 class="mb-2 font-weight-medium">他们怎么说</h2>
               <p class="text-medium-emphasis">来自社区成员的真实反馈</p>
@@ -262,7 +265,7 @@
 
           <v-row justify="center">
             <v-col cols="12" md="10">
-              <v-carousel hide-delimiters height="320" show-arrows="hover">
+              <v-carousel height="320" hide-delimiters show-arrows="hover">
                 <v-carousel-item
                   v-for="(testimonial, i) in testimonials"
                   :key="i"
@@ -282,7 +285,7 @@
                       <p class="my-6 text-medium-emphasis font-italic">
                         "{{ testimonial.quote }}"
                       </p>
-                      <v-avatar size="64" class="mb-2" v-if="testimonial.avatar">
+                      <v-avatar v-if="testimonial.avatar" class="mb-2" size="64">
                         <v-img :src="testimonial.avatar"></v-img>
                       </v-avatar>
                       <div class="font-weight-medium">{{ testimonial.name }}</div>
@@ -301,8 +304,8 @@
       <!-- 常见问题 -->
       <section class="faq-section py-12 bg-surface">
         <v-container>
-          <v-row justify="center" class="mb-8">
-            <v-col cols="12" md="8" class="text-center">
+          <v-row class="mb-8" justify="center">
+            <v-col class="text-center" cols="12" md="8">
               <span class="text-overline text-primary">常见问题</span>
               <h2 class="mb-2 font-weight-medium">您可能想知道</h2>
               <p class="text-medium-emphasis">我们收集了一些常见问题的解答</p>
@@ -329,30 +332,30 @@
       <!-- 技术栈展示 -->
       <section class="tech-stack-section py-12 bg-surface">
         <v-container>
-          <v-row justify="center" class="mb-8">
-            <v-col cols="12" md="8" class="text-center">
+          <v-row class="mb-8" justify="center">
+            <v-col class="text-center" cols="12" md="8">
               <span class="text-overline text-primary">技术栈</span>
               <h2 class="mb-2 font-weight-medium">我们使用的技术</h2>
               <p class="text-medium-emphasis">现代化的技术栈确保最佳用户体验</p>
             </v-col>
           </v-row>
 
-          <v-row justify="center" align="center">
+          <v-row align="center" justify="center">
             <v-col
               v-for="(tech, i) in techStack"
               :key="i"
-              cols="4"
-              sm="3"
-              md="2"
               class="text-center"
+              cols="4"
+              md="2"
+              sm="3"
             >
               <v-tooltip :text="tech.name" location="top">
                 <template v-slot:activator="{ props }">
                   <v-icon
-                    v-bind="props"
                     :icon="tech.icon"
-                    size="x-large"
                     class="tech-icon mb-2"
+                    size="x-large"
+                    v-bind="props"
                   ></v-icon>
                 </template>
               </v-tooltip>
@@ -366,20 +369,20 @@
       <section class="cta-section py-16 bg-primary">
         <v-container>
           <v-row justify="center">
-            <v-col cols="12" md="8" class="text-center text-white">
+            <v-col class="text-center text-white" cols="12" md="8">
               <h2 class="mb-4 font-weight-medium">准备好开始了吗？</h2>
               <p class="mb-8 text-white text-opacity-70">
                 加入我们的编程社区，探索无限可能
               </p>
               <v-btn
-                color="white"
-                variant="elevated"
-                to="/app/explore"
                 class="mr-4"
+                color="white"
+                to="/app/explore"
+                variant="elevated"
               >
                 浏览作品
               </v-btn>
-              <v-btn color="white" variant="outlined"> 了解更多 </v-btn>
+              <v-btn color="white" variant="outlined"> 了解更多</v-btn>
             </v-col>
           </v-row>
         </v-container>
@@ -397,10 +400,10 @@
               <v-btn
                 v-for="social in socialLinks"
                 :key="social.icon"
-                :icon="social.icon"
                 :href="social.link"
-                target="_blank"
+                :icon="social.icon"
                 size="small"
+                target="_blank"
                 variant="text"
               />
             </div>
@@ -416,13 +419,13 @@
             <p class="text-body-1 font-weight-bold mb-3">{{ section.title }}</p>
             <div v-for="link in section.links" :key="link.text">
               <v-btn
-                class="text-none px-0 justify-start"
                 :href="link.href"
-                :to="link.to"
                 :ripple="false"
                 :text="link.text"
-                variant="plain"
+                :to="link.to"
+                class="text-none px-0 justify-start"
                 target="_blank"
+                variant="plain"
               />
             </div>
           </v-col>
@@ -436,11 +439,11 @@
             <v-chip
               v-for="(partner, index) in partners"
               :key="index"
-              variant="outlined"
-              size="x-small"
-              class="ma-1"
               :href="partner.link"
+              class="ma-1"
+              size="x-small"
               target="_blank"
+              variant="outlined"
             >
               {{ partner.name }}
             </v-chip>
@@ -452,8 +455,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { useHead } from "@unhead/vue";
+import {ref, onMounted} from "vue";
+import {useHead} from "@unhead/vue";
 import axios from "@/axios/axios";
 import Typewriter from "@/components/Typewriter.vue";
 import PageAnalytics from "@/components/analytics/PageAnalytics.vue";
@@ -595,16 +598,16 @@ const faqs = [
 
 // 技术栈数据
 const techStack = [
-  { name: "Express", icon: "mdi-server" },
-  { name: "Prisma", icon: "mdi-database" },
-  { name: "Vue.js", icon: "mdi-vuejs" },
-  { name: "JavaScript", icon: "mdi-language-javascript" },
-  { name: "Node.js", icon: "mdi-nodejs" },
-  { name: "Git", icon: "mdi-git" },
-  { name: "Docker", icon: "mdi-docker" },
-  { name: "Vuetify", icon: "mdi-vuetify" },
-  { name: "REST API", icon: "mdi-api" },
-  { name: "Scratch", icon: "mdi-cat" },
+  {name: "Express", icon: "mdi-server"},
+  {name: "Prisma", icon: "mdi-database"},
+  {name: "Vue.js", icon: "mdi-vuejs"},
+  {name: "JavaScript", icon: "mdi-language-javascript"},
+  {name: "Node.js", icon: "mdi-nodejs"},
+  {name: "Git", icon: "mdi-git"},
+  {name: "Docker", icon: "mdi-docker"},
+  {name: "Vuetify", icon: "mdi-vuetify"},
+  {name: "REST API", icon: "mdi-api"},
+  {name: "Scratch", icon: "mdi-cat"},
 ];
 
 
@@ -642,57 +645,57 @@ const footerLinks = [
   {
     title: "产品",
     links: [
-      { text: "ZeroCat社区", to: "/app/explore" },
-      { text: "Classworks", href: "https://cs.houlangs.com" },
+      {text: "ZeroCat社区", to: "/app/explore"},
+      {text: "Classworks", href: "https://cs.houlangs.com"},
     ],
   },
   {
     title: "资源",
     links: [
-      { text: "开发文档", href: "https://docs.wuyuan.dev" },
-      { text: "技术栈", href: "#tech-stack" },
-      { text: "常见问题", href: "#faq" },
+      {text: "开发文档", href: "https://docs.wuyuan.dev"},
+      {text: "技术栈", href: "#tech-stack"},
+      {text: "常见问题", href: "#faq"},
     ],
   },
   {
     title: "关于",
     links: [
-      { text: "团队", href: "https://langs.ink/article/houlangs/" },
-      { text: "联系我们", href: "mailto:sun@wuyuan.dev" },
-      { text: "加入我们", href: "https://hlyun.org/article/houlangs/join.html" },
-      { text: "开源", href: "https://github.com/zerocatdev" },
+      {text: "团队", href: "https://langs.ink/article/houlangs/"},
+      {text: "联系我们", href: "mailto:sun@wuyuan.dev"},
+      {text: "加入我们", href: "https://hlyun.org/article/houlangs/join.html"},
+      {text: "开源", href: "https://github.com/zerocatdev"},
     ],
   },
   {
     title: "社群",
     links: [
-      { text: "Telegram", href: "https://t.me/zerocatdev" },
-      { text: "QQ", href: "https://qm.qq.com/q/W4YRztB94q" },
-      { text: "Discord", href: "https://discord.gg/YmW2JWnbdy" },
+      {text: "Telegram", href: "https://t.me/zerocatdev"},
+      {text: "QQ", href: "https://qm.qq.com/q/W4YRztB94q"},
+      {text: "Discord", href: "https://discord.gg/YmW2JWnbdy"},
     ],
   },
   {
     title: "友情链接",
     links: [
-      { text: "LINUX DO", href: "https://linux.do" },
+      {text: "LINUX DO", href: "https://linux.do"},
     ],
   },
 ];
 
 // 社交媒体链接
 const socialLinks = [
-  { icon: "mdi-github", link: "https://github.com/zerocatdev" },
-  { icon: "mdi-twitter", link: "https://x.com/wuyuandev" },
-  { icon: "mdi-airplane", link: "https://t.me/zerocatdev" },
+  {icon: "mdi-github", link: "https://github.com/zerocatdev"},
+  {icon: "mdi-twitter", link: "https://x.com/wuyuandev"},
+  {icon: "mdi-airplane", link: "https://t.me/zerocatdev"},
 
-  { icon: "mdi-youtube", link: "https://www.youtube.com/@sunwuyuan" },
-  { icon: "mdi-discord", link: "https://discord.gg/YmW2JWnbdy" },
+  {icon: "mdi-youtube", link: "https://www.youtube.com/@sunwuyuan"},
+  {icon: "mdi-discord", link: "https://discord.gg/YmW2JWnbdy"},
 ];
 
 // 合作伙伴
 const partners = [
-  { name: "雨云", link: "https://www.rainyun.com/wuyuan_?s=zerocat" },
-  { name: "GitHub", link: "https://github.com/zerocatdev" },
+  {name: "雨云", link: "https://www.rainyun.com/wuyuan_?s=zerocat"},
+  {name: "GitHub", link: "https://github.com/zerocatdev"},
 ];
 
 onMounted(() => {
@@ -715,6 +718,7 @@ onMounted(() => {
   box-shadow: 0 15px 35px rgba(var(--v-theme-primary), 0.15);
   border-color: rgba(var(--v-theme-primary), 0.3);
 }
+
 .landing-page {
   --section-spacing: 4rem;
   scroll-behavior: smooth;
@@ -724,14 +728,13 @@ onMounted(() => {
   position: relative;
   overflow: hidden;
   background: radial-gradient(
-      circle at 50% 50%,
-      rgba(var(--v-theme-primary), 0.08) 0%,
-      rgba(var(--v-theme-primary), 0) 70%
-    ),
-    linear-gradient(180deg, rgba(var(--v-theme-primary), 0.02), transparent);
-  box-shadow:
-    inset 0 0 60px rgba(var(--v-theme-primary), 0.15),
-    inset 0 0 120px rgba(var(--v-theme-secondary), 0.1);
+    circle at 50% 50%,
+    rgba(var(--v-theme-primary), 0.08) 0%,
+    rgba(var(--v-theme-primary), 0) 70%
+  ),
+  linear-gradient(180deg, rgba(var(--v-theme-primary), 0.02), transparent);
+  box-shadow: inset 0 0 60px rgba(var(--v-theme-primary), 0.15),
+  inset 0 0 120px rgba(var(--v-theme-secondary), 0.1);
 }
 
 .hero-section::before {
@@ -951,10 +954,9 @@ onMounted(() => {
 }
 
 .text-glow {
-  text-shadow:
-    0 0 6px rgba(var(--v-theme-primary), 0.1),
-    0 0 12px rgba(var(--v-theme-primary), 0.1),
-    0 0 24px rgba(var(--v-theme-primary), 0.1);
+  text-shadow: 0 0 6px rgba(var(--v-theme-primary), 0.1),
+  0 0 12px rgba(var(--v-theme-primary), 0.1),
+  0 0 24px rgba(var(--v-theme-primary), 0.1);
 }
 
 .text-gradient {

@@ -2,21 +2,24 @@
   <v-container>
     <!-- Add New TOTP Button -->
 
-    <v-btn to="./totp/add" color="primary" class="mb-4">
-      <v-icon left>mdi-plus</v-icon>新的验证器
+    <v-btn class="mb-4" color="primary" to="./totp/add">
+      <v-icon left>mdi-plus</v-icon>
+      新的验证器
     </v-btn>
 
     <!-- TOTP List Cards -->
     <v-row
-      ><v-col v-for="totp in totpList" :key="totp.id" cols="12" md="4"
-        ><v-dialog max-width="500">
+    >
+      <v-col v-for="totp in totpList" :key="totp.id" cols="12" md="4"
+      >
+        <v-dialog max-width="500">
           <template v-slot:activator="{ props: activatorProps }">
             <v-card border v-bind="activatorProps">
               <v-card-title>
                 <span class="headline">{{ totp.name }}</span>
               </v-card-title>
               <v-card-subtitle>{{ totp.status }}</v-card-subtitle>
-              <v-card-text> 点击打开管理 </v-card-text>
+              <v-card-text> 点击打开管理</v-card-text>
             </v-card>
           </template>
 
@@ -31,17 +34,20 @@
                   required
                 ></v-text-field>
                 <v-btn color="primary" @click="renameTOTP(totp.id, totp.name)"
-                  >重命名</v-btn
+                >重命名
+                </v-btn
                 >
               </v-card-text>
 
               <v-card-actions
-                ><v-btn
+              >
+                <v-btn
+                  border
                   color="error"
                   variant="text"
                   @click="deleteTOTP(totp.id)"
-                  border
-                  >删除</v-btn
+                >删除
+                </v-btn
                 >
                 <v-spacer></v-spacer>
 
@@ -57,7 +63,8 @@
 
 <script>
 import request from "@/axios/axios";
-import { useHead } from "@unhead/vue";
+import {useHead} from "@unhead/vue";
+
 export default {
   data() {
     return {

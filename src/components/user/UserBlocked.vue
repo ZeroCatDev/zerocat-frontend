@@ -1,13 +1,13 @@
 <template>
   <div class="user-blocked">
     <v-row v-if="loading">
-      <v-col cols="12" class="text-center">
-        <v-progress-circular indeterminate color="primary" />
+      <v-col class="text-center" cols="12">
+        <v-progress-circular color="primary" indeterminate/>
       </v-col>
     </v-row>
 
     <v-row v-else-if="blockedUsers.length === 0">
-      <v-col cols="12" class="text-center">
+      <v-col class="text-center" cols="12">
         <p class="text-medium-emphasis">暂无拉黑用户</p>
       </v-col>
     </v-row>
@@ -18,7 +18,7 @@
           <template v-slot:prepend>
             <router-link :to="`/${blockedUser.user.username}`">
               <v-avatar size="50">
-                <v-img :src="s3BucketUrl + '/user/' + (blockedUser.user.avatar)" alt="用户头像" />
+                <v-img :src="s3BucketUrl + '/user/' + (blockedUser.user.avatar)" alt="用户头像"/>
               </v-avatar>
             </router-link>
           </template>
@@ -29,14 +29,15 @@
             </router-link>
           </v-card-title>
 
-          <v-card-subtitle class="text-truncate">{{ blockedUser.metadata.reason }} - {{ blockedUser.created_at }}</v-card-subtitle>
+          <v-card-subtitle class="text-truncate">{{ blockedUser.metadata.reason }} - {{ blockedUser.created_at }}
+          </v-card-subtitle>
 
           <template v-slot:append>
             <v-btn
-              variant="outlined"
+              :loading="unblockingId === blockedUser.user.id"
               color="error"
               size="small"
-              :loading="unblockingId === blockedUser.user.id"
+              variant="outlined"
               @click="unblockUser(blockedUser.user.id, blockedUser.user.display_name)"
             >
               取消拉黑
@@ -81,9 +82,9 @@
 
 <script>
 import request from "@/axios/axios.js";
-import { localuser } from "@/services/localAccount";
-import { ref, onMounted } from "vue";
-import { get } from "@/services/serverConfig";
+import {localuser} from "@/services/localAccount";
+import {ref, onMounted} from "vue";
+import {get} from "@/services/serverConfig";
 
 export default {
   name: "UserBlocked",

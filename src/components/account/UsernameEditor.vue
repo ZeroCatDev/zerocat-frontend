@@ -6,22 +6,22 @@
           v-model="username"
           :counter="10"
           :rules="usernameRules"
-          label="用户名"
-          variant="outlined"
           density="comfortable"
+          label="用户名"
           required
+          variant="outlined"
         ></v-text-field>
         <div class="text-caption text-medium-emphasis">用户名只能包含小写字母</div>
       </v-col>
       <v-col cols="12">
         <v-btn
-          @click="changeUsername"
           :disabled="!valid"
-          color="primary"
-          size="large"
-          prepend-icon="mdi-check"
-          class="px-6"
           :loading="loading"
+          class="px-6"
+          color="primary"
+          prepend-icon="mdi-check"
+          size="large"
+          @click="changeUsername"
         >
           保存用户名
         </v-btn>
@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { updateUsername } from "@/services/accountService";
+import {updateUsername} from "@/services/accountService";
 
 export default {
   name: "UsernameEditor",

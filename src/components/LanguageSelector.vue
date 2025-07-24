@@ -1,13 +1,13 @@
 <template>
   <div>
     <v-text-field
-      :model-value="modelValue"
-      readonly
-      @click="dialog = true"
       :label="label"
+      :model-value="modelValue"
       :required="required"
-      variant="outlined"
       append-inner-icon="mdi-menu-down"
+      readonly
+      variant="outlined"
+      @click="dialog = true"
     ></v-text-field>
 
     <v-dialog v-model="dialog" max-width="500px">
@@ -18,11 +18,11 @@
             <!-- 特殊类型部分 -->
             <v-card-subtitle class="px-0 pt-0">特殊类型</v-card-subtitle>
             <v-row>
-              <v-col cols="12" sm="6" v-for="(type, key) in specialTypes" :key="key">
+              <v-col v-for="(type, key) in specialTypes" :key="key" cols="12" sm="6">
                 <v-card
-                  variant="outlined"
                   :color="modelValue === key ? 'primary' : undefined"
                   class="pa-4 cursor-pointer"
+                  variant="outlined"
                   @click="selectLanguage(key)"
                 >
                   <div class="d-flex align-center">
@@ -39,11 +39,11 @@
             <!-- 编程语言部分 -->
             <v-card-subtitle class="px-0">编程语言</v-card-subtitle>
             <v-row>
-              <v-col cols="12" sm="6" v-for="(lang, key) in languages" :key="key">
+              <v-col v-for="(lang, key) in languages" :key="key" cols="12" sm="6">
                 <v-card
-                  variant="outlined"
                   :color="modelValue === key ? 'primary' : undefined"
                   class="pa-4 cursor-pointer"
+                  variant="outlined"
                   @click="selectLanguage(key)"
                 >
                   <div class="d-flex align-center">
@@ -120,6 +120,7 @@ export default {
 .cursor-pointer {
   cursor: pointer;
 }
+
 .cursor-pointer:hover {
   opacity: 0.8;
 }

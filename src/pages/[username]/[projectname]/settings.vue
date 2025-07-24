@@ -1,14 +1,14 @@
 <template>
   <v-container
-    >
+  >
     <v-row>
       <v-col cols="12"><h1>常规</h1></v-col>
       <v-col cols="7">
         <v-text-field
-          label="项目名称"
-          required
           v-model="newProjectName"
           hint="修改项目名称"
+          label="项目名称"
+          required
           variant="outlined"
         >
           <template v-slot:append>
@@ -17,54 +17,59 @@
               text="修改名称"
               variant="tonal"
               @click="renameProject"
-            ></v-btn> </template></v-text-field
-      ></v-col>
-      <v-col cols="12"><v-divider></v-divider></v-col>
+            ></v-btn>
+          </template>
+        </v-text-field
+        >
+      </v-col>
+      <v-col cols="12">
+        <v-divider></v-divider>
+      </v-col>
       <v-col cols="7">
         <v-text-field
-          label="项目标题"
-          required
           v-model="project.title"
           hint="可读性更好的标题"
+          label="项目标题"
+          required
           variant="outlined"
         ></v-text-field>
       </v-col>
       <v-col cols="12">
         <v-textarea
+          v-model="project.description"
           hint="介绍作品类型，玩法，并向对这个作品有帮助的人致谢！"
           label="简介"
-          v-model="project.description"
           variant="outlined"
         ></v-textarea>
       </v-col>
       <v-col cols="12" sm="6">
         <LanguageSelector
           v-model="project.type"
+          hint="不建议你改"
           label="类型"
           required
-          hint="不建议你改"
         />
       </v-col>
 
       <v-col cols="12" sm="6">
-        <LicenseSelector v-model="project.license" />
+        <LicenseSelector v-model="project.license"/>
       </v-col>
 
       <v-col cols="12">
         <v-combobox
           v-model="tags.chips"
           :items="tags.items"
+          chips
           label="标签"
+          multiple
           prepend-icon="mdi-tag"
           variant="outlined"
-          chips
-          multiple
         >
           <template v-slot:selection="{ attrs, item, select, selected }">
             <v-chip
-              v-bind="attrs"
               :model-value="selected"
               closable
+              v-bind="attrs"
               @click="select"
               @click:close="removeTag(item)"
             >
@@ -84,43 +89,48 @@
             text="保存"
             variant="tonal"
             @click="saveProject"
-          ></v-btn> </v-card-actions
-      ></v-col>
+          ></v-btn>
+        </v-card-actions
+        >
+      </v-col>
       <v-col cols="12"><h1>图片</h1></v-col>
       <v-col cols="12">
         <v-file-input
           ref="fileInput"
-          label="上传封面"
-          variant="outlined"
           accept="image/*"
+          label="上传封面"
           prepend-icon="mdi-image"
+          variant="outlined"
           @change="onFileChange"
         ></v-file-input>
         <v-img v-if="thumbnail" :src="thumbnail" max-width="200"></v-img>
         <v-btn
+          :disabled="!thumbnail"
           color="primary"
           text="上传封面"
           variant="tonal"
           @click="uploadThumbnail"
-          :disabled="!thumbnail"
         ></v-btn>
       </v-col>
       <v-col cols="12"><h1>危险</h1></v-col>
       <v-col cols="12"
-        ><v-card>
+      >
+        <v-card>
           <v-list>
-            <v-list-item title="删除此项目" subtitle="删除此项目后无法恢复。">
+            <v-list-item subtitle="删除此项目后无法恢复。" title="删除此项目">
               <template v-slot:append>
                 <v-btn
                   color="error"
                   text="删除此项目"
                   variant="tonal"
                   @click="confirmDelete = true"
-                ></v-btn> </template
-            ></v-list-item>
+                ></v-btn>
+              </template
+              >
+            </v-list-item>
             <v-list-item
-              title="更改项目可见性"
               subtitle="选择项目的可见性，公开或私密。"
+              title="更改项目可见性"
             >
               <template v-slot:append>
                 <v-btn
@@ -128,10 +138,14 @@
                   text="更改项目可见性"
                   variant="tonal"
                   @click="changeVisibility = true"
-                ></v-btn> </template
-            ></v-list-item>
-          </v-list> </v-card
-      ></v-col>
+                ></v-btn>
+              </template
+              >
+            </v-list-item>
+          </v-list>
+        </v-card
+        >
+      </v-col>
     </v-row>
     <v-expansion-panels>
       <v-expansion-panel>
@@ -146,14 +160,14 @@
       <v-card>
         <v-card-title class="headline">删除 {{ project.title }}</v-card-title>
         <v-card-text
-          >你确定要删除这个项目吗？此操作无法撤销。<br />这将永久删除
+        >你确定要删除这个项目吗？此操作无法撤销。<br/>这将永久删除
           {{ project.title }}
-          项目、推送、Star、评论、和其他所有数据，移除Fork对此项目的关联（但不会删除Fork）。<br />要确认，请在下面的框中输入提示的小字以确认您的操作。
-          <br /><br />
+          项目、推送、Star、评论、和其他所有数据，移除Fork对此项目的关联（但不会删除Fork）。<br/>要确认，请在下面的框中输入提示的小字以确认您的操作。
+          <br/><br/>
           <v-text-field
-            variant="outlined"
-            :label="`${localuser.user.username}/${project.name}`"
             v-model="confirmDeleteText"
+            :label="`${localuser.user.username}/${project.name}`"
+            variant="outlined"
           ></v-text-field>
         </v-card-text>
 
@@ -166,17 +180,19 @@
               confirmDelete = false;
               confirmDeleteText = '';
             "
-            >取消</v-btn
+          >取消
+          </v-btn
           >
           <v-btn
-            color="error"
-            text
-            @click="deleteProject"
             :disabled="
               confirmDeleteText !==
               `${localuser.user.username}/${project.name}`
             "
-            >删除</v-btn
+            color="error"
+            text
+            @click="deleteProject"
+          >删除
+          </v-btn
           >
         </v-card-actions>
       </v-card>
@@ -186,7 +202,8 @@
         <v-card-title class="headline">{{ project.state==='public'?'私密':'公开' }} {{ project.title }}</v-card-title>
         <v-card-text>
           <v-if v-if="project.state === 'public'">
-            将此仓库设为私有将删除不再有权访问此仓库的用户的 star。如果您决定在将来公开此存储库，则无法恢复这些 star ，这将影响项目的排名。<br/>
+            将此仓库设为私有将删除不再有权访问此仓库的用户的 star。如果您决定在将来公开此存储库，则无法恢复这些 star
+            ，这将影响项目的排名。<br/>
             此项目的Fork将保持公开，且不再与此项目有任何关联。
           </v-if>
           <v-if v-if="project.state === 'private'">
@@ -196,28 +213,30 @@
           </v-if>
           <br/><br/>
           要确认，请在下面的框中输入提示的小字以确认您的操作。
-          <br /><br />
+          <br/><br/>
           <v-text-field
-            variant="outlined"
-            :label="`${localuser.user.username}/${project.name}`"
             v-model="changeVisibilityText"
+            :label="`${localuser.user.username}/${project.name}`"
+            variant="outlined"
           ></v-text-field>
         </v-card-text>
 
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="primary" text @click="changeVisibility = false"
-            >取消</v-btn
+          >取消
+          </v-btn
           >
           <v-btn
-            color="error"
-            text
-            @click="changeProjectVisibility"
             :disabled="
               changeVisibilityText !==
               `${localuser.user.username}/${project.name}`
             "
-            >{{ project.state==='public'?'设置为私密':'设置为公开' }}</v-btn
+            color="error"
+            text
+            @click="changeProjectVisibility"
+          >{{ project.state==='public'?'设置为私密':'设置为公开' }}
+          </v-btn
           >
         </v-card-actions>
       </v-card>
@@ -227,9 +246,9 @@
 
 <script>
 import request from "../../../axios/axios";
-import { localuser } from "@/services/localAccount";
-import { useHead } from "@unhead/vue";
-import { getProjectInfoByNamespace } from "@/services/projectService";
+import {localuser} from "@/services/localAccount";
+import {useHead} from "@unhead/vue";
+import {getProjectInfoByNamespace} from "@/services/projectService";
 import LicenseSelector from "@/components/LicenseSelector.vue";
 import LanguageSelector from "@/components/LanguageSelector.vue";
 
@@ -242,8 +261,8 @@ export default {
     return {
       localuser,
       states: [
-        { state: "私密", abbr: "private" },
-        { state: "公开", abbr: "public" },
+        {state: "私密", abbr: "private"},
+        {state: "公开", abbr: "public"},
       ],
       projectID: this.$route.params.id,
       project: {},
@@ -266,7 +285,7 @@ export default {
     await this.fetchProject();
   },
   setup() {
-    useHead({ title: "项目设置" });
+    useHead({title: "项目设置"});
   },
   methods: {
     removeTag(item) {
@@ -274,7 +293,7 @@ export default {
     },
     async fetchProject() {
       try {
-        const { username, projectname } = this.$route.params;
+        const {username, projectname} = this.$route.params;
         this.project = await getProjectInfoByNamespace(username, projectname);
         this.projectID = this.project.id;
         this.newProjectName = this.project.name;
@@ -378,7 +397,7 @@ export default {
           detail: response.message,
           life: 3000,
         });
-this.$router.push(`/explore/${localuser.user.value.username}/${this.project.name}`);
+        this.$router.push(`/explore/${localuser.user.value.username}/${this.project.name}`);
       } catch (error) {
         console.error(error);
         this.$toast.add({

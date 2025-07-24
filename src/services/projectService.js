@@ -27,7 +27,7 @@ const defaultProject = (id) => ({
 export async function getProjectInfo(ids) {
   if (Array.isArray(ids)) {
     try {
-      const { data } = await request.post(`/project/batch`, {
+      const {data} = await request.post(`/project/batch`, {
         projectIds: ids,
       });
       return data.data;
@@ -36,27 +36,28 @@ export async function getProjectInfo(ids) {
     }
   } else {
     try {
-      const { data } = await request.get(`/project/id/${ids}`);
+      const {data} = await request.get(`/project/id/${ids}`);
       return data;
     } catch (error) {
       return defaultProject(ids);
     }
   }
 }
+
 export async function getProjectListById(id) {
   try {
-    const { data } = await request.get(`/projectlist/lists/listid/${id}`);
+    const {data} = await request.get(`/projectlist/lists/listid/${id}`);
     return data.data;
   } catch (error) {
     console.error("获取项目列表失败:", error);
-    return { projects: [] };
+    return {projects: []};
   }
 }
 
 // 使用 [username]/[projectname] 获取项目信息函数
 export async function getProjectInfoByNamespace(username, projectname) {
   try {
-    const { data } = await request.get(
+    const {data} = await request.get(
       `/project/namespace/${username}/${projectname}`
     );
     return data;
@@ -67,7 +68,7 @@ export async function getProjectInfoByNamespace(username, projectname) {
 
 export async function initProject(projectid, type) {
   try {
-    const { data } = await request.post(
+    const {data} = await request.post(
       `/project/initlize?projectid=${projectid}&type=${type}`
     );
     return data;
@@ -79,7 +80,7 @@ export async function initProject(projectid, type) {
 export const saveFile = async (projectFile) => {
   const response = await request({
     url: "/project/savefile",
-    data: { source: projectFile },
+    data: {source: projectFile},
     method: "post",
     headers: {
       "Content-Type": "application/json",
@@ -266,8 +267,8 @@ export async function getProjectContent(projectId, branch = 'main', commitId = '
       throw new Error('No commit information available');
     }
 
-    const { commit_file: sha256 } = commitResponse.data.commit;
-    const { accessFileToken } = commitResponse.data;
+    const {commit_file: sha256} = commitResponse.data.commit;
+    const {accessFileToken} = commitResponse.data;
 
     // 获取文件内容
     const fileResponse = await request.get(`/project/files/${sha256}`, {

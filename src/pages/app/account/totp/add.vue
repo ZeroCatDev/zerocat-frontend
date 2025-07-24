@@ -1,13 +1,13 @@
 <template>
   <v-container>
     <v-row justify="center">
-      <v-col cols="12" sm="8" md="6">
+      <v-col cols="12" md="6" sm="8">
         <v-card border>
           <v-card-title class="text-h5">启用二步验证 (2FA)</v-card-title>
 
           <v-card-text>
             <!-- 显示二维码和相关指示 -->
-            <v-alert v-if="errorMessage" type="error" dismissible>
+            <v-alert v-if="errorMessage" dismissible type="error">
               {{ errorMessage }}
             </v-alert>
 
@@ -26,19 +26,19 @@
             <!-- 用户输入验证码 -->
             <v-text-field
               v-model="totpCode"
-              label="请输入验证码"
-              type="number"
-              outlined
-              dense
               :disabled="!authotpUrl"
+              dense
+              label="请输入验证码"
+              outlined
+              type="number"
             />
 
             <v-btn
-              color="primary"
-              :loading="loading"
-              @click="activateTOTP"
-              block
               :disabled="!totpCode || !authotpUrl"
+              :loading="loading"
+              block
+              color="primary"
+              @click="activateTOTP"
             >
               启用二步验证
             </v-btn>
@@ -46,10 +46,10 @@
 
           <v-card-actions>
             <v-btn
-              color="secondary"
-              @click="generateTOTP"
               :loading="loading"
               block
+              color="secondary"
+              @click="generateTOTP"
             >
               创建 TOTP
             </v-btn>
@@ -63,7 +63,8 @@
 <script>
 import QRCode from "qrcode";
 import request from "@/axios/axios";
-import { useHead } from "@unhead/vue";
+import {useHead} from "@unhead/vue";
+
 export default {
   name: "TotpGenerator",
   data() {
@@ -142,6 +143,7 @@ export default {
 .v-alert {
   margin-top: 16px;
 }
+
 .v-img {
   max-width: 250px;
 }

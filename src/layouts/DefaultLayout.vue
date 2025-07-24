@@ -1,10 +1,10 @@
 <template>
   <v-app>
-    <Toast />
-    <AppHeader />
+    <Toast/>
+    <AppHeader/>
     <v-main>
       <router-view v-slot="{ Component, route }">
-        <transition name="md3" mode="out-in">
+        <transition mode="out-in" name="md3">
           <component
             :is="use404(route) ? error404 : Component"
             :key="route.path"
@@ -16,12 +16,12 @@
 </template>
 
 <script setup>
-import { onMounted, watch } from "vue";
-import { useTheme } from "vuetify";
+import {onMounted, watch} from "vue";
+import {useTheme} from "vuetify";
 import AppHeader from "@/components/AppHeader.vue";
 import Toast from "primevue/toast";
 import error404 from "@/components/error/404.vue";
-import { use404 } from "@/composables/use404";
+import {use404} from "@/composables/use404";
 
 const theme = useTheme();
 

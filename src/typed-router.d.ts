@@ -20,13 +20,33 @@ declare module 'vue-router/auto-routes' {
   export interface RouteNamedMap {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
     '/[...path]': RouteRecordInfo<'/[...path]', '/:path(.*)', { path: ParamValue<true> }, { path: ParamValue<false> }>,
-    '/[username]/': RouteRecordInfo<'/[username]/', '/:username', { username: ParamValue<true> }, { username: ParamValue<false> }>,
-    '/[username]/[projectname]/': RouteRecordInfo<'/[username]/[projectname]/', '/:username/:projectname', { username: ParamValue<true>, projectname: ParamValue<true> }, { username: ParamValue<false>, projectname: ParamValue<false> }>,
-    '/[username]/[projectname]/branches': RouteRecordInfo<'/[username]/[projectname]/branches', '/:username/:projectname/branches', { username: ParamValue<true>, projectname: ParamValue<true> }, { username: ParamValue<false>, projectname: ParamValue<false> }>,
-    '/[username]/[projectname]/editor': RouteRecordInfo<'/[username]/[projectname]/editor', '/:username/:projectname/editor', { username: ParamValue<true>, projectname: ParamValue<true> }, { username: ParamValue<false>, projectname: ParamValue<false> }>,
-    '/[username]/[projectname]/fork': RouteRecordInfo<'/[username]/[projectname]/fork', '/:username/:projectname/fork', { username: ParamValue<true>, projectname: ParamValue<true> }, { username: ParamValue<false>, projectname: ParamValue<false> }>,
-    '/[username]/[projectname]/push': RouteRecordInfo<'/[username]/[projectname]/push', '/:username/:projectname/push', { username: ParamValue<true>, projectname: ParamValue<true> }, { username: ParamValue<false>, projectname: ParamValue<false> }>,
-    '/[username]/[projectname]/settings': RouteRecordInfo<'/[username]/[projectname]/settings', '/:username/:projectname/settings', { username: ParamValue<true>, projectname: ParamValue<true> }, { username: ParamValue<false>, projectname: ParamValue<false> }>,
+    '/[username]/': RouteRecordInfo<'/[username]/', '/:username', { username: ParamValue<true> }, {
+      username: ParamValue<false>
+    }>,
+    '/[username]/[projectname]/': RouteRecordInfo<'/[username]/[projectname]/', '/:username/:projectname', {
+      username: ParamValue<true>,
+      projectname: ParamValue<true>
+    }, { username: ParamValue<false>, projectname: ParamValue<false> }>,
+    '/[username]/[projectname]/branches': RouteRecordInfo<'/[username]/[projectname]/branches', '/:username/:projectname/branches', {
+      username: ParamValue<true>,
+      projectname: ParamValue<true>
+    }, { username: ParamValue<false>, projectname: ParamValue<false> }>,
+    '/[username]/[projectname]/editor': RouteRecordInfo<'/[username]/[projectname]/editor', '/:username/:projectname/editor', {
+      username: ParamValue<true>,
+      projectname: ParamValue<true>
+    }, { username: ParamValue<false>, projectname: ParamValue<false> }>,
+    '/[username]/[projectname]/fork': RouteRecordInfo<'/[username]/[projectname]/fork', '/:username/:projectname/fork', {
+      username: ParamValue<true>,
+      projectname: ParamValue<true>
+    }, { username: ParamValue<false>, projectname: ParamValue<false> }>,
+    '/[username]/[projectname]/push': RouteRecordInfo<'/[username]/[projectname]/push', '/:username/:projectname/push', {
+      username: ParamValue<true>,
+      projectname: ParamValue<true>
+    }, { username: ParamValue<false>, projectname: ParamValue<false> }>,
+    '/[username]/[projectname]/settings': RouteRecordInfo<'/[username]/[projectname]/settings', '/:username/:projectname/settings', {
+      username: ParamValue<true>,
+      projectname: ParamValue<true>
+    }, { username: ParamValue<false>, projectname: ParamValue<false> }>,
     '/404': RouteRecordInfo<'/404', '/404', Record<never, never>, Record<never, never>>,
     '/app/account/': RouteRecordInfo<'/app/account/', '/app/account', Record<never, never>, Record<never, never>>,
     '/app/account/callback': RouteRecordInfo<'/app/account/callback', '/app/account/callback', Record<never, never>, Record<never, never>>,
@@ -59,15 +79,23 @@ declare module 'vue-router/auto-routes' {
     '/app/notifications': RouteRecordInfo<'/app/notifications', '/app/notifications', Record<never, never>, Record<never, never>>,
     '/app/project': RouteRecordInfo<'/app/project', '/app/project', Record<never, never>, Record<never, never>>,
     '/app/projectlist/': RouteRecordInfo<'/app/projectlist/', '/app/projectlist', Record<never, never>, Record<never, never>>,
-    '/app/projectlist/[id]': RouteRecordInfo<'/app/projectlist/[id]', '/app/projectlist/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+    '/app/projectlist/[id]': RouteRecordInfo<'/app/projectlist/[id]', '/app/projectlist/:id', {
+      id: ParamValue<true>
+    }, { id: ParamValue<false> }>,
     '/app/proxy/': RouteRecordInfo<'/app/proxy/', '/app/proxy', Record<never, never>, Record<never, never>>,
-    '/app/proxy/[id]/': RouteRecordInfo<'/app/proxy/[id]/', '/app/proxy/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+    '/app/proxy/[id]/': RouteRecordInfo<'/app/proxy/[id]/', '/app/proxy/:id', { id: ParamValue<true> }, {
+      id: ParamValue<false>
+    }>,
     '/app/proxy/explore': RouteRecordInfo<'/app/proxy/explore', '/app/proxy/explore', Record<never, never>, Record<never, never>>,
     '/app/proxy/news': RouteRecordInfo<'/app/proxy/news', '/app/proxy/news', Record<never, never>, Record<never, never>>,
     '/app/proxy/open': RouteRecordInfo<'/app/proxy/open', '/app/proxy/open', Record<never, never>, Record<never, never>>,
     '/app/proxy/search': RouteRecordInfo<'/app/proxy/search', '/app/proxy/search', Record<never, never>, Record<never, never>>,
-    '/app/proxy/studios/[id]': RouteRecordInfo<'/app/proxy/studios/[id]', '/app/proxy/studios/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
-    '/app/proxy/user/[username]': RouteRecordInfo<'/app/proxy/user/[username]', '/app/proxy/user/:username', { username: ParamValue<true> }, { username: ParamValue<false> }>,
+    '/app/proxy/studios/[id]': RouteRecordInfo<'/app/proxy/studios/[id]', '/app/proxy/studios/:id', {
+      id: ParamValue<true>
+    }, { id: ParamValue<false> }>,
+    '/app/proxy/user/[username]': RouteRecordInfo<'/app/proxy/user/[username]', '/app/proxy/user/:username', {
+      username: ParamValue<true>
+    }, { username: ParamValue<false> }>,
     '/app/search': RouteRecordInfo<'/app/search', '/app/search', Record<never, never>, Record<never, never>>,
     '/app/tools/asdm': RouteRecordInfo<'/app/tools/asdm', '/app/tools/asdm', Record<never, never>, Record<never, never>>,
     '/app/tools/comparer': RouteRecordInfo<'/app/tools/comparer', '/app/tools/comparer', Record<never, never>, Record<never, never>>,

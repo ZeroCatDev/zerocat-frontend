@@ -7,10 +7,10 @@
             <v-select
               v-model="selectedLanguage"
               :items="languageOptions"
+              class="mb-4"
               item-title="name"
               item-value="key"
               label="Select Language"
-              class="mb-4"
             ></v-select>
           </v-col>
           <v-col cols="12">
@@ -20,8 +20,8 @@
               :label="currentLanguage.placeholder || 'Enter code here'"
               :placeholder="currentLanguage.sample"
               auto-grow
-              rows="10"
               class="mb-4"
+              rows="10"
 
             ></v-textarea>
           </v-col>
@@ -31,9 +31,9 @@
 
     <CodeRunTerminal
       ref="terminal"
+      :auto-run="false"
       :code="code"
       :language="selectedLanguage"
-      :auto-run="false"
     ></CodeRunTerminal>
   </div>
 </template>

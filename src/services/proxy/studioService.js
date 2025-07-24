@@ -1,5 +1,5 @@
 import request from "@/axios/axios";
-import { get } from '@/services/serverConfig';
+import {get} from '@/services/serverConfig';
 
 export async function getStudio(id) {
   const baseUrl = await get('scratchproxy.url');

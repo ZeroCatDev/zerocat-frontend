@@ -2,36 +2,36 @@
   <v-row>
     <v-col cols="12" md="6">
       <v-file-input
-        label="上传头像"
-        accept="image/*"
-        @change="onFileChange"
-        placeholder="选择图片上传"
-        prepend-icon="mdi-camera"
-        variant="outlined"
-        density="comfortable"
-        show-size
         :rules="[
           v => (!v || !v.length || v[0].size < 2000000) || '头像大小不能超过2MB'
         ]"
+        accept="image/*"
+        density="comfortable"
+        label="上传头像"
+        placeholder="选择图片上传"
+        prepend-icon="mdi-camera"
+        show-size
+        variant="outlined"
+        @change="onFileChange"
       ></v-file-input>
       <div class="text-caption text-medium-emphasis">图片将被自动压缩</div>
     </v-col>
-    <v-col cols="12" md="6" class="d-flex align-center justify-center">
+    <v-col class="d-flex align-center justify-center" cols="12" md="6">
       <v-sheet
         :class="['rounded-lg overflow-hidden', 'elevation-2']"
-        width="150"
         height="150"
+        width="150"
       >
         <v-img
           :src="previewImage || (s3BucketUrl + '/user/' + userData.avatar)"
+          class="bg-grey-lighten-3"
+          cover
           height="150"
           width="150"
-          cover
-          class="bg-grey-lighten-3"
         >
           <template v-slot:placeholder>
             <div class="d-flex align-center justify-center fill-height">
-              <v-icon icon="mdi-image" size="64" color="grey-darken-1"></v-icon>
+              <v-icon color="grey-darken-1" icon="mdi-image" size="64"></v-icon>
             </div>
           </template>
         </v-img>
@@ -39,13 +39,13 @@
     </v-col>
     <v-col cols="12">
       <v-btn
-        @click="uploadAvatar"
         :disabled="!avatarFile"
-        color="primary"
-        size="large"
-        prepend-icon="mdi-cloud-upload"
-        class="px-6"
         :loading="loading"
+        class="px-6"
+        color="primary"
+        prepend-icon="mdi-cloud-upload"
+        size="large"
+        @click="uploadAvatar"
       >
         上传头像
       </v-btn>
@@ -55,7 +55,7 @@
 
 <script>
 import Compressor from "compressorjs";
-import { uploadUserAvatar } from "@/services/accountService";
+import {uploadUserAvatar} from "@/services/accountService";
 
 export default {
   name: "AvatarEditor",

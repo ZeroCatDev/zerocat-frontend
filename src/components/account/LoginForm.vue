@@ -10,22 +10,22 @@
         </v-tabs>
 
         <v-text-field
+          v-model="email"
+          :rules="emailRules"
           label="邮箱"
           type="text"
-          v-model="email"
           variant="outlined"
-          :rules="emailRules"
         ></v-text-field>
 
         <!-- 密码登录 -->
         <v-text-field
           v-if="loginType === 'password'"
-          label="密码"
           v-model="password"
-          variant="outlined"
-          :rules="passwordRules"
           :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+          :rules="passwordRules"
           :type="showPassword ? 'text' : 'password'"
+          label="密码"
+          variant="outlined"
           @click:append="showPassword = !showPassword"
         ></v-text-field>
 
@@ -33,16 +33,16 @@
         <template v-if="loginType === 'code'">
           <v-text-field
             v-model="verificationCode"
-            label="验证码"
-            variant="outlined"
-            maxlength="6"
             :rules="[rules.required, rules.length]"
+            label="验证码"
+            maxlength="6"
+            variant="outlined"
           ></v-text-field>
           <v-btn
+            :disabled="countdown > 0"
             class="mb-4"
             variant="text"
             @click="sendVerificationCode"
-            :disabled="countdown > 0"
           >
             {{ countdown > 0 ? `${countdown}秒后重新发送` : "发送验证码" }}
           </v-btn>
@@ -52,64 +52,64 @@
       <v-col cols="12">
         <Recaptcha
           ref="recaptcha"
-          recaptchaId="recaptcha-div"
           :showNormal="true"
-          @bindVerified="handleBindVerified"
-          @bindError="handleBindError"
+          recaptchaId="recaptcha-div"
           @bindClose="handleBindClose"
+          @bindError="handleBindError"
+          @bindVerified="handleBindVerified"
         />
       </v-col>
 
       <v-col cols="12">
         <v-btn
+          :loading="loading"
+          :text="getLoginButtonText()"
+          append-icon="mdi-arrow-right"
           class="text-none"
           color="primary"
           rounded="xl"
-          :text="getLoginButtonText()"
-          variant="flat"
           size="large"
+          variant="flat"
           @click="handleLoginAction"
-          append-icon="mdi-arrow-right"
-          :loading="loading"
         ></v-btn>
       </v-col>
 
-      <v-col cols="12" v-if="showLinks">
+      <v-col v-if="showLinks" cols="12">
         <v-btn
+          append-icon="mdi-arrow-right"
           class="text-none"
           color="white"
           rounded="xl"
-          text="注册"
-          variant="text"
           size="large"
-          append-icon="mdi-arrow-right"
+          text="注册"
           to="/app/account/register"
+          variant="text"
           @click="handleClose"
         ></v-btn>
         <v-btn
+          append-icon="mdi-arrow-right"
           class="text-none"
           color="white"
           rounded="xl"
-          text="找回密码"
-          variant="text"
           size="large"
-          append-icon="mdi-arrow-right"
+          text="找回密码"
           to="/app/account/retrieve"
+          variant="text"
           @click="handleClose"
         ></v-btn>
       </v-col>
-      <v-col cols="12" v-if="showOAuth">
-        <OAuthButtons mode="login" divider-text="或使用以下方式登录" />
+      <v-col v-if="showOAuth" cols="12">
+        <OAuthButtons divider-text="或使用以下方式登录" mode="login"/>
       </v-col>
     </v-row>
   </v-form>
-  <LoadingDialog :show="loading" text="登录中" />
+  <LoadingDialog :show="loading" text="登录中"/>
 </template>
 
 <script>
-import { ref, watch } from "vue";
-import { useRouter } from "vue-router";
-import { localuser } from "@/services/localAccount";
+import {ref, watch} from "vue";
+import {useRouter} from "vue-router";
+import {localuser} from "@/services/localAccount";
 import AuthService from "@/services/authService";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
@@ -117,7 +117,7 @@ import OAuthButtons from "@/components/account/OAuthButtons.vue";
 
 export default {
   name: "LoginForm",
-  components: { LoadingDialog, Recaptcha, OAuthButtons },
+  components: {LoadingDialog, Recaptcha, OAuthButtons},
   props: {
     showLinks: {
       type: Boolean,
@@ -134,7 +134,7 @@ export default {
   },
   emits: ["login-success", "login-error", "close"],
 
-  setup(props, { emit }) {
+  setup(props, {emit}) {
     const router = useRouter();
 
     // State variables
@@ -319,7 +319,7 @@ export default {
     const handleError = (error) => {
       const message = error.response?.data?.message || error.message;
       showErrorToast(message);
-      emit('login-error', { message });
+      emit('login-error', {message});
     };
 
     const showSuccessToast = (message) => {

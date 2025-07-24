@@ -9,11 +9,11 @@
           <v-col cols="12">
             <v-text-field
               v-model="requestUrl"
-              label="Request URL"
-              placeholder="http://localhost:3000"
               hint="Enter the full URL including protocol"
-              persistent-hint
+              label="Request URL"
               outlined
+              persistent-hint
+              placeholder="http://localhost:3000"
               required
             ></v-text-field>
           </v-col>
@@ -31,10 +31,10 @@
           </v-col>
           <v-col cols="12" md="8">
             <v-btn
+              :loading="loading"
+              class="mr-4"
               color="primary"
               type="submit"
-              class="mr-4"
-              :loading="loading"
             >
               Send Request
             </v-btn>
@@ -60,24 +60,25 @@
                 <div v-for="(header, index) in headers" :key="index" class="d-flex mb-3">
                   <v-text-field
                     v-model="header.key"
+                    class="mr-2"
+                    dense
                     label="Header Name"
                     outlined
-                    dense
-                    class="mr-2"
                   ></v-text-field>
                   <v-text-field
                     v-model="header.value"
+                    class="mr-2"
+                    dense
                     label="Value"
                     outlined
-                    dense
-                    class="mr-2"
                   ></v-text-field>
-                  <v-btn icon color="red" @click="removeHeader(index)">
+                  <v-btn color="red" icon @click="removeHeader(index)">
                     <v-icon>mdi-delete</v-icon>
                   </v-btn>
                 </div>
                 <v-btn color="success" text @click="addHeader">
-                  <v-icon left>mdi-plus</v-icon> Add Header
+                  <v-icon left>mdi-plus</v-icon>
+                  Add Header
                 </v-btn>
               </v-card-text>
             </v-card>
@@ -89,12 +90,12 @@
               <v-card-text>
                 <v-textarea
                   v-model="requestBody"
-                  outlined
-                  label="Request Body (JSON)"
-                  rows="8"
                   :disabled="['GET', 'HEAD'].includes(requestMethod)"
                   :hint="['GET', 'HEAD'].includes(requestMethod) ? 'Body not applicable for this method' : 'Enter JSON format data'"
+                  label="Request Body (JSON)"
+                  outlined
                   persistent-hint
+                  rows="8"
                 ></v-textarea>
               </v-card-text>
             </v-card>
@@ -104,15 +105,15 @@
 
       <!-- Response Section -->
       <v-card-title class="mt-4">Response</v-card-title>
-      <v-card outlined class="mt-2">
+      <v-card class="mt-2" outlined>
         <v-card-text>
           <div v-if="responseData">
             <div class="d-flex align-center mb-2">
               <div class="font-weight-bold mr-2">Status:</div>
               <v-chip
                 :color="getStatusColor(responseStatus)"
-                text-color="white"
                 small
+                text-color="white"
               >
                 {{ responseStatus }}
               </v-chip>
@@ -123,19 +124,19 @@
             <v-divider class="my-3"></v-divider>
 
             <div class="font-weight-bold mb-2">Response Headers:</div>
-            <v-simple-table dense class="mb-4">
+            <v-simple-table class="mb-4" dense>
               <template v-slot:default>
                 <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Value</th>
-                  </tr>
+                <tr>
+                  <th>Name</th>
+                  <th>Value</th>
+                </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(value, key) in responseHeaders" :key="key">
-                    <td>{{ key }}</td>
-                    <td>{{ value }}</td>
-                  </tr>
+                <tr v-for="(value, key) in responseHeaders" :key="key">
+                  <td>{{ key }}</td>
+                  <td>{{ value }}</td>
+                </tr>
                 </tbody>
               </template>
             </v-simple-table>
@@ -146,12 +147,12 @@
             </v-card>
           </div>
           <div v-else-if="error">
-            <v-alert type="error" outlined>
+            <v-alert outlined type="error">
               {{ error }}
             </v-alert>
           </div>
           <div v-else>
-            <v-alert type="info" outlined>
+            <v-alert outlined type="info">
               Send a request to see the response
             </v-alert>
           </div>
@@ -172,7 +173,7 @@ export default {
       requestUrl: 'http://localhost:3000',
       requestMethod: 'GET',
       headers: [
-        { key: 'Content-Type', value: 'application/json' }
+        {key: 'Content-Type', value: 'application/json'}
       ],
       requestBody: '',
       activeTab: 0,
@@ -251,14 +252,14 @@ export default {
     resetForm() {
       this.requestUrl = 'http://localhost:3000';
       this.requestMethod = 'GET';
-      this.headers = [{ key: 'Content-Type', value: 'application/json' }];
+      this.headers = [{key: 'Content-Type', value: 'application/json'}];
       this.requestBody = '';
       this.responseData = null;
       this.error = null;
     },
 
     addHeader() {
-      this.headers.push({ key: '', value: '' });
+      this.headers.push({key: '', value: ''});
     },
 
     removeHeader(index) {

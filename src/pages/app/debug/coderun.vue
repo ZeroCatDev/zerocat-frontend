@@ -15,11 +15,11 @@
             <v-select
               v-model="selectedLanguage"
               :items="languageItems"
-              label="选择语言"
-              variant="outlined"
-              density="compact"
               class="language-select"
+              density="compact"
+              label="选择语言"
               style="max-width: 200px"
+              variant="outlined"
             >
               <template v-slot:item="{ props, item }">
                 <v-list-item v-bind="props">
@@ -38,10 +38,10 @@
           <v-card-text>
             <v-textarea
               v-model="code"
-              variant="outlined"
               :placeholder="getPlaceholder(selectedLanguage)"
               :rows="10"
               class="font-monospace"
+              variant="outlined"
             ></v-textarea>
           </v-card-text>
 
@@ -55,9 +55,9 @@
       <v-col cols="12" md="6">
         <code-run-terminal
           ref="terminal"
+          :auto-run="false"
           :code="code"
           :language="selectedLanguage"
-          :auto-run="false"
         />
       </v-col>
     </v-row>
@@ -67,7 +67,6 @@
 <script>
 import CodeRunTerminal from "@/components/admin/CodeRunTerminal.vue";
 import programmingLanguages from "@/constants/programming_languages.js";
-
 
 
 export default {

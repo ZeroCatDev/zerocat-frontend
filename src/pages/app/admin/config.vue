@@ -6,22 +6,22 @@
         <v-spacer></v-spacer>
         <v-text-field
           v-model="searchQuery"
-          prepend-icon="mdi-magnify"
+          class="mr-4"
+          clearable
+          density="compact"
+          hide-details
           label="搜索配置项"
           placeholder="输入名称或键名搜索"
-          hide-details
-          class="mr-4"
+          prepend-icon="mdi-magnify"
           style="max-width: 300px"
-          density="compact"
           variant="outlined"
-          clearable
         ></v-text-field>
-        <v-btn variant="tonal" @click="reload" prepend-icon="mdi-reload" class="mr-2"> 重载配置 </v-btn>
+        <v-btn class="mr-2" prepend-icon="mdi-reload" variant="tonal" @click="reload"> 重载配置</v-btn>
         <v-btn
-          color="primary"
-          @click="loadConfigs"
           :loading="loading"
+          color="primary"
           prepend-icon="mdi-refresh"
+          @click="loadConfigs"
         >
           刷新
         </v-btn>

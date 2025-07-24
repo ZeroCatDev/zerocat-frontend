@@ -1,11 +1,11 @@
 <template>
-  <showProjectList :listId="listId" />
+  <showProjectList :listId="listId"/>
 </template>
 
 <script>
 import showProjectList from "@/components/projectlist/showProjectList.vue";
-import { useHead } from "@unhead/vue";
-import { getProjectListById } from "@/services/projectService";
+import {useHead} from "@unhead/vue";
+import {getProjectListById} from "@/services/projectService";
 
 export default {
   components: {

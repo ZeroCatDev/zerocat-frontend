@@ -1,27 +1,27 @@
 <template>
-  <v-container fluid class="pa-4">
+  <v-container class="pa-4" fluid>
     <!-- User Profile Card -->
     <user-card
-      :userData="userInfo"
       :loading="userCardLoading"
       :s3BucketUrl="s3BucketUrl"
+      :userData="userInfo"
     />
 
     <!-- Account Settings Section -->
-    <v-card hover border>
+    <v-card border hover>
 
       <v-tabs v-model="tab" bg-color="primary">
         <v-tab
           v-for="item in tabItems"
           :key="item.value"
+          :prepend-icon="item.icon"
           :text="item.title"
+          :to="item.to"
           :value="item.value"
           @click="tab = item.value"
-          :prepend-icon="item.icon"
-          :to="item.to"
         >
 
-          </v-tab>
+        </v-tab>
       </v-tabs>
       <v-card-text class="pa-4">
         <v-window v-model="tab">
@@ -30,8 +30,8 @@
             <h3 class="text-h5 mb-4">个人资料</h3>
             <profile-editor
               :userData="userInfo"
-              @profile-updated="handleProfileUpdate"
               @error="handleError"
+              @profile-updated="handleProfileUpdate"
             />
           </v-window-item>
 
@@ -40,8 +40,8 @@
             <h3 class="text-h5 mb-4">修改用户名</h3>
             <username-editor
               :userData="userInfo"
-              @username-updated="handleUsernameUpdate"
               @error="handleError"
+              @username-updated="handleUsernameUpdate"
             />
           </v-window-item>
 
@@ -49,8 +49,8 @@
           <v-window-item value="password">
             <h3 class="text-h5 mb-4">修改密码</h3>
             <password-editor
-              @password-updated="handlePasswordUpdate"
               @error="handleError"
+              @password-updated="handlePasswordUpdate"
             />
           </v-window-item>
 
@@ -58,29 +58,29 @@
           <v-window-item value="avatar">
             <h3 class="text-h5 mb-4">更新头像</h3>
             <avatar-editor
-              :userData="userInfo"
               :s3BucketUrl="s3BucketUrl"
-              @avatar-updated="handleAvatarUpdate"
+              :userData="userInfo"
               @error="handleError"
+              @avatar-updated="handleAvatarUpdate"
             />
           </v-window-item>
 
           <!-- Email Tab -->
           <v-window-item value="email">
             <h3 class="text-h5 mb-4">邮箱管理</h3>
-            <email-manager ref="emailManager" />
+            <email-manager ref="emailManager"/>
           </v-window-item>
 
           <!-- OAuth Tab -->
           <v-window-item value="oauth">
             <h3 class="text-h5 mb-4">第三方账号关联</h3>
-            <o-auth-manager />
+            <o-auth-manager/>
           </v-window-item>
 
           <!-- Security Tab -->
           <v-window-item value="security">
             <h3 class="text-h5 mb-4">安全管理</h3>
-            <security-manager />
+            <security-manager/>
           </v-window-item>
 
           <!-- Relationships Tab -->
@@ -95,11 +95,11 @@
 </template>
 
 <script>
-import { localuser } from "@/services/localAccount";
-import { useHead } from "@unhead/vue";
-import { getAccount } from "@/services/accountService";
-import { ref, onMounted } from "vue";
-import { get } from "@/services/serverConfig";
+import {localuser} from "@/services/localAccount";
+import {useHead} from "@unhead/vue";
+import {getAccount} from "@/services/accountService";
+import {ref, onMounted} from "vue";
+import {get} from "@/services/serverConfig";
 
 // Existing Components
 import EmailManager from "@/components/EmailManager.vue";
@@ -137,15 +137,15 @@ export default {
       userInfo: {},
       tab: "userInfo",
       tabItems: [
-        { title: "用户信息", value: "userInfo", icon: "mdi-account-circle" },
-        { title: "账户", value: "username", icon: "mdi-cog" },
-        { title: "密码", value: "password", icon: "mdi-lock" },
-        { title: "头像", value: "avatar", icon: "mdi-image" },
-        { title: "邮箱", value: "email", icon: "mdi-email" },
-        { title: "OAuth", value: "oauth", icon: "mdi-link-variant" },
-        { title: "安全", value: "security", icon: "mdi-security" },
-        { title: "关系", value: "relationships", icon: "mdi-account-group", to: "/app/account/relationships" },
-        { title: "开发者", value: "developer", icon: "mdi-account-group", to: "/app/account/developer" },
+        {title: "用户信息", value: "userInfo", icon: "mdi-account-circle"},
+        {title: "账户", value: "username", icon: "mdi-cog"},
+        {title: "密码", value: "password", icon: "mdi-lock"},
+        {title: "头像", value: "avatar", icon: "mdi-image"},
+        {title: "邮箱", value: "email", icon: "mdi-email"},
+        {title: "OAuth", value: "oauth", icon: "mdi-link-variant"},
+        {title: "安全", value: "security", icon: "mdi-security"},
+        {title: "关系", value: "relationships", icon: "mdi-account-group", to: "/app/account/relationships"},
+        {title: "开发者", value: "developer", icon: "mdi-account-group", to: "/app/account/developer"},
 
       ],
       loading: false,
@@ -154,7 +154,7 @@ export default {
     };
   },
   setup() {
-    useHead({ title: "账户设置" });
+    useHead({title: "账户设置"});
     const s3BucketUrl = ref(null);
 
     onMounted(async () => {
@@ -222,7 +222,7 @@ export default {
       this.showToast("error", "错误", error.message);
     },
     showToast(severity, summary, detail) {
-      this.$toast.add({ severity, summary, detail, life: 3000 });
+      this.$toast.add({severity, summary, detail, life: 3000});
     },
   },
 };

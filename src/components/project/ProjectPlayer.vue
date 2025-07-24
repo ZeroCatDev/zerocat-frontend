@@ -1,25 +1,25 @@
 <template>
   <div>
     <template v-if="projectType === 'scratch'">
-      <v-card hover border style="aspect-ratio: 4 / 3" v-if="showplayer">
+      <v-card v-if="showplayer" border hover style="aspect-ratio: 4 / 3">
         <iframe
           :src="embedurl"
-          scrolling="no"
           frameborder="0"
+          scrolling="no"
           style="width: 100%; height: 100%"
         ></iframe>
       </v-card>
     </template>
 
     <template v-else-if="projectType === 'text'">
-      <v-card hover border v-if="showplayer">
+      <v-card v-if="showplayer" border hover>
         <v-card-text>
           <v-textarea
             v-model="projectContent"
-            readonly
             auto-grow
-            rows="10"
             hide-details
+            readonly
+            rows="10"
           ></v-textarea>
         </v-card-text>
       </v-card>
@@ -29,13 +29,13 @@
       <CodeRunner
         v-if="showplayer"
         ref="codeRunner"
-        :project-type="projectType"
         :initial-code="projectCode"
         :initial-language="projectLanguage"
+        :project-type="projectType"
       ></CodeRunner>
     </template>
 
-    <v-card v-if="!showplayer" hover border title="项目尚未初始化">
+    <v-card v-if="!showplayer" border hover title="项目尚未初始化">
       <v-card-actions>
         <v-btn @click="initProject(projectId, 'scratch')">以Scratch模板初始化项目</v-btn>
         <v-btn @click="initProject(projectId, 'code')">以代码模板初始化项目</v-btn>
@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { initProject, getProjectContent } from "@/services/projectService";
+import {initProject, getProjectContent} from "@/services/projectService";
 import CodeRunner from './CodeRunner.vue';
 
 export default {

@@ -2,13 +2,13 @@
   <v-card
     v-for="comment in commentList"
     :key="comment.id"
-    hover
     border
     class="mb-2"
     elevation
+    hover
     @click="showMore(comment)"
   >
-    <CommentContent :comment="comment" :s3-bucket-url="s3BucketUrl" />
+    <CommentContent :comment="comment" :s3-bucket-url="s3BucketUrl"/>
 
     <!-- Child Comments Preview -->
     <v-card
@@ -22,7 +22,7 @@
           link
           @click.stop="showMore(comment)"
         >
-          <CommentListItem :comment="child" :s3-bucket-url="s3BucketUrl" />
+          <CommentListItem :comment="child" :s3-bucket-url="s3BucketUrl"/>
         </v-list-item>
 
         <v-list-item
@@ -38,14 +38,14 @@
 
   <!-- Load More & Sort Buttons -->
   <div class="d-flex gap-2">
-    <v-btn @click="loadMore" :disabled="isLoadingDisabled" border>继续加载</v-btn>
-    <v-btn @click="toggleSort" border>{{ sortLabel }}</v-btn>
+    <v-btn :disabled="isLoadingDisabled" border @click="loadMore">继续加载</v-btn>
+    <v-btn border @click="toggleSort">{{ sortLabel }}</v-btn>
   </div>
 
   <!-- Comment Input -->
   <CommentInput
-    :name="name"
     v-model="commentText"
+    :name="name"
     @submit="addComment"
   />
 
@@ -54,17 +54,17 @@
     v-model="dialog"
     :comment="selectedComment"
     :s3-bucket-url="s3BucketUrl"
-    @reply="handleReply"
     @delete="handleDelete"
+    @reply="handleReply"
   />
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
-import { get } from "@/services/serverConfig"
+import {ref, computed, onMounted, watch} from 'vue'
+import {get} from "@/services/serverConfig"
 import request from "../axios/axios"
-import { localuser } from "@/services/localAccount"
-import { UAParser } from "ua-parser-js"
+import {localuser} from "@/services/localAccount"
+import {UAParser} from "ua-parser-js"
 import CommentContent from './comment/CommentContent.vue'
 import CommentListItem from './comment/CommentListItem.vue'
 import CommentInput from './comment/CommentInput.vue'
@@ -114,7 +114,7 @@ const loadComments = async (options = {}) => {
       method: 'get'
     })
 
-    const { data } = response.data
+    const {data} = response.data
 
     if (!data.data.length) {
       isLoadingDisabled.value = true
@@ -132,10 +132,10 @@ const loadMore = () => loadComments()
 
 const toggleSort = () => {
   sortOrder.value = sortOrder.value === 'desc' ? 'asc' : 'desc'
-  loadComments({ reset: true })
+  loadComments({reset: true})
 }
 
-const addComment = async ({ replyTo = null, rootId = null } = {}) => {
+const addComment = async ({replyTo = null, rootId = null} = {}) => {
   try {
     await request({
       url: `/comment/api/comment?path=${props.url}`,
@@ -149,7 +149,7 @@ const addComment = async ({ replyTo = null, rootId = null } = {}) => {
     })
 
     commentText.value = ''
-    await loadComments({ reset: true })
+    await loadComments({reset: true})
     dialog.value = false
   } catch (error) {
     console.error('Failed to add comment:', error)
@@ -162,7 +162,7 @@ const deleteComment = async (id) => {
       url: `/comment/api/comment/${id}`,
       method: 'delete'
     })
-    await loadComments({ reset: true })
+    await loadComments({reset: true})
     dialog.value = false
   } catch (error) {
     console.error('Failed to delete comment:', error)
@@ -184,5 +184,5 @@ onMounted(async () => {
 })
 
 // Watch
-watch(() => props.url, () => loadComments({ reset: true }))
+watch(() => props.url, () => loadComments({reset: true}))
 </script>

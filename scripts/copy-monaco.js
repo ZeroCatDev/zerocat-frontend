@@ -9,6 +9,6 @@ const targetPath = path.resolve(__dirname, '../public/monaco-editor/min/vs');
 fs.ensureDirSync(path.dirname(targetPath));
 
 // 复制文件
-fs.copySync(sourcePath, targetPath, { overwrite: true });
+fs.copySync(sourcePath, targetPath, {overwrite: true});
 
-console.log('Monaco Editor files copied successfully to public directory!'); 
+console.log('Monaco Editor files copied successfully to public directory!');

@@ -2,15 +2,16 @@
   <div>
     <div class="mb-6">
       <h4 class="text-h6 mb-3">登录设备</h4>
-      <v-alert v-if="activeTokens.length === 0 && !isLoadingTokens" type="info" text="没有活跃的会话" class="mb-3"></v-alert>
+      <v-alert v-if="activeTokens.length === 0 && !isLoadingTokens" class="mb-3" text="没有活跃的会话"
+               type="info"></v-alert>
       <v-data-table
         v-else
         :headers="tokenHeaders"
         :items="activeTokens"
         :loading="isLoadingTokens"
+        class="elevation-1 rounded-lg"
         loading-text="加载会话列表..."
         no-data-text="没有找到活跃会话"
-        class="elevation-1 rounded-lg"
       >
         <template v-slot:item.created_at="{ item }">
           {{ formatDate(item.created_at) }}
@@ -19,12 +20,13 @@
         <template v-slot:item.device_info="{ item }">
           <div class="d-flex align-center">
 
-            {{ item.device_info?.os || '未知' }} ({{ item.device_info?.browser || '未知' }}) <v-chip
-            v-if="item.is_current"
-            color="success"
-            size="small"
-            text="当前"
-          ></v-chip>
+            {{ item.device_info?.os || '未知' }} ({{ item.device_info?.browser || '未知' }})
+            <v-chip
+              v-if="item.is_current"
+              color="success"
+              size="small"
+              text="当前"
+            ></v-chip>
           </div>
         </template>
         <template v-slot:item.ip_address="{ item }">
@@ -39,19 +41,19 @@
         <template v-slot:item.activity_count="{ item }">
           <v-chip
             :color="getActivityColor(item.activity_count)"
-            size="small"
             :text="getActivityText(item.activity_count)"
+            size="small"
           ></v-chip>
         </template>
 
         <template v-slot:item.actions="{ item }">
           <v-btn
-            @click="handleRevokeToken(item.id)"
-            size="small"
-            color="error"
-            variant="text"
-            :loading="loadingTokenId === item.id"
             :disabled="isLoadingTokens || isPerformingAction"
+            :loading="loadingTokenId === item.id"
+            color="error"
+            size="small"
+            variant="text"
+            @click="handleRevokeToken(item.id)"
           >
             <v-icon>mdi-logout</v-icon>
             结束会话
@@ -62,11 +64,11 @@
 
     <div class="d-flex gap-4 mt-6">
       <v-btn
+        :disabled="isPerformingAction || isLoadingTokens"
+        :loading="isLoggingOutAll"
         color="error"
         prepend-icon="mdi-logout-variant"
         @click="confirmLogoutAll"
-        :loading="isLoggingOutAll"
-        :disabled="isPerformingAction || isLoadingTokens"
       >
         退出所有会话
       </v-btn>
@@ -88,9 +90,9 @@
 </template>
 
 <script>
-import { localuser } from '@/services/localAccount';
-import { formatDistance, format } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
+import {localuser} from '@/services/localAccount';
+import {formatDistance, format} from 'date-fns';
+import {zhCN} from 'date-fns/locale';
 
 export default {
   name: 'SecurityManager',
@@ -106,11 +108,11 @@ export default {
       confirmDialogText: '',
       confirmedAction: null,
       tokenHeaders: [
-        { title: '创建时间', key: 'created_at', sortable: true },
-        { title: '设备信息', key: 'device_info', sortable: false },
-        { title: 'IP地址', key: 'ip_address', sortable: true },
-        { title: 'IP属地', key: 'ip_location', sortable: true },
-        { title: '操作', key: 'actions', sortable: false },
+        {title: '创建时间', key: 'created_at', sortable: true},
+        {title: '设备信息', key: 'device_info', sortable: false},
+        {title: 'IP地址', key: 'ip_address', sortable: true},
+        {title: 'IP属地', key: 'ip_location', sortable: true},
+        {title: '操作', key: 'actions', sortable: false},
       ],
     };
   },

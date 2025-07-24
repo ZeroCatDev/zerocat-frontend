@@ -5,10 +5,10 @@
  */
 
 // Composables
-import { createRouter, createWebHistory } from 'vue-router'
-import { setupLayouts } from 'virtual:generated-layouts'
-import { routes } from 'vue-router/auto-routes'
-import { use404Helper } from '../composables/use404'
+import {createRouter, createWebHistory} from 'vue-router'
+import {setupLayouts} from 'virtual:generated-layouts'
+import {routes} from 'vue-router/auto-routes'
+import {use404Helper} from '../composables/use404'
 
 const router = createRouter({
   history: createWebHistory(),

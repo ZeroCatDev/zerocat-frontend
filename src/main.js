@@ -5,18 +5,18 @@
  */
 
 // Plugins
-import { registerPlugins } from "@/plugins";
+import {registerPlugins} from "@/plugins";
 import ToastService from "primevue/toastservice";
 import PrimeVue from "primevue/config";
 import Aura from "@primevue/themes/aura";
 
-import { createHead } from "@unhead/vue";
+import {createHead} from "@unhead/vue";
 
 // Components
 import App from "./App.vue";
 
 // Composables
-import { createApp } from "vue";
+import {createApp} from "vue";
 
 import './styles/settings.scss'
 

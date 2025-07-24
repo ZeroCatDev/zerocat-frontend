@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <PageAnalytics target-type="user" :target-id="1" />
+    <PageAnalytics :target-id="1" target-type="user"/>
     <v-card class="mx-auto mt-4" max-width="800">
       <v-card-title class="text-h5">
         Fingerprint Debug Info
@@ -9,13 +9,13 @@
       <v-card-text>
         <v-alert
           v-if="error"
-          type="error"
           :text="error"
           class="mb-4"
+          type="error"
         />
 
         <div v-if="loading" class="d-flex justify-center align-center pa-4">
-          <v-progress-circular indeterminate color="primary" />
+          <v-progress-circular color="primary" indeterminate/>
         </div>
 
         <div v-else-if="fingerprint">
@@ -44,10 +44,10 @@
           </v-list>
 
           <v-btn
-            color="primary"
-            class="mt-4"
-            @click="refreshFingerprint"
             :loading="loading"
+            class="mt-4"
+            color="primary"
+            @click="refreshFingerprint"
           >
             Refresh Fingerprint
           </v-btn>
@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import {ref, onMounted} from 'vue'
 import * as FingerprintJS from '@fingerprintjs/fingerprintjs'
 import PageAnalytics from '@/components/analytics/PageAnalytics.vue'
 

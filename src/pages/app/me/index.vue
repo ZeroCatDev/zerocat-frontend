@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-tabs align="center" v-model="tab" bg-color="primary">
+    <v-tabs v-model="tab" align="center" bg-color="primary">
       <v-tab value="all">全部动态</v-tab>
       <v-tab value="following">关注的人</v-tab>
     </v-tabs>
@@ -9,13 +9,13 @@
       <v-tabs-window-item value="all">
         <v-card class="mt-4" variant="flat">
           <v-card-title class="d-flex align-center">
-            <v-icon icon="mdi-timeline-clock" color="primary" class="mr-2" />
+            <v-icon class="mr-2" color="primary" icon="mdi-timeline-clock"/>
             我的动态
           </v-card-title>
           <v-card-text>
             <Timeline
-              :timeline="timeline"
               :is-loading-more="isLoadingMore"
+              :timeline="timeline"
               @load-more="loadMoreEvents"
             />
           </v-card-text>
@@ -25,13 +25,13 @@
       <v-tabs-window-item value="following">
         <v-card class="mt-4" variant="flat">
           <v-card-title class="d-flex align-center">
-            <v-icon icon="mdi-account-group" color="primary" class="mr-2" />
+            <v-icon class="mr-2" color="primary" icon="mdi-account-group"/>
             关注的人的动态
           </v-card-title>
           <v-card-text>
             <Timeline
-              :timeline="followingTimeline"
               :is-loading-more="isLoadingFollowingMore"
+              :timeline="followingTimeline"
               @load-more="loadMoreFollowingEvents"
             />
           </v-card-text>
@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { useHead } from "@unhead/vue";
+import {useHead} from "@unhead/vue";
 import request from "@/axios/axios.js";
 import Timeline from "@/components/timeline/Timeline.vue";
 

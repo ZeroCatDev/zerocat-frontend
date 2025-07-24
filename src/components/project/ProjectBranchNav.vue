@@ -1,17 +1,19 @@
 <template>
-  <div style="display: flex; justify-content: space-between" class="mb-2">
+  <div class="mb-2" style="display: flex; justify-content: space-between">
     <div>
       <v-menu :close-on-content-click="false">
         <template v-slot:activator="{ props }">
           <v-btn
-            rounded="lg"
-            variant="tonal"
+            append-icon="mdi-menu-down"
             class="text-none"
             prepend-icon="mdi-git"
-            append-icon="mdi-menu-down"
+            rounded="lg"
             v-bind="props"
+            variant="tonal"
           >
-            <template v-slot:prepend><v-icon /></template>
+            <template v-slot:prepend>
+              <v-icon/>
+            </template>
             {{ currentBranch }}
           </v-btn>
         </template>
@@ -20,32 +22,35 @@
           <v-list-item
             v-for="item in branches"
             :key="item"
-            :title="item.name"
-            :subtitle="item.description"
-            :value="item.name"
             :active="item.name === currentBranch"
+            :subtitle="item.description"
+            :title="item.name"
+            :value="item.name"
             @click="navigateToBranch(item.name)"
           ></v-list-item>
         </v-list>
       </v-menu>
       <v-btn
+        :to="`/${username}/${projectname}/branches`"
         class="ml-2"
         variant="text"
-        :to="`/${username}/${projectname}/branches`"
-        >{{ branches.length }}个分支</v-btn
+      >{{ branches.length }}个分支
+      </v-btn
       >
     </div>
     <v-menu :close-on-content-click="false">
       <template v-slot:activator="{ props }">
         <v-btn
-          variant="tonal"
+          append-icon="mdi-menu-down"
           class="text-none"
           prepend-icon="mdi-history"
           rounded="lg"
-          append-icon="mdi-menu-down"
           v-bind="props"
+          variant="tonal"
         >
-          <template v-slot:prepend><v-icon /></template>
+          <template v-slot:prepend>
+            <v-icon/>
+          </template>
           {{ branchHistory.length }} 次提交
         </v-btn>
       </template>
@@ -54,9 +59,9 @@
         <v-list-item
           v-for="item in branchHistory"
           :key="item"
-          :title="item.commit_message"
-          :subtitle="`${item.commit_date} - #${item.author_id}`"
           :active="item.id === currentCommitId"
+          :subtitle="`${item.commit_date} - #${item.author_id}`"
+          :title="item.commit_message"
           @click="navigateToCommit(item.id)"
         ></v-list-item>
       </v-list>

@@ -5,86 +5,86 @@
         <v-row>
           <v-col cols="12">
             <v-text-field
+              v-model="email"
+              :rules="emailRules"
               label="邮箱"
               type="text"
-              v-model="email"
               variant="outlined"
-              :rules="emailRules"
             ></v-text-field>
           </v-col>
 
           <v-col cols="12">
-            <Recaptcha ref="recaptcha" recaptchaId="recaptcha-div" />
+            <Recaptcha ref="recaptcha" recaptchaId="recaptcha-div"/>
           </v-col>
 
           <v-col cols="12">
             <v-btn
+              :disabled="linkSent"
+              :loading="loading"
+              :text="linkSent ? '已发送，请检查邮箱' : '发送登录链接'"
+              append-icon="mdi-arrow-right"
               class="text-none"
               color="primary"
               rounded="xl"
-              :text="linkSent ? '已发送，请检查邮箱' : '发送登录链接'"
-              variant="flat"
               size="large"
+              variant="flat"
               @click="sendMagicLink"
-              append-icon="mdi-arrow-right"
-              :loading="loading"
-              :disabled="linkSent"
             ></v-btn>
           </v-col>
 
           <v-col cols="12">
             <div class="d-flex flex-wrap justify-start gap-2">
               <v-btn
+                append-icon="mdi-arrow-right"
                 class="text-none"
                 color="white"
                 rounded="xl"
+                size="large"
                 text="密码登录"
-                variant="text"
-                size="large"
-                append-icon="mdi-arrow-right"
                 to="/app/account/login"
+                variant="text"
               ></v-btn>
               <v-btn
+                append-icon="mdi-arrow-right"
                 class="text-none"
                 color="white"
                 rounded="xl"
+                size="large"
                 text="注册"
-                variant="text"
-                size="large"
-                append-icon="mdi-arrow-right"
                 to="/app/account/register"
+                variant="text"
               ></v-btn>
               <v-btn
+                append-icon="mdi-arrow-right"
                 class="text-none"
                 color="white"
                 rounded="xl"
-                text="找回密码"
-                variant="text"
                 size="large"
-                append-icon="mdi-arrow-right"
+                text="找回密码"
                 to="/app/account/retrieve"
+                variant="text"
               ></v-btn>
             </div>
           </v-col>
         </v-row>
       </v-form>
     </AuthCard>
-    <LoadingDialog :show="loading" text="处理中" />
+    <LoadingDialog :show="loading" text="处理中"/>
   </div>
 </template>
 
 <script>
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { useHead } from "@unhead/vue";
-import { localuser } from "@/services/localAccount";
+import {ref} from "vue";
+import {useRouter} from "vue-router";
+import {useHead} from "@unhead/vue";
+import {localuser} from "@/services/localAccount";
 import AuthService from "@/services/authService";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
 import AuthCard from "@/components/AuthCard.vue";
 
 export default {
-  components: { LoadingDialog, Recaptcha, AuthCard },
+  components: {LoadingDialog, Recaptcha, AuthCard},
 
   setup() {
     const router = useRouter();

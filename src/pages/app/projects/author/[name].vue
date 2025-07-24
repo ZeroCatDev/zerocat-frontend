@@ -1,5 +1,5 @@
 <template>
-  <project-query-view type="author" :target="$route.params.name" />
+  <project-query-view :target="$route.params.name" type="author"/>
 </template>
 
 <script>

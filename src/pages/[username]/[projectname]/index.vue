@@ -1,26 +1,26 @@
 <template>
   <div>
-    <PageAnalytics target-type="project" :target-id="project.id" />
+    <PageAnalytics :target-id="project.id" target-type="project"/>
     <v-container>
       <v-row>
-        <v-col xs="12" sm="12" md="8" lg="8" xl="8" xxl="8" cols="12">
+        <v-col cols="12" lg="8" md="8" sm="12" xl="8" xs="12" xxl="8">
           <ProjectBranchNav
-            :username="$route.params.username"
-            :projectname="$route.params.projectname"
+            :branch-history="projectbranchhistory"
+            :branches="projectbranchs"
             :current-branch="player.branch"
             :current-commit-id="player.commit.id"
-            :branches="projectbranchs"
-            :branch-history="projectbranchhistory"
+            :projectname="$route.params.projectname"
+            :username="$route.params.username"
           />
 
           <ProjectPlayer
-            :project-id="project.id"
             :branch="player.branch"
             :commit-id="player.commit.id"
+            :project-id="project.id"
             :showplayer="showplayer"
             :type="project.type"
           />
-          <br />
+          <br/>
           <v-card>
             <v-tabs v-model="tab" bg-color="primary">
               <v-tab value="readme">README</v-tab>
@@ -34,21 +34,21 @@
                 </v-tabs-window-item>
 
                 <v-tabs-window-item value="license">
-                  <License :licenseKey="project.license || 'none'" />
+                  <License :licenseKey="project.license || 'none'"/>
                 </v-tabs-window-item>
               </v-tabs-window>
             </v-card-text>
           </v-card>
         </v-col>
-        <v-col xs="12" sm="12" md="4" lg="4" xl="4" xxl="8" cols="12">
+        <v-col cols="12" lg="4" md="4" sm="12" xl="4" xs="12" xxl="8">
           <ProjectInfoCard
-            :project="project"
             :author="author"
-            :username="$route.params.username"
+            :project="project"
             :projectname="$route.params.projectname"
+            :username="$route.params.username"
           />
         </v-col>
-        <v-col xxl="8" xl="8" lg="8" md="8" sm="12" xs="12" cols="12">
+        <v-col cols="12" lg="8" md="8" sm="12" xl="8" xs="12" xxl="8">
           <Comment :url="'project-' + project.id" name="项目"></Comment>
         </v-col>
       </v-row>
@@ -57,10 +57,10 @@
 </template>
 
 <script>
-import { use404Helper } from '@/composables/use404';
-import { localuser } from "@/services/localAccount";
+import {use404Helper} from '@/composables/use404';
+import {localuser} from "@/services/localAccount";
 import Comment from "@/components/Comment.vue";
-import { useHead } from "@unhead/vue";
+import {useHead} from "@unhead/vue";
 import {
   getProjectInfoByNamespace,
   initProject,
@@ -74,6 +74,7 @@ import ProjectPlayer from "@/components/project/ProjectPlayer.vue";
 import ProjectInfoCard from "@/components/project/ProjectInfoCard.vue";
 import "github-markdown-css";
 import PageAnalytics from "@/components/analytics/PageAnalytics.vue";
+
 export default {
   components: {
     Comment,
@@ -140,7 +141,7 @@ export default {
         this.player.latest_commit_hash = currentBranch.latest_commit_hash;
       }
       this.loadBranchHistory();
-      useHead({ title: this.project.title });
+      useHead({title: this.project.title});
       this.author = this.project.author;
     },
     async loadBranchHistory() {

@@ -4,23 +4,23 @@
       <v-col cols="12" md="8">
         <v-text-field
           v-model="oldPassword"
-          label="当前密码"
-          variant="outlined"
-          density="comfortable"
-          type="password"
           :rules="[v => !!v || '请输入当前密码']"
+          density="comfortable"
+          label="当前密码"
           required
+          type="password"
+          variant="outlined"
         ></v-text-field>
       </v-col>
       <v-col cols="12" md="8">
         <v-text-field
           v-model="newPassword"
           :rules="passwordRules"
-          label="新密码"
-          variant="outlined"
           density="comfortable"
-          type="password"
+          label="新密码"
           required
+          type="password"
+          variant="outlined"
         ></v-text-field>
         <div class="text-caption text-medium-emphasis">
           密码必须由数字、大小写字母和特殊字符组成，且长度至少为8位
@@ -33,22 +33,22 @@
             v => !!v || '请确认新密码',
             v => v === newPassword || '两次输入的密码不一致'
           ]"
-          label="确认新密码"
-          variant="outlined"
           density="comfortable"
-          type="password"
+          label="确认新密码"
           required
+          type="password"
+          variant="outlined"
         ></v-text-field>
       </v-col>
       <v-col cols="12">
         <v-btn
-          @click="changePassword"
           :disabled="!valid"
-          color="primary"
-          size="large"
-          prepend-icon="mdi-lock-reset"
-          class="px-6"
           :loading="loading"
+          class="px-6"
+          color="primary"
+          prepend-icon="mdi-lock-reset"
+          size="large"
+          @click="changePassword"
         >
           更新密码
         </v-btn>
@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import { updatePassword } from "@/services/accountService";
+import {updatePassword} from "@/services/accountService";
 
 export default {
   name: "PasswordEditor",

@@ -1,5 +1,5 @@
 export default {
-  "python":{
+  "python": {
     name: "Python(3.11)",
     extension: "py",
     command: "asdf shell python latest:3.11\n(stty -echo; echo {code} | base64 -d > main.py; echo -e \"\\033[2J\\033[H\"; stty echo)\npython main.py",
@@ -15,7 +15,7 @@ export default {
     placeholder: "# Enter Python code here",
     sample: "print('Hello from Python!')\nfor i in range(5):\n    print('Count: ' + str(i))"
   },
-  "python-3.11":{
+  "python-3.11": {
     name: "Python3.11",
     extension: "py",
     command: "asdf shell python latest:3.11\n(stty -echo; echo {code} | base64 -d > main.py; echo -e \"\\033[2J\\033[H\"; stty echo)\npython main.py",
@@ -23,7 +23,7 @@ export default {
     placeholder: "# Enter Python code here",
     sample: "print('Hello from Python!')\nfor i in range(5):\n    print(f'Count: {i}')"
   },
-  "python-3.12":{
+  "python-3.12": {
     name: "Python3.12",
     extension: "py",
     command: "asdf shell python latest:3.12\n(stty -echo; echo {code} | base64 -d > main.py; echo -e \"\\033[2J\\033[H\"; stty echo)\npython main.py",
@@ -31,7 +31,7 @@ export default {
     placeholder: "# Enter Python code here",
     sample: "print('Hello from Python!')\nfor i in range(5):\n    print(f'Count: {i}')"
   },
-  "python-3.13":{
+  "python-3.13": {
     name: "Python3.13",
     extension: "py",
     command: "asdf shell python latest:3.13\n(stty -echo; echo {code} | base64 -d > main.py; echo -e \"\\033[2J\\033[H\"; stty echo)\npython main.py",
@@ -96,7 +96,7 @@ export default {
     placeholder: "// Enter Golang code here",
     sample: "package main\n\nimport \"fmt\"\n\nfunc main() {\n    fmt.Println(\"Hello from Golang!\")\n    for i := 0; i < 5; i++ {\n        fmt.Printf(\"Count: %d\\n\", i)\n    }\n}"
   },
-  "ruby":{
+  "ruby": {
     name: "Ruby",
     extension: "rb",
     command: "asdf shell ruby latest\n(stty -echo; echo {code} | base64 -d > main.rb; echo -e \"\\033[2J\\033[H\"; stty echo)\nruby main.rb",
@@ -104,37 +104,37 @@ export default {
     placeholder: "# Enter Ruby code here",
     sample: "puts 'Hello, World!'"
   },
-"java":{
-  name: "Java(openjdk-24)",
-  extension: "java",
-  command: "asdf shell java openjdk-24\n(stty -echo; echo {code} | base64 -d > main.java; echo -e \"\\033[2J\\033[H\"; stty echo)\njavac main.java\njava main",
-  icon: "mdi-language-java",
-  placeholder: "// Enter Java code here",
-  sample: "class main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}"
-},
-"java-openjdk21":{
-  name: "Java(openjdk-21)",
-  extension: "java",
-  command: "asdf shell java openjdk-21\n(stty -echo; echo {code} | base64 -d > main.java; echo -e \"\\033[2J\\033[H\"; stty echo)\njavac main.java\njava main",
-  icon: "mdi-language-java",
-  placeholder: "// Enter Java code here",
-  sample: "class main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}"
-},
-"java-openjdk17":{
-  name: "Java(openjdk-17)",
-  extension: "java",
-  command: "asdf shell java openjdk-17\n(stty -echo; echo {code} | base64 -d > main.java; echo -e \"\\033[2J\\033[H\"; stty echo)\njavac main.java\njava main",
-  icon: "mdi-language-java",
-  placeholder: "// Enter Java code here",
-  sample: "class main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}"
-},
-"java-openjdk24":{
-  name: "Java(openjdk-24)",
-  extension: "java",
-  command: "asdf shell java openjdk-24\n(stty -echo; echo {code} | base64 -d > main.java; echo -e \"\\033[2J\\033[H\"; stty echo)\njavac main.java\njava main",
-  icon: "mdi-language-java",
-  placeholder: "// Enter Java code here",
-  sample: "class main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}"
-},
+  "java": {
+    name: "Java(openjdk-24)",
+    extension: "java",
+    command: "asdf shell java openjdk-24\n(stty -echo; echo {code} | base64 -d > main.java; echo -e \"\\033[2J\\033[H\"; stty echo)\njavac main.java\njava main",
+    icon: "mdi-language-java",
+    placeholder: "// Enter Java code here",
+    sample: "class main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}"
+  },
+  "java-openjdk21": {
+    name: "Java(openjdk-21)",
+    extension: "java",
+    command: "asdf shell java openjdk-21\n(stty -echo; echo {code} | base64 -d > main.java; echo -e \"\\033[2J\\033[H\"; stty echo)\njavac main.java\njava main",
+    icon: "mdi-language-java",
+    placeholder: "// Enter Java code here",
+    sample: "class main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}"
+  },
+  "java-openjdk17": {
+    name: "Java(openjdk-17)",
+    extension: "java",
+    command: "asdf shell java openjdk-17\n(stty -echo; echo {code} | base64 -d > main.java; echo -e \"\\033[2J\\033[H\"; stty echo)\njavac main.java\njava main",
+    icon: "mdi-language-java",
+    placeholder: "// Enter Java code here",
+    sample: "class main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}"
+  },
+  "java-openjdk24": {
+    name: "Java(openjdk-24)",
+    extension: "java",
+    command: "asdf shell java openjdk-24\n(stty -echo; echo {code} | base64 -d > main.java; echo -e \"\\033[2J\\033[H\"; stty echo)\njavac main.java\njava main",
+    icon: "mdi-language-java",
+    placeholder: "// Enter Java code here",
+    sample: "class main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}"
+  },
 
 }

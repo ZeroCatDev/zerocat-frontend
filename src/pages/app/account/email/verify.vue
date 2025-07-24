@@ -1,6 +1,6 @@
 <template>
   <div class="auth-wrapper d-flex align-center justify-center pa-4">
-    <v-card class="auth-card pa-4 pt-7" max-width="448" border rounded="lg">
+    <v-card border class="auth-card pa-4 pt-7" max-width="448" rounded="lg">
       <v-row>
         <v-col cols="12">
           <v-cardtext>
@@ -9,24 +9,31 @@
             </h5>
             <p class="mb-0">验证你的邮箱</p>
           </v-cardtext>
-        </v-col></v-row>
+        </v-col>
+      </v-row>
 
       <v-cardtext>
         <v-row>
-            <!-- email -->
-            <v-col cols="12">
-        <v-form @submit.prevent="verifyEmail">
-          <v-text-field v-model="email" label="邮箱地址" type="email" required :rules="[rules.required, rules.email]"
-            placeholder="请输入邮箱地址" variant="outlined" :disabled="route.query.email"></v-text-field>
+          <!-- email -->
+          <v-col cols="12">
+            <v-form @submit.prevent="verifyEmail">
+              <v-text-field v-model="email" :disabled="route.query.email" :rules="[rules.required, rules.email]" label="邮箱地址"
+                            placeholder="请输入邮箱地址"
+                            required type="email"
+                            variant="outlined"></v-text-field>
 
-          <v-text-field v-model="token" label="验证码" type="text" required :rules="[rules.required, rules.length]"
-            maxlength="6" placeholder="请输入6位验证码" variant="outlined"  :disabled="route.query.token"></v-text-field>
+              <v-text-field v-model="token" :disabled="route.query.token" :rules="[rules.required, rules.length]" label="验证码" maxlength="6"
+                            placeholder="请输入6位验证码" required type="text"
+                            variant="outlined"></v-text-field>
 
-          <v-btn type="submit" :loading="isLoading" :disabled="isLoading" color="primary" size="large">
-            {{ isLoading ? '验证中...' : '验证' }}
-          </v-btn>
-        </v-form></v-col></v-row></v-cardtext>
-<br/>
+              <v-btn :disabled="isLoading" :loading="isLoading" color="primary" size="large" type="submit">
+                {{ isLoading ? '验证中...' : '验证' }}
+              </v-btn>
+            </v-form>
+          </v-col>
+        </v-row>
+      </v-cardtext>
+      <br/>
       <v-alert v-if="message" :type="messageType" variant="tonal">
         {{ message }}
       </v-alert>
@@ -35,8 +42,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import {ref, onMounted} from 'vue'
+import {useRoute} from 'vue-router'
 import axios from '@/axios/axios'
 
 const route = useRoute()
@@ -96,9 +103,9 @@ const verifyEmail = async () => {
       token: token.value
     })
 
-    if (response.data.state==='success') {
+    if (response.data.state === 'success') {
       showMessage(response.data.message || '邮箱验证成功！', 'success')
-    }else {
+    } else {
       showMessage(response.data.message || '邮箱验证失败！', 'error')
     }
   } catch (error) {

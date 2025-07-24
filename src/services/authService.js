@@ -1,5 +1,5 @@
 import axios from '@/axios/axios';
-import { localuser } from './localAccount';
+import {localuser} from './localAccount';
 
 export const AuthService = {
   // User registration
@@ -28,7 +28,7 @@ export const AuthService = {
 
   // Password login
   loginWithPassword: async (username, password, captcha = null) => {
-    const data = { un: username, pw: password };
+    const data = {un: username, pw: password};
     if (captcha) data.captcha = captcha;
 
     const response = await axios.post('/account/login', data);
@@ -42,7 +42,7 @@ export const AuthService = {
 
   // Request login verification code
   sendLoginCode: async (email, captcha = null) => {
-    const data = { email };
+    const data = {email};
     if (captcha) data.captcha = captcha;
 
     const response = await axios.post('/account/send-login-code', data);
@@ -65,7 +65,7 @@ export const AuthService = {
 
   // Generate magic link
   generateMagicLink: async (email, redirect = null, captcha = null) => {
-    const data = { email };
+    const data = {email};
     if (redirect) data.redirect = redirect;
     if (captcha) data.captcha = captcha;
 
@@ -75,7 +75,7 @@ export const AuthService = {
 
   // Password reset
   sendPasswordResetCode: async (email) => {
-    const response = await axios.post('/account/retrievePassword', { email });
+    const response = await axios.post('/account/retrievePassword', {email});
     return response.data;
   },
 
@@ -115,7 +115,7 @@ export const AuthService = {
   // Refresh token
   refreshToken: async () => {
     const refreshToken = localuser.getRefreshToken();
-    if (!refreshToken) return { status: 'error', message: 'No refresh token available' };
+    if (!refreshToken) return {status: 'error', message: 'No refresh token available'};
 
     try {
       const response = await axios.post('/account/refresh-token', {
@@ -128,14 +128,14 @@ export const AuthService = {
 
       return response.data;
     } catch (error) {
-      return { status: 'error', message: 'Failed to refresh token' };
+      return {status: 'error', message: 'Failed to refresh token'};
     }
   },
 
   // Add new registration and verification methods
   resendVerificationEmail: async (token) => {
     try {
-      const response = await axios.post('/account/register/resend-verification-email', { token });
+      const response = await axios.post('/account/register/resend-verification-email', {token});
       return {
         status: response.data.status,
         message: response.data.message,
@@ -153,7 +153,7 @@ export const AuthService = {
 
   changeRegisterEmail: async (token, email) => {
     try {
-      const response = await axios.post('/account/register/change-register-email', { token, email });
+      const response = await axios.post('/account/register/change-register-email', {token, email});
       return {
         status: response.data.status,
         message: response.data.message,
@@ -171,7 +171,7 @@ export const AuthService = {
 
   verifyEmail: async (email, code) => {
     try {
-      const response = await axios.post('/account/verify-email', { email, code });
+      const response = await axios.post('/account/verify-email', {email, code});
       return {
         status: response.data.status,
         message: response.data.message

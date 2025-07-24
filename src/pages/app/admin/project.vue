@@ -2,7 +2,7 @@
   <v-container fluid>
     <!-- 统计卡片 -->
     <v-row>
-      <v-col cols="12" sm="6" md="3">
+      <v-col cols="12" md="3" sm="6">
         <v-card>
           <v-card-text class="text-center">
             <div class="text-h4 mb-2">{{ stats.totalProjects || 0 }}</div>
@@ -10,7 +10,7 @@
           </v-card-text>
         </v-card>
       </v-col>
-      <v-col cols="12" sm="6" md="3">
+      <v-col cols="12" md="3" sm="6">
         <v-card>
           <v-card-text class="text-center">
             <div class="text-h4 mb-2">
@@ -20,7 +20,7 @@
           </v-card-text>
         </v-card>
       </v-col>
-      <v-col cols="12" sm="6" md="3">
+      <v-col cols="12" md="3" sm="6">
         <v-card>
           <v-card-text class="text-center">
             <div class="text-h4 mb-2">
@@ -30,7 +30,7 @@
           </v-card-text>
         </v-card>
       </v-col>
-      <v-col cols="12" sm="6" md="3">
+      <v-col cols="12" md="3" sm="6">
         <v-card>
           <v-card-text class="text-center">
             <div class="text-h4 mb-2">
@@ -44,39 +44,39 @@
 
     <!-- 过滤器和搜索 -->
     <v-row class="mt-4">
-      <v-col cols="12" sm="4" md="3">
+      <v-col cols="12" md="3" sm="4">
         <v-text-field
           v-model="searchQuery"
+          clearable
           label="搜索项目"
           prepend-icon="mdi-magnify"
-          clearable
           @update:model-value="debouncedSearch"
         ></v-text-field>
       </v-col>
-      <v-col cols="12" sm="4" md="3">
+      <v-col cols="12" md="3" sm="4">
         <v-select
           v-model="filters.state"
           :items="stateOptions"
-          label="项目状态"
           clearable
+          label="项目状态"
           @update:model-value="loadItems"
         ></v-select>
       </v-col>
-      <v-col cols="12" sm="4" md="3">
+      <v-col cols="12" md="3" sm="4">
         <v-select
           v-model="filters.type"
           :items="typeOptions"
-          label="项目类型"
           clearable
+          label="项目类型"
           @update:model-value="loadItems"
         ></v-select>
       </v-col>
-      <v-col cols="12" sm="4" md="3">
+      <v-col cols="12" md="3" sm="4">
         <v-text-field
           v-model="filters.authorid"
+          clearable
           label="作者ID"
           type="number"
-          clearable
           @update:model-value="loadItems"
         ></v-text-field>
       </v-col>
@@ -86,8 +86,8 @@
     <v-data-table-server
       v-model:items-per-page="itemsPerPage"
       :headers="headers"
-      :items-length="totalItems"
       :items="items"
+      :items-length="totalItems"
       :loading="loading"
       :search="searchQuery"
       class="elevation-1 mt-4"
@@ -128,24 +128,24 @@
 
       <template v-slot:item.actions="{ item }">
         <v-btn
+          class="mr-2"
           icon="mdi-eye"
           size="small"
           variant="text"
-          class="mr-2"
           @click="viewProject(item)"
         ></v-btn>
         <v-btn
+          class="mr-2"
           icon="mdi-pencil"
           size="small"
           variant="text"
-          class="mr-2"
           @click="editProject(item)"
         ></v-btn>
         <v-btn
+          color="error"
           icon="mdi-delete"
           size="small"
           variant="text"
-          color="error"
           @click="confirmDelete(item)"
         ></v-btn>
       </template>
@@ -183,8 +183,8 @@
               <v-col cols="12" sm="6">
                 <v-text-field
                   v-model="editedItem.name"
-                  label="项目名称"
                   hint="项目的唯一标识符"
+                  label="项目名称"
                   persistent-hint
                 ></v-text-field>
               </v-col>
@@ -197,10 +197,10 @@
               <v-col cols="12" sm="6">
                 <v-text-field
                   v-model="editedItem.authorid"
-                  label="作者ID"
-                  type="number"
                   hint="新作者的用户ID"
+                  label="作者ID"
                   persistent-hint
+                  type="number"
                 ></v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
@@ -220,8 +220,8 @@
               <v-col cols="12" sm="6">
                 <v-text-field
                   v-model="editedItem.license"
-                  label="许可证"
                   hint="例如：MIT, GPL, Apache-2.0"
+                  label="许可证"
                   persistent-hint
                 ></v-text-field>
               </v-col>
@@ -241,18 +241,18 @@
               <v-col cols="12" sm="6">
                 <v-text-field
                   v-model="editedItem.default_branch"
-                  label="默认分支"
                   hint="例如：main, master"
+                  label="默认分支"
                   persistent-hint
                 ></v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
                 <v-text-field
                   v-model="editedItem.time"
-                  label="创建时间"
-                  type="datetime-local"
                   hint="项目创建时间"
+                  label="创建时间"
                   persistent-hint
+                  type="datetime-local"
                 ></v-text-field>
               </v-col>
               <v-col cols="12" sm="4">
@@ -279,17 +279,17 @@
               <v-col cols="12" sm="6">
                 <v-switch
                   v-model="editedItem.history"
-                  label="启用历史记录"
                   color="primary"
                   hide-details
+                  label="启用历史记录"
                 ></v-switch>
               </v-col>
               <v-col cols="12" sm="6">
                 <v-switch
                   v-model="editedItem.devenv"
-                  label="启用开发环境"
                   color="primary"
                   hide-details
+                  label="启用开发环境"
                 ></v-switch>
               </v-col>
             </v-row>
@@ -311,7 +311,7 @@
     <v-dialog v-model="deleteDialog" max-width="500px">
       <v-card>
         <v-card-title class="text-h5">确认删除</v-card-title>
-        <v-card-text> 确定要删除这个项目吗？此操作不可撤销。 </v-card-text>
+        <v-card-text> 确定要删除这个项目吗？此操作不可撤销。</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="primary" variant="text" @click="deleteDialog = false">
@@ -336,7 +336,7 @@
 
 <script>
 import axios from '@/axios/axios'
-import { debounce } from 'lodash-es'
+import {debounce} from 'lodash-es'
 
 export default {
   name: 'ProjectPage',
@@ -344,28 +344,28 @@ export default {
     return {
       // 表格配置
       headers: [
-        { title: "ID", key: "id", sortable: true },
-        { title: "项目名", key: "name", sortable: true },
-        { title: "标题", key: "title", sortable: true },
-        { title: "状态", key: "state", sortable: true },
-        { title: "类型", key: "type", sortable: true },
-        { title: "浏览数", key: "view_count", sortable: true },
-        { title: "星标数", key: "star_count", sortable: true },
-        { title: "作者", key: "author.username", sortable: false },
-        { title: "操作", key: "actions", sortable: false },
+        {title: "ID", key: "id", sortable: true},
+        {title: "项目名", key: "name", sortable: true},
+        {title: "标题", key: "title", sortable: true},
+        {title: "状态", key: "state", sortable: true},
+        {title: "类型", key: "type", sortable: true},
+        {title: "浏览数", key: "view_count", sortable: true},
+        {title: "星标数", key: "star_count", sortable: true},
+        {title: "作者", key: "author.username", sortable: false},
+        {title: "操作", key: "actions", sortable: false},
       ],
       // 状态选项
       stateOptions: [
-        { title: "公开", value: "public" },
-        { title: "私有", value: "private" },
-        { title: "草稿", value: "draft" },
-        { title: "已删除", value: "deleted" },
+        {title: "公开", value: "public"},
+        {title: "私有", value: "private"},
+        {title: "草稿", value: "draft"},
+        {title: "已删除", value: "deleted"},
       ],
       // 类型选项
       typeOptions: [
-        { title: "文本", value: "text" },
-        { title: "Scratch", value: "scratch" },
-        { title: "Python", value: "python" },
+        {title: "文本", value: "text"},
+        {title: "Scratch", value: "scratch"},
+        {title: "Python", value: "python"},
       ],
       // 数据状态
       items: [],
@@ -489,7 +489,7 @@ export default {
         }); // 详细的调试信息
         console.log("Request params:", params);
 
-        const response = await axios.get("/admin/projects", { params });
+        const response = await axios.get("/admin/projects", {params});
         this.items = response.data.data;
         this.totalItems = response.data.pagination.total;
       } catch (error) {
@@ -586,7 +586,7 @@ export default {
       this.loadStats();
     },
 
-    debouncedSearch: debounce(function() {
+    debouncedSearch: debounce(function () {
       this.loadItems();
     }, 300),
 

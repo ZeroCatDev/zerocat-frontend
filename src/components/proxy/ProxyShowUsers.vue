@@ -10,14 +10,14 @@
       </v-list-item>
     </v-list>
     <v-card-actions>
-      <v-btn @click="fetchUsers" :disabled="!canLoad">继续加载</v-btn>
+      <v-btn :disabled="!canLoad" @click="fetchUsers">继续加载</v-btn>
     </v-card-actions>
   </v-card>
 </template>
 
 <script>
 import request from "@/axios/axios";
-import { get } from '@/services/serverConfig';
+import {get} from '@/services/serverConfig';
 
 export default {
   props: {
@@ -47,7 +47,7 @@ export default {
     async fetchUsers() {
       await request
         .get(
-            `${ this.scratch_proxy}${this.url}limit=${this.limit}&offset=${this.page * this.limit}`
+          `${this.scratch_proxy}${this.url}limit=${this.limit}&offset=${this.page * this.limit}`
         )
         .then((res) => {
           this.users = this.users.concat(res.data);

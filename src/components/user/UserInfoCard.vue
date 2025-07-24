@@ -1,14 +1,14 @@
 <template>
-  <v-card class="user-info-card" border>
+  <v-card border class="user-info-card">
     <v-card-item>
       <template v-slot:prepend>
         <v-avatar size="96">
           <v-img
             v-if="user.avatar"
-            :src="s3BucketUrl + '/user/' + user.avatar"
             :alt="user.display_name"
+            :src="s3BucketUrl + '/user/' + user.avatar"
           />
-          <v-icon v-else size="48" icon="mdi-account"></v-icon>
+          <v-icon v-else icon="mdi-account" size="48"></v-icon>
         </v-avatar>
       </template>
       <v-card-title>{{ user.display_name || user.username || '加载中...' }}</v-card-title>
@@ -22,20 +22,20 @@
     <v-card-text class="d-flex gap-2">
       <v-chip
         v-if="user.role"
-        size="small"
         :color="getRoleColor(user.role)"
+        size="small"
         variant="flat"
       >
         {{ getRoleLabel(user.role) }}
       </v-chip>
-     <!-- <v-chip
-        size="small"
-        :prepend-icon="!user.verified ? 'mdi-check-decagram' : ''"
-        :color="!user.verified ? 'success' : 'default'"
-        variant="flat"
-      >
-        {{ !user.verified ? '已验证' : '未验证' }}
-      </v-chip>-->
+      <!-- <v-chip
+         size="small"
+         :prepend-icon="!user.verified ? 'mdi-check-decagram' : ''"
+         :color="!user.verified ? 'success' : 'default'"
+         variant="flat"
+       >
+         {{ !user.verified ? '已验证' : '未验证' }}
+       </v-chip>-->
     </v-card-text>
 
     <v-divider></v-divider>
@@ -60,20 +60,20 @@
     <v-card-actions v-if="user.id && user.id !== localuser?.id">
       <v-spacer></v-spacer>
       <user-relation-controls
+        :display-name="user.display_name"
         :user-id="user.id"
         :username="user.username"
-        :display-name="user.display_name"
       />
     </v-card-actions>
   </v-card>
 </template>
 
 <script>
-import { localuser } from "@/services/localAccount";
+import {localuser} from "@/services/localAccount";
 import UserRelationControls from "./UserRelationControls.vue";
 import request from "@/axios/axios";
-import { ref, onMounted } from "vue";
-import { get } from "@/services/serverConfig";
+import {ref, onMounted} from "vue";
+import {get} from "@/services/serverConfig";
 
 export default {
   name: "UserInfoCard",

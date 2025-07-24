@@ -4,8 +4,8 @@
       <!-- Loading state -->
       <div v-if="loading" class="auth-state auth-loading text-center">
         <v-progress-circular
-          indeterminate
           color="primary"
+          indeterminate
           size="64"
         ></v-progress-circular>
         <h3 class="text-h6 mt-4">验证中...</h3>
@@ -15,9 +15,9 @@
       <!-- Success state -->
       <div v-else-if="authSuccess" class="auth-state auth-success text-center">
         <v-icon
+          class="mb-4"
           color="success"
           size="64"
-          class="mb-4"
         >
           mdi-check-circle
         </v-icon>
@@ -29,19 +29,19 @@
       <!-- Error state -->
       <div v-else class="auth-state auth-error text-center">
         <v-icon
+          class="mb-4"
           color="error"
           size="64"
-          class="mb-4"
         >
           mdi-alert-circle
         </v-icon>
         <h3 class="text-h6">登录失败</h3>
         <p class="text-body-1">{{ errorMessage }}</p>
         <v-btn
+          class="mt-4"
           color="primary"
           variant="text"
           @click="goToLogin"
-          class="mt-4"
         >
           返回登录
         </v-btn>
@@ -51,9 +51,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { localuser } from '@/services/localAccount';
+import {ref, onMounted} from 'vue';
+import {useRouter} from 'vue-router';
+import {localuser} from '@/services/localAccount';
 import axios from '@/axios/axios';
 import AuthCard from '@/components/AuthCard.vue';
 

@@ -1,12 +1,12 @@
 <template>
   <div>
     <v-btn
-      :loading="followLoading"
-      :variant="isFollowing ? 'outlined' : 'tonal'"
       :color="'primary'"
+      :loading="followLoading"
       :prepend-icon="isFollowing ? 'mdi-check' : 'mdi-account-plus'"
-      @click="toggleFollow"
+      :variant="isFollowing ? 'outlined' : 'tonal'"
       rounded="pill"
+      @click="toggleFollow"
     >
       {{ isFollowing ? "已关注" : "关注" }}
     </v-btn>
@@ -14,20 +14,20 @@
     <v-menu location="bottom">
       <template v-slot:activator="{ props }">
         <v-btn
-          icon="mdi-dots-vertical"
-          variant="text"
-          size="small"
           class="ml-2"
+          icon="mdi-dots-vertical"
+          size="small"
           v-bind="props"
+          variant="text"
         ></v-btn>
       </template>
       <v-list density="compact" width="150">
         <v-list-item
+          :class="{ 'text-error': !isBlocking }"
           :prepend-icon="
             isBlocking ? 'mdi-account-cancel' : 'mdi-account-remove'
           "
           :title="isBlocking ? '取消拉黑' : '拉黑用户'"
-          :class="{ 'text-error': !isBlocking }"
           @click="toggleBlock"
         ></v-list-item>
         <v-list-item
@@ -69,22 +69,22 @@
           <v-textarea
             v-if="!isBlocking"
             v-model="blockReason"
-            label="拉黑原因（可选）"
-            placeholder="请简要说明拉黑原因..."
-            variant="outlined"
-            rows="3"
             class="mt-4"
             hide-details
+            label="拉黑原因（可选）"
+            placeholder="请简要说明拉黑原因..."
+            rows="3"
+            variant="outlined"
           ></v-textarea>
         </v-card-text>
         <v-card-actions class="pa-4 pt-0">
           <v-spacer></v-spacer>
-          <v-btn variant="text" @click="blockDialog = false"> 取消 </v-btn>
+          <v-btn variant="text" @click="blockDialog = false"> 取消</v-btn>
           <v-btn
             :color="isBlocking ? 'primary' : 'error'"
             :loading="blockLoading"
-            @click="confirmBlockAction"
             variant="tonal"
+            @click="confirmBlockAction"
           >
             {{ isBlocking ? "取消拉黑" : "拉黑" }}
           </v-btn>
@@ -95,7 +95,7 @@
     <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="3000">
       {{ snackbar.text }}
       <template v-slot:actions>
-        <v-btn variant="text" @click="snackbar.show = false"> 关闭 </v-btn>
+        <v-btn variant="text" @click="snackbar.show = false"> 关闭</v-btn>
       </template>
     </v-snackbar>
   </div>
@@ -103,7 +103,7 @@
 
 <script>
 import request from "@/axios/axios.js";
-import { localuser } from "@/services/localAccount";
+import {localuser} from "@/services/localAccount";
 
 export default {
   name: "UserRelationControls",
@@ -160,7 +160,7 @@ export default {
           `/follows/relationships/${this.userId}`
         );
         if (response.data.success) {
-          const { isFollowing, isBlocking } = response.data.data;
+          const {isFollowing, isBlocking} = response.data.data;
           this.isFollowing = isFollowing;
           this.isBlocking = isBlocking;
         }
@@ -209,7 +209,7 @@ export default {
           this.isBlocking = false;
           this.showSnackbar(`已取消拉黑 ${this.targetUsername}`, "success");
         } else {
-          const payload = this.blockReason ? { reason: this.blockReason } : {};
+          const payload = this.blockReason ? {reason: this.blockReason} : {};
           await request.post(`/follows/block/${this.userId}`, payload);
           this.isBlocking = true;
 

@@ -2,7 +2,7 @@
   <v-list-item>
     <template #prepend>
       <v-avatar size="40">
-        <v-img :src="avatarUrl" :alt="comment.user?.display_name || '未知用户'"></v-img>
+        <v-img :alt="comment.user?.display_name || '未知用户'" :src="avatarUrl"></v-img>
       </v-avatar>
     </template>
 
@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import {computed} from 'vue'
 
 const props = defineProps({
   comment: {

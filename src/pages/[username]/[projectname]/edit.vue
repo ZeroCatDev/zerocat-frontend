@@ -1,10 +1,10 @@
 <template>
   <!-- 顶部工具栏 -->
-  <v-app-bar flat density="compact" class="editor-app-bar">
-    <v-row no-gutters align="center">
-      <v-col cols="auto" class="mr-4">
+  <v-app-bar class="editor-app-bar" density="compact" flat>
+    <v-row align="center" no-gutters>
+      <v-col class="mr-4" cols="auto">
         <div v-if="project">
-          <v-chip size="small" color="primary" class="mr-2">
+          <v-chip class="mr-2" color="primary" size="small">
             <v-icon size="small" start>mdi-source-repository</v-icon>
             {{ project.title }}
           </v-chip>
@@ -16,23 +16,23 @@
       <v-spacer></v-spacer>
 
       <v-col cols="auto">
-        <v-select v-model="currentBranch" :items="branches.map(b => b.name)" @update:model-value="switchBranch"
-          density="compact" hide-details variant="outlined" class="branch-selector"
-          prepend-inner-icon="mdi-source-branch" style="max-width: 150px"></v-select>
+        <v-select v-model="currentBranch" :items="branches.map(b => b.name)" class="branch-selector"
+                  density="compact" hide-details prepend-inner-icon="mdi-source-branch" style="max-width: 150px"
+                  variant="outlined" @update:model-value="switchBranch"></v-select>
       </v-col>
 
-      <v-col cols="auto" class="d-flex">
-        <v-btn prepend-icon="mdi-content-save" variant="text" size="small" color="success" @click="saveAndCommitCode"
-          class="ml-2">
+      <v-col class="d-flex" cols="auto">
+        <v-btn class="ml-2" color="success" prepend-icon="mdi-content-save" size="small" variant="text"
+               @click="saveAndCommitCode">
           保存
         </v-btn>
 
-        <v-btn prepend-icon="mdi-history" variant="text" size="small" @click="toggleHistorySidebar" class="ml-2"
-          disabled>
+        <v-btn class="ml-2" disabled prepend-icon="mdi-history" size="small" variant="text"
+               @click="toggleHistorySidebar">
           历史
         </v-btn>
 
-        <v-btn prepend-icon="mdi-arrow-left" variant="text" size="small" @click="goToProjectPage" class="ml-2">
+        <v-btn class="ml-2" prepend-icon="mdi-arrow-left" size="small" variant="text" @click="goToProjectPage">
           项目页面
         </v-btn>
       </v-col>
@@ -41,7 +41,7 @@
 
   <!-- 主要内容区域 -->
   <!-- 左侧历史面板 -->
-  <v-navigation-drawer v-model="showHistorySidebar" location="left" border>
+  <v-navigation-drawer v-model="showHistorySidebar" border location="left">
     <v-toolbar density="compact">
       <v-toolbar-title class="text-subtitle-1">提交历史</v-toolbar-title>
       <v-spacer></v-spacer>
@@ -51,8 +51,8 @@
     </v-toolbar>
 
     <v-list v-if="commits.length > 0">
-      <v-list-item v-for="commit in commits" :key="commit.hash" :title="commit.message || '无提交信息'"
-        :subtitle="formatCommitInfo(commit)" lines="two" @click="viewCommit(commit)">
+      <v-list-item v-for="commit in commits" :key="commit.hash" :subtitle="formatCommitInfo(commit)"
+                   :title="commit.message || '无提交信息'" lines="two" @click="viewCommit(commit)">
         <template v-slot:prepend>
           <v-avatar size="36">
             <v-icon>mdi-source-commit</v-icon>
@@ -88,7 +88,7 @@
   </v-navigation-drawer>
 
   <!-- 代码编辑器区域 -->
-  <v-alert v-if="errorMessage" type="error" closable title="加载错误" :text="errorMessage" class="ma-4">
+  <v-alert v-if="errorMessage" :text="errorMessage" class="ma-4" closable title="加载错误" type="error">
     <template v-slot:append>
       <v-btn color="error" variant="text" @click="retryLoading">
         重试
@@ -98,11 +98,11 @@
 
   <div v-else-if="fileContent !== null" style="height: 100%!important; width: 100%!important;">
     <MonacoEditorComponent v-model="fileContent" :language="editorOptions.language" :options="editorOptions"
-      @change="codeChanged = true" />
+                           @change="codeChanged = true"/>
   </div>
 
   <v-sheet v-else class="d-flex align-center justify-center fill-height">
-    <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    <v-progress-circular color="primary" indeterminate></v-progress-circular>
     <span class="ml-2">加载中...</span>
   </v-sheet>
 
@@ -115,11 +115,12 @@
 
       <v-card-text>
         <v-form>
-          <v-text-field v-model="commitMessage" label="提交信息" placeholder="简短描述您的更改" variant="outlined"
-            required></v-text-field>
+          <v-text-field v-model="commitMessage" label="提交信息" placeholder="简短描述您的更改" required
+                        variant="outlined"></v-text-field>
 
-          <v-textarea v-model="commitDescription" label="详细描述 (可选)" placeholder="详细描述您的更改" variant="outlined"
-            rows="4"></v-textarea>
+          <v-textarea v-model="commitDescription" label="详细描述 (可选)" placeholder="详细描述您的更改"
+                      rows="4"
+                      variant="outlined"></v-textarea>
         </v-form>
       </v-card-text>
 
@@ -144,8 +145,8 @@
 
       <v-card-text class="pa-0">
         <v-list lines="two">
-          <v-list-item v-for="commit in commits" :key="commit.hash" :title="commit.message || '无提交信息'"
-            :subtitle="formatCommitInfo(commit)">
+          <v-list-item v-for="commit in commits" :key="commit.hash" :subtitle="formatCommitInfo(commit)"
+                       :title="commit.message || '无提交信息'">
             <template v-slot:prepend>
               <v-avatar size="36">
                 <v-icon>mdi-source-commit</v-icon>
@@ -154,10 +155,10 @@
 
             <template v-slot:append>
               <div class="d-flex">
-                <v-chip size="small" variant="flat" class="mr-2 monospace">
+                <v-chip class="mr-2 monospace" size="small" variant="flat">
                   {{ commit.hash ? commit.hash.substring(0, 7) : 'unknown' }}
                 </v-chip>
-                <v-btn size="small" color="primary" variant="text" @click="viewCommit(commit)">
+                <v-btn color="primary" size="small" variant="text" @click="viewCommit(commit)">
                   查看
                 </v-btn>
                 <v-btn size="small" variant="text" @click="restoreCommit(commit)">
@@ -182,7 +183,7 @@
   <v-overlay v-model="loading" class="align-center justify-center" persistent>
     <v-card width="300">
       <v-card-text class="text-center pa-4">
-        <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+        <v-progress-circular color="primary" indeterminate size="64"></v-progress-circular>
         <div class="text-body-1 mt-4">{{ loadingMessage }}</div>
       </v-card-text>
     </v-card>
@@ -228,7 +229,7 @@ export default {
         language: 'javascript', // 默认语言，可以根据文件类型动态设置
         fontSize: 14,
         tabSize: 2,
-        minimap: { enabled: true },
+        minimap: {enabled: true},
         scrollBeyondLastLine: false,
         automaticLayout: true,
         wordWrap: 'on',
@@ -465,7 +466,7 @@ export default {
 
         // 保存文件 - 使用不同的方式处理JSON和非JSON内容
         const saveResponse = await axios.post('/project/savefile?json=false&source=index',
-          isValidJson ? contentToSave : JSON.stringify({ "index": this.fileContent }),
+          isValidJson ? contentToSave : JSON.stringify({"index": this.fileContent}),
           {
             headers: {
               'Content-Type': 'application/json',
@@ -548,7 +549,7 @@ export default {
               hash: commit.hash || 'unknown',
               message: commit.message || '无提交信息',
               date: commit.date || new Date().toISOString(),
-              author: commit.author || { username: '未知用户' }
+              author: commit.author || {username: '未知用户'}
             }
           })
         } else {

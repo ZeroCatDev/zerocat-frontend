@@ -7,8 +7,8 @@
           v-for="stat in userStats"
           :key="stat.title"
           cols="12"
-          sm="6"
           md="3"
+          sm="6"
         >
           <v-card :class="['stat-card', `stat-${stat.type}`]" elevation="2">
             <v-card-text>
@@ -27,44 +27,45 @@
             <v-col cols="12" sm="4">
               <v-text-field
                 v-model="searchQuery"
+                clearable
+                hide-details
                 label="搜索用户"
                 prepend-icon="mdi-magnify"
-                clearable
                 @input="debouncedSearch"
-                hide-details
               ></v-text-field>
             </v-col>
             <v-col cols="12" sm="3">
               <v-select
                 v-model="statusFilter"
                 :items="statusOptions"
+                clearable
+                hide-details
                 label="状态过滤"
                 prepend-icon="mdi-filter"
-                clearable
                 @change="loadUsers"
-                hide-details
               ></v-select>
             </v-col>
             <v-col cols="12" sm="3">
               <v-select
                 v-model="typeFilter"
                 :items="typeOptions"
+                clearable
+                hide-details
                 label="类型过滤"
                 prepend-icon="mdi-account-filter"
-                clearable
                 @change="loadUsers"
-                hide-details
               ></v-select>
             </v-col>
-            <v-col cols="12" sm="2" class="d-flex justify-end">
+            <v-col class="d-flex justify-end" cols="12" sm="2">
               <v-btn
+                :disabled="loading"
+                :loading="refreshing"
                 color="primary"
                 @click="refreshData"
-                :loading="refreshing"
-                :disabled="loading"
               >
-                <v-icon left :class="{ rotate: refreshing }"
-                  >mdi-refresh</v-icon
+                <v-icon :class="{ rotate: refreshing }" left
+                >mdi-refresh
+                </v-icon
                 >
                 刷新
               </v-btn>
@@ -76,24 +77,24 @@
       <!-- 用户列表表格 -->
       <v-card>
         <v-data-table-server
+          v-model:items-per-page="options.itemsPerPage"
+          v-model:page="options.page"
           :headers="headers"
           :items="users"
           :items-length="total"
           :loading="loading"
-          v-model:items-per-page="options.itemsPerPage"
-          v-model:page="options.page"
-          @update:options="loadUsers"
+          :loading-text="'加载中...'"
           :no-data-text="'暂无数据'"
           :no-results-text="'未找到匹配的数据'"
-          :loading-text="'加载中...'"
+          @update:options="loadUsers"
         >
           <!-- 用户头像和名称列 -->
           <template v-slot:item.username="{ item }">
             <div class="d-flex align-center">
-              <v-avatar size="32" class="mr-2">
+              <v-avatar class="mr-2" size="32">
                 <v-img
-                  :src="getAvatarUrl(item.avatar)"
                   :alt="item.username"
+                  :src="getAvatarUrl(item.avatar)"
                 ></v-img>
               </v-avatar>
               <div>
@@ -107,8 +108,8 @@
           <template v-slot:item.status="{ item }">
             <v-chip
               :color="getStatusColor(item.status)"
-              small
               class="status-chip"
+              small
             >
               {{ getStatusText(item.status) }}
             </v-chip>
@@ -131,21 +132,21 @@
           <template v-slot:item.actions="{ item }">
             <v-slide-x-transition group>
               <v-btn
+                v-tooltip="'编辑用户'"
+                class="action-btn"
                 icon
                 small
-                class="action-btn"
                 @click.stop="editUser(item)"
-                v-tooltip="'编辑用户'"
               >
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
               <v-btn
+                v-if="item.type !== 'administrator'"
+                v-tooltip="'删除用户'"
+                class="action-btn"
                 icon
                 small
-                class="action-btn"
                 @click.stop="confirmDelete(item)"
-                v-tooltip="'删除用户'"
-                v-if="item.type !== 'administrator'"
               >
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
@@ -155,7 +156,7 @@
       </v-card>
 
       <!-- 用户编辑对话框 -->
-      <user-editor v-model="editDialog" :user="selectedUser" @save="saveUser" />
+      <user-editor v-model="editDialog" :user="selectedUser" @save="saveUser"/>
 
       <!-- 删除确认对话框 -->
       <v-dialog
@@ -166,31 +167,31 @@
         <v-card>
           <v-card-title class="headline error--text">确认删除</v-card-title>
           <v-card-text class="pt-4">
-            <v-alert type="warning" text dense>
+            <v-alert dense text type="warning">
               此操作将永久删除用户
               <strong>{{ selectedUser?.username }}</strong>
               及其所有相关数据，此操作不可撤销。
             </v-alert>
             <v-text-field
               v-model="deleteConfirmation"
-              label="请输入用户名以确认删除"
               :rules="[
                 (v) => !v || v === selectedUser?.username || '用户名不匹配',
               ]"
-              outlined
-              dense
               class="mt-4"
+              dense
+              label="请输入用户名以确认删除"
+              outlined
             ></v-text-field>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn text @click="deleteDialog = false">取消</v-btn>
             <v-btn
+              :disabled="deleteConfirmation !== selectedUser?.username"
+              :loading="deleting"
               color="error"
               text
-              :disabled="deleteConfirmation !== selectedUser?.username"
               @click="deleteUser"
-              :loading="deleting"
             >
               确认删除
             </v-btn>
@@ -218,7 +219,7 @@
 
 <script>
 import axios from "@/axios/axios";
-import { debounce } from "lodash-es";
+import {debounce} from "lodash-es";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/zh-cn";
@@ -235,7 +236,7 @@ export default {
   data() {
     return {
       userStats: [
-        { title: "总用户数", value: 0, type: "total", icon: "mdi-account-group" },
+        {title: "总用户数", value: 0, type: "total", icon: "mdi-account-group"},
         {
           title: "活跃用户",
           value: 0,
@@ -257,12 +258,12 @@ export default {
         multiSort: false,
       },
       headers: [
-        { title: "ID", value: "id", width: "80px", sortable: false },
-        { title: "用户", value: "username", width: "250px", sortable: false },
-        { title: "邮箱", value: "email", sortable: false },
-        { title: "状态", value: "status", width: "120px", sortable: false },
-        { title: "类型", value: "type", width: "120px", sortable: false },
-        { title: "注册时间", value: "regTime", width: "180px", sortable: false },
+        {title: "ID", value: "id", width: "80px", sortable: false},
+        {title: "用户", value: "username", width: "250px", sortable: false},
+        {title: "邮箱", value: "email", sortable: false},
+        {title: "状态", value: "status", width: "120px", sortable: false},
+        {title: "类型", value: "type", width: "120px", sortable: false},
+        {title: "注册时间", value: "regTime", width: "180px", sortable: false},
         {
           title: "操作",
           value: "actions",
@@ -275,15 +276,15 @@ export default {
       statusFilter: "",
       typeFilter: "",
       statusOptions: [
-        { title: "活跃", value: "active" },
-        { title: "已暂停", value: "suspended" },
-        { title: "已封禁", value: "banned" },
-        { title: "待验证", value: "pending" },
+        {title: "活跃", value: "active"},
+        {title: "已暂停", value: "suspended"},
+        {title: "已封禁", value: "banned"},
+        {title: "待验证", value: "pending"},
       ],
       typeOptions: [
-        { title: "访客", value: "guest" },
-        { title: "普通用户", value: "user" },
-        { title: "管理员", value: "administrator" },
+        {title: "访客", value: "guest"},
+        {title: "普通用户", value: "user"},
+        {title: "管理员", value: "administrator"},
       ],
       editDialog: false,
       deleteDialog: false,
@@ -313,7 +314,7 @@ export default {
         if (this.statusFilter) params.status = this.statusFilter;
         if (this.typeFilter) params.type = this.typeFilter;
 
-        const { data } = await axios.get("/admin/users", { params });
+        const {data} = await axios.get("/admin/users", {params});
 
         this.users = data.items.map((user) => ({
           ...user,
@@ -337,7 +338,7 @@ export default {
 
     async loadUserStats() {
       try {
-        const { data } = await axios.get("/admin/users/stats/overview");
+        const {data} = await axios.get("/admin/users/stats/overview");
         this.userStats[0].value = data.totalUsers;
         this.userStats[1].value = data.usersByStatus.find((s) => s.status === "active")?._count || 0;
       } catch (error) {
@@ -367,14 +368,14 @@ export default {
 
     async saveUser(userData) {
       try {
-        const { data } = await axios.put(
+        const {data} = await axios.put(
           `/admin/users/${userData.id}`,
           userData
         );
 
         const index = this.users.findIndex((u) => u.id === userData.id);
         if (index !== -1) {
-          this.users[index] = { ...this.users[index], ...data };
+          this.users[index] = {...this.users[index], ...data};
         }
 
         this.showSuccess("用户信息更新成功");
@@ -460,7 +461,7 @@ export default {
       };
     },
 
-    debouncedSearch: debounce(function() {
+    debouncedSearch: debounce(function () {
       this.loadUsers();
     }, 300)
   },
@@ -560,6 +561,7 @@ export default {
     .v-card {
       .v-card-title {
         position: relative;
+
         .v-btn {
           position: absolute;
           right: 8px;
@@ -572,6 +574,7 @@ export default {
   // 新增样式
   .region-field {
     cursor: pointer;
+
     &:hover {
       background-color: rgba(0, 0, 0, 0.03);
     }

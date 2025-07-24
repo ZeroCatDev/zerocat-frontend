@@ -5,10 +5,10 @@
         <span>站点地图管理</span>
         <v-spacer></v-spacer>
         <v-btn
-          color="primary"
-          @click="loadStatus"
           :loading="loading"
+          color="primary"
           prepend-icon="mdi-refresh"
+          @click="loadStatus"
         >
           刷新
         </v-btn>
@@ -23,14 +23,14 @@
               <v-card-text>
                 <v-switch
                   v-model="settings.enabled"
-                  label="启用站点地图"
                   :disabled="loading"
+                  label="启用站点地图"
                   @change="saveSettings"
                 ></v-switch>
                 <v-switch
                   v-model="settings.autoUpdate"
-                  label="启用自动更新"
                   :disabled="loading || !settings.enabled"
+                  label="启用自动更新"
                   @change="saveSettings"
                 ></v-switch>
               </v-card-text>
@@ -97,20 +97,20 @@
               <v-card-title>手动生成</v-card-title>
               <v-card-text>
                 <v-btn
-                  color="primary"
-                  :loading="generating"
                   :disabled="!settings.enabled || status.isGenerating"
+                  :loading="generating"
                   class="mr-2"
-                  @click="generateSitemap('full')"
+                  color="primary"
                   prepend-icon="mdi-refresh"
+                  @click="generateSitemap('full')"
                 >
                   全量生成
                 </v-btn>
                 <v-btn
-                  :loading="generating"
                   :disabled="!settings.enabled || status.isGenerating"
-                  @click="generateSitemap('incremental')"
+                  :loading="generating"
                   prepend-icon="mdi-refresh"
+                  @click="generateSitemap('incremental')"
                 >
                   增量更新
                 </v-btn>
@@ -201,7 +201,7 @@ export default {
     async generateSitemap(type) {
       this.generating = true
       try {
-        const response = await axios.post('/admin/sitemap/generate', { type })
+        const response = await axios.post('/admin/sitemap/generate', {type})
         if (response.status === 200 && response.data.status === 'success') {
           this.showSuccess('站点地图生成成功')
           this.loadStatus()
@@ -233,7 +233,6 @@ export default {
   }
 }
 </script>
-
 
 
 <style scoped>

@@ -25,16 +25,16 @@ export async function get(key) {
  * @throws {Error} If the request fails or key is not found
  */
 export async function info(key) {
-    try {
-      const response = await axios.get(`/cachekv/${encodeURIComponent(key)}`);
-      return response.data;
-    } catch (error) {
-      if (error.response?.status === 404) {
-        return undefined;
-      }
-      throw error;
+  try {
+    const response = await axios.get(`/cachekv/${encodeURIComponent(key)}`);
+    return response.data;
+  } catch (error) {
+    if (error.response?.status === 404) {
+      return undefined;
     }
+    throw error;
   }
+}
 
 /**
  * Set a value for a key in the cache
@@ -79,9 +79,9 @@ export async function remove(key) {
  * @returns {Promise<{items: Array<any>, pagination: Object}>} List of cache items and pagination info
  * @throws {Error} If the request fails
  */
-export async function list({ page = 1, limit = 20, showValue = false, total = false } = {}) {
+export async function list({page = 1, limit = 20, showValue = false, total = false} = {}) {
   const response = await axios.get("/cachekv", {
-    params: { page, limit, showValue, total }
+    params: {page, limit, showValue, total}
   });
   return {
     items: response.data.data,

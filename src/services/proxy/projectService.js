@@ -1,5 +1,5 @@
 import request from "@/axios/axios";
-import { get } from "@/services/serverConfig";
+import {get} from "@/services/serverConfig";
 
 export async function searchProjects(text, order, page = 1, limit = 16) {
   const baseUrl = await get('scratchproxy.url');

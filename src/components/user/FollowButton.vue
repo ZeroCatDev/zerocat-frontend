@@ -1,11 +1,11 @@
 <template>
   <v-btn
-    :loading="loading"
-    :variant="isFollowing ? 'outlined' : 'tonal'"
     :color="isFollowing ? 'primary' : 'primary'"
+    :loading="loading"
     :prepend-icon="isFollowing ? 'mdi-check' : 'mdi-account-plus'"
-    @click="toggleFollow"
+    :variant="isFollowing ? 'outlined' : 'tonal'"
     class="follow-btn"
+    @click="toggleFollow"
   >
     {{ isFollowing ? "已关注" : "关注" }}
   </v-btn>
@@ -13,7 +13,7 @@
 
 <script>
 import request from "@/axios/axios.js";
-import { localuser } from "@/services/localAccount";
+import {localuser} from "@/services/localAccount";
 
 export default {
   name: "FollowButton",

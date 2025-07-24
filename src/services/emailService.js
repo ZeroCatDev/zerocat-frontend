@@ -6,7 +6,7 @@ export const getEmails = async () => {
 }
 
 export const sendVerificationCode = async (email) => {
-  const response = await axios.post('/account/send-verification-code', { email })
+  const response = await axios.post('/account/send-verification-code', {email})
   return response.data
 }
 
@@ -32,4 +32,4 @@ export const verifyEmail = async (email, token) => {
     token
   })
   return response.data
-} 
+}

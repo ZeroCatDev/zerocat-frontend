@@ -1,14 +1,14 @@
 <template>
-  <ProjectListsView />
+  <ProjectListsView/>
 </template>
 
 <script>
 import ProjectListsView from "@/components/projectlist/ProjectListsView.vue";
-import { localuser } from "@/services/localAccount";
-import { useHead } from "@unhead/vue";
+import {localuser} from "@/services/localAccount";
+import {useHead} from "@unhead/vue";
 
 export default {
-  components: { ProjectListsView },
+  components: {ProjectListsView},
   async created() {
     if (localuser.isLogin.value === false) {
       this.$router.push("/app/account/login");

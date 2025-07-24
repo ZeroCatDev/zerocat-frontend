@@ -1,25 +1,26 @@
 <template>
   <v-dialog
     :model-value="modelValue"
-    @update:model-value="$emit('update:modelValue', $event)"
     max-width="800px"
     persistent
+    @update:model-value="$emit('update:modelValue', $event)"
   >
-    <v-card><v-card-item>
-      <v-card-title class="headline">
-        编辑用户信息
+    <v-card>
+      <v-card-item>
+        <v-card-title class="headline">
+          编辑用户信息
 
-      </v-card-title>
-      <v-card-subtitle>
-        <v-icon>mdi-account</v-icon>
-        {{ userData.username }}
-      </v-card-subtitle>
-    <template v-slot:append>
-      <v-btn icon @click="close">
-        <v-icon>mdi-close</v-icon>
-      </v-btn>
-    </template>
-    </v-card-item>
+        </v-card-title>
+        <v-card-subtitle>
+          <v-icon>mdi-account</v-icon>
+          {{ userData.username }}
+        </v-card-subtitle>
+        <template v-slot:append>
+          <v-btn icon @click="close">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </template>
+      </v-card-item>
       <v-divider></v-divider>
 
       <v-card-text class="pt-4">
@@ -44,92 +45,93 @@
               <!-- 基本信息标签页 -->
               <v-window-item :value="0">
                 <v-container>
-                  <v-row> </v-row>
+                  <v-row></v-row>
                 </v-container>
               </v-window-item>
 
               <!-- 个人资料标签页 -->
               <v-window-item :value="1">
                 <v-container
-                  ><v-row>
-                  <v-col cols="12" sm="6">
-                    <v-text-field
-                      v-model="userData.display_name"
-                      label="显示名称"
-                      :rules="[(v) => !!v || '显示名称不能为空']"
-                      outlined
-                      dense
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-text-field
-                      v-model="userData.username"
-                      label="用户名"
+                >
+                  <v-row>
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        v-model="userData.display_name"
+                        :rules="[(v) => !!v || '显示名称不能为空']"
+                        dense
+                        label="显示名称"
+                        outlined
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        v-model="userData.username"
+                        dense
 
-                      outlined
-                      dense
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-select
-                      v-model="userData.status"
-                      :items="statusOptions"
-                      item-title="text"
-                      item-value="value"
-                      label="用户状态"
-                      outlined
-                      dense
-                    ></v-select>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-select
-                      v-model="userData.type"
-                      :items="typeOptions"
-                      item-title="text"
-                      item-value="value"
-                      label="用户类型"
-                      outlined
-                      dense
-                    ></v-select>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-text-field
-                      v-model="userData.email"
-                      label="邮箱"
-                      outlined
-                      dense
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="6">
-                    <v-text-field
-                      v-model="userData.featured_projects"
-                      label="精选项目"
-                      outlined
-                      dense
-                    ></v-text-field>
-                  </v-col>
+                        label="用户名"
+                        outlined
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                      <v-select
+                        v-model="userData.status"
+                        :items="statusOptions"
+                        dense
+                        item-title="text"
+                        item-value="value"
+                        label="用户状态"
+                        outlined
+                      ></v-select>
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                      <v-select
+                        v-model="userData.type"
+                        :items="typeOptions"
+                        dense
+                        item-title="text"
+                        item-value="value"
+                        label="用户类型"
+                        outlined
+                      ></v-select>
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        v-model="userData.email"
+                        dense
+                        label="邮箱"
+                        outlined
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        v-model="userData.featured_projects"
+                        dense
+                        label="精选项目"
+                        outlined
+                      ></v-text-field>
+                    </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
                         v-model="userData.motto"
+                        dense
                         label="一句话简介"
                         outlined
-                        dense
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
                         v-model="userData.location"
+                        dense
                         label="位置"
                         outlined
-                        dense
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
                         :model-value="selectedRegion ? selectedRegion.text : ''"
+                        dense
                         label="地区"
                         outlined
-                        dense
                         readonly
                         @click="showRegionSelector = true"
                       ></v-text-field>
@@ -137,20 +139,20 @@
                     <v-col cols="12" sm="6">
                       <v-text-field
                         v-model="userData.url"
+                        dense
                         label="个人主页"
                         outlined
-                        dense
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-select
                         v-model="userData.sex"
                         :items="sexOptions"
+                        dense
                         item-title="text"
                         item-value="value"
                         label="性别"
                         outlined
-                        dense
                       ></v-select>
                     </v-col>
                     <!-- <v-col cols="12" sm="6">
@@ -165,12 +167,12 @@
                     <v-col cols="12">
                       <v-textarea
                         v-model="userData.bio"
+                        dense
+                        hint="支持 Markdown 格式"
                         label="个人简介"
                         outlined
-                        dense
-                        rows="3"
-                        hint="支持 Markdown 格式"
                         persistent-hint
+                        rows="3"
                       ></v-textarea>
                     </v-col>
                   </v-row>
@@ -242,15 +244,15 @@
                         <!-- 操作列 -->
                         <template v-slot:item.actions="{ item }">
                           <v-btn
+                            class="mr-2"
                             icon="mdi-pencil"
                             size="small"
-                            class="mr-2"
                             @click="editConnection(item)"
                           ></v-btn>
                           <v-btn
+                            color="error"
                             icon="mdi-delete"
                             size="small"
-                            color="error"
                             @click="confirmDeleteConnection(item)"
                           ></v-btn>
                         </template>
@@ -263,9 +265,9 @@
               <!-- 头像设置标签页 -->
               <v-window-item :value="3">
                 <v-container>
-                  <v-row justify="center" align="center">
-                    <v-col cols="12" class="text-center">
-                      <v-avatar size="150" class="mb-4">
+                  <v-row align="center" justify="center">
+                    <v-col class="text-center" cols="12">
+                      <v-avatar class="mb-4" size="150">
                         <v-img
                           :src="s3BucketUrl + '/user/' + userData.avatar"
                         ></v-img>
@@ -273,17 +275,19 @@
                       <div>
                         <v-text-field
                           v-model="userData.avatar"
+                          class="mt-4"
+                          dense
                           label="头像图片哈希"
                           outlined
-                          dense
-                          class="mt-4"
                         ></v-text-field>
                       </div>
                     </v-col>
                   </v-row>
                 </v-container>
               </v-window-item>
-              <v-window-item :value="4"><pre>{{ userData }}</pre></v-window-item>
+              <v-window-item :value="4">
+                <pre>{{ userData }}</pre>
+              </v-window-item>
             </v-window>
           </v-card-text>
         </v-form>
@@ -294,9 +298,9 @@
         <v-spacer></v-spacer>
         <v-btn text @click="close">取消</v-btn>
         <v-btn
-          color="primary"
-          :loading="saving"
           :disabled="!formValid || saving"
+          :loading="saving"
+          color="primary"
           @click="save"
         >
           保存
@@ -308,8 +312,8 @@
     <region-selector
       v-model="showRegionSelector"
       :selected-region="selectedRegion"
-      @select="onRegionSelect"
       @clear="onRegionClear"
+      @select="onRegionSelect"
     />
 
     <!-- 添加/编辑连接对话框 -->
@@ -324,17 +328,17 @@
               v-if="!connectionDialog.isEdit"
               v-model="connectionDialog.data.contact_type"
               :items="oauthTypes"
+              :rules="[(v) => !!v || '请选择连接类型']"
               label="连接类型"
               required
-              :rules="[(v) => !!v || '请选择连接类型']"
             ></v-select>
 
             <v-text-field
               v-if="!connectionDialog.isEdit"
               v-model="connectionDialog.data.contact_value"
+              :rules="[(v) => !!v || '请输入提供商用户ID']"
               label="提供商用户ID"
               required
-              :rules="[(v) => !!v || '请输入提供商用户ID']"
             ></v-text-field>
 
             <v-card class="mt-4 pa-4" variant="outlined">
@@ -344,22 +348,22 @@
               </div>
               <v-text-field
                 v-model="connectionDialog.data.contact_value"
+                dense
                 label="连接值"
                 outlined
-                dense
               ></v-text-field>
               <v-text-field
                 v-model="connectionDialog.data.contact_info"
+                dense
                 label="随机值"
                 outlined
-                dense
               ></v-text-field>
               <v-select
                 v-model="connectionDialog.data.contact_type"
                 :items="oauthTypes"
+                dense
                 label="连接类型"
                 outlined
-                dense
               ></v-select>
             </v-card>
 
@@ -369,8 +373,8 @@
                 <v-spacer></v-spacer>
                 <v-btn
                   color="primary"
-                  size="small"
                   prepend-icon="mdi-plus"
+                  size="small"
                   @click="addMetadataField"
                 >
                   添加字段
@@ -384,23 +388,23 @@
               >
                 <v-text-field
                   v-model="connectionDialog.metadataKeys[index]"
-                  label="字段名"
+                  class="flex-grow-0"
                   density="compact"
                   hide-details
-                  class="flex-grow-0"
+                  label="字段名"
                   style="width: 200px"
                   @update:model-value="updateMetadataKey(index, key, $event)"
                 ></v-text-field>
                 <v-text-field
                   v-model="connectionDialog.data.metadata[key]"
                   :label="'值'"
+                  class="flex-grow-1"
                   density="compact"
                   hide-details
-                  class="flex-grow-1"
                 ></v-text-field>
                 <v-btn
-                  icon="mdi-delete"
                   color="error"
+                  icon="mdi-delete"
                   size="small"
                   variant="text"
                   @click="removeMetadataField(key)"
@@ -410,20 +414,20 @@
 
             <v-switch
               v-model="connectionDialog.data.verified"
-              label="已验证"
+              class="mt-4"
               color="success"
               hide-details
-              class="mt-4"
+              label="已验证"
             ></v-switch>
           </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text @click="connectionDialog.show = false"> 取消 </v-btn>
+          <v-btn text @click="connectionDialog.show = false"> 取消</v-btn>
           <v-btn
-            color="primary"
-            :loading="connectionDialog.saving"
             :disabled="!connectionDialog.valid || connectionDialog.saving"
+            :loading="connectionDialog.saving"
+            color="primary"
             @click="saveConnection"
           >
             保存
@@ -435,13 +439,13 @@
     <!-- 删除连接确认对话框 -->
     <v-dialog v-model="deleteConnectionDialog.show" max-width="400px">
       <v-card>
-        <v-card-title class="text-h5 text-error"> 确认删除连接 </v-card-title>
+        <v-card-title class="text-h5 text-error"> 确认删除连接</v-card-title>
         <v-card-text>
           确定要删除这个
           {{
-            getConnectionTypeText(
-              deleteConnectionDialog.connection?.contact_type
-            )
+          getConnectionTypeText(
+          deleteConnectionDialog.connection?.contact_type
+          )
           }}
           连接吗？此操作不可撤销。
         </v-card-text>
@@ -451,8 +455,8 @@
             取消
           </v-btn>
           <v-btn
-            color="error"
             :loading="deleteConnectionDialog.deleting"
+            color="error"
             @click="deleteConnection"
           >
             确认删除
@@ -466,7 +470,7 @@
 <script>
 import RegionSelector from "@/components/account/RegionSelector.vue";
 import axios from "@/axios/axios";
-import { get } from "@/services/serverConfig";
+import {get} from "@/services/serverConfig";
 
 export default {
   name: "UserEditor",
@@ -501,31 +505,31 @@ export default {
 
       // 选项配置
       statusOptions: [
-        { text: "活跃", value: "active" },
-        { text: "已暂停", value: "suspended" },
-        { text: "已封禁", value: "banned" },
-        { text: "待验证", value: "pending" },
+        {text: "活跃", value: "active"},
+        {text: "已暂停", value: "suspended"},
+        {text: "已封禁", value: "banned"},
+        {text: "待验证", value: "pending"},
       ],
       typeOptions: [
-        { text: "访客", value: "guest" },
-        { text: "普通用户", value: "user" },
-        { text: "管理员", value: "admin" },
+        {text: "访客", value: "guest"},
+        {text: "普通用户", value: "user"},
+        {text: "管理员", value: "admin"},
       ],
       sexOptions: [
-        { text: "男", value: "male" },
-        { text: "女", value: "female" },
-        { text: "其他", value: "other" },
+        {text: "男", value: "male"},
+        {text: "女", value: "female"},
+        {text: "其他", value: "other"},
       ],
       contactTypes: [
-        { text: "邮箱", value: "email" },
-        { text: "电话", value: "phone" },
-        { text: "QQ", value: "qq" },
-        { text: "Google", value: "oauth_google" },
-        { text: "GitHub", value: "oauth_github" },
-        { text: "Microsoft", value: "oauth_microsoft" },
-        { text: "40code", value: "oauth_40code" },
-        { text: "LinuxDo", value: "oauth_linuxdo" },
-        { text: "其他", value: "other" },
+        {text: "邮箱", value: "email"},
+        {text: "电话", value: "phone"},
+        {text: "QQ", value: "qq"},
+        {text: "Google", value: "oauth_google"},
+        {text: "GitHub", value: "oauth_github"},
+        {text: "Microsoft", value: "oauth_microsoft"},
+        {text: "40code", value: "oauth_40code"},
+        {text: "LinuxDo", value: "oauth_linuxdo"},
+        {text: "其他", value: "other"},
       ],
 
       // 用户数据
@@ -535,21 +539,21 @@ export default {
       connections: [],
       loadingConnections: false,
       connectionHeaders: [
-        { title: "类型", key: "contact_type", width: "150px" },
-        { title: "验证状态", key: "verified", width: "100px" },
-        { title: "创建时间", key: "created_at", width: "180px" },
-        { title: "操作", key: "actions", width: "100px", sortable: false },
+        {title: "类型", key: "contact_type", width: "150px"},
+        {title: "验证状态", key: "verified", width: "100px"},
+        {title: "创建时间", key: "created_at", width: "180px"},
+        {title: "操作", key: "actions", width: "100px", sortable: false},
       ],
       oauthTypes: [
-        { title: "Google", value: "oauth_google" },
-        { title: "GitHub", value: "oauth_github" },
-        { title: "Microsoft", value: "oauth_microsoft" },
-        { title: "40code", value: "oauth_40code" },
-        { title: "LinuxDo", value: "oauth_linuxdo" },
-        { title: "email", value: "email" },
-        { title: "phone", value: "phone" },
-        { title: "qq", value: "qq" },
-        { title: "other", value: "other" },
+        {title: "Google", value: "oauth_google"},
+        {title: "GitHub", value: "oauth_github"},
+        {title: "Microsoft", value: "oauth_microsoft"},
+        {title: "40code", value: "oauth_40code"},
+        {title: "LinuxDo", value: "oauth_linuxdo"},
+        {title: "email", value: "email"},
+        {title: "phone", value: "phone"},
+        {title: "qq", value: "qq"},
+        {title: "other", value: "other"},
       ],
       connectionDialog: {
         show: false,
@@ -730,7 +734,7 @@ export default {
 
       this.loadingConnections = true;
       try {
-        const { data } = await axios.get(
+        const {data} = await axios.get(
           `/admin/users/${this.userData.id}/connections`
         );
         this.connections = data;
@@ -756,7 +760,7 @@ export default {
       this.connectionDialog.isEdit = true;
       this.connectionDialog.data = {
         ...connection,
-        metadata: { ...connection.metadata },
+        metadata: {...connection.metadata},
       };
       // 初始化键数组
       this.connectionDialog.metadataKeys = Object.keys(

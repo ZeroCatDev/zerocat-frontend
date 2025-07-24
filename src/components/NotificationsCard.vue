@@ -9,15 +9,15 @@
           <v-badge
             v-if="unreadCount > 0"
             :content="unreadCount"
+            class="ml-2"
             color="error"
             inline
-            class="ml-2"
           ></v-badge>
         </div>
         <v-btn
+          :disabled="!hasUnread"
           variant="text"
           @click="contentRef?.markAllAsRead"
-          :disabled="!hasUnread"
         >
           标记全部已读
         </v-btn>
@@ -30,8 +30,8 @@
       <Suspense>
         <NotificationsCardContent
           ref="contentRef"
-          :maxHeight="'420px'"
           :autoFetch="autoFetch"
+          :maxHeight="'420px'"
           @update:unread-count="updateUnreadCount"
         />
         <template #fallback>
@@ -48,9 +48,9 @@
         <Suspense>
           <NotificationsCardContent
             ref="contentRef"
+            :autoFetch="autoFetch"
             :maxHeight="'auto'"
             :showPagination="showPagination"
-            :autoFetch="autoFetch"
             @update:unread-count="updateUnreadCount"
           />
           <template #fallback>
@@ -65,7 +65,7 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import {ref} from "vue";
 import NotificationsCardContent from "./NotificationsCardContent.vue";
 
 export default {

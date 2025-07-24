@@ -1,21 +1,21 @@
 <template>
-  <v-card class="mt-2" elevation hover border>
+  <v-card border class="mt-2" elevation hover>
     <v-card-title class="headline">为{{ name }}评论</v-card-title>
     <v-card-text>
       <v-form @submit.prevent>
         <v-textarea
           :model-value="modelValue"
-          @update:model-value="$emit('update:modelValue', $event)"
-          label="评论"
-          dense
-          auto-grow
           :rules="rules"
+          auto-grow
+          dense
+          label="评论"
           required
+          @update:model-value="$emit('update:modelValue', $event)"
         ></v-textarea>
         <v-btn
+          border
           color="primary"
           @click="$emit('submit')"
-          border
         >
           评论
         </v-btn>

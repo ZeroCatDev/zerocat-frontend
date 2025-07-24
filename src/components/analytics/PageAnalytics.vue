@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { onMounted, watch } from 'vue'
+import {onMounted, watch} from 'vue'
 import * as FingerprintJS from '@fingerprintjs/fingerprintjs'
 import axios from '@/axios/axios'
 
@@ -65,6 +65,6 @@ watch(
       sendAnalytics()
     }
   },
-  { immediate: true }
+  {immediate: true}
 )
 </script>

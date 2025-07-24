@@ -5,19 +5,19 @@
     </v-divider>
 
     <div v-if="isLoading" class="d-flex justify-center my-4">
-      <v-progress-linear indeterminate color="primary"></v-progress-linear>
+      <v-progress-linear color="primary" indeterminate></v-progress-linear>
     </div>
 
     <div v-else class="d-flex flex-wrap gap-2 justify-start mt-4">
       <v-btn
         v-for="provider in enabledProviders"
         :key="provider.id"
-        @click="handleOAuthClick(provider.id)"
-        :style="getProviderStyle(provider.id)"
-        :prepend-icon="getProviderIcon(provider.id)"
-        variant="flat"
-        class="text-none mr-1 mb-1"
         :loading="loadingProvider === provider.id"
+        :prepend-icon="getProviderIcon(provider.id)"
+        :style="getProviderStyle(provider.id)"
+        class="text-none mr-1 mb-1"
+        variant="flat"
+        @click="handleOAuthClick(provider.id)"
       >
         {{ provider.name }}
       </v-btn>
@@ -26,7 +26,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import {ref, onMounted} from 'vue';
 import axios from '@/axios/axios';
 import oauthProviders from '@/constants/oauth_providers.json';
 import AuthService from '@/services/authService';

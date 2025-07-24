@@ -1,13 +1,13 @@
 <template>
   <div class="user-followers">
     <v-row v-if="loading">
-      <v-col cols="12" class="text-center">
-        <v-progress-circular indeterminate color="primary" />
+      <v-col class="text-center" cols="12">
+        <v-progress-circular color="primary" indeterminate/>
       </v-col>
     </v-row>
 
     <v-row v-else-if="followers.length === 0">
-      <v-col cols="12" class="text-center">
+      <v-col class="text-center" cols="12">
         <p class="text-medium-emphasis">暂无关注者</p>
       </v-col>
     </v-row>
@@ -18,7 +18,7 @@
           <template v-slot:prepend>
             <router-link :to="`/${follower.user.username}`">
               <v-avatar size="50">
-                <v-img :src="s3BucketUrl + '/user/' + (follower.user.avatar || follower.user.avatar)" alt="用户头像" />
+                <v-img :src="s3BucketUrl + '/user/' + (follower.user.avatar || follower.user.avatar)" alt="用户头像"/>
               </v-avatar>
             </router-link>
           </template>
@@ -35,10 +35,10 @@
             <div class="d-flex align-center">
               <v-btn
                 v-if="localuser.user.id && localuser.user.id !== follower.user.id"
-                :loading="actionLoading === follower.user.id"
-                :variant="follower.youFollow ? 'outlined' : 'tonal'"
                 :color="'primary'"
+                :loading="actionLoading === follower.user.id"
                 :prepend-icon="follower.youFollow ? 'mdi-account-minus' : 'mdi-account-plus'"
+                :variant="follower.youFollow ? 'outlined' : 'tonal'"
                 size="small"
                 @click="toggleFollow(follower.user.id, follower.user.display_name, follower.youFollow)"
               >
@@ -79,9 +79,9 @@
 
 <script>
 import request from "@/axios/axios.js";
-import { localuser } from "@/services/localAccount";
-import { ref, onMounted } from "vue";
-import { get } from "@/services/serverConfig";
+import {localuser} from "@/services/localAccount";
+import {ref, onMounted} from "vue";
+import {get} from "@/services/serverConfig";
 
 export default {
   name: "UserFollowers",

@@ -1,24 +1,24 @@
 <template>
-  <v-dialog v-model="this.isVisible" persistent max-width="500px">
-    <v-card prepend-icon="mdi-xml" title="新建作品" border>
+  <v-dialog v-model="this.isVisible" max-width="500px" persistent>
+    <v-card border prepend-icon="mdi-xml" title="新建作品">
       <v-card-text>
         <v-row dense>
           <v-col cols="12" md="12" sm="12">
             <v-text-field
+              v-model="projectinfo.title"
+              hint="将会在首页展示"
               label="标题"
               required
-              hint="将会在首页展示"
-              v-model="projectinfo.title"
             ></v-text-field>
           </v-col>
 
           <v-col cols="12" sm="6">
             <v-select
+              v-model="projectinfo.type"
               :items="['scratch', 'python', 'text']"
+              hint="选择一个"
               label="类型"
               required
-              hint="选择一个"
-              v-model="projectinfo.type"
             ></v-select>
           </v-col>
         </v-row>
@@ -26,10 +26,10 @@
       <v-divider></v-divider>
       <v-card-actions>
         <v-btn
+          :disabled="!created"
           text="打开"
           variant="plain"
           @click="openEdit(newid, projectinfo.type)"
-          :disabled="!created"
         ></v-btn>
 
         <v-spacer></v-spacer>
@@ -37,11 +37,11 @@
         <v-btn text="取消" variant="plain" @click="isVisible = false"></v-btn>
 
         <v-btn
+          :disabled="created"
           color="primary"
           text="创建"
           variant="tonal"
           @click="newProject()"
-          :disabled="created"
         ></v-btn>
       </v-card-actions>
     </v-card>
@@ -51,6 +51,7 @@
 <script>
 import openEdit from "../../stores/openEdit";
 import request from "../../axios/axios";
+
 export default {
   data() {
     return {
@@ -69,7 +70,7 @@ export default {
       (this.projectinfo = {
         title: "新建作品",
         type: "scratch",
-      }),
+      })
         (this.created = false);
       this.newid = 0;
       this.isVisible = true;
