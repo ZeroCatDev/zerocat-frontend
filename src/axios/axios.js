@@ -1,5 +1,5 @@
 import axios from "axios";
-import { localuser } from "../services/localAccount";
+
 // 基本配置
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API, // 根据实际情况修改API地址
@@ -38,13 +38,7 @@ axiosInstance.interceptors.request.use(
 // 响应拦截器
 axiosInstance.interceptors.response.use(
   (response) => {
-    // const responseData = response.data;
-    // if (data && data.code !== 200) { // 根据接口返回的状态码判断是否有错误
-    //     alert(`Error code ${data.code}: ${data.message}`); // 自定义错误提示
-    //     return Promise.reject(new Error(data.message));
-    // } else {
     return response;
-    // }
   },
   async (error) => {
     const originalRequest = error.config;
@@ -56,12 +50,15 @@ axiosInstance.interceptors.response.use(
       !originalRequest._retry &&
       originalRequest.url !== "/account/refresh-token"
     ) {
-      // 检查是否是ZC_ERROR_NEED_LOGIN错误
+      // 检查是否是需要登出的错误
       if (
         error.response.data &&
-        error.response.data.code === "ZC_ERROR_NEED_LOGIN"
+        (error.response.data.code === "ZC_ERROR_NEED_LOGIN" ||
+         error.response.data.code === "ZC_ERROR_INVALID_REFRESH_TOKEN" ||
+         error.response.data.code === "ZC_ERROR_REFRESH_TOKEN_EXPIRED")
       ) {
-        localuser.logout(false);
+        // 发出登出事件，让 localAccount.js 处理
+        window.dispatchEvent(new CustomEvent('forceLogout'));
         return Promise.reject(error);
       }
 
@@ -69,7 +66,7 @@ axiosInstance.interceptors.response.use(
         // 如果已经在刷新token，将请求加入队列等待token刷新完成
         return new Promise((resolve) => {
           subscribeTokenRefresh((token) => {
-            originalRequest.headers["Authorization"] = token;
+            originalRequest.headers["Authorization"] = `Bearer ${token}`;
             resolve(axiosInstance(originalRequest));
           });
         });
@@ -83,9 +80,7 @@ axiosInstance.interceptors.response.use(
         const refreshToken = localStorage.getItem("refreshToken");
 
         if (!refreshToken) {
-          // 如果没有刷新令牌，执行登出操作
-
-          localuser.logout(false);
+          window.dispatchEvent(new CustomEvent('forceLogout'));
           return Promise.reject(error);
         }
 
@@ -101,30 +96,30 @@ axiosInstance.interceptors.response.use(
           localStorage.setItem("tokenExpiresAt", response.data.expires_at);
 
           // 更新请求头并重发请求
-          originalRequest.headers["Authorization"] = response.data.token;
+          const newToken = response.data.token;
+          originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
 
           // 执行队列中的请求
-          onRefreshed(response.data.token);
+          onRefreshed(newToken);
 
           isRefreshing = false;
           return axiosInstance(originalRequest);
         } else {
-          // 刷新失败，执行登出操作
-
-          localuser.logout(false);
+          // 只在刷新令牌确实无效时才登出
+          if (response.data.code === "ZC_ERROR_INVALID_REFRESH_TOKEN" ||
+              response.data.code === "ZC_ERROR_REFRESH_TOKEN_EXPIRED") {
+            window.dispatchEvent(new CustomEvent('forceLogout'));
+          }
+          isRefreshing = false;
           return Promise.reject(error);
         }
       } catch (refreshError) {
-        // 刷新失败，执行登出操作
-
-        localuser.logout(false);
+        // 网络错误等临时问题，不执行登出
         isRefreshing = false;
         return Promise.reject(error);
       }
     }
 
-    console.log(error);
-    //alert(`Error: ${error.message}`); // 自定义错误提示
     return Promise.reject(error);
   }
 );

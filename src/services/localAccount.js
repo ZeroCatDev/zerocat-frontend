@@ -1,5 +1,5 @@
 import { ref, watch } from "vue";
-import request from "@/axios/axios";
+import axiosInstance from "@/axios/axios";
 
 // Constants for storage keys
 const USER_INFO_KEY = "userInfo";
@@ -35,6 +35,11 @@ var devices = ref([]);
 var activeTokens = ref([]);
 var currentTokenDetails = ref(null);
 
+// 监听强制登出事件
+window.addEventListener('forceLogout', () => {
+  logout(false);
+});
+
 /**
  * Load user information
  * @param {boolean} force Force refresh user info from server
@@ -52,11 +57,18 @@ const loadUser = async (force) => {
   const expiresAt = new Date(localStorage.getItem(TOKEN_EXPIRES_AT_KEY));
 
   if (expiresAt && expiresAt <= now) {
-    // Token expired, try to refresh
+    // Token expired, check refresh token validity first
+    const refreshTokenExpiresAt = new Date(localStorage.getItem(REFRESH_TOKEN_EXPIRES_AT_KEY));
+    if (!refreshTokenExpiresAt || refreshTokenExpiresAt <= now) {
+      // Refresh token is also expired, logout
+      logout();
+      return;
+    }
+
+    // Try to refresh token
     const refreshSuccessful = await refreshAccessToken();
     if (!refreshSuccessful) {
-      // If refresh failed, logout
-      logout();
+      // Only logout if refresh token is invalid (will be handled in refreshAccessToken)
       return;
     }
   }
@@ -78,7 +90,7 @@ const loadUser = async (force) => {
  * @returns {Promise<void>}
  */
 const fetchUserInfo = async () => {
-  const response = await request({
+  const response = await axiosInstance({
     url: "/user/me",
     method: "get",
   });
@@ -110,10 +122,11 @@ const refreshAccessToken = async () => {
   try {
     const storedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
     if (!storedRefreshToken) {
+      logout(false);
       return false;
     }
 
-    const response = await request({
+    const response = await axiosInstance({
       url: "/account/refresh-token",
       method: "post",
       data: {
@@ -123,6 +136,11 @@ const refreshAccessToken = async () => {
 
     const data = response.data;
     if (data.status !== "success") {
+      // Only logout if the error indicates refresh token is invalid
+      if (data.code === "ZC_ERROR_INVALID_REFRESH_TOKEN" ||
+          data.code === "ZC_ERROR_REFRESH_TOKEN_EXPIRED") {
+        logout(false);
+      }
       return false;
     }
 
@@ -135,6 +153,7 @@ const refreshAccessToken = async () => {
     return true;
   } catch (error) {
     console.error("Token refresh failed:", error);
+    // Don't logout on network errors or other temporary issues
     return false;
   }
 };
@@ -144,19 +163,26 @@ const refreshAccessToken = async () => {
  * @returns {Promise<boolean>} 是否成功刷新
  */
 const checkAndRefreshToken = async () => {
-  // 如果没有登录或禁用了自动刷新，不需要刷新
+  // 如果没有登录，不需要刷新
   if (!isLogin.value) {
     return false;
   }
 
-  // 检查令牌是否快过期
+  // 检查访问令牌是否快过期
   const expirationTime = getTokenExpirationTime();
-  if (expirationTime <= 0) {
-    // 已过期，尝试刷新
-    return await refreshAccessToken();
-  } else if (expirationTime <= TOKEN_REFRESH_THRESHOLD) {
-    // 快过期了，提前刷新
-    console.log(`访问令牌将在${expirationTime}秒后过期，正在提前刷新...`);
+
+  // 如果令牌已过期或即将过期
+  if (expirationTime <= TOKEN_REFRESH_THRESHOLD) {
+    // 先检查刷新令牌是否有效
+    if (!isRefreshTokenValid()) {
+      // 只有在刷新令牌无效时才登出
+      console.log('刷新令牌已过期，执行登出...');
+      logout(false);
+      return false;
+    }
+
+    // 尝试刷新访问令牌
+    console.log(`访问令牌将在${expirationTime}秒后过期，正在刷新...`);
     return await refreshAccessToken();
   }
 
@@ -282,6 +308,11 @@ const isTokenValid = () => {
   const expiresAt = new Date(localStorage.getItem(TOKEN_EXPIRES_AT_KEY));
   const now = new Date();
 
+  // If token is expired but refresh token is valid, try to refresh
+  if (expiresAt && expiresAt <= now) {
+    return false;
+  }
+
   return expiresAt && expiresAt > now;
 };
 
@@ -304,7 +335,19 @@ const isRefreshTokenValid = () => {
  * @returns {boolean} Whether authentication is needed
  */
 const isAuthenticationNeeded = () => {
-  return !isTokenValid() && !isRefreshTokenValid();
+  // Only need authentication if both tokens are invalid
+  const tokenValid = isTokenValid();
+  if (tokenValid) return false;
+
+  // If access token is invalid, check refresh token
+  const refreshValid = isRefreshTokenValid();
+  if (refreshValid) {
+    // Try to refresh the token
+    refreshAccessToken();
+    return false;
+  }
+
+  return true;
 };
 
 /**
@@ -332,7 +375,7 @@ const logout = async (logoutFromServer = true) => {
 
   if (logoutFromServer && isLogin.value) {
     try {
-      await request({
+      await axiosInstance({
         url: "/account/logout",
         method: "post"
       });
@@ -364,7 +407,7 @@ const logout = async (logoutFromServer = true) => {
  */
 const logoutAllDevices = async () => {
   try {
-    const response = await request({
+    const response = await axiosInstance({
       url: "/account/logout-all-devices",
       method: "post"
     });
@@ -387,7 +430,7 @@ const logoutAllDevices = async () => {
  */
 const getDevices = async () => {
   try {
-    const response = await request({
+    const response = await axiosInstance({
       url: "/account/devices",
       method: "get"
     });
@@ -416,7 +459,7 @@ const fetchDevices = getDevices;
  */
 const getActiveTokens = async (includeLocation = true) => {
   try {
-    const response = await request({
+    const response = await axiosInstance({
       url: `/account/active-tokens${includeLocation ? '?include_location=true' : ''}`,
       method: "get"
     });
@@ -447,7 +490,7 @@ const fetchActiveTokens = getActiveTokens;
  */
 const getTokenDetails = async (tokenId, includeLocation = true) => {
   try {
-    const response = await request({
+    const response = await axiosInstance({
       url: `/account/token-details/${tokenId}${includeLocation ? '?include_location=true' : ''}`,
       method: "get"
     });
@@ -478,7 +521,7 @@ const fetchTokenDetails = getTokenDetails;
  */
 const revokeToken = async (tokenId) => {
   try {
-    const response = await request({
+    const response = await axiosInstance({
       url: "/account/revoke-token",
       method: "post",
       data: {
@@ -505,7 +548,7 @@ const revokeToken = async (tokenId) => {
  */
 const updateUserProfile = async (profileData) => {
   try {
-    const response = await request({
+    const response = await axiosInstance({
       url: "/user/update-profile",
       method: "post",
       data: profileData
@@ -531,7 +574,7 @@ const updateUserProfile = async (profileData) => {
  */
 const changePassword = async (currentPassword, newPassword) => {
   try {
-    const response = await request({
+    const response = await axiosInstance({
       url: "/account/change-password",
       method: "post",
       data: {
@@ -554,12 +597,21 @@ const changePassword = async (currentPassword, newPassword) => {
 const initializeTokenRefresh = async () => {
   // 如果有令牌，检查其状态并初始化自动刷新
   if (getToken()) {
-    // 立即检查令牌状态
-    const shouldRefresh = !isTokenValid() || getTokenExpirationTime() <= TOKEN_REFRESH_THRESHOLD;
+    // 检查访问令牌是否过期或即将过期
+    const tokenExpirationTime = getTokenExpirationTime();
+    const shouldRefresh = tokenExpirationTime <= TOKEN_REFRESH_THRESHOLD;
 
     if (shouldRefresh) {
-      console.log('初始化时发现令牌即将过期，正在刷新...');
-      await refreshAccessToken();
+      // 检查刷新令牌是否有效
+      if (isRefreshTokenValid()) {
+        console.log('初始化时发现令牌即将过期，正在刷新...');
+        await refreshAccessToken();
+      } else {
+        // 只有在刷新令牌也无效时才登出
+        console.log('刷新令牌已过期，执行登出...');
+        logout(false);
+        return;
+      }
     }
 
     // 启动自动刷新定时器
