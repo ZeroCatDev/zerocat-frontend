@@ -22,6 +22,11 @@
       </v-col>
 
       <v-col class="d-flex" cols="auto">
+        <v-btn class="ml-2" color="info" prepend-icon="mdi-code-tags" size="small" variant="text"
+               @click="showLanguageDialog = true">
+          {{ editorOptions.language }}
+        </v-btn>
+
         <v-btn class="ml-2" color="success" prepend-icon="mdi-content-save" size="small" variant="text"
                @click="saveAndCommitCode">
           保存
@@ -97,8 +102,14 @@
   </v-alert>
 
   <div v-else-if="fileContent !== null" style="height: 100%!important; width: 100%!important;">
-    <MonacoEditorComponent v-model="fileContent" :language="editorOptions.language" :options="editorOptions"
-                           @change="codeChanged = true"/>
+    <MonacoEditorComponent
+      v-model="fileContent"
+      :language="editorOptions.language"
+      :options="editorOptions"
+      :project-type="project?.type || ''"
+      @change="codeChanged = true"
+      @monaco-ready="handleMonacoReady"
+    />
   </div>
 
   <v-sheet v-else class="d-flex align-center justify-center fill-height">
@@ -189,6 +200,46 @@
     </v-card>
   </v-overlay>
 
+  <!-- 语言选择对话框 -->
+  <v-dialog v-model="showLanguageDialog" max-width="400px">
+    <v-card class="language-dialog">
+      <v-card-title class="pa-4 pb-0">
+        <v-text-field
+          v-model="languageSearch"
+          ref="languageSearchInput"
+          append-inner-icon="mdi-magnify"
+          label="选择编程语言"
+          placeholder="搜索语言..."
+          variant="outlined"
+          density="compact"
+          hide-details
+          class="language-search"
+          @keydown.esc="showLanguageDialog = false"
+        ></v-text-field>
+      </v-card-title>
+
+      <v-card-text class="pa-2">
+        <v-list density="compact" class="language-list">
+          <v-list-item
+            v-for="lang in filteredLanguages"
+            :key="lang.id"
+            :active="editorOptions.language === lang.id"
+            :title="lang.aliases?.[0] || lang.id"
+            :subtitle="lang.id"
+            class="language-list-item"
+            @click="selectLanguage(lang.id)"
+          >
+            <template v-slot:prepend>
+              <v-icon size="small" :color="editorOptions.language === lang.id ? 'primary' : undefined">
+                mdi-code-braces
+              </v-icon>
+            </template>
+          </v-list-item>
+        </v-list>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
+
 </template>
 
 <script>
@@ -238,7 +289,16 @@ export default {
         folding: true,
         lineDecorationsWidth: 10,
         lineNumbersMinChars: 3
-      }
+      },
+
+      // 语言选择相关
+      showLanguageDialog: false,
+      languageSearch: '',
+      availableLanguages: [],
+
+      // Monaco 相关
+      monacoInstance: null,
+      editorInstance: null,
     }
   },
   computed: {
@@ -253,6 +313,17 @@ export default {
         return `${username}/${projectname}`
       }
       return null
+    },
+
+    filteredLanguages() {
+      if (!this.languageSearch) {
+        return this.availableLanguages
+      }
+      const search = this.languageSearch.toLowerCase()
+      return this.availableLanguages.filter(lang => {
+        return lang.id.toLowerCase().includes(search) ||
+          (lang.aliases && lang.aliases.some(alias => alias.toLowerCase().includes(search)))
+      })
     }
   },
   watch: {
@@ -264,6 +335,17 @@ export default {
     project: async function (newProject) {
       if (newProject && newProject.id) {
         await this.loadCommitHistory()
+      }
+    },
+    showLanguageDialog(val) {
+      if (val) {
+        // 当对话框打开时，等待 DOM 更新后聚焦搜索框
+        this.$nextTick(() => {
+          this.$refs.languageSearchInput?.focus()
+        })
+      } else {
+        // 当对话框关闭时，清空搜索内容
+        this.languageSearch = ''
       }
     }
   },
@@ -746,8 +828,37 @@ export default {
       }
     },
 
-    // 根据文件内容或名称推断语言
+    handleMonacoReady({ monaco, editor, availableLanguages }) {
+      console.log('Monaco editor ready')
+      this.monacoInstance = monaco
+      this.editorInstance = editor
+      this.availableLanguages = availableLanguages
+
+      // 如果项目类型存在，设置对应的语言
+      if (this.project?.type) {
+        const projectType = this.project.type.split('-')[0].toLowerCase()
+        const matchedLang = this.availableLanguages.find(lang => lang.id === projectType)
+        if (matchedLang) {
+          console.log('根据项目类型设置语言:', matchedLang.id)
+          this.editorOptions.language = matchedLang.id
+          if (this.editorInstance.getModel()) {
+            this.monacoInstance.editor.setModelLanguage(this.editorInstance.getModel(), matchedLang.id)
+          }
+        }
+      }
+    },
+
+    // 更新 detectLanguage 方法
     detectLanguage(content, filename) {
+      // 如果项目类型已经指定了语言，优先使用项目类型
+      if (this.project?.type && this.availableLanguages?.length > 0) {
+        const projectType = this.project.type.split('-')[0].toLowerCase()
+        const matchedLang = this.availableLanguages.find(lang => lang.id === projectType)
+        if (matchedLang) {
+          return matchedLang.id
+        }
+      }
+
       // 如果内容是JSON格式，设置为json
       try {
         JSON.parse(content)
@@ -787,6 +898,17 @@ export default {
 
       // 默认为纯文本
       return 'plaintext'
+    },
+
+    selectLanguage(languageId) {
+      if (this.monacoInstance && this.editorInstance) {
+        const model = this.editorInstance.getModel()
+        if (model) {
+          this.monacoInstance.editor.setModelLanguage(model, languageId)
+          this.editorOptions.language = languageId
+          this.showLanguageDialog = false
+        }
+      }
     }
   }
 }
@@ -795,5 +917,63 @@ export default {
 <style>
 .monospace {
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+.language-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.language-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.language-dialog {
+  border-radius: 4px;
+}
+
+.language-search {
+  width: 100%;
+}
+
+.language-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.language-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.language-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.language-list::-webkit-scrollbar-thumb {
+  background: rgba(127, 127, 127, 0.4);
+  border-radius: 4px;
+}
+
+.language-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(127, 127, 127, 0.6);
+}
+
+.language-list-item {
+  transition: background-color 0.2s ease;
+  border-radius: 2px;
+  margin: 1px 4px;
+}
+
+.language-list-item:hover {
+  background-color: rgba(127, 127, 127, 0.1);
+}
+
+.language-list-item.v-list-item--active {
+  background-color: rgba(var(--v-theme-primary), 0.1);
+}
+
+.language-list-item.v-list-item--active:hover {
+  background-color: rgba(var(--v-theme-primary), 0.15);
 }
 </style>

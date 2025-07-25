@@ -24,8 +24,12 @@ export default {
       type: String,
       default: "zh-cn", // 默认中文
     },
+    projectType: {
+      type: String,
+      default: "",
+    }
   },
-  emits: ["update:modelValue", "change"],
+  emits: ["update:modelValue", "change", "monaco-ready"],
   setup(props, {emit}) {
     const editorContainer = ref(null);
     let editor = null;
@@ -71,6 +75,13 @@ export default {
         });
 
         createEditor();
+
+        // 通知父组件 Monaco 已加载完成
+        emit('monaco-ready', {
+          monaco: monaco,
+          editor: editor,
+          availableLanguages: monaco.languages.getLanguages()
+        });
       });
     };
 
@@ -78,10 +89,21 @@ export default {
     const createEditor = () => {
       if (!editorContainer.value || !monaco) return;
 
+      // 如果有项目类型，尝试设置对应的语言
+      let initialLanguage = props.language;
+      if (props.projectType) {
+        const projectLang = props.projectType.split('-')[0].toLowerCase();
+        const availableLangs = monaco.languages.getLanguages();
+        const matchedLang = availableLangs.find(lang => lang.id === projectLang);
+        if (matchedLang) {
+          initialLanguage = matchedLang.id;
+        }
+      }
+
       // 合并默认选项和传入的选项
       const defaultOptions = {
         value: props.modelValue,
-        language: props.language,
+        language: initialLanguage,
         theme: "monokai", // 使用新定义的主题
         fontSize: 14,
         tabSize: 2,
@@ -206,6 +228,24 @@ export default {
           monaco = monacoInstance;
           createEditor();
         });
+      }
+    );
+
+    // 监听 projectType 变化
+    watch(
+      () => props.projectType,
+      (newType) => {
+        if (editor && monaco && newType) {
+          const projectLang = newType.split('-')[0].toLowerCase();
+          const availableLangs = monaco.languages.getLanguages();
+          const matchedLang = availableLangs.find(lang => lang.id === projectLang);
+          if (matchedLang) {
+            const model = editor.getModel();
+            if (model) {
+              monaco.editor.setModelLanguage(model, matchedLang.id);
+            }
+          }
+        }
       }
     );
 
