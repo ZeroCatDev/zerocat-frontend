@@ -38,9 +38,7 @@
     <v-card v-if="!showplayer" border hover title="项目尚未初始化">
       <v-card-actions>
         <v-btn @click="initProject(projectId, 'scratch')">以Scratch模板初始化项目</v-btn>
-        <v-btn @click="initProject(projectId, 'code')">以代码模板初始化项目</v-btn>
         <v-btn @click="initProject(projectId, 'text')">以文本模板初始化项目</v-btn>
-        <v-btn @click="initProject(projectId, 'none')">以空白模板初始化项目</v-btn>
       </v-card-actions>
     </v-card>
   </div>

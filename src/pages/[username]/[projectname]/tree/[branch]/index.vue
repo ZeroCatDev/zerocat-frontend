@@ -16,6 +16,7 @@
           :commit-id="currentCommitId"
           :project-id="project.id"
           :showplayer="showplayer"
+          :type="project.type"
         />
         <br/>
       </v-col>

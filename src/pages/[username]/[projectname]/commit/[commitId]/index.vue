@@ -44,6 +44,7 @@
           :commit-id="$route.params.commitId"
           :project-id="project.id"
           :showplayer="showplayer"
+          :type="project.type"
         />
         <br/>
         <v-card
