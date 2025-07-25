@@ -22,7 +22,7 @@ export default {
     },
     locale: {
       type: String,
-      default: "zh-cn", // 默认中文
+      default: "zh-cn",
     },
     projectType: {
       type: String,
@@ -36,6 +36,56 @@ export default {
     let contentChangeDisposable = null;
     let resizeObserver = null;
     let monaco = null;
+    let disposables = [];
+
+    // 清理所有资源
+    const disposeAll = () => {
+      // 清理所有注册的disposables
+      disposables.forEach(d => d?.dispose());
+      disposables = [];
+
+      // 清理编辑器实例
+      if (editor) {
+        try {
+          const model = editor.getModel();
+          if (model) {
+            model.dispose();
+          }
+          editor.dispose();
+        } catch (e) {
+          console.error('Error disposing editor:', e);
+        }
+        editor = null;
+      }
+
+      // 清理ResizeObserver
+      if (resizeObserver) {
+        try {
+          resizeObserver.disconnect();
+        } catch (e) {
+          console.error('Error disconnecting resize observer:', e);
+        }
+        resizeObserver = null;
+      }
+
+      // 清理内容变化监听器
+      if (contentChangeDisposable) {
+        try {
+          contentChangeDisposable.dispose();
+        } catch (e) {
+          console.error('Error disposing content change listener:', e);
+        }
+        contentChangeDisposable = null;
+      }
+
+      // 清理monaco实例
+      monaco = null;
+
+      // 清理DOM
+      if (editorContainer.value) {
+        editorContainer.value.innerHTML = '';
+      }
+    };
 
     // 初始化 Monaco Editor
     const initMonaco = () => {
@@ -137,6 +187,7 @@ export default {
         emit("update:modelValue", value);
         emit("change", value);
       });
+      disposables.push(contentChangeDisposable);
 
       // 添加ResizeObserver以确保编辑器在容器大小变化时调整大小
       resizeObserver = new ResizeObserver(() => {
@@ -153,24 +204,20 @@ export default {
           editor.layout();
         }
       }, 100);
-    };
 
-    // 销毁编辑器
-    const disposeEditor = () => {
-      if (resizeObserver) {
-        resizeObserver.disconnect();
-        resizeObserver = null;
-      }
+      // 添加编辑器焦点变化监听
+      const focusDisposable = editor.onDidFocusEditorText(() => {
+        // 获得焦点时强制重新布局
+        editor.layout();
+      });
+      disposables.push(focusDisposable);
 
-      if (contentChangeDisposable) {
-        contentChangeDisposable.dispose();
-        contentChangeDisposable = null;
-      }
-
-      if (editor) {
-        editor.dispose();
-        editor = null;
-      }
+      // 添加编辑器配置变化监听
+      const configurationDisposable = editor.onDidChangeConfiguration(() => {
+        // 配置变化时强制重新布局
+        editor.layout();
+      });
+      disposables.push(configurationDisposable);
     };
 
     // 监听 modelValue 变化
@@ -212,7 +259,7 @@ export default {
       () => props.locale,
       (newLocale) => {
         // 本地化变更需要重新加载编辑器
-        disposeEditor();
+        disposeAll();
 
         // 重新配置本地化
         window.require.config({
@@ -255,7 +302,7 @@ export default {
       if (!window.require) {
         // 如果没有加载，创建script标签加载
         const loaderScript = document.createElement("script");
-        loaderScript.src = "/monaco-editor/min/vs/loader.js"; // 修改路径指向public目录
+        loaderScript.src = "/monaco-editor/min/vs/loader.js";
         loaderScript.onload = initMonaco;
         document.head.appendChild(loaderScript);
       } else {
@@ -264,21 +311,22 @@ export default {
       }
 
       // 添加窗口大小变化监听
-      window.addEventListener("resize", () => {
+      const handleResize = () => {
         if (editor) {
           editor.layout();
         }
+      };
+      window.addEventListener("resize", handleResize);
+
+      // 添加到disposables以便清理
+      disposables.push({
+        dispose: () => window.removeEventListener("resize", handleResize)
       });
     });
 
-    // 组件卸载前销毁编辑器
+    // 组件卸载前清理所有资源
     onBeforeUnmount(() => {
-      window.removeEventListener("resize", () => {
-        if (editor) {
-          editor.layout();
-        }
-      });
-      disposeEditor();
+      disposeAll();
     });
 
     return {
