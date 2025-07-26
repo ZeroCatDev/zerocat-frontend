@@ -623,7 +623,7 @@ export default {
   },
   computed: {
     getPathSegments() {
-      return this.$route.path.split("/").filter(Boolean);
+      return decodeURIComponent(this.$route.path).split("/").filter(Boolean);
     },
     isProjectPath() {
       const pathSegments = this.getPathSegments;

@@ -77,7 +77,7 @@
         </v-expand-transition>
       </v-col>
       <v-col class="d-flex justify-end" cols="12">
-        <v-btn append-icon="mdi-magnify" class="mr-2" color="primary" @click="onPageChange">
+        <v-btn append-icon="mdi-magnify" class="mr-2" color="primary" @click="onPageChange" @keydown.enter="onPageChange" >
           搜索
         </v-btn>
         <v-btn append-icon="mdi-refresh" @click="resetSearch">
@@ -85,11 +85,14 @@
         </v-btn>
       </v-col>
       <v-col class="d-flex justify-end mt-4" cols="12">
-        <v-btn append-icon="mdi-new-box" class="mr-2" color="secondary" @click="viewLatest">
+        <v-btn append-icon="mdi-new-box" class="mr-2" variant="tonal" @click="viewLatest">
           最新作品
         </v-btn>
-        <v-btn append-icon="mdi-fire" color="secondary" @click="viewPopular">
+        <v-btn append-icon="mdi-fire" class="mr-2" variant="tonal" @click="viewPopular">
           最热门作品
+        </v-btn>
+        <v-btn append-icon="mdi-star" variant="tonal" @click="viewStar">
+          最多收藏
         </v-btn>
       </v-col>
     </v-row>
@@ -110,7 +113,7 @@ export default {
     return {
       search: {
         title: "",
-        type: "scratch",
+        type: "",
         description: "",
         source: "",
         order: "view_up",
@@ -167,6 +170,10 @@ export default {
     },
     viewPopular() {
       this.search.order = "view_down";
+      this.onPageChange();
+    },
+    viewStar() {
+      this.search.order = "star_down";
       this.onPageChange();
     },
   },
