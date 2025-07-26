@@ -1,363 +1,368 @@
 <template>
-
-  <!-- 左侧活动栏 -->
-  <v-navigation-drawer permanent rail>
-    <v-list>
-      <v-list-item
-        v-for="(item, i) in navigationItems"
-        :key="i"
-        :value="item.value"
-        :active="activeTab === item.value"
-        @click="activeTab = item.value"
-      >
-        <template v-slot:prepend>
-          <v-icon>{{ item.icon }}</v-icon>
-        </template>
-
-        <v-list-item-title>{{ item.title }}</v-list-item-title>
-      </v-list-item>
-    </v-list>
-  </v-navigation-drawer>
-
-  <!-- 左侧边栏 -->
-  <v-navigation-drawer permanent>
-    <v-list>
-      <v-list-item :title="sidebarTitle" :prepend-icon="sidebarIcon" />
-    </v-list>
-
-    <v-divider></v-divider>
-
-    <!-- 文件浏览器 -->
-    <template v-if="activeTab === 'files'">
+  <div class="project-editor">
+    <!-- 左侧活动栏 -->
+    <v-navigation-drawer permanent rail>
       <v-list>
-        <v-list-item>
-          <v-text-field
-            density="compact"
-            hide-details
-            placeholder="搜索文件..."
-            prepend-inner-icon="mdi-magnify"
-            variant="solo-filled"
-          ></v-text-field>
-        </v-list-item>
-      </v-list>
-    </template>
-
-    <!-- Git 面板 -->
-    <template v-if="activeTab === 'git'">
-      <v-list>
-        <v-list-item>
-          <v-select
-            v-model="currentBranch"
-            :items="branches.map((b) => b.name)"
-            density="compact"
-            hide-details
-            label="当前分支"
-            prepend-inner-icon="mdi-source-branch"
-            variant="solo-filled"
-            @update:model-value="switchBranch"
-          ></v-select>
-        </v-list-item>
-
         <v-list-item
-          v-if="codeChanged"
-          prepend-icon="mdi-source-commit"
-          title="更改"
-          subtitle="有未保存的更改"
-        >
-          <template v-slot:append>
-            <v-btn color="primary" size="small" @click="saveAndCommitCode">
-              提交
-            </v-btn>
-          </template>
-        </v-list-item>
-
-        <v-divider></v-divider>
-
-        <v-list-subheader>提交历史</v-list-subheader>
-        <v-list-item
-          v-for="commit in commits"
-          :key="commit.hash"
-          :subtitle="formatCommitInfo(commit)"
-          :title="commit.message || '无提交信息'"
-          lines="two"
+          v-for="(item, i) in navigationItems"
+          :key="i"
+          :value="item.value"
+          :active="activeTab === item.value"
+          @click="activeTab = item.value"
         >
           <template v-slot:prepend>
-            <v-icon size="small">mdi-source-commit</v-icon>
+            <v-icon>{{ item.icon }}</v-icon>
           </template>
-          <template v-slot:append>
-            <v-menu location="end">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  icon="mdi-dots-vertical"
-                  size="small"
-                  variant="text"
-                  v-bind="props"
-                ></v-btn>
-              </template>
-              <v-list>
-                <v-list-item @click="viewCommit(commit)">
-                  <v-list-item-title>查看</v-list-item-title>
-                </v-list-item>
-                <v-list-item @click="restoreCommit(commit)">
-                  <v-list-item-title>恢复</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </template>
+
+          <v-list-item-title>{{ item.title }}</v-list-item-title>
         </v-list-item>
       </v-list>
-    </template>
-  </v-navigation-drawer>
-<!-- 顶部工具栏 -->
-<v-app-bar class="editor-app-bar" density="compact" flat>
-    <v-row align="center" no-gutters>
-      <v-col class="mr-4" cols="auto">
-        <div v-if="project">
-          <v-chip class="mr-2" color="primary" size="small">
-            <v-icon size="small" start>mdi-source-repository</v-icon>
-            {{ project.title }}
-          </v-chip>
-          <span class="text-caption"
-            >{{ project.author.username }}/{{ project.name }}</span
-          >
-        </div>
-        <v-progress-circular
-          v-else
-          indeterminate
-          size="20"
-          width="2"
-        ></v-progress-circular>
-      </v-col>
+    </v-navigation-drawer>
 
-      <v-spacer></v-spacer>
+    <!-- 左侧边栏 -->
+    <v-navigation-drawer permanent>
+      <v-list>
+        <v-list-item :title="sidebarTitle" :prepend-icon="sidebarIcon" />
+      </v-list>
 
-      <v-col cols="auto">
-        <v-select
-          v-model="currentBranch"
-          :items="branches.map((b) => b.name)"
-          class="branch-selector"
-          density="compact"
-          hide-details
-          prepend-inner-icon="mdi-source-branch"
-          style="max-width: 150px"
-          variant="outlined"
-          @update:model-value="switchBranch"
-        ></v-select>
-      </v-col>
+      <v-divider></v-divider>
 
-      <v-col class="d-flex" cols="auto">
-        <v-btn
-          class="ml-2"
-          color="info"
-          prepend-icon="mdi-code-tags"
-          size="small"
-          variant="text"
-          @click="showLanguageDialog = true"
-        >
-          {{ editorOptions.language }}
-        </v-btn>
+      <!-- 文件浏览器 -->
+      <template v-if="activeTab === 'files'">
+        <v-list>
+          <v-list-item>
+            <v-text-field
+              density="compact"
+              hide-details
+              placeholder="搜索文件..."
+              prepend-inner-icon="mdi-magnify"
+              variant="solo-filled"
+            ></v-text-field>
+          </v-list-item>
+        </v-list>
+      </template>
 
-        <!-- 修改保存按钮部分 -->
-        <v-btn
-          class="ml-2"
-          :color="codeChanged ? 'warning' : 'success'"
-          prepend-icon="mdi-source-commit"
-          size="small"
-          variant="text"
-          @click="showCommitDialog"
-        >
-          {{ codeChanged ? "有更改待提交" : "无更改" }}
-          <v-icon end size="small">{{
-            codeChanged ? "mdi-circle-medium" : "mdi-check"
-          }}</v-icon>
-        </v-btn>
+      <!-- Git 面板 -->
+      <template v-if="activeTab === 'git'">
+        <v-list>
+          <v-list-item>
+            <v-select
+              v-model="currentBranch"
+              :items="branches.map((b) => b.name)"
+              density="compact"
+              hide-details
+              label="当前分支"
+              prepend-inner-icon="mdi-source-branch"
+              variant="solo-filled"
+              @update:model-value="switchBranch"
+            ></v-select>
+          </v-list-item>
 
-        <v-btn
-          class="ml-2"
-          prepend-icon="mdi-arrow-left"
-          size="small"
-          variant="text"
-          @click="goToProjectPage"
-        >
-          项目页面
-        </v-btn>
-      </v-col>
-    </v-row>
-  </v-app-bar>
-  <!-- 主编辑器区域 -->
-
-
-  <!-- 编辑器容器 -->
-  <div
-    v-if="fileContent !== null"
-    style="height: 100% !important; width: 100% !important"
-  >
-    <MonacoEditorComponent
-      v-model="fileContent"
-      :language="editorOptions.language"
-      :options="editorOptions"
-      :project-type="project?.type || ''"
-      @change="codeChanged = true"
-      @monaco-ready="handleMonacoReady"
-    />
-  </div>
-
-  <v-sheet v-else class="d-flex align-center justify-center">
-    <v-progress-circular color="primary" indeterminate></v-progress-circular>
-    <span class="ml-2">加载中...</span>
-  </v-sheet>
-
-  <!-- 语言选择对话框 -->
-  <v-dialog v-model="showLanguageDialog" max-width="400">
-    <v-card>
-      <v-card-title>
-        <v-text-field
-          v-model="languageSearch"
-          ref="languageSearchInput"
-          append-inner-icon="mdi-magnify"
-          label="选择编程语言"
-          placeholder="搜索语言..."
-          variant="outlined"
-          density="compact"
-          hide-details
-          @keydown.esc="showLanguageDialog = false"
-        ></v-text-field>
-      </v-card-title>
-
-      <v-card-text>
-        <v-list density="compact">
           <v-list-item
-            v-for="lang in filteredLanguages"
-            :key="lang.id"
-            :active="editorOptions.language === lang.id"
-            :title="lang.aliases?.[0] || lang.id"
-            :subtitle="lang.id"
-            @click="selectLanguage(lang.id)"
+            v-if="codeChanged"
+            prepend-icon="mdi-source-commit"
+            title="更改"
+            subtitle="有未保存的更改"
+          >
+            <template v-slot:append>
+              <v-btn color="primary" size="small" @click="saveAndCommitCode">
+                提交
+              </v-btn>
+            </template>
+          </v-list-item>
+
+          <v-divider></v-divider>
+
+          <v-list-subheader>提交历史</v-list-subheader>
+          <v-list-item
+            v-for="commit in commits"
+            :key="commit.hash"
+            :subtitle="formatCommitInfo(commit)"
+            :title="commit.message || '无提交信息'"
+            lines="two"
           >
             <template v-slot:prepend>
-              <v-icon size="small">mdi-code-braces</v-icon>
+              <v-icon size="small">mdi-source-commit</v-icon>
+            </template>
+            <template v-slot:append>
+              <v-menu location="end">
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    icon="mdi-dots-vertical"
+                    size="small"
+                    variant="text"
+                    v-bind="props"
+                  ></v-btn>
+                </template>
+                <v-list>
+                  <v-list-item @click="viewCommit(commit)">
+                    <v-list-item-title>查看</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="restoreCommit(commit)">
+                    <v-list-item-title>恢复</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
             </template>
           </v-list-item>
         </v-list>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
-
-  <!-- 修改提交对话框 -->
-  <v-dialog v-model="showSaveDialog" max-width="500">
-    <v-card>
-      <v-card-text class="pa-4">
-        <div class="d-flex align-center mb-4">
-          <v-icon color="primary" class="mr-2">mdi-source-repository</v-icon>
-          <span class="text-h6">{{ project?.title || "项目" }}</span>
-        </div>
-
-        <div v-if="codeChanged" class="mb-4">
-          <div class="text-subtitle-2 mb-2">更改</div>
-          <v-card variant="outlined" class="pa-2">
-            <div class="d-flex align-center">
-              <v-icon size="small" color="warning" class="mr-2"
-                >mdi-file-document</v-icon
+      </template>
+    </v-navigation-drawer>
+    <!-- 顶部工具栏 -->
+    <v-app-bar class="editor-app-bar" density="compact" flat>
+        <v-row align="center" no-gutters>
+          <v-col class="mr-4" cols="auto">
+            <div v-if="project">
+              <v-chip class="mr-2" color="primary" size="small">
+                <v-icon size="small" start>mdi-source-repository</v-icon>
+                {{ project.title }}
+              </v-chip>
+              <span class="text-caption"
+                >{{ project.author.username }}/{{ project.name }}</span
               >
-              <span class="text-body-2">已修改: {{ project?.name }}</span>
             </div>
-          </v-card>
-        </div>
+            <v-progress-circular
+              v-else
+              indeterminate
+              size="20"
+              width="2"
+            ></v-progress-circular>
+          </v-col>
 
-        <v-text-field
-          v-model="commitMessage"
-          label="提交信息 (按 Ctrl+Enter 提交)"
-          placeholder="输入提交信息..."
-          variant="outlined"
-          density="comfortable"
-          hide-details
-          class="mb-2"
-          @keydown.ctrl.enter="confirmCommit"
-        ></v-text-field>
+          <v-spacer></v-spacer>
 
-        <v-expand-transition>
-          <div v-show="showCommitDetails">
-            <v-textarea
-              v-model="commitDescription"
-              label="详细描述"
-              placeholder="输入详细的提交说明（可选）..."
+          <v-col cols="auto">
+            <v-select
+              v-model="currentBranch"
+              :items="branches.map((b) => b.name)"
+              class="branch-selector"
+              density="compact"
+              hide-details
+              prepend-inner-icon="mdi-source-branch"
+              style="max-width: 150px"
+              variant="outlined"
+              @update:model-value="switchBranch"
+            ></v-select>
+          </v-col>
+
+          <v-col class="d-flex" cols="auto">
+            <v-btn
+              class="ml-2"
+              color="info"
+              prepend-icon="mdi-code-tags"
+              size="small"
+              variant="text"
+              @click="showLanguageDialog = true"
+            >
+              {{ editorOptions.language }}
+            </v-btn>
+
+            <!-- 修改保存按钮部分 -->
+            <v-btn
+              class="ml-2"
+              :color="codeChanged ? 'warning' : 'success'"
+              prepend-icon="mdi-source-commit"
+              size="small"
+              variant="text"
+              @click="showCommitDialog"
+            >
+              {{ codeChanged ? "有更改待提交" : "无更改" }}
+              <v-icon end size="small">{{
+                codeChanged ? "mdi-circle-medium" : "mdi-check"
+              }}</v-icon>
+            </v-btn>
+
+            <v-btn
+              class="ml-2"
+              prepend-icon="mdi-arrow-left"
+              size="small"
+              variant="text"
+              @click="goToProjectPage"
+            >
+              项目页面
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-app-bar>
+      <!-- 主编辑器区域 -->
+
+
+      <!-- 编辑器容器 -->
+      <div
+        v-if="fileContent !== null"
+        style="height: 100% !important; width: 100% !important"
+      >
+        <MonacoEditorComponent
+          v-model="fileContent"
+          :language="editorOptions.language"
+          :options="editorOptions"
+          :project-type="project?.type || ''"
+          @change="codeChanged = true"
+          @monaco-ready="handleMonacoReady"
+        />
+      </div>
+
+      <v-sheet v-else class="d-flex align-center justify-center">
+        <v-progress-circular color="primary" indeterminate></v-progress-circular>
+        <span class="ml-2">加载中...</span>
+      </v-sheet>
+
+      <!-- 语言选择对话框 -->
+      <v-dialog v-model="showLanguageDialog" max-width="400">
+        <v-card>
+          <v-card-title class="pa-4">
+            <v-text-field
+              v-model="languageSearch"
+              ref="languageSearchInput"
+              append-inner-icon="mdi-magnify"
+              label="选择编程语言"
+              placeholder="搜索语言..."
+              variant="outlined"
+              density="compact"
+              hide-details
+              @keydown.esc="showLanguageDialog = false"
+              @input="debounceSearch"
+            ></v-text-field>
+          </v-card-title>
+
+          <v-card-text class="language-list pa-0">
+            <v-list density="compact" nav>
+              <template v-for="lang in filteredLanguages" :key="lang.id">
+                <v-list-item
+                  :active="editorOptions.language === lang.id"
+                  :title="lang.aliases?.[0] || lang.id"
+                  :subtitle="lang.id"
+                  @click="selectLanguage(lang.id)"
+                >
+                  <template v-slot:prepend>
+                    <v-icon size="small">mdi-code-braces</v-icon>
+                  </template>
+                </v-list-item>
+              </template>
+            </v-list>
+            <div v-if="filteredLanguages.length === 0" class="pa-4 text-center text-body-2">
+              未找到匹配的语言
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+
+      <!-- 修改提交对话框 -->
+      <v-dialog v-model="showSaveDialog" max-width="500">
+        <v-card>
+          <v-card-text class="pa-4">
+            <div class="d-flex align-center mb-4">
+              <v-icon color="primary" class="mr-2">mdi-source-repository</v-icon>
+              <span class="text-h6">{{ project?.title || "项目" }}</span>
+            </div>
+
+            <div v-if="codeChanged" class="mb-4">
+              <div class="text-subtitle-2 mb-2">更改</div>
+              <v-card variant="outlined" class="pa-2">
+                <div class="d-flex align-center">
+                  <v-icon size="small" color="warning" class="mr-2"
+                    >mdi-file-document</v-icon
+                  >
+                  <span class="text-body-2">已修改: {{ project?.name }}</span>
+                </div>
+              </v-card>
+            </div>
+
+            <v-text-field
+              v-model="commitMessage"
+              label="提交信息 (按 Ctrl+Enter 提交)"
+              placeholder="输入提交信息..."
               variant="outlined"
               density="comfortable"
-              rows="3"
               hide-details
+              class="mb-2"
+              @keydown.ctrl.enter="confirmCommit"
+            ></v-text-field>
+
+            <v-expand-transition>
+              <div v-show="showCommitDetails">
+                <v-textarea
+                  v-model="commitDescription"
+                  label="详细描述"
+                  placeholder="输入详细的提交说明（可选）..."
+                  variant="outlined"
+                  density="comfortable"
+                  rows="3"
+                  hide-details
+                  class="mt-2"
+                ></v-textarea>
+              </div>
+            </v-expand-transition>
+
+            <v-btn
+              variant="text"
+              density="comfortable"
               class="mt-2"
-            ></v-textarea>
-          </div>
-        </v-expand-transition>
+              @click="showCommitDetails = !showCommitDetails"
+            >
+              {{ showCommitDetails ? "隐藏详细信息" : "添加详细信息..." }}
+            </v-btn>
+          </v-card-text>
 
-        <v-btn
-          variant="text"
-          density="comfortable"
-          class="mt-2"
-          @click="showCommitDetails = !showCommitDetails"
-        >
-          {{ showCommitDetails ? "隐藏详细信息" : "添加详细信息..." }}
-        </v-btn>
-      </v-card-text>
-
-      <v-card-actions class="pa-4 pt-0">
-        <v-spacer></v-spacer>
-        <v-btn variant="text" @click="showSaveDialog = false"> 取消 </v-btn>
-        <v-btn
-          color="primary"
-          :disabled="!commitMessage.trim()"
-          :loading="committing"
-          @click="confirmCommit"
-        >
-          提交更改
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-
-  <!-- 确认对话框 -->
-  <v-dialog v-model="showConfirmDialog" max-width="400">
-    <v-card>
-      <v-card-text class="pa-4">
-        <div class="d-flex align-center mb-4">
-          <v-icon color="warning" class="mr-2">mdi-alert</v-icon>
-          <span class="text-h6">确认提交</span>
-        </div>
-        <p>确定要提交以下更改吗？</p>
-        <v-card variant="outlined" class="pa-2 mt-2">
-          <p class="text-body-1 mb-2">{{ commitMessage }}</p>
-          <p v-if="commitDescription" class="text-body-2 text-grey">
-            {{ commitDescription }}
-          </p>
+          <v-card-actions class="pa-4 pt-0">
+            <v-spacer></v-spacer>
+            <v-btn variant="text" @click="showSaveDialog = false"> 取消 </v-btn>
+            <v-btn
+              color="primary"
+              :disabled="!commitMessage.trim()"
+              :loading="committing"
+              @click="confirmCommit"
+            >
+              提交更改
+            </v-btn>
+          </v-card-actions>
         </v-card>
-      </v-card-text>
-      <v-card-actions class="pa-4 pt-0">
-        <v-spacer></v-spacer>
-        <v-btn variant="text" @click="showConfirmDialog = false"> 取消 </v-btn>
-        <v-btn
-          color="primary"
-          :loading="committing"
-          @click="saveAndSubmitCommit"
-        >
-          确认提交
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+      </v-dialog>
 
-  <!-- 加载遮罩 -->
-  <v-overlay v-model="loading" class="align-center justify-center" persistent>
-    <v-card width="300">
-      <v-card-text class="text-center">
-        <v-progress-circular
-          color="primary"
-          indeterminate
-          size="64"
-        ></v-progress-circular>
-        <div class="text-body-1 mt-4">{{ loadingMessage }}</div>
-      </v-card-text>
-    </v-card>
-  </v-overlay>
+      <!-- 确认对话框 -->
+      <v-dialog v-model="showConfirmDialog" max-width="400">
+        <v-card>
+          <v-card-text class="pa-4">
+            <div class="d-flex align-center mb-4">
+              <v-icon color="warning" class="mr-2">mdi-alert</v-icon>
+              <span class="text-h6">确认提交</span>
+            </div>
+            <p>确定要提交以下更改吗？</p>
+            <v-card variant="outlined" class="pa-2 mt-2">
+              <p class="text-body-1 mb-2">{{ commitMessage }}</p>
+              <p v-if="commitDescription" class="text-body-2 text-grey">
+                {{ commitDescription }}
+              </p>
+            </v-card>
+          </v-card-text>
+          <v-card-actions class="pa-4 pt-0">
+            <v-spacer></v-spacer>
+            <v-btn variant="text" @click="showConfirmDialog = false"> 取消 </v-btn>
+            <v-btn
+              color="primary"
+              :loading="committing"
+              @click="saveAndSubmitCommit"
+            >
+              确认提交
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <!-- 加载遮罩 -->
+      <v-overlay v-model="loading" class="align-center justify-center" persistent>
+        <v-card width="300">
+          <v-card-text class="text-center">
+            <v-progress-circular
+              color="primary"
+              indeterminate
+              size="64"
+            ></v-progress-circular>
+            <div class="text-body-1 mt-4">{{ loadingMessage }}</div>
+          </v-card-text>
+        </v-card>
+      </v-overlay>
+    </div>
 </template>
 
 <script>
@@ -416,6 +421,7 @@ export default {
       showLanguageDialog: false,
       languageSearch: "",
       availableLanguages: [],
+      searchTimeout: null,
 
       // Monaco 相关
       monacoInstance: null,
@@ -447,17 +453,19 @@ export default {
     },
 
     filteredLanguages() {
-      if (!this.languageSearch) {
-        return this.availableLanguages;
+      if (!this.languageSearch || !this.availableLanguages) {
+        return this.availableLanguages || [];
       }
-      const search = this.languageSearch.toLowerCase();
-      return this.availableLanguages.filter((lang) => {
-        return (
-          lang.id.toLowerCase().includes(search) ||
-          (lang.aliases &&
-            lang.aliases.some((alias) => alias.toLowerCase().includes(search)))
-        );
-      });
+      const search = this.languageSearch.toLowerCase().trim();
+      // 限制显示数量以提高性能
+      return this.availableLanguages
+        .filter(lang => {
+          const id = lang.id.toLowerCase();
+          const aliases = lang.aliases || [];
+          return id.includes(search) ||
+                 aliases.some(alias => alias.toLowerCase().includes(search));
+        })
+        .slice(0, 50); // 限制最多显示50个结果
     },
     sidebarTitle() {
       switch (this.activeTab) {
@@ -1152,21 +1160,33 @@ export default {
       return "plaintext";
     },
 
-    selectLanguage(languageId) {
-      if (this.monacoInstance && this.editorInstance) {
-        const model = this.editorInstance.getModel();
-        if (model) {
-          this.monacoInstance.editor.setModelLanguage(model, languageId);
-          this.editorOptions.language = languageId;
-          this.showLanguageDialog = false;
-        }
+    debounceSearch(event) {
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout);
       }
+      this.searchTimeout = setTimeout(() => {
+        this.languageSearch = event.target.value;
+      }, 300);
+    },
+
+    selectLanguage(languageId) {
+      this.editorOptions.language = languageId;
+      this.showLanguageDialog = false;
+      this.languageSearch = ''; // 清空搜索内容
     },
   },
 };
 </script>
 
 <style scoped>
+.project-editor {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 .editor-app-bar {
   border-bottom: 1px solid rgba(var(--v-border-color), 0.12);
 }

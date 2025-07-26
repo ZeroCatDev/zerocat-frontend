@@ -273,10 +273,10 @@ export default {
     watch(
       () => props.language,
       (newLanguage) => {
-        if (editor && monaco) {
-          const model = editor.getModel();
-          if (model) {
-            monaco.editor.setModelLanguage(model, newLanguage);
+        if (monaco) {
+          const models = monaco.editor.getModels();
+          if (models.length > 0) {
+            monaco.editor.setModelLanguage(models[0], newLanguage);
           }
         }
       }
