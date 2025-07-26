@@ -5,65 +5,72 @@
  */
 
 // Styles
-import "@mdi/font/css/materialdesignicons.css";
-import "vuetify/styles";
+import '@mdi/font/css/materialdesignicons.css'
+import 'vuetify/styles'
 
-// Composables
-import {createVuetify} from "vuetify";
+// Vuetify
+import { createVuetify } from 'vuetify'
 
-// https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
+const vscodeTheme = {
+  dark: true,
+  colors: {
+    background: '#1e1e1e',
+    surface: '#252526',
+    'surface-bright': '#2c2c2d',
+    primary: '#0098ff',
+    secondary: '#89d185',
+    error: '#f14c4c',
+    info: '#3794ff',
+    success: '#89d185',
+    warning: '#cca700',
+    'sidebar-background': '#252526',
+    'activity-bar-background': '#333333',
+    'editor-background': '#1e1e1e',
+    'status-bar-background': '#007acc',
+    'tab-active-background': '#1e1e1e',
+    'tab-inactive-background': '#2d2d2d',
+    'panel-background': '#252526',
+    'title-bar-background': '#3c3c3c',
+    'border-color': '#474747'
+  },
+  variables: {
+    'border-color': '#474747',
+    'border-opacity': 1,
+    'disabled-opacity': 0.38,
+    'idle-opacity': 0.50,
+    'hover-opacity': 0.04,
+    'focus-opacity': 0.12,
+    'selected-opacity': 0.08,
+    'activated-opacity': 0.12,
+    'pressed-opacity': 0.12,
+    'dragged-opacity': 0.08,
+    'theme-kbd': '#212529',
+    'theme-on-kbd': '#FFFFFF',
+    'theme-code': '#343434',
+    'theme-on-code': '#CCCCCC'
+  }
+}
+
 export default createVuetify({
   theme: {
-    defaultTheme: "dark",
+    defaultTheme: 'vscodeTheme',
     themes: {
-      light: {
-        colors: {
-          background: '#ecedf7',
-          surface: '#f9f9ff',
-          'surface-dim': '#d8d9e3',
-          'surface-bright': '#f9f9ff',
-          'on-surface': '#181c22',
-          outline: '#727785',
-          'outline-variant': '#c1c6d6',
-          primary: '#005cba',
-          'on-primary': '#ffffff',
-          secondary: '#385e9d',
-          'on-secondary': '#ffffff',
-          tertiary: '#525f79',
-          'on-tertiary': '#ffffff',
-          error: '#ba1a1a',
-          'on-error': '#ffffff',
-          'surface-light': '#e6e8f1',
-        },
-        dark: false,
-        variables: {
-          'overlay-background': '#161c27',
-        },
-      },
-      dark: {
-        colors: {
-          background: '#212830',
-          surface: '#151b23',
-          'surface-dim': '#10131a',
-          'surface-bright': '#363941',
-          'on-surface': '#e0e2ec',
-          outline: '#8b919f',
-          'outline-variant': '#414753',
-          primary: '#abc7ff',
-          'on-primary': '#002f65',
-          secondary: '#abc7ff',
-          'on-secondary': '#002f66',
-          tertiary: '#b9c7e5',
-          'on-tertiary': '#233048',
-          error: '#ffb4ab',
-          'on-error': '#690005',
-          'surface-light': '#363941',
-        },
-        dark: true,
-        variables: {
-          'overlay-background': '#161c27',
-        },
-      },
+      vscodeTheme,
     },
   },
-});
+  defaults: {
+    VList: {
+      bgColor: 'transparent',
+    },
+    VNavigationDrawer: {
+      bgColor: 'surface',
+    },
+    VToolbar: {
+      bgColor: 'surface',
+    },
+    VCard: {
+      bgColor: 'surface',
+    },
+
+  },
+})

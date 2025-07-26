@@ -150,30 +150,69 @@ export default {
         }
       }
 
-      // 合并默认选项和传入的选项
+      // VSCode风格的默认选项
       const defaultOptions = {
         value: props.modelValue,
         language: initialLanguage,
-        theme: "monokai", // 使用新定义的主题
+        theme: "vs-dark",
         fontSize: 14,
         tabSize: 2,
-        minimap: {enabled: true},
+        minimap: {
+          enabled: true,
+          scale: 2,
+          showSlider: "mouseover"
+        },
         scrollBeyondLastLine: false,
         automaticLayout: true,
         wordWrap: "on",
         lineNumbers: "on",
+        renderLineHighlight: "all",
         formatOnPaste: true,
         formatOnType: true,
         autoIndent: "full",
         suggestOnTriggerCharacters: true,
         acceptSuggestionOnEnter: "on",
-        quickSuggestions: true,
+        quickSuggestions: {
+          other: true,
+          comments: true,
+          strings: true
+        },
         snippetSuggestions: "top",
         renderControlCharacters: true,
         renderWhitespace: "selection",
         bracketPairColorization: {
           enabled: true,
+          independentColorPoolPerBracketType: true
         },
+        guides: {
+          bracketPairs: true,
+          indentation: true,
+          highlightActiveIndentation: true,
+          bracketPairsHorizontal: true
+        },
+        cursorBlinking: "smooth",
+        cursorSmoothCaretAnimation: "on",
+        smoothScrolling: true,
+        mouseWheelZoom: true,
+        padding: {
+          top: 5,
+          bottom: 5
+        },
+        folding: true,
+        foldingHighlight: true,
+        unfoldOnClickAfterEndOfLine: true,
+        links: true,
+        contextmenu: true,
+        mouseWheelScrollSensitivity: 1,
+        roundedSelection: true,
+        scrollbar: {
+          verticalScrollbarSize: 12,
+          horizontalScrollbarSize: 12,
+          useShadows: true,
+          verticalHasArrows: false,
+          horizontalHasArrows: false,
+          arrowSize: 0
+        }
       };
 
       const options = {...defaultOptions, ...props.options};
