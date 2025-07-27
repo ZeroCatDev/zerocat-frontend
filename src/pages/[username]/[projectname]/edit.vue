@@ -107,9 +107,6 @@
                   <v-list-item @click="viewCommit(commit)">
                     <v-list-item-title>查看</v-list-item-title>
                   </v-list-item>
-                  <v-list-item @click="compareCommit(commit)">
-                    <v-list-item-title>与当前比较</v-list-item-title>
-                  </v-list-item>
                   <v-list-item @click="restoreCommit(commit)">
                     <v-list-item-title>恢复</v-list-item-title>
                   </v-list-item>
@@ -138,11 +135,7 @@
             :class="{ 'editor-tab--modified': tab.modified }"
           >
             <div class="d-flex align-center">
-              <v-icon
-                :icon="tab.icon"
-                size="16"
-                class="mr-2"
-              ></v-icon>
+              <v-icon :icon="tab.icon" size="16" class="mr-2"></v-icon>
               <span class="tab-title">{{ tab.title }}</span>
               <v-btn
                 v-if="tab.closeable !== false"
@@ -165,39 +158,39 @@
         <div v-if="getActiveTab()?.type === 'editor'" class="editor-content">
           <EditorMonacoComponent
             ref="mainEditor"
-            :value="getActiveTab()?.data?.content || ''"
+            v-model="activeTabContent"
             :language="editorOptions.language"
             :options="editorOptions"
-            height="100%"
-            @update:value="handleEditorChange"
+            locale="zh-cn"
+            :project-type="project?.type"
+            @change="handleEditorChange"
+            @update:modelValue="handleEditorChange"
             @monaco-ready="handleMonacoReady"
-          />
-        </div>
-
-        <!-- 差异比较标签页 -->
-        <div v-else-if="getActiveTab()?.type === 'diff'" class="diff-content">
-          <DiffMonacoComponent
-            ref="diffEditor"
-            :original-value="getActiveTab()?.data?.originalContent || ''"
-            :modified-value="getActiveTab()?.data?.modifiedContent || ''"
-            :language="editorOptions.language"
-            :left-title="getActiveTab()?.data?.leftTitle || '原始版本'"
-            :right-title="getActiveTab()?.data?.rightTitle || '当前版本'"
-            height="100%"
-            @modified-change="handleDiffChange"
-            @diff-ready="handleDiffReady"
           />
         </div>
 
         <!-- 查看模式标签页 -->
         <div v-else-if="getActiveTab()?.type === 'view'" class="view-content">
+          <!-- 加载状态 -->
+          <div v-if="getActiveTab()?.data?.loading" class="loading-container">
+            <v-progress-circular
+              color="primary"
+              indeterminate
+              size="64"
+            ></v-progress-circular>
+            <div class="text-body-1 mt-4">正在加载提交内容...</div>
+          </div>
+          <!-- 编辑器内容 -->
           <EditorMonacoComponent
+            v-else
             ref="viewEditor"
-            :value="getActiveTab()?.data?.content || ''"
+            v-model="activeTabContent"
             :language="editorOptions.language"
             :options="viewEditorOptions"
             :readonly="true"
-            height="100%"
+            locale="zh-cn"
+            :project-type="project?.type"
+            @monaco-ready="handleViewEditorReady"
           />
         </div>
       </div>
@@ -343,14 +336,14 @@
     </v-dialog>
 
     <!-- 确认对话框 -->
-    <v-dialog v-model="showConfirmDialog" max-width="400">
+    <v-dialog v-model="confirmDialog.show" max-width="400">
       <v-card>
         <v-card-text class="pa-4">
           <div class="d-flex align-center mb-4">
-            <v-icon color="warning" class="mr-2">mdi-alert</v-icon>
-            <span class="text-h6">确认提交</span>
+            <v-icon :color="confirmDialog.color" class="mr-2">mdi-alert</v-icon>
+            <span class="text-h6">{{ confirmDialog.title }}</span>
           </div>
-          <p>确定要提交以下更改吗？</p>
+          <p>{{ confirmDialog.message }}</p>
           <v-card variant="outlined" class="pa-2 mt-2">
             <p class="text-body-1 mb-2">{{ commitMessage }}</p>
             <p v-if="commitDescription" class="text-body-2 text-grey">
@@ -360,15 +353,15 @@
         </v-card-text>
         <v-card-actions class="pa-4 pt-0">
           <v-spacer></v-spacer>
-          <v-btn variant="text" @click="showConfirmDialog = false">
+          <v-btn variant="text" @click="handleConfirmDialogCancel">
             取消
           </v-btn>
           <v-btn
-            color="primary"
-            :loading="committing"
-            @click="saveAndSubmitCommit"
+            :color="confirmDialog.color"
+            :loading="confirmDialog.loading"
+            @click="handleConfirmDialogConfirm"
           >
-            确认提交
+            {{ confirmDialog.confirmText }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -387,6 +380,20 @@
         </v-card-text>
       </v-card>
     </v-overlay>
+
+    <!-- 全局提示条 -->
+    <v-snackbar
+      v-model="showSnackbar"
+      :color="snackbarColor"
+      :timeout="snackbarTimeout"
+    >
+      {{ snackbarMessage }}
+      <template v-slot:actions>
+        <v-btn color="white" variant="text" @click="showSnackbar = false">
+          关闭
+        </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
@@ -394,6 +401,7 @@
 import axios from "@/axios/axios";
 import EditorMonacoComponent from "@/components/EditorMonacoComponent.vue";
 import DiffMonacoComponent from "@/components/DiffMonacoComponent.vue";
+import { toRaw } from "vue";
 
 export default {
   name: "ProjectEditor",
@@ -427,12 +435,14 @@ export default {
       editorTabs: [],
       tabIdCounter: 0,
       tabInstances: new Map(), // 存储每个标签页的编辑器实例
+      tabLoadingStates: new Map(), // 存储每个标签页的加载状态
 
       // UI状态
       activeTab: "files",
       showSaveDialog: false,
       showLanguageDialog: false,
       showCommitDetails: false,
+      showConfirmDialog: false,
       committing: false,
 
       // 提交相关
@@ -484,6 +494,23 @@ export default {
         { icon: "mdi-magnify", title: "搜索", value: "search" },
         { icon: "mdi-cog", title: "设置", value: "settings" },
       ],
+
+      // 全局提示条状态
+      showSnackbar: false,
+      snackbarMessage: "",
+      snackbarColor: "",
+      snackbarTimeout: 5000,
+
+      // 确认对话框状态
+      confirmDialog: {
+        show: false,
+        title: "",
+        message: "",
+        color: "warning",
+        loading: false,
+        confirmText: "确认",
+        callback: null
+      },
     };
   },
   computed: {
@@ -509,11 +536,13 @@ export default {
       const search = this.languageSearch.toLowerCase().trim();
       // 限制显示数量以提高性能
       return this.availableLanguages
-        .filter(lang => {
+        .filter((lang) => {
           const id = lang.id.toLowerCase();
           const aliases = lang.aliases || [];
-          return id.includes(search) ||
-                 aliases.some(alias => alias.toLowerCase().includes(search));
+          return (
+            id.includes(search) ||
+            aliases.some((alias) => alias.toLowerCase().includes(search))
+          );
         })
         .slice(0, 50); // 限制最多显示50个结果
     },
@@ -545,6 +574,20 @@ export default {
           return "";
       }
     },
+
+    activeTabContent: {
+      get() {
+        return this.getActiveTab()?.data?.content || "";
+      },
+      set(value) {
+        const activeTab = this.getActiveTab();
+        if (activeTab) {
+          activeTab.data.content = value;
+          this.hasUnsavedChanges = true;
+          this.setTabModified(activeTab.id, true);
+        }
+      },
+    },
   },
   watch: {
     currentBranch: {
@@ -553,7 +596,7 @@ export default {
         if (newBranch && newBranch !== oldBranch && this.project?.id) {
           await this.loadCommitHistory();
         }
-      }
+      },
     },
     project: {
       immediate: true,
@@ -565,7 +608,7 @@ export default {
             await this.loadBranches();
           }
         }
-      }
+      },
     },
     showLanguageDialog(val) {
       if (val) {
@@ -578,26 +621,20 @@ export default {
         this.languageSearch = "";
       }
     },
-    
+
     activeEditorTab(newTabId, oldTabId) {
       if (newTabId !== oldTabId) {
-        console.log('activeEditorTab changed:', oldTabId, '->', newTabId);
-        
-        // 清理旧标签页的实例
-        if (oldTabId && this.tabInstances.has(oldTabId)) {
-          const instance = this.tabInstances.get(oldTabId);
-          if (instance && typeof instance.destroyEditor === 'function') {
-            instance.destroyEditor();
-          }
-          this.tabInstances.delete(oldTabId);
-        }
-        
-        // 下一帧初始化新的编辑器实例
+        console.log("activeEditorTab changed:", oldTabId, "->", newTabId);
+
+        // 先立即清理所有存在的编辑器实例
+        this.cleanupAllEditorInstances();
+
+        // 然后初始化新的编辑器实例
         this.$nextTick(() => {
           this.initCurrentTabEditor();
         });
       }
-    }
+    },
   },
   mounted() {
     // 加载项目
@@ -612,61 +649,113 @@ export default {
     // ===============================
     // 标签页系统管理
     // ===============================
-    cleanupAllTabs() {
-      // 清理所有标签页的Monaco实例
+    // 强制更新编辑器内容
+    forceUpdateEditor(tabId, content) {
+      const editorInstance = this.tabInstances.get(tabId);
+      if (editorInstance && editorInstance.$el) {
+        console.log("Force updating editor content for tab:", tabId);
+        // 触发组件重新渲染
+        this.$forceUpdate();
+
+        // 如果编辑器有直接的setValue方法，使用它
+        this.$nextTick(() => {
+          if (
+            editorInstance.setValue &&
+            typeof editorInstance.setValue === "function"
+          ) {
+            editorInstance.setValue(content);
+          }
+        });
+      }
+    },
+
+    // 清理所有编辑器实例
+    cleanupAllEditorInstances() {
+      console.log("Cleaning up all editor instances");
       for (const [tabId, instance] of this.tabInstances) {
-        if (instance && typeof instance.destroyEditor === 'function') {
-          instance.destroyEditor();
+        if (instance && typeof instance.destroyEditor === "function") {
+          try {
+            instance.destroyEditor();
+            console.log("Destroyed editor instance for tab:", tabId);
+          } catch (error) {
+            console.warn(
+              "Error destroying editor instance for tab:",
+              tabId,
+              error
+            );
+          }
         }
       }
       this.tabInstances.clear();
+    },
+
+    cleanupAllTabs() {
+      // 清理所有编辑器实例
+      this.cleanupAllEditorInstances();
+      this.tabLoadingStates.clear();
       this.editorTabs = [];
       this.activeEditorTab = null;
     },
 
     getActiveTab() {
-      return this.editorTabs.find(tab => tab.id === this.activeEditorTab) || null;
+      return (
+        this.editorTabs.find((tab) => tab.id === this.activeEditorTab) || null
+      );
     },
 
     addTab(config) {
       const tabId = `tab-${++this.tabIdCounter}`;
       const tab = {
         id: tabId,
-        title: config.title || '未命名',
-        icon: config.icon || 'mdi-file-document',
-        type: config.type || 'editor', // editor, diff, view
+        title: config.title || "未命名",
+        icon: config.icon || "mdi-file-document",
+        type: config.type || "editor", // editor, diff, view
         closeable: config.closeable !== false,
         modified: false,
-        data: config.data || {}
+        data: config.data || {},
+        retryCount: 0, // 添加重试计数器
       };
-      
+
       this.editorTabs.push(tab);
       this.activeEditorTab = tabId;
-      
+
       return tab;
     },
 
     removeTab(tabId) {
-      const index = this.editorTabs.findIndex(tab => tab.id === tabId);
+      const index = this.editorTabs.findIndex((tab) => tab.id === tabId);
       if (index !== -1) {
         const tab = this.editorTabs[index];
-        
+
         // 清理编辑器实例
         if (this.tabInstances.has(tabId)) {
           const instance = this.tabInstances.get(tabId);
-          if (instance && typeof instance.destroyEditor === 'function') {
-            instance.destroyEditor();
+          if (instance && typeof instance.destroyEditor === "function") {
+            try {
+              instance.destroyEditor();
+              console.log("Destroyed editor instance for removed tab:", tabId);
+            } catch (error) {
+              console.warn(
+                "Error destroying editor instance for removed tab:",
+                tabId,
+                error
+              );
+            }
           }
           this.tabInstances.delete(tabId);
         }
-        
+
+        // 清理加载状态
+        this.tabLoadingStates.delete(tabId);
+
         this.editorTabs.splice(index, 1);
-        
+
         // 如果被删除的是当前活动标签页，切换到下一个
         if (this.activeEditorTab === tabId) {
           if (this.editorTabs.length > 0) {
             // 优先选择下一个标签页，如果没有就选择前一个
-            const nextIndex = index < this.editorTabs.length ? index : index - 1;
+            const nextIndex =
+              index < this.editorTabs.length ? index : index - 1;
             this.activeEditorTab = this.editorTabs[nextIndex].id;
           } else {
             this.activeEditorTab = null;
@@ -675,20 +764,8 @@ export default {
       }
     },
 
-    closeTab(tabId) {
-      const tab = this.editorTabs.find(t => t.id === tabId);
-      if (tab && tab.modified) {
-        // 如果有未保存的更改，弹出确认对话框
-        if (confirm(`标签页 "${tab.title}" 有未保存的更改，确定要关闭吗？`)) {
-          this.removeTab(tabId);
-        }
-      } else {
-        this.removeTab(tabId);
-      }
-    },
-
     setTabModified(tabId, modified = true) {
-      const tab = this.editorTabs.find(t => t.id === tabId);
+      const tab = this.editorTabs.find((t) => t.id === tabId);
       if (tab) {
         tab.modified = modified;
       }
@@ -696,157 +773,282 @@ export default {
 
     initCurrentTabEditor() {
       const activeTab = this.getActiveTab();
-      if (!activeTab) return;
-      
-      // 根据标签页类型初始化对应的编辑器
+      if (!activeTab) {
+        console.log("No active tab found for editor initialization");
+        return;
+      }
+
+      console.log(
+        "Initializing editor for tab:",
+        activeTab.id,
+        "type:",
+        activeTab.type,
+        "loading:",
+        activeTab.data?.loading
+      );
+
+      // 如果正在加载，不初始化编辑器
+      if (activeTab.data?.loading) {
+        console.log("Tab is still loading, skipping editor initialization");
+        return;
+      }
+
+      // 确保没有其他实例在运行
+      this.cleanupAllEditorInstances();
+
+      // 等待DOM完全渲染
       this.$nextTick(() => {
         let editorRef = null;
-        
+        let editorType = null;
+
         switch (activeTab.type) {
-          case 'editor':
+          case "editor":
             editorRef = this.$refs.mainEditor;
+            editorType = "mainEditor";
             break;
-          case 'diff':
+          case "diff":
             editorRef = this.$refs.diffEditor;
+            editorType = "diffEditor";
             break;
-          case 'view':
+          case "view":
             editorRef = this.$refs.viewEditor;
+            editorType = "viewEditor";
             break;
         }
-        
+
         if (editorRef) {
-          console.log('Setting editor instance for tab:', activeTab.id);
+          console.log(
+            `Successfully got ${editorType} ref for tab:`,
+            activeTab.id
+          );
           this.tabInstances.set(activeTab.id, editorRef);
+
+          // 如果编辑器有初始化方法，调用它
+          if (
+            editorRef.initEditor &&
+            typeof editorRef.initEditor === "function"
+          ) {
+            editorRef.initEditor();
+          }
+
+          // 清理重试计数器
+          activeTab.retryCount = 0;
+        } else {
+          console.warn(`Editor ref not found for tab type: ${activeTab.type}`);
+
+          // 只在特定条件下重试
+          const shouldRetry =
+            !activeTab.data?.loading &&
+            (!activeTab.retryCount || activeTab.retryCount < 3) &&
+            activeTab.type !== "view";
+
+          if (shouldRetry) {
+            activeTab.retryCount = (activeTab.retryCount || 0) + 1;
+            console.log(
+              "Retrying editor initialization for tab:",
+              activeTab.id,
+              "attempt:",
+              activeTab.retryCount
+            );
+            setTimeout(() => {
+              this.initCurrentTabEditor();
+            }, 100); // 使用固定的短延迟
+          } else {
+            console.error(
+              "Failed to initialize editor after attempts for tab:",
+              activeTab.id
+            );
+            // 如果是查看模式且重试失败，尝试重新加载内容
+            if (activeTab.type === "view" && activeTab.data?.commit) {
+              this.reloadCommitContent(activeTab);
+            }
+          }
         }
       });
+    },
+
+    // 添加新方法用于重新加载提交内容
+    async reloadCommitContent(tab) {
+      if (!tab || !tab.data?.commit) return;
+
+      try {
+        // 标记为加载中
+        tab.data.loading = true;
+        this.$forceUpdate();
+
+        // 重新加载提交内容
+        const content = await this.loadCommitContent(tab.data.commit);
+
+        // 更新标签页数据
+        tab.data.content = content;
+        tab.data.loading = false;
+        tab.retryCount = 0;
+
+        // 强制更新视图
+        this.$forceUpdate();
+
+        // 重新初始化编辑器
+        this.$nextTick(() => {
+          if (this.activeEditorTab === tab.id) {
+            this.initCurrentTabEditor();
+          }
+        });
+      } catch (error) {
+        console.error("重新加载提交内容失败:", error);
+        tab.data.content = `// 加载失败: ${error.message}`;
+        tab.data.loading = false;
+        this.$forceUpdate();
+      }
     },
 
     // ===============================
     // 标签页操作
     // ===============================
     openMainEditor() {
-      console.log('openMainEditor called');
+      console.log("openMainEditor called");
       if (!this.project) {
-        console.log('No project loaded');
+        console.log("No project loaded");
         return;
       }
-      
+
       // 检查是否已经有主编辑器标签页
-      const existingTab = this.editorTabs.find(tab => tab.type === 'editor' && tab.data?.isMain);
+      const existingTab = this.editorTabs.find(
+        (tab) => tab.type === "editor" && tab.data?.isMain
+      );
       if (existingTab) {
         this.activeEditorTab = existingTab.id;
         return;
       }
-      
+
       const tab = this.addTab({
-        title: this.project.name || 'main',
-        icon: 'mdi-file-code',
-        type: 'editor',
+        title: this.project.name || "main",
+        icon: "mdi-file-code",
+        type: "editor",
         data: {
-          content: this.fileContent || '',
+          content: this.fileContent || "",
           language: this.editorOptions.language,
-          isMain: true
-        }
+          isMain: true,
+        },
       });
-      
-      console.log('Tab created:', tab);
-      
+
+      console.log("Tab created:", tab);
+
       if (tab) {
         this.activeEditorTab = tab.id;
       }
     },
 
     viewCommit(commit) {
-      console.log('viewCommit called:', commit);
-      this.loadCommitContent(commit).then(content => {
-        const tab = this.addTab({
-          title: `提交: ${commit.id.substring(0, 7)}`,
-          icon: 'mdi-source-commit',
-          type: 'view',
-          closeable: true,
-          data: {
-            content: content,
-            commit: commit
-          }
-        });
-        
-        if (tab) {
-          this.activeEditorTab = tab.id;
-        }
-      }).catch(error => {
-        console.error('加载提交内容失败:', error);
-        alert('加载提交内容失败: ' + (error.message || '未知错误'));
-      });
-    },
+      console.log("viewCommit called:", commit);
 
-    compareCommit(commit) {
-      console.log('compareCommit called:', commit);
-      this.loadCommitContent(commit).then(commitContent => {
-        const tab = this.addTab({
-          title: `比较: ${commit.id.substring(0, 7)}`,
-          icon: 'mdi-compare',
-          type: 'diff',
-          closeable: true,
-          data: {
-            originalContent: commitContent,
-            modifiedContent: this.fileContent || '',
-            leftTitle: `提交: ${commit.id.substring(0, 7)}`,
-            rightTitle: '当前版本',
-            commit: commit
-          }
-        });
-        
-        if (tab) {
-          this.activeEditorTab = tab.id;
+      // 检查是否已经有相同提交的标签页
+      const existingTab = this.editorTabs.find(
+        (tab) => tab.type === "view" && tab.data?.commit?.id === commit.id
+      );
+      if (existingTab) {
+        this.activeEditorTab = existingTab.id;
+        // 如果标签页存在但内容为空，重新加载内容
+        if (!existingTab.data.content) {
+          this.reloadCommitContent(existingTab);
         }
-      }).catch(error => {
-        console.error('加载提交内容失败:', error);
-        alert('加载提交内容失败: ' + (error.message || '未知错误'));
-      });
-    },
-    // ===============================
-    // 编辑器事件处理
-    // ===============================
-    handleEditorChange(newContent) {
-      this.fileContent = newContent;
-      this.hasUnsavedChanges = true;
+        return;
+      }
 
-      // 更新当前标签页的修改状态
-      const activeTab = this.getActiveTab();
-      if (activeTab) {
-        this.setTabModified(activeTab.id, true);
+      // 创建一个新标签页
+      const tempTab = this.addTab({
+        title: `提交: ${commit.id.substring(0, 7)}`,
+        icon: "mdi-source-commit",
+        type: "view",
+        closeable: true,
+        data: {
+          content: "",
+          commit: commit,
+          loading: true,
+        },
+      });
+
+      if (tempTab) {
+        this.activeEditorTab = tempTab.id;
+        this.loadCommitContent(commit)
+          .then((content) => {
+            if (tempTab && this.editorTabs.find((t) => t.id === tempTab.id)) {
+              tempTab.data.content = content;
+              tempTab.data.loading = false;
+              tempTab.retryCount = 0;
+
+              // 强制更新视图
+              this.$forceUpdate();
+
+              // 使用nextTick确保DOM更新后再初始化编辑器
+              this.$nextTick(() => {
+                if (this.activeEditorTab === tempTab.id) {
+                  this.initCurrentTabEditor();
+                }
+              });
+            }
+          })
+          .catch((error) => {
+            console.error("加载提交内容失败:", error);
+            if (tempTab && this.editorTabs.find((t) => t.id === tempTab.id)) {
+              tempTab.data.content = `// 加载失败: ${error.message}`;
+              tempTab.data.loading = false;
+              this.$forceUpdate();
+            }
+            this.showSnackbarMessage(
+              "加载提交内容失败: " + (error.message || "未知错误"),
+              "error"
+            );
+          });
       }
     },
 
-    handleDiffChange(newContent) {
+    // ===============================
+    // 编辑器事件处理
+    // ===============================
+    handleEditorChange(value) {
       const activeTab = this.getActiveTab();
-      if (activeTab?.type === 'diff') {
-        activeTab.data.modifiedContent = newContent;
+      if (activeTab) {
+        activeTab.data.content = value;
+        this.hasUnsavedChanges = true;
+        this.fileContent = value;
         this.setTabModified(activeTab.id, true);
       }
     },
 
     handleMonacoReady({ monaco, editor, availableLanguages }) {
-      console.log('Monaco editor ready');
+      console.log("Monaco editor ready");
       this.monacoInstance = monaco;
       this.availableLanguages = availableLanguages;
 
       // 如果项目类型存在，设置对应的语言
-      if (this.project?.type) {
+      if (this.project?.type && availableLanguages?.length > 0) {
         const projectType = this.project.type.split("-")[0].toLowerCase();
         const matchedLang = availableLanguages.find(
           (lang) => lang.id === projectType
         );
         if (matchedLang) {
-          console.log('根据项目类型设置语言:', matchedLang.id);
+          console.log("根据项目类型设置语言:", matchedLang.id);
           this.editorOptions.language = matchedLang.id;
         }
       }
+
+      // 设置编辑器实例
+      const activeTab = this.getActiveTab();
+      if (activeTab && activeTab.type === "editor") {
+        console.log("Setting editor instance for tab:", activeTab.id);
+        this.tabInstances.set(activeTab.id, this.$refs.mainEditor);
+        activeTab.retryCount = 0;
+      }
     },
 
-    handleDiffReady({ monaco, diffEditor }) {
-      console.log('Monaco diff editor ready');
-      // 差异编辑器准备就绪
+    handleViewEditorReady({ monaco, editor, availableLanguages }) {
+      console.log("Monaco view editor ready for tab:", this.activeEditorTab);
+      const activeTab = this.getActiveTab();
+      if (activeTab && activeTab.type === "view" && this.$refs.viewEditor) {
+        console.log("Setting view editor instance for tab:", activeTab.id);
+        this.tabInstances.set(activeTab.id, this.$refs.viewEditor);
+        activeTab.retryCount = 0;
+      }
     },
 
     // ===============================
@@ -854,37 +1056,44 @@ export default {
     // ===============================
     async loadCommitContent(commit) {
       try {
-        this.loading = true;
-        this.loadingMessage = "加载提交内容...";
+        console.log("Loading commit content for:", commit.id);
 
         const response = await axios.get(
           `/project/commit?projectid=${this.project.id}&commitid=${commit.id}`
         );
 
+        console.log("Commit API response:", response.data);
+
         if (response.data.status === "success") {
           this.accessFileToken = response.data.accessFileToken;
           const commitFile = response.data.commit.commit_file;
+
+          console.log("Commit file:", commitFile);
 
           if (commitFile) {
             const fileResponse = await axios.get(
               `/project/files/${commitFile}?accessFileToken=${this.accessFileToken}&content=true`
             );
 
+            console.log("File response status:", fileResponse.status);
+
             if (fileResponse.status === 200) {
               let content = fileResponse.data;
               if (typeof content === "object") {
                 content = JSON.stringify(content, null, 2);
               }
+              console.log(
+                "Successfully loaded commit content, length:",
+                content.length
+              );
               return content;
             }
           }
         }
-        throw new Error('无法加载提交内容');
+        throw new Error("无法加载提交内容");
       } catch (error) {
-        console.error('加载提交内容失败:', error);
+        console.error("加载提交内容失败:", error);
         throw error;
-      } finally {
-        this.loading = false;
       }
     },
 
@@ -940,7 +1149,7 @@ export default {
     },
 
     async switchBranch() {
-      try{
+      try {
         if (this.projectId) {
           console.log("通过ID加载项目:", this.projectId);
           response = await axios.get(`/project/id/${this.projectId}`);
@@ -997,7 +1206,7 @@ export default {
           this.branches = response.data.data || [];
           if (this.branches.length > 0) {
             // 如果当前分支不在分支列表中，切换到第一个分支
-            if (!this.branches.some(b => b.name === this.currentBranch)) {
+            if (!this.branches.some((b) => b.name === this.currentBranch)) {
               this.currentBranch = this.branches[0].name;
             }
           } else {
@@ -1023,7 +1232,7 @@ export default {
         this.currentBranch = "main";
 
         // 显示错误提示
-        alert("加载分支失败: " + errorMsg);
+        this.showSnackbarMessage("加载分支失败: " + errorMsg, "error");
       } finally {
         this.loading = false;
       }
@@ -1118,7 +1327,6 @@ export default {
           throw new Error(
             response.data.message || "加载最新提交失败: 服务器未返回有效数据"
           );
-
         }
       } catch (error) {
         console.error("加载最新提交失败:", error);
@@ -1139,7 +1347,7 @@ export default {
 
     async saveAndCommitCode() {
       if (this.fileContent === null) {
-        alert("文件内容未加载");
+        this.showSnackbarMessage("文件内容未加载", "error");
         return;
       }
 
@@ -1163,7 +1371,7 @@ export default {
       try {
         this.committing = true;
         if (!this.commitMessage.trim()) {
-          alert("请输入提交信息");
+          this.showSnackbarMessage("请输入提交信息", "warning");
           return;
         }
 
@@ -1238,13 +1446,20 @@ export default {
         if (commitResponse.data.status === "success") {
           this.commitMessage = "";
           this.commitDescription = "";
-          this.codeChanged = false;
+          this.hasUnsavedChanges = false;
+
+          // 更新所有标签页的修改状态
+          this.editorTabs.forEach((tab) => {
+            this.setTabModified(tab.id, false);
+          });
 
           // 刷新提交历史
           await this.loadCommitHistory();
 
-          alert(
-            "代码保存并提交成功" + (!isValidJson ? " (已转换为JSON格式)" : "")
+          this.showSnackbarMessage(
+            "代码保存并提交成功",
+            // + (!isValidJson ? " (已转换为JSON格式)" : "")
+            "success"
           );
         } else {
           throw new Error(commitResponse.data.message || "提交代码失败");
@@ -1253,9 +1468,10 @@ export default {
         this.committing = false;
       } catch (error) {
         console.error("提交失败:", error);
-        alert(
+        this.showSnackbarMessage(
           "提交失败: " +
-            (error.response?.data?.message || error.message || "未知错误")
+            (error.response?.data?.message || error.message || "未知错误"),
+          "error"
         );
         this.committing = false;
       }
@@ -1302,7 +1518,10 @@ export default {
         this.showHistoryDialog = true;
       } catch (error) {
         console.error("显示历史对话框失败:", error);
-        alert("加载提交历史失败: " + (error.message || "未知错误"));
+        this.showSnackbarMessage(
+          "加载提交历史失败: " + (error.message || "未知错误"),
+          "error"
+        );
       }
     },
 
@@ -1349,7 +1568,7 @@ export default {
       try {
         this.committing = true;
         if (!this.commitMessage.trim()) {
-          alert("请输入提交信息");
+          this.showSnackbarMessage("请输入提交信息", "warning");
           return;
         }
 
@@ -1426,18 +1645,16 @@ export default {
           this.hasUnsavedChanges = false;
 
           // 更新所有标签页的修改状态
-          const appHeader = this.getAppHeader();
-          if (appHeader) {
-            appHeader.editorTabs.forEach(tab => {
-              this.setTabModified(tab.id, false);
-            });
-          }
+          this.editorTabs.forEach((tab) => {
+            this.setTabModified(tab.id, false);
+          });
 
           // 刷新提交历史
           await this.loadCommitHistory();
 
-          alert(
-            "代码保存并提交成功" + (!isValidJson ? " (已转换为JSON格式)" : "")
+          this.showSnackbarMessage(
+            "代码保存并提交成功" + (!isValidJson ? " (已转换为JSON格式)" : ""),
+            "success"
           );
         } else {
           throw new Error(commitResponse.data.message || "提交代码失败");
@@ -1446,9 +1663,10 @@ export default {
         this.committing = false;
       } catch (error) {
         console.error("提交失败:", error);
-        alert(
+        this.showSnackbarMessage(
           "提交失败: " +
-            (error.response?.data?.message || error.message || "未知错误")
+            (error.response?.data?.message || error.message || "未知错误"),
+          "error"
         );
         this.committing = false;
       }
@@ -1456,38 +1674,48 @@ export default {
 
     async restoreCommit(commit) {
       if (!commit || !commit.id) {
-        alert("无效的提交信息");
+        this.showSnackbarMessage("无效的提交信息", "error");
         return;
       }
 
       const commitId = commit.id.substring(0, 7);
 
-      if (confirm(`确定要恢复到提交 ${commitId} 的状态吗？`)) {
-        try {
-          this.loading = true;
-          this.loadingMessage = "恢复提交...";
+      this.openConfirmDialog(
+        "恢复提交",
+        `确定要恢复到提交 ${commitId} 的状态吗？`,
+        () => this.handleRestoreCommit(commit),
+        "warning",
+        false,
+        "恢复"
+      );
+    },
 
-          const content = await this.loadCommitContent(commit);
-          this.fileContent = content;
+    async handleRestoreCommit(commit) {
+      try {
+        this.loading = true;
+        this.loadingMessage = "恢复提交...";
 
-          // 自动提交恢复的内容
-          this.commitMessage = `恢复到提交 ${commitId}`;
-          this.commitDescription = `恢复到提交 ${commit.id}，原提交信息: ${
-            commit.commit_message || "无提交信息"
-          }`;
+        const content = await this.loadCommitContent(commit);
+        this.fileContent = content;
 
-          await this.saveAndSubmitCommit();
+        // 自动提交恢复的内容
+        this.commitMessage = `恢复到提交 ${commit.id.substring(0, 7)}`;
+        this.commitDescription = `恢复到提交 ${commit.id}，原提交信息: ${
+          commit.commit_message || "无提交信息"
+        }`;
 
-          alert("代码恢复成功");
-        } catch (error) {
-          console.error("恢复代码失败:", error);
-          alert(
-            "恢复代码失败: " +
-              (error.response?.data?.message || error.message || "未知错误")
-          );
-        } finally {
-          this.loading = false;
-        }
+        await this.saveAndSubmitCommit();
+
+        this.showSnackbarMessage("代码恢复成功", "success");
+      } catch (error) {
+        console.error("恢复代码失败:", error);
+        this.showSnackbarMessage(
+          "恢复代码失败: " +
+            (error.response?.data?.message || error.message || "未知错误"),
+          "error"
+        );
+      } finally {
+        this.loading = false;
       }
     },
 
@@ -1506,7 +1734,7 @@ export default {
     selectLanguage(languageId) {
       this.editorOptions.language = languageId;
       this.showLanguageDialog = false;
-      this.languageSearch = '';
+      this.languageSearch = "";
     },
 
     detectLanguage(content, filename) {
@@ -1560,6 +1788,52 @@ export default {
 
       return "plaintext";
     },
+
+    // ===============================
+    // 全局提示条
+    // ===============================
+    showSnackbarMessage(message, color = "info", timeout = 5000) {
+      this.snackbarMessage = message;
+      this.snackbarColor = color;
+      this.snackbarTimeout = timeout;
+      this.showSnackbar = true;
+    },
+
+    // ===============================
+    // 确认对话框
+    // ===============================
+    openConfirmDialog(
+      title,
+      message,
+      callback,
+      color = "warning",
+      loading = false,
+      confirmText = "确认"
+    ) {
+      this.confirmDialog = {
+        show: true,
+        title,
+        message,
+        color,
+        loading,
+        confirmText,
+        callback
+      };
+    },
+
+    handleConfirmDialogCancel() {
+      this.confirmDialog.show = false;
+      this.confirmDialog.callback = null;
+    },
+
+    handleConfirmDialogConfirm() {
+      const callback = this.confirmDialog.callback;
+      this.confirmDialog.show = false;
+      this.confirmDialog.callback = null;
+      if (callback) {
+        callback();
+      }
+    },
   },
 };
 </script>
@@ -1599,7 +1873,7 @@ export default {
 }
 
 .editor-tab--modified .tab-title::after {
-  content: '●';
+  content: "●";
   color: rgb(var(--v-theme-warning));
   margin-left: 4px;
 }
@@ -1634,6 +1908,16 @@ export default {
   height: 100%;
   width: 100%;
   position: relative;
+}
+
+.loading-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(var(--v-theme-surface), 0.1);
 }
 
 .welcome-container {

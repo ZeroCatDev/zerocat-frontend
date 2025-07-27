@@ -33,4 +33,4 @@ monaco.editor.defineTheme('myCustomTheme', {
   }
 })
 
-export default monaco 
+export default monaco

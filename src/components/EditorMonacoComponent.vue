@@ -1,215 +1,361 @@
 <template>
-  <div ref="editorContainer" class="editor-monaco-container"></div>
+  <div ref="editorContainer" class="editor-monaco-container" style="height: 100%; width: 100%"></div>
 </template>
 
-<script>
-import * as monaco from 'monaco-editor';
+<script setup>
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
 
-export default {
-  name: 'EditorMonacoComponent',
-  props: {
-    value: {
-      type: String,
-      default: ''
-    },
-    language: {
-      type: String,
-      default: 'javascript'
-    },
-    options: {
-      type: Object,
-      default: () => ({})
-    },
-    height: {
-      type: String,
-      default: '100%'
-    },
-    readonly: {
-      type: Boolean,
-      default: false
+const emit = defineEmits(["update:modelValue", "change", "monaco-ready"]);
+const model = defineModel({ default: '' });
+
+const props = defineProps({
+  language: {
+    type: String,
+    default: 'javascript'
+  },
+  options: {
+    type: Object,
+    default: () => ({})
+  },
+  height: {
+    type: String,
+    default: '100%'
+  },
+  readonly: {
+    type: Boolean,
+    default: false
+  },
+  locale: {
+    type: String,
+    default: "zh-cn"
+  },
+  projectType: {
+    type: String,
+    default: ""
+  }
+});
+
+const editorContainer = ref(null);
+const isDestroyed = ref(false);
+let editor = null;
+let monaco = null;
+let resizeObserver = null;
+let disposables = [];
+
+const defaultOptions = {
+  theme: 'vs-dark',
+  fontSize: 14,
+  tabSize: 2,
+  minimap: {
+    enabled: true,
+    scale: 2,
+    showSlider: "mouseover"
+  },
+  scrollBeyondLastLine: false,
+  automaticLayout: true,
+  wordWrap: 'on',
+  lineNumbers: 'on',
+  renderLineHighlight: "all",
+  formatOnPaste: true,
+  formatOnType: true,
+  autoIndent: "full",
+  suggestOnTriggerCharacters: true,
+  acceptSuggestionOnEnter: "on",
+  quickSuggestions: {
+    other: true,
+    comments: true,
+    strings: true
+  },
+  snippetSuggestions: "top",
+  renderControlCharacters: true,
+  renderWhitespace: "selection",
+  bracketPairColorization: {
+    enabled: true,
+    independentColorPoolPerBracketType: true
+  },
+  guides: {
+    bracketPairs: true,
+    indentation: true,
+    highlightActiveIndentation: true,
+    bracketPairsHorizontal: true
+  },
+  cursorBlinking: "smooth",
+  cursorSmoothCaretAnimation: "on",
+  smoothScrolling: true,
+  mouseWheelZoom: true,
+  padding: {
+    top: 5,
+    bottom: 5
+  },
+  folding: true,
+  foldingHighlight: true,
+  unfoldOnClickAfterEndOfLine: true,
+  links: true,
+  contextmenu: true,
+  mouseWheelScrollSensitivity: 1,
+  roundedSelection: true,
+  scrollbar: {
+    verticalScrollbarSize: 12,
+    horizontalScrollbarSize: 12,
+    useShadows: true,
+    verticalHasArrows: false,
+    horizontalHasArrows: false,
+    arrowSize: 0
+  }
+};
+
+// 清理所有资源
+const disposeAll = () => {
+  isDestroyed.value = true;
+
+  // 清理所有注册的disposables
+  disposables.forEach(d => d?.dispose());
+  disposables = [];
+
+  // 清理编辑器实例
+  if (editor) {
+    try {
+      const model = editor.getModel();
+      if (model) {
+        model.dispose();
+      }
+      editor.dispose();
+    } catch (e) {
+      console.error('Error disposing editor:', e);
     }
-  },
-  emits: ['update:value', 'change', 'monaco-ready'],
-  data() {
-    return {
-      editor: null,
-      model: null,
-      isDestroyed: false,
-      defaultOptions: {
-        theme: 'vs-dark',
-        fontSize: 14,
-        tabSize: 2,
-        minimap: { enabled: true },
-        scrollBeyondLastLine: false,
-        automaticLayout: true,
-        wordWrap: 'on',
-        lineNumbers: 'on',
-        glyphMargin: true,
-        folding: true,
-        lineDecorationsWidth: 10,
-        lineNumbersMinChars: 3,
-        contextmenu: true,
-        find: {
-          autoFindInSelection: 'always'
-        }
-      }
-    };
-  },
-  watch: {
-    value(newValue) {
-      if (this.editor && !this.isDestroyed && newValue !== this.getValue()) {
-        this.setValue(newValue);
-      }
-    },
-    language(newValue) {
-      if (this.model && !this.isDestroyed) {
-        monaco.editor.setModelLanguage(this.model, newValue);
-      }
-    },
-    options: {
-      deep: true,
-      handler(newOptions) {
-        if (this.editor && !this.isDestroyed) {
-          this.editor.updateOptions(newOptions);
-        }
-      }
-    },
-    readonly(newValue) {
-      if (this.editor && !this.isDestroyed) {
-        this.editor.updateOptions({ readOnly: newValue });
-      }
+    editor = null;
+  }
+
+  // 清理ResizeObserver
+  if (resizeObserver) {
+    try {
+      resizeObserver.disconnect();
+    } catch (e) {
+      console.error('Error disconnecting resize observer:', e);
     }
-  },
-  mounted() {
-    this.initMonaco();
-  },
-  beforeUnmount() {
-    this.destroyEditor();
-  },
-  methods: {
-    initMonaco() {
-      if (this.isDestroyed) return;
+    resizeObserver = null;
+  }
 
-      const container = this.$refs.editorContainer;
-      if (!container) return;
+  // 清理monaco实例
+  monaco = null;
 
-      container.style.height = this.height;
+  // 清理DOM
+  if (editorContainer.value) {
+    editorContainer.value.innerHTML = '';
+  }
+};
 
-      const editorOptions = {
-        ...this.defaultOptions,
-        ...this.options,
-        value: this.value,
-        language: this.language,
-        readOnly: this.readonly
-      };
+// 创建编辑器实例
+const createEditor = () => {
+  if (!editorContainer.value || !monaco) return;
 
-      try {
-        this.editor = monaco.editor.create(container, editorOptions);
-        this.model = this.editor.getModel();
+  // 如果有项目类型，尝试设置对应的语言
+  let initialLanguage = props.language;
+  if (props.projectType) {
+    const projectLang = props.projectType.split('-')[0].toLowerCase();
+    const availableLangs = monaco.languages.getLanguages();
+    const matchedLang = availableLangs.find(lang => lang.id === projectLang);
+    if (matchedLang) {
+      initialLanguage = matchedLang.id;
+    }
+  }
 
-        this.editor.onDidChangeModelContent(() => {
-          if (!this.isDestroyed) {
-            const value = this.getValue();
-            this.$emit('update:value', value);
-            this.$emit('change', value);
-          }
-        });
+  const options = {
+    ...defaultOptions,
+    ...props.options,
+    value: model.value,
+    language: initialLanguage,
+    readOnly: props.readonly
+  };
 
-        this.$nextTick(() => {
-          if (!this.isDestroyed) {
-            this.$emit('monaco-ready', {
-              monaco,
-              editor: this.editor,
-              model: this.model,
-              availableLanguages: monaco.languages.getLanguages()
-            });
-          }
-        });
-      } catch (error) {
-        console.error('Failed to initialize Monaco editor:', error);
+  try {
+    // 创建编辑器
+    editor = monaco.editor.create(editorContainer.value, options);
+
+    // 监听内容变化
+    const contentChangeDisposable = editor.onDidChangeModelContent(() => {
+      const value = editor.getValue();
+      if (value !== model.value) {
+        emit("update:modelValue", value);
+        emit("change", value);
       }
-    },
+    });
+    disposables.push(contentChangeDisposable);
 
-    destroyEditor() {
-      this.isDestroyed = true;
-      
-      if (this.editor) {
-        try {
-          if (this.model) {
-            this.model.dispose();
-            this.model = null;
-          }
-          this.editor.dispose();
-        } catch (error) {
-          console.error('Error disposing Monaco editor:', error);
-        } finally {
-          this.editor = null;
-        }
+    // 添加ResizeObserver以确保编辑器在容器大小变化时调整大小
+    resizeObserver = new ResizeObserver(() => {
+      if (editor) {
+        editor.layout();
       }
-    },
+    });
+    resizeObserver.observe(editorContainer.value);
 
-    getValue() {
-      if (!this.editor || this.isDestroyed) return '';
-      try {
-        return this.editor.getValue();
-      } catch (error) {
-        console.error('Error getting editor value:', error);
-        return '';
+    // 确保编辑器初始布局正确
+    setTimeout(() => {
+      if (editor) {
+        editor.layout();
       }
-    },
+    }, 100);
 
-    setValue(value) {
-      if (!this.editor || this.isDestroyed) return;
-      try {
-        const currentValue = this.editor.getValue();
-        if (value !== currentValue) {
-          this.editor.setValue(value || '');
-        }
-      } catch (error) {
-        console.error('Error setting editor value:', error);
+    // 添加编辑器焦点变化监听
+    const focusDisposable = editor.onDidFocusEditorText(() => {
+      if (editor) {
+        editor.layout();
       }
-    },
+    });
+    disposables.push(focusDisposable);
 
-    focus() {
-      if (this.editor && !this.isDestroyed) {
-        try {
-          this.editor.focus();
-        } catch (error) {
-          console.error('Error focusing editor:', error);
-        }
+    // 添加编辑器配置变化监听
+    const configurationDisposable = editor.onDidChangeConfiguration(() => {
+      if (editor) {
+        editor.layout();
       }
-    },
+    });
+    disposables.push(configurationDisposable);
 
-    layout() {
-      if (this.editor && !this.isDestroyed) {
-        try {
-          this.editor.layout();
-        } catch (error) {
-          console.error('Error laying out editor:', error);
-        }
-      }
-    },
+    // 注册额外的主题
+    monaco.editor.defineTheme("monokai", {
+      base: "vs-dark",
+      inherit: true,
+      rules: [
+        {token: "comment", foreground: "88846f", fontStyle: "italic"},
+        {token: "keyword", foreground: "f92672"},
+        {token: "string", foreground: "e6db74"},
+        {token: "number", foreground: "ae81ff"},
+      ],
+      colors: {
+        "editor.background": "#272822",
+        "editor.foreground": "#f8f8f2",
+        "editorLineNumber.foreground": "#90908a",
+        "editor.selectionBackground": "#49483e",
+        "editor.lineHighlightBackground": "#3e3d32",
+      },
+    });
 
-    getPosition() {
-      if (!this.editor || this.isDestroyed) return null;
-      try {
-        return this.editor.getPosition();
-      } catch (error) {
-        console.error('Error getting editor position:', error);
-        return null;
-      }
-    },
+    // 通知父组件 Monaco 已加载完成
+    emit('monaco-ready', {
+      monaco,
+      editor,
+      availableLanguages: monaco.languages.getLanguages()
+    });
+  } catch (error) {
+    console.error('Failed to initialize Monaco editor:', error);
+  }
+};
 
-    setPosition(position) {
-      if (!this.editor || this.isDestroyed || !position) return;
-      try {
-        this.editor.setPosition(position);
-      } catch (error) {
-        console.error('Error setting editor position:', error);
+// 初始化 Monaco Editor
+const initMonaco = () => {
+  // 配置 require
+  window.require.config({
+    paths: {
+      vs: "/monaco-editor/min/vs",
+    },
+    "vs/nls": {
+      availableLanguages: {
+        "*": props.locale,
+      },
+    },
+  });
+
+  // 加载 Monaco 和额外的语言特性
+  window.require(["vs/editor/editor.main"], function (monacoInstance) {
+    monaco = monacoInstance;
+    createEditor();
+  });
+};
+
+// 监听属性变化
+watch(() => model.value, (newValue) => {
+  if (editor && !isDestroyed.value && newValue !== editor.getValue()) {
+    editor.setValue(newValue || '');
+  }
+});
+
+watch(() => props.language, (newLanguage) => {
+  if (monaco && editor) {
+    const model = editor.getModel();
+    if (model) {
+      monaco.editor.setModelLanguage(model, newLanguage);
+    }
+  }
+});
+
+watch(() => props.options, (newOptions) => {
+  if (editor && !isDestroyed.value) {
+    editor.updateOptions(newOptions);
+  }
+}, { deep: true });
+
+watch(() => props.readonly, (newValue) => {
+  if (editor && !isDestroyed.value) {
+    editor.updateOptions({ readOnly: newValue });
+  }
+});
+
+watch(() => props.locale, (newLocale) => {
+  // 本地化变更需要重新加载编辑器
+  disposeAll();
+
+  // 重新配置本地化
+  window.require.config({
+    "vs/nls": {
+      availableLanguages: {
+        "*": newLocale,
+      },
+    },
+  });
+
+  // 重新加载编辑器
+  window.require(["vs/editor/editor.main"], function (monacoInstance) {
+    monaco = monacoInstance;
+    createEditor();
+  });
+});
+
+watch(() => props.projectType, (newType) => {
+  if (editor && monaco && newType) {
+    const projectLang = newType.split('-')[0].toLowerCase();
+    const availableLangs = monaco.languages.getLanguages();
+    const matchedLang = availableLangs.find(lang => lang.id === projectLang);
+    if (matchedLang) {
+      const model = editor.getModel();
+      if (model) {
+        monaco.editor.setModelLanguage(model, matchedLang.id);
       }
     }
   }
-};
+});
+
+// 组件挂载时创建编辑器
+onMounted(() => {
+  // 检查是否已加载 loader.js
+  if (!window.require) {
+    // 如果没有加载，创建script标签加载
+    const loaderScript = document.createElement("script");
+    loaderScript.src = "/monaco-editor/min/vs/loader.js";
+    loaderScript.onload = initMonaco;
+    document.head.appendChild(loaderScript);
+  } else {
+    // 如果已加载，直接初始化
+    initMonaco();
+  }
+
+  // 添加窗口大小变化监听
+  const handleResize = () => {
+    if (editor) {
+      editor.layout();
+    }
+  };
+  window.addEventListener("resize", handleResize);
+  disposables.push({
+    dispose: () => window.removeEventListener("resize", handleResize)
+  });
+});
+
+// 组件卸载前清理所有资源
+onBeforeUnmount(() => {
+  disposeAll();
+});
 </script>
 
 <style scoped>
