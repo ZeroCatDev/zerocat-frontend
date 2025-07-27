@@ -61,7 +61,7 @@ useHead({
     {name: "twitter:image", content: "https://zerocat.houlangs.com/og.png"},
     {name: "twitter:url", content: "https://zerocat.houlangs.com"},
     {name: "viewport", content: "width=device-width, initial-scale=1.0"},
-    {name: "apple-mobile-web-app-capable", content: "yes"},
+    {name: "mobile-web-app-capable", content: "yes"},
     {name: "apple-mobile-web-app-status-bar-style", content: "black"},
     {name: "apple-mobile-web-app-title", content: "ZeroCat社区"},
     {name: "msapplication-TileColor", content: "#da532c"},

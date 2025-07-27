@@ -60,7 +60,7 @@ export default createVuetify({
   },
   defaults: {
     VList: {
-      bgColor: 'transparent',
+      bgColor: 'surface',
     },
     VNavigationDrawer: {
       bgColor: 'surface',

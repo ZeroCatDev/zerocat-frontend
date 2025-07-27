@@ -39,6 +39,18 @@
               variant="solo-filled"
             ></v-text-field>
           </v-list-item>
+          <v-list-item
+            v-if="project"
+            prepend-icon="mdi-file-code"
+            :title="project.name || 'main'"
+            @click="openMainEditor"
+          >
+            <template v-slot:append>
+              <v-chip size="small" variant="text">{{
+                editorOptions.language
+              }}</v-chip>
+            </template>
+          </v-list-item>
         </v-list>
       </template>
 
@@ -59,13 +71,13 @@
           </v-list-item>
 
           <v-list-item
-            v-if="codeChanged"
+            v-if="hasUnsavedChanges"
             prepend-icon="mdi-source-commit"
             title="更改"
             subtitle="有未保存的更改"
           >
             <template v-slot:append>
-              <v-btn color="primary" size="small" @click="saveAndCommitCode">
+              <v-btn color="primary" size="small" @click="showCommitDialog">
                 提交
               </v-btn>
             </template>
@@ -76,14 +88,11 @@
           <v-list-subheader>提交历史</v-list-subheader>
           <v-list-item
             v-for="commit in commits"
-            :key="commit.hash"
+            :key="commit.id"
             :subtitle="formatCommitInfo(commit)"
-            :title="commit.message || '无提交信息'"
+            :title="commit.commit_message || '无提交信息'"
             lines="two"
           >
-            <template v-slot:prepend>
-              <v-icon size="small">mdi-source-commit</v-icon>
-            </template>
             <template v-slot:append>
               <v-menu location="end">
                 <template v-slot:activator="{ props }">
@@ -98,6 +107,9 @@
                   <v-list-item @click="viewCommit(commit)">
                     <v-list-item-title>查看</v-list-item-title>
                   </v-list-item>
+                  <v-list-item @click="compareCommit(commit)">
+                    <v-list-item-title>与当前比较</v-list-item-title>
+                  </v-list-item>
                   <v-list-item @click="restoreCommit(commit)">
                     <v-list-item-title>恢复</v-list-item-title>
                   </v-list-item>
@@ -108,275 +120,290 @@
         </v-list>
       </template>
     </v-navigation-drawer>
-    <!-- 顶部工具栏 -->
-    <v-app-bar class="editor-app-bar" density="compact" flat>
-        <v-row align="center" no-gutters>
-          <v-col class="mr-4" cols="auto">
-            <div v-if="project">
-              <v-chip class="mr-2" color="primary" size="small">
-                <v-icon size="small" start>mdi-source-repository</v-icon>
-                {{ project.title }}
-              </v-chip>
-              <span class="text-caption"
-                >{{ project.author.username }}/{{ project.name }}</span
+    <!-- 主编辑器容器 -->
+    <div class="editor-main-container">
+      <!-- 标签页栏 -->
+      <div v-if="editorTabs.length > 0" class="editor-tabs-bar">
+        <v-tabs
+          v-model="activeEditorTab"
+          density="compact"
+          show-arrows
+          class="editor-tabs"
+        >
+          <v-tab
+            v-for="tab in editorTabs"
+            :key="tab.id"
+            :value="tab.id"
+            class="editor-tab"
+            :class="{ 'editor-tab--modified': tab.modified }"
+          >
+            <div class="d-flex align-center">
+              <v-icon
+                :icon="tab.icon"
+                size="16"
+                class="mr-2"
+              ></v-icon>
+              <span class="tab-title">{{ tab.title }}</span>
+              <v-btn
+                v-if="tab.closeable !== false"
+                icon
+                size="x-small"
+                variant="text"
+                class="ml-2 close-btn"
+                @click.stop="closeTab(tab.id)"
               >
+                <v-icon size="12">mdi-close</v-icon>
+              </v-btn>
             </div>
-            <v-progress-circular
-              v-else
-              indeterminate
-              size="20"
-              width="2"
-            ></v-progress-circular>
-          </v-col>
-
-          <v-spacer></v-spacer>
-
-          <v-col cols="auto">
-            <v-select
-              v-model="currentBranch"
-              :items="branches.map((b) => b.name)"
-              class="branch-selector"
-              density="compact"
-              hide-details
-              prepend-inner-icon="mdi-source-branch"
-              style="max-width: 150px"
-              variant="outlined"
-              @update:model-value="switchBranch"
-            ></v-select>
-          </v-col>
-
-          <v-col class="d-flex" cols="auto">
-            <v-btn
-              class="ml-2"
-              color="info"
-              prepend-icon="mdi-code-tags"
-              size="small"
-              variant="text"
-              @click="showLanguageDialog = true"
-            >
-              {{ editorOptions.language }}
-            </v-btn>
-
-            <!-- 修改保存按钮部分 -->
-            <v-btn
-              class="ml-2"
-              :color="codeChanged ? 'warning' : 'success'"
-              prepend-icon="mdi-source-commit"
-              size="small"
-              variant="text"
-              @click="showCommitDialog"
-            >
-              {{ codeChanged ? "有更改待提交" : "无更改" }}
-              <v-icon end size="small">{{
-                codeChanged ? "mdi-circle-medium" : "mdi-check"
-              }}</v-icon>
-            </v-btn>
-
-            <v-btn
-              class="ml-2"
-              prepend-icon="mdi-arrow-left"
-              size="small"
-              variant="text"
-              @click="goToProjectPage"
-            >
-              项目页面
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-app-bar>
-      <!-- 主编辑器区域 -->
-
-
-      <!-- 编辑器容器 -->
-      <div
-        v-if="fileContent !== null"
-        style="height: 100% !important; width: 100% !important"
-      >
-        <MonacoEditorComponent
-          v-model="fileContent"
-          :language="editorOptions.language"
-          :options="editorOptions"
-          :project-type="project?.type || ''"
-          @change="codeChanged = true"
-          @monaco-ready="handleMonacoReady"
-        />
+          </v-tab>
+        </v-tabs>
       </div>
 
-      <v-sheet v-else class="d-flex align-center justify-center">
-        <v-progress-circular color="primary" indeterminate></v-progress-circular>
-        <span class="ml-2">加载中...</span>
-      </v-sheet>
+      <!-- 标签页内容区域 -->
+      <div v-if="activeEditorTab" class="tab-content-container">
+        <!-- 主编辑器标签页 -->
+        <div v-if="getActiveTab()?.type === 'editor'" class="editor-content">
+          <EditorMonacoComponent
+            ref="mainEditor"
+            :value="getActiveTab()?.data?.content || ''"
+            :language="editorOptions.language"
+            :options="editorOptions"
+            height="100%"
+            @update:value="handleEditorChange"
+            @monaco-ready="handleMonacoReady"
+          />
+        </div>
 
-      <!-- 语言选择对话框 -->
-      <v-dialog v-model="showLanguageDialog" max-width="400">
-        <v-card>
-          <v-card-title class="pa-4">
-            <v-text-field
-              v-model="languageSearch"
-              ref="languageSearchInput"
-              append-inner-icon="mdi-magnify"
-              label="选择编程语言"
-              placeholder="搜索语言..."
-              variant="outlined"
-              density="compact"
-              hide-details
-              @keydown.esc="showLanguageDialog = false"
-              @input="debounceSearch"
-            ></v-text-field>
-          </v-card-title>
+        <!-- 差异比较标签页 -->
+        <div v-else-if="getActiveTab()?.type === 'diff'" class="diff-content">
+          <DiffMonacoComponent
+            ref="diffEditor"
+            :original-value="getActiveTab()?.data?.originalContent || ''"
+            :modified-value="getActiveTab()?.data?.modifiedContent || ''"
+            :language="editorOptions.language"
+            :left-title="getActiveTab()?.data?.leftTitle || '原始版本'"
+            :right-title="getActiveTab()?.data?.rightTitle || '当前版本'"
+            height="100%"
+            @modified-change="handleDiffChange"
+            @diff-ready="handleDiffReady"
+          />
+        </div>
 
-          <v-card-text class="language-list pa-0">
-            <v-list density="compact" nav>
-              <template v-for="lang in filteredLanguages" :key="lang.id">
-                <v-list-item
-                  :active="editorOptions.language === lang.id"
-                  :title="lang.aliases?.[0] || lang.id"
-                  :subtitle="lang.id"
-                  @click="selectLanguage(lang.id)"
-                >
-                  <template v-slot:prepend>
-                    <v-icon size="small">mdi-code-braces</v-icon>
-                  </template>
-                </v-list-item>
-              </template>
-            </v-list>
-            <div v-if="filteredLanguages.length === 0" class="pa-4 text-center text-body-2">
-              未找到匹配的语言
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-dialog>
+        <!-- 查看模式标签页 -->
+        <div v-else-if="getActiveTab()?.type === 'view'" class="view-content">
+          <EditorMonacoComponent
+            ref="viewEditor"
+            :value="getActiveTab()?.data?.content || ''"
+            :language="editorOptions.language"
+            :options="viewEditorOptions"
+            :readonly="true"
+            height="100%"
+          />
+        </div>
+      </div>
 
-      <!-- 修改提交对话框 -->
-      <v-dialog v-model="showSaveDialog" max-width="500">
-        <v-card>
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center mb-4">
-              <v-icon color="primary" class="mr-2">mdi-source-repository</v-icon>
-              <span class="text-h6">{{ project?.title || "项目" }}</span>
-            </div>
-
-            <div v-if="codeChanged" class="mb-4">
-              <div class="text-subtitle-2 mb-2">更改</div>
-              <v-card variant="outlined" class="pa-2">
-                <div class="d-flex align-center">
-                  <v-icon size="small" color="warning" class="mr-2"
-                    >mdi-file-document</v-icon
-                  >
-                  <span class="text-body-2">已修改: {{ project?.name }}</span>
-                </div>
-              </v-card>
-            </div>
-
-            <v-text-field
-              v-model="commitMessage"
-              label="提交信息 (按 Ctrl+Enter 提交)"
-              placeholder="输入提交信息..."
-              variant="outlined"
-              density="comfortable"
-              hide-details
-              class="mb-2"
-              @keydown.ctrl.enter="confirmCommit"
-            ></v-text-field>
-
-            <v-expand-transition>
-              <div v-show="showCommitDetails">
-                <v-textarea
-                  v-model="commitDescription"
-                  label="详细描述"
-                  placeholder="输入详细的提交说明（可选）..."
-                  variant="outlined"
-                  density="comfortable"
-                  rows="3"
-                  hide-details
-                  class="mt-2"
-                ></v-textarea>
-              </div>
-            </v-expand-transition>
-
-            <v-btn
-              variant="text"
-              density="comfortable"
-              class="mt-2"
-              @click="showCommitDetails = !showCommitDetails"
+      <!-- 没有打开标签页时的欢迎界面 -->
+      <div v-else class="welcome-container">
+        <v-card class="mx-auto" max-width="500">
+          <v-card-text class="text-center pa-8">
+            <v-icon size="64" color="primary" class="mb-4"
+              >mdi-code-braces</v-icon
             >
-              {{ showCommitDetails ? "隐藏详细信息" : "添加详细信息..." }}
+            <div class="text-h5 mb-4">{{ project?.title || "项目编辑器" }}</div>
+            <div class="text-body-1 mb-6">
+              点击左侧文件浏览器中的文件开始编辑，或从Git历史中查看提交记录。
+            </div>
+            <v-btn
+              v-if="project"
+              color="primary"
+              variant="elevated"
+              @click="openMainEditor"
+            >
+              <v-icon start>mdi-file-code</v-icon>
+              打开主文件
             </v-btn>
           </v-card-text>
-
-          <v-card-actions class="pa-4 pt-0">
-            <v-spacer></v-spacer>
-            <v-btn variant="text" @click="showSaveDialog = false"> 取消 </v-btn>
-            <v-btn
-              color="primary"
-              :disabled="!commitMessage.trim()"
-              :loading="committing"
-              @click="confirmCommit"
-            >
-              提交更改
-            </v-btn>
-          </v-card-actions>
         </v-card>
-      </v-dialog>
-
-      <!-- 确认对话框 -->
-      <v-dialog v-model="showConfirmDialog" max-width="400">
-        <v-card>
-          <v-card-text class="pa-4">
-            <div class="d-flex align-center mb-4">
-              <v-icon color="warning" class="mr-2">mdi-alert</v-icon>
-              <span class="text-h6">确认提交</span>
-            </div>
-            <p>确定要提交以下更改吗？</p>
-            <v-card variant="outlined" class="pa-2 mt-2">
-              <p class="text-body-1 mb-2">{{ commitMessage }}</p>
-              <p v-if="commitDescription" class="text-body-2 text-grey">
-                {{ commitDescription }}
-              </p>
-            </v-card>
-          </v-card-text>
-          <v-card-actions class="pa-4 pt-0">
-            <v-spacer></v-spacer>
-            <v-btn variant="text" @click="showConfirmDialog = false"> 取消 </v-btn>
-            <v-btn
-              color="primary"
-              :loading="committing"
-              @click="saveAndSubmitCommit"
-            >
-              确认提交
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-
-      <!-- 加载遮罩 -->
-      <v-overlay v-model="loading" class="align-center justify-center" persistent>
-        <v-card width="300">
-          <v-card-text class="text-center">
-            <v-progress-circular
-              color="primary"
-              indeterminate
-              size="64"
-            ></v-progress-circular>
-            <div class="text-body-1 mt-4">{{ loadingMessage }}</div>
-          </v-card-text>
-        </v-card>
-      </v-overlay>
+      </div>
     </div>
+
+    <!-- 语言选择对话框 -->
+    <v-dialog v-model="showLanguageDialog" max-width="400">
+      <v-card>
+        <v-card-title class="pa-4">
+          <v-text-field
+            v-model="languageSearch"
+            ref="languageSearchInput"
+            append-inner-icon="mdi-magnify"
+            label="选择编程语言"
+            placeholder="搜索语言..."
+            variant="outlined"
+            density="compact"
+            hide-details
+            @keydown.esc="showLanguageDialog = false"
+            @input="debounceSearch"
+          ></v-text-field>
+        </v-card-title>
+
+        <v-card-text class="language-list pa-0">
+          <v-list density="compact" nav>
+            <template v-for="lang in filteredLanguages" :key="lang.id">
+              <v-list-item
+                :active="editorOptions.language === lang.id"
+                :title="lang.aliases?.[0] || lang.id"
+                :subtitle="lang.id"
+                @click="selectLanguage(lang.id)"
+              >
+                <template v-slot:prepend>
+                  <v-icon size="small">mdi-code-braces</v-icon>
+                </template>
+              </v-list-item>
+            </template>
+          </v-list>
+          <div
+            v-if="filteredLanguages.length === 0"
+            class="pa-4 text-center text-body-2"
+          >
+            未找到匹配的语言
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <!-- 修改提交对话框 -->
+    <v-dialog v-model="showSaveDialog" max-width="500">
+      <v-card>
+        <v-card-text class="pa-4">
+          <div class="d-flex align-center mb-4">
+            <v-icon color="primary" class="mr-2">mdi-source-repository</v-icon>
+            <span class="text-h6">{{ project?.title || "项目" }}</span>
+          </div>
+
+          <div v-if="hasUnsavedChanges" class="mb-4">
+            <div class="text-subtitle-2 mb-2">更改</div>
+            <v-card variant="outlined" class="pa-2">
+              <div class="d-flex align-center">
+                <v-icon size="small" color="warning" class="mr-2"
+                  >mdi-file-document</v-icon
+                >
+                <span class="text-body-2">已修改: {{ project?.name }}</span>
+              </div>
+            </v-card>
+          </div>
+
+          <v-text-field
+            v-model="commitMessage"
+            label="提交信息 (按 Ctrl+Enter 提交)"
+            placeholder="输入提交信息..."
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            class="mb-2"
+            @keydown.ctrl.enter="confirmCommit"
+          ></v-text-field>
+
+          <v-expand-transition>
+            <div v-show="showCommitDetails">
+              <v-textarea
+                v-model="commitDescription"
+                label="详细描述"
+                placeholder="输入详细的提交说明（可选）..."
+                variant="outlined"
+                density="comfortable"
+                rows="3"
+                hide-details
+                class="mt-2"
+              ></v-textarea>
+            </div>
+          </v-expand-transition>
+
+          <v-btn
+            variant="text"
+            density="comfortable"
+            class="mt-2"
+            @click="showCommitDetails = !showCommitDetails"
+          >
+            {{ showCommitDetails ? "隐藏详细信息" : "添加详细信息..." }}
+          </v-btn>
+        </v-card-text>
+
+        <v-card-actions class="pa-4 pt-0">
+          <v-spacer></v-spacer>
+          <v-btn variant="text" @click="showSaveDialog = false"> 取消 </v-btn>
+          <v-btn
+            color="primary"
+            :disabled="!commitMessage.trim()"
+            :loading="committing"
+            @click="confirmCommit"
+          >
+            提交更改
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- 确认对话框 -->
+    <v-dialog v-model="showConfirmDialog" max-width="400">
+      <v-card>
+        <v-card-text class="pa-4">
+          <div class="d-flex align-center mb-4">
+            <v-icon color="warning" class="mr-2">mdi-alert</v-icon>
+            <span class="text-h6">确认提交</span>
+          </div>
+          <p>确定要提交以下更改吗？</p>
+          <v-card variant="outlined" class="pa-2 mt-2">
+            <p class="text-body-1 mb-2">{{ commitMessage }}</p>
+            <p v-if="commitDescription" class="text-body-2 text-grey">
+              {{ commitDescription }}
+            </p>
+          </v-card>
+        </v-card-text>
+        <v-card-actions class="pa-4 pt-0">
+          <v-spacer></v-spacer>
+          <v-btn variant="text" @click="showConfirmDialog = false">
+            取消
+          </v-btn>
+          <v-btn
+            color="primary"
+            :loading="committing"
+            @click="saveAndSubmitCommit"
+          >
+            确认提交
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- 加载遮罩 -->
+    <v-overlay v-model="loading" class="align-center justify-center" persistent>
+      <v-card width="300">
+        <v-card-text class="text-center">
+          <v-progress-circular
+            color="primary"
+            indeterminate
+            size="64"
+          ></v-progress-circular>
+          <div class="text-body-1 mt-4">{{ loadingMessage }}</div>
+        </v-card-text>
+      </v-card>
+    </v-overlay>
+  </div>
 </template>
 
 <script>
 import axios from "@/axios/axios";
-import MonacoEditorComponent from "@/components/MonacoEditorComponent";
+import EditorMonacoComponent from "@/components/EditorMonacoComponent.vue";
+import DiffMonacoComponent from "@/components/DiffMonacoComponent.vue";
 
 export default {
   name: "ProjectEditor",
   components: {
-    MonacoEditorComponent,
+    EditorMonacoComponent,
+    DiffMonacoComponent,
   },
   data() {
     return {
-      // 状态变量
+      // 项目基本信息
       project: null,
       fileContent: null,
       fileSha256: null,
@@ -384,26 +411,42 @@ export default {
       currentBranch: "main",
       commits: [],
       accessFileToken: "",
+
+      // 加载状态
       loading: true,
       loadingMessage: "加载项目信息...",
-      codeChanged: false,
       errorMessage: "",
 
-      // 对话框状态
+      // 编辑器状态
+      hasUnsavedChanges: false,
+      monacoInstance: null,
+      availableLanguages: [],
+
+      // 标签页系统
+      activeEditorTab: null,
+      editorTabs: [],
+      tabIdCounter: 0,
+      tabInstances: new Map(), // 存储每个标签页的编辑器实例
+
+      // UI状态
+      activeTab: "files",
       showSaveDialog: false,
-      showHistoryDialog: false,
-      showHistorySidebar: false,
-      commitMessage: "",
-      commitDescription: "",
-      loadingHistory: false,
-      showConfirmDialog: false,
+      showLanguageDialog: false,
       showCommitDetails: false,
       committing: false,
+
+      // 提交相关
+      commitMessage: "",
+      commitDescription: "",
+
+      // 语言搜索
+      languageSearch: "",
+      searchTimeout: null,
 
       // Monaco 编辑器配置
       editorOptions: {
         theme: "vs-dark",
-        language: "javascript", // 默认语言，可以根据文件类型动态设置
+        language: "javascript",
         fontSize: 14,
         tabSize: 2,
         minimap: { enabled: true },
@@ -417,17 +460,24 @@ export default {
         lineNumbersMinChars: 3,
       },
 
-      // 语言选择相关
-      showLanguageDialog: false,
-      languageSearch: "",
-      availableLanguages: [],
-      searchTimeout: null,
+      // 只读编辑器配置
+      viewEditorOptions: {
+        theme: "vs-dark",
+        fontSize: 14,
+        tabSize: 2,
+        minimap: { enabled: true },
+        scrollBeyondLastLine: false,
+        automaticLayout: true,
+        wordWrap: "on",
+        lineNumbers: "on",
+        glyphMargin: true,
+        folding: true,
+        lineDecorationsWidth: 10,
+        lineNumbersMinChars: 3,
+        readOnly: true,
+      },
 
-      // Monaco 相关
-      monacoInstance: null,
-      editorInstance: null,
-      showSidebar: true,
-      activeTab: "files",
+      // 导航项目
       navigationItems: [
         { icon: "mdi-file-document-outline", title: "文件", value: "files" },
         { icon: "mdi-source-branch", title: "源代码管理", value: "git" },
@@ -497,14 +547,24 @@ export default {
     },
   },
   watch: {
-    currentBranch: async function () {
-      if (this.showHistorySidebar) {
-        await this.loadCommitHistory();
+    currentBranch: {
+      immediate: true,
+      async handler(newBranch, oldBranch) {
+        if (newBranch && newBranch !== oldBranch && this.project?.id) {
+          await this.loadCommitHistory();
+        }
       }
     },
-    project: async function (newProject) {
-      if (newProject && newProject.id) {
-        await this.loadCommitHistory();
+    project: {
+      immediate: true,
+      async handler(newProject) {
+        if (newProject && newProject.id) {
+          await this.loadCommitHistory();
+          // 确保分支列表已加载
+          if (this.branches.length === 0) {
+            await this.loadBranches();
+          }
+        }
       }
     },
     showLanguageDialog(val) {
@@ -518,17 +578,369 @@ export default {
         this.languageSearch = "";
       }
     },
+    
+    activeEditorTab(newTabId, oldTabId) {
+      if (newTabId !== oldTabId) {
+        console.log('activeEditorTab changed:', oldTabId, '->', newTabId);
+        
+        // 清理旧标签页的实例
+        if (oldTabId && this.tabInstances.has(oldTabId)) {
+          const instance = this.tabInstances.get(oldTabId);
+          if (instance && typeof instance.destroyEditor === 'function') {
+            instance.destroyEditor();
+          }
+          this.tabInstances.delete(oldTabId);
+        }
+        
+        // 下一帧初始化新的编辑器实例
+        this.$nextTick(() => {
+          this.initCurrentTabEditor();
+        });
+      }
+    }
   },
   mounted() {
+    // 加载项目
     this.loadProject();
   },
+
+  beforeUnmount() {
+    // 清理所有标签页实例
+    this.cleanupAllTabs();
+  },
   methods: {
+    // ===============================
+    // 标签页系统管理
+    // ===============================
+    cleanupAllTabs() {
+      // 清理所有标签页的Monaco实例
+      for (const [tabId, instance] of this.tabInstances) {
+        if (instance && typeof instance.destroyEditor === 'function') {
+          instance.destroyEditor();
+        }
+      }
+      this.tabInstances.clear();
+      this.editorTabs = [];
+      this.activeEditorTab = null;
+    },
+
+    getActiveTab() {
+      return this.editorTabs.find(tab => tab.id === this.activeEditorTab) || null;
+    },
+
+    addTab(config) {
+      const tabId = `tab-${++this.tabIdCounter}`;
+      const tab = {
+        id: tabId,
+        title: config.title || '未命名',
+        icon: config.icon || 'mdi-file-document',
+        type: config.type || 'editor', // editor, diff, view
+        closeable: config.closeable !== false,
+        modified: false,
+        data: config.data || {}
+      };
+      
+      this.editorTabs.push(tab);
+      this.activeEditorTab = tabId;
+      
+      return tab;
+    },
+
+    removeTab(tabId) {
+      const index = this.editorTabs.findIndex(tab => tab.id === tabId);
+      if (index !== -1) {
+        const tab = this.editorTabs[index];
+        
+        // 清理编辑器实例
+        if (this.tabInstances.has(tabId)) {
+          const instance = this.tabInstances.get(tabId);
+          if (instance && typeof instance.destroyEditor === 'function') {
+            instance.destroyEditor();
+          }
+          this.tabInstances.delete(tabId);
+        }
+        
+        this.editorTabs.splice(index, 1);
+        
+        // 如果被删除的是当前活动标签页，切换到下一个
+        if (this.activeEditorTab === tabId) {
+          if (this.editorTabs.length > 0) {
+            // 优先选择下一个标签页，如果没有就选择前一个
+            const nextIndex = index < this.editorTabs.length ? index : index - 1;
+            this.activeEditorTab = this.editorTabs[nextIndex].id;
+          } else {
+            this.activeEditorTab = null;
+          }
+        }
+      }
+    },
+
+    closeTab(tabId) {
+      const tab = this.editorTabs.find(t => t.id === tabId);
+      if (tab && tab.modified) {
+        // 如果有未保存的更改，弹出确认对话框
+        if (confirm(`标签页 "${tab.title}" 有未保存的更改，确定要关闭吗？`)) {
+          this.removeTab(tabId);
+        }
+      } else {
+        this.removeTab(tabId);
+      }
+    },
+
+    setTabModified(tabId, modified = true) {
+      const tab = this.editorTabs.find(t => t.id === tabId);
+      if (tab) {
+        tab.modified = modified;
+      }
+    },
+
+    initCurrentTabEditor() {
+      const activeTab = this.getActiveTab();
+      if (!activeTab) return;
+      
+      // 根据标签页类型初始化对应的编辑器
+      this.$nextTick(() => {
+        let editorRef = null;
+        
+        switch (activeTab.type) {
+          case 'editor':
+            editorRef = this.$refs.mainEditor;
+            break;
+          case 'diff':
+            editorRef = this.$refs.diffEditor;
+            break;
+          case 'view':
+            editorRef = this.$refs.viewEditor;
+            break;
+        }
+        
+        if (editorRef) {
+          console.log('Setting editor instance for tab:', activeTab.id);
+          this.tabInstances.set(activeTab.id, editorRef);
+        }
+      });
+    },
+
+    // ===============================
+    // 标签页操作
+    // ===============================
+    openMainEditor() {
+      console.log('openMainEditor called');
+      if (!this.project) {
+        console.log('No project loaded');
+        return;
+      }
+      
+      // 检查是否已经有主编辑器标签页
+      const existingTab = this.editorTabs.find(tab => tab.type === 'editor' && tab.data?.isMain);
+      if (existingTab) {
+        this.activeEditorTab = existingTab.id;
+        return;
+      }
+      
+      const tab = this.addTab({
+        title: this.project.name || 'main',
+        icon: 'mdi-file-code',
+        type: 'editor',
+        data: {
+          content: this.fileContent || '',
+          language: this.editorOptions.language,
+          isMain: true
+        }
+      });
+      
+      console.log('Tab created:', tab);
+      
+      if (tab) {
+        this.activeEditorTab = tab.id;
+      }
+    },
+
+    viewCommit(commit) {
+      console.log('viewCommit called:', commit);
+      this.loadCommitContent(commit).then(content => {
+        const tab = this.addTab({
+          title: `提交: ${commit.id.substring(0, 7)}`,
+          icon: 'mdi-source-commit',
+          type: 'view',
+          closeable: true,
+          data: {
+            content: content,
+            commit: commit
+          }
+        });
+        
+        if (tab) {
+          this.activeEditorTab = tab.id;
+        }
+      }).catch(error => {
+        console.error('加载提交内容失败:', error);
+        alert('加载提交内容失败: ' + (error.message || '未知错误'));
+      });
+    },
+
+    compareCommit(commit) {
+      console.log('compareCommit called:', commit);
+      this.loadCommitContent(commit).then(commitContent => {
+        const tab = this.addTab({
+          title: `比较: ${commit.id.substring(0, 7)}`,
+          icon: 'mdi-compare',
+          type: 'diff',
+          closeable: true,
+          data: {
+            originalContent: commitContent,
+            modifiedContent: this.fileContent || '',
+            leftTitle: `提交: ${commit.id.substring(0, 7)}`,
+            rightTitle: '当前版本',
+            commit: commit
+          }
+        });
+        
+        if (tab) {
+          this.activeEditorTab = tab.id;
+        }
+      }).catch(error => {
+        console.error('加载提交内容失败:', error);
+        alert('加载提交内容失败: ' + (error.message || '未知错误'));
+      });
+    },
+    // ===============================
+    // 编辑器事件处理
+    // ===============================
+    handleEditorChange(newContent) {
+      this.fileContent = newContent;
+      this.hasUnsavedChanges = true;
+
+      // 更新当前标签页的修改状态
+      const activeTab = this.getActiveTab();
+      if (activeTab) {
+        this.setTabModified(activeTab.id, true);
+      }
+    },
+
+    handleDiffChange(newContent) {
+      const activeTab = this.getActiveTab();
+      if (activeTab?.type === 'diff') {
+        activeTab.data.modifiedContent = newContent;
+        this.setTabModified(activeTab.id, true);
+      }
+    },
+
+    handleMonacoReady({ monaco, editor, availableLanguages }) {
+      console.log('Monaco editor ready');
+      this.monacoInstance = monaco;
+      this.availableLanguages = availableLanguages;
+
+      // 如果项目类型存在，设置对应的语言
+      if (this.project?.type) {
+        const projectType = this.project.type.split("-")[0].toLowerCase();
+        const matchedLang = availableLanguages.find(
+          (lang) => lang.id === projectType
+        );
+        if (matchedLang) {
+          console.log('根据项目类型设置语言:', matchedLang.id);
+          this.editorOptions.language = matchedLang.id;
+        }
+      }
+    },
+
+    handleDiffReady({ monaco, diffEditor }) {
+      console.log('Monaco diff editor ready');
+      // 差异编辑器准备就绪
+    },
+
+    // ===============================
+    // 辅助方法
+    // ===============================
+    async loadCommitContent(commit) {
+      try {
+        this.loading = true;
+        this.loadingMessage = "加载提交内容...";
+
+        const response = await axios.get(
+          `/project/commit?projectid=${this.project.id}&commitid=${commit.id}`
+        );
+
+        if (response.data.status === "success") {
+          this.accessFileToken = response.data.accessFileToken;
+          const commitFile = response.data.commit.commit_file;
+
+          if (commitFile) {
+            const fileResponse = await axios.get(
+              `/project/files/${commitFile}?accessFileToken=${this.accessFileToken}&content=true`
+            );
+
+            if (fileResponse.status === 200) {
+              let content = fileResponse.data;
+              if (typeof content === "object") {
+                content = JSON.stringify(content, null, 2);
+              }
+              return content;
+            }
+          }
+        }
+        throw new Error('无法加载提交内容');
+      } catch (error) {
+        console.error('加载提交内容失败:', error);
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    // ===============================
+    // 项目加载
+    // ===============================
     async loadProject() {
       try {
         this.loading = true;
         this.loadingMessage = "加载项目信息...";
 
         let response;
+        if (this.projectId) {
+          console.log("通过ID加载项目:", this.projectId);
+          response = await axios.get(`/project/id/${this.projectId}`);
+        } else if (this.projectNamespace) {
+          console.log("通过命名空间加载项目:", this.projectNamespace);
+          const [username, projectname] = this.projectNamespace.split("/");
+          response = await axios.get(
+            `/project/namespace/${username}/${projectname}`
+          );
+        } else {
+          throw new Error("未提供项目ID或命名空间");
+        }
+
+        console.log("项目加载响应:", response.data);
+
+        if (response.data.status === "success" || response.data.id) {
+          this.project = response.data.data || response.data;
+
+          if (!this.project || !this.project.id) {
+            throw new Error("项目数据无效: " + JSON.stringify(this.project));
+          }
+
+          await this.loadBranches();
+          await this.loadLatestCommit();
+        } else {
+          throw new Error(
+            response.data.message || "加载项目失败: 服务器未返回有效数据"
+          );
+        }
+      } catch (error) {
+        console.error("加载项目失败:", error);
+        const errMsg = error.response
+          ? `服务器错误 (${error.response.status}): ${
+              error.response.data?.message || "未知错误"
+            }`
+          : error.message || "网络错误或服务器无响应";
+        this.loadingMessage = `加载失败: ${errMsg}`;
+        this.errorMessage = errMsg;
+        this.loading = false;
+      }
+    },
+
+    async switchBranch() {
+      try{
         if (this.projectId) {
           console.log("通过ID加载项目:", this.projectId);
           response = await axios.get(`/project/id/${this.projectId}`);
@@ -584,7 +996,10 @@ export default {
         if (response.data.status === "success") {
           this.branches = response.data.data || [];
           if (this.branches.length > 0) {
-            this.currentBranch = this.branches[0].name;
+            // 如果当前分支不在分支列表中，切换到第一个分支
+            if (!this.branches.some(b => b.name === this.currentBranch)) {
+              this.currentBranch = this.branches[0].name;
+            }
           } else {
             throw new Error("项目没有任何分支");
           }
@@ -602,6 +1017,14 @@ export default {
           : error.message || "网络错误或服务器无响应";
         this.loadingMessage = `加载分支失败: ${errorMsg}`;
         this.errorMessage = errorMsg;
+
+        // 如果加载分支失败，清空分支列表并设置默认分支
+        this.branches = [];
+        this.currentBranch = "main";
+
+        // 显示错误提示
+        alert("加载分支失败: " + errorMsg);
+      } finally {
         this.loading = false;
       }
     },
@@ -691,9 +1114,11 @@ export default {
             this.loading = false;
           }
         } else {
+          this.loading = false;
           throw new Error(
             response.data.message || "加载最新提交失败: 服务器未返回有效数据"
           );
+
         }
       } catch (error) {
         console.error("加载最新提交失败:", error);
@@ -898,137 +1323,162 @@ export default {
       return `${username} · ${date}`;
     },
 
-    async viewCommit(commit) {
-      if (!commit || !commit.hash) {
-        alert("无效的提交信息");
+    formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleString();
+    },
+
+    // ===============================
+    // 提交相关操作
+    // ===============================
+    showCommitDialog() {
+      this.commitMessage = "";
+      this.commitDescription = "";
+      this.showCommitDetails = false;
+      this.showSaveDialog = true;
+    },
+
+    confirmCommit() {
+      if (!this.commitMessage.trim()) {
         return;
       }
+      this.saveAndSubmitCommit();
+    },
 
+    async saveAndSubmitCommit() {
       try {
-        this.loading = true;
-        this.loadingMessage = "加载提交详情...";
-
-        const response = await axios.get(
-          `/project/commit?projectid=${this.project.id}&commitid=${commit.hash}`
-        );
-        if (response.data.status === "success") {
-          this.accessFileToken = response.data.accessFileToken;
-
-          // 获取提交文件信息
-          const commitFile = response.data.commit.commit_file;
-          console.log(`获取提交文件: ${commitFile}`);
-
-          if (!commitFile) {
-            console.log("没有提交文件，创建空文件");
-            this.fileContent = "";
-            this.showHistoryDialog = false;
-            this.loading = false;
-            return;
-          }
-
-          try {
-            const commitFileResponse = await axios.get(
-              `/project/files/${commitFile}?accessFileToken=${this.accessFileToken}&content=true`
-            );
-
-            if (commitFileResponse.status === 200) {
-              // 直接使用文件内容
-              let content = commitFileResponse.data;
-
-              if (!content) {
-                console.log("文件内容为空，创建新文件");
-                this.fileContent = "";
-              } else {
-                if (typeof content === "object") {
-                  content = JSON.stringify(content, null, 2);
-                }
-                console.log("获取到文件内容，长度:", content.length);
-                this.fileContent = content;
-                // 保存文件SHA256
-                this.fileSha256 = commitFile;
-
-                // 设置编辑器语言
-                const filename = this.project.name || "file.js";
-                this.editorOptions.language = this.detectLanguage(
-                  content,
-                  filename
-                );
-              }
-
-              this.showHistoryDialog = false;
-              this.loading = false;
-            } else {
-              const errorMsg = commitFileResponse.data?.message || "未知错误";
-              console.error(
-                `获取提交文件失败: ${commitFile}`,
-                commitFileResponse.data
-              );
-              // 创建空文件
-              this.fileContent = "";
-              this.showHistoryDialog = false;
-              this.loading = false;
-            }
-          } catch (fileError) {
-            console.error("获取提交文件请求失败:", fileError);
-            // 创建空文件
-            this.fileContent = "";
-            this.showHistoryDialog = false;
-            this.loading = false;
-          }
-        } else {
-          throw new Error(response.data.message || "加载提交详情失败");
+        this.committing = true;
+        if (!this.commitMessage.trim()) {
+          alert("请输入提交信息");
+          return;
         }
+
+        // 准备要保存的内容
+        let contentToSave = this.fileContent;
+        let isValidJson = false;
+
+        // 检查是否为JSON格式
+        try {
+          JSON.parse(contentToSave);
+          isValidJson = true;
+          console.log("内容已经是有效的JSON格式");
+        } catch (e) {
+          console.log("内容不是有效的JSON格式，将直接发送");
+          isValidJson = false;
+        }
+
+        console.log("准备保存文件，内容长度:", contentToSave.length);
+
+        // 保存文件
+        const saveResponse = await axios.post(
+          "/project/savefile?json=false&source=index",
+          isValidJson
+            ? contentToSave
+            : JSON.stringify({ index: this.fileContent }),
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "X-Project-ID": this.project.id,
+            },
+          }
+        );
+
+        console.log("保存文件响应:", saveResponse.data);
+
+        if (saveResponse.data.status !== "success") {
+          throw new Error(saveResponse.data.message || "保存文件失败");
+        }
+
+        // 更新访问令牌和文件SHA256
+        this.accessFileToken = saveResponse.data.accessFileToken;
+        this.fileSha256 = saveResponse.data.sha256;
+
+        if (!this.fileSha256) {
+          console.error("服务器未返回文件SHA256");
+          throw new Error("服务器未返回文件SHA256，无法完成提交");
+        }
+
+        console.log("文件保存成功，使用SHA256:", this.fileSha256);
+        console.log("准备提交代码，分支:", this.currentBranch);
+
+        // 提交代码
+        const commitData = {
+          branch: this.currentBranch,
+          projectid: this.project.id,
+          accessFileToken: this.accessFileToken,
+          message: this.commitMessage,
+          commit_description: this.commitDescription,
+          commit_file: this.fileSha256,
+        };
+
+        console.log("提交数据:", commitData);
+
+        const commitResponse = await axios.put(
+          `/project/commit/id/${this.project.id}`,
+          commitData
+        );
+
+        console.log("提交响应:", commitResponse.data);
+
+        if (commitResponse.data.status === "success") {
+          this.commitMessage = "";
+          this.commitDescription = "";
+          this.hasUnsavedChanges = false;
+
+          // 更新所有标签页的修改状态
+          const appHeader = this.getAppHeader();
+          if (appHeader) {
+            appHeader.editorTabs.forEach(tab => {
+              this.setTabModified(tab.id, false);
+            });
+          }
+
+          // 刷新提交历史
+          await this.loadCommitHistory();
+
+          alert(
+            "代码保存并提交成功" + (!isValidJson ? " (已转换为JSON格式)" : "")
+          );
+        } else {
+          throw new Error(commitResponse.data.message || "提交代码失败");
+        }
+        this.showSaveDialog = false;
+        this.committing = false;
       } catch (error) {
-        console.error("加载提交详情失败:", error);
-        const errorMsg = error.response
-          ? `服务器错误 (${error.response.status}): ${
-              error.response.data?.message || "未知错误"
-            }`
-          : `${error.message || "网络错误或服务器无响应"} [${
-              error.stack?.split("\n")[1]?.trim() || "未知位置"
-            }]`;
-        alert("加载提交详情失败: " + errorMsg);
-        this.loading = false;
+        console.error("提交失败:", error);
+        alert(
+          "提交失败: " +
+            (error.response?.data?.message || error.message || "未知错误")
+        );
+        this.committing = false;
       }
     },
 
     async restoreCommit(commit) {
-      if (!commit || !commit.hash) {
+      if (!commit || !commit.id) {
         alert("无效的提交信息");
         return;
       }
 
-      const commitId = commit.hash.substring(0, 7);
+      const commitId = commit.id.substring(0, 7);
 
       if (confirm(`确定要恢复到提交 ${commitId} 的状态吗？`)) {
         try {
           this.loading = true;
           this.loadingMessage = "恢复提交...";
 
-          await this.viewCommit(commit);
+          const content = await this.loadCommitContent(commit);
+          this.fileContent = content;
 
-          // 保存并提交恢复的代码
-          const response = await axios.put(
-            `/project/commit/id/${this.project.id}`,
-            {
-              branch: this.currentBranch,
-              projectid: this.project.id,
-              accessFileToken: this.accessFileToken,
-              message: `恢复到提交 ${commitId}`,
-              commit_description: `恢复到提交 ${commit.hash}，原提交信息: ${
-                commit.message || "无提交信息"
-              }`,
-              commit_file: this.fileSha256, // 添加提交文件的SHA256
-            }
-          );
+          // 自动提交恢复的内容
+          this.commitMessage = `恢复到提交 ${commitId}`;
+          this.commitDescription = `恢复到提交 ${commit.id}，原提交信息: ${
+            commit.commit_message || "无提交信息"
+          }`;
 
-          if (response.data.status === "success") {
-            alert("代码恢复成功");
-            // 刷新提交历史
-            await this.loadCommitHistory();
-          } else {
-            throw new Error(response.data.message || "恢复代码失败");
-          }
+          await this.saveAndSubmitCommit();
+
+          alert("代码恢复成功");
         } catch (error) {
           console.error("恢复代码失败:", error);
           alert(
@@ -1041,72 +1491,24 @@ export default {
       }
     },
 
-    async switchBranch() {
-      if (this.codeChanged) {
-        if (confirm("您有未保存的更改，是否切换分支？")) {
-          await this.loadLatestCommit();
-          this.codeChanged = false;
-        } else {
-          // 恢复选择
-          this.currentBranch = this.branches.find(
-            (b) => b.name === this.currentBranch
-          ).name;
-        }
-      } else {
-        await this.loadLatestCommit();
+    // ===============================
+    // 语言选择相关
+    // ===============================
+    debounceSearch(event) {
+      if (this.searchTimeout) {
+        clearTimeout(this.searchTimeout);
       }
+      this.searchTimeout = setTimeout(() => {
+        this.languageSearch = event.target.value;
+      }, 300);
     },
 
-    goToProjectPage() {
-      if (this.project) {
-        this.$router.push(
-          `/${this.project.author.username}/${this.project.name}`
-        );
-      }
+    selectLanguage(languageId) {
+      this.editorOptions.language = languageId;
+      this.showLanguageDialog = false;
+      this.languageSearch = '';
     },
 
-    formatDate(dateString) {
-      const date = new Date(dateString);
-      return date.toLocaleString();
-    },
-
-    async retryLoading() {
-      this.errorMessage = "";
-      this.loading = true;
-      this.loadingMessage = "重新加载项目...";
-      try {
-        await this.loadProject();
-      } catch (error) {
-        this.errorMessage = error.message || "加载失败，请稍后再试";
-      }
-    },
-
-    handleMonacoReady({ monaco, editor, availableLanguages }) {
-      console.log("Monaco editor ready");
-      this.monacoInstance = monaco;
-      this.editorInstance = editor;
-      this.availableLanguages = availableLanguages;
-
-      // 如果项目类型存在，设置对应的语言
-      if (this.project?.type) {
-        const projectType = this.project.type.split("-")[0].toLowerCase();
-        const matchedLang = this.availableLanguages.find(
-          (lang) => lang.id === projectType
-        );
-        if (matchedLang) {
-          console.log("根据项目类型设置语言:", matchedLang.id);
-          this.editorOptions.language = matchedLang.id;
-          if (this.editorInstance.getModel()) {
-            this.monacoInstance.editor.setModelLanguage(
-              this.editorInstance.getModel(),
-              matchedLang.id
-            );
-          }
-        }
-      }
-    },
-
-    // 更新 detectLanguage 方法
     detectLanguage(content, filename) {
       // 如果项目类型已经指定了语言，优先使用项目类型
       if (this.project?.type && this.availableLanguages?.length > 0) {
@@ -1156,23 +1558,7 @@ export default {
         }
       }
 
-      // 默认为纯文本
       return "plaintext";
-    },
-
-    debounceSearch(event) {
-      if (this.searchTimeout) {
-        clearTimeout(this.searchTimeout);
-      }
-      this.searchTimeout = setTimeout(() => {
-        this.languageSearch = event.target.value;
-      }, 300);
-    },
-
-    selectLanguage(languageId) {
-      this.editorOptions.language = languageId;
-      this.showLanguageDialog = false;
-      this.languageSearch = ''; // 清空搜索内容
     },
   },
 };
@@ -1187,8 +1573,75 @@ export default {
   flex-direction: column;
 }
 
-.editor-app-bar {
+.editor-main-container {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.editor-tabs-bar {
   border-bottom: 1px solid rgba(var(--v-border-color), 0.12);
+  background-color: rgba(var(--v-theme-surface), 0.9);
+}
+
+.editor-tabs {
+  min-height: 48px;
+}
+
+.editor-tab {
+  min-width: 120px;
+  max-width: 200px;
+  text-transform: none;
+  border-right: 1px solid rgba(var(--v-border-color), 0.12);
+  position: relative;
+}
+
+.editor-tab--modified .tab-title::after {
+  content: '●';
+  color: rgb(var(--v-theme-warning));
+  margin-left: 4px;
+}
+
+.editor-tab .close-btn {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.editor-tab:hover .close-btn {
+  opacity: 1;
+}
+
+.tab-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+  font-size: 13px;
+}
+
+.tab-content-container {
+  flex: 1;
+  position: relative;
+  height: 100%;
+  min-height: 0;
+}
+
+.editor-content,
+.diff-content,
+.view-content {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.welcome-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(var(--v-theme-surface), 0.1);
 }
 
 .branch-selector {
@@ -1199,11 +1652,8 @@ export default {
   width: 56px !important;
 }
 
-
-
-
 .monospace {
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-family: "Consolas", "Monaco", "Courier New", monospace;
 }
 
 .language-card {
@@ -1213,7 +1663,7 @@ export default {
 
 .language-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .language-dialog {

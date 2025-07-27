@@ -84,13 +84,13 @@
             <v-tab value="notifications">
               <v-icon start>mdi-bell</v-icon>
               通知
-              <v-badge
+              <!--<v-badge
                 v-if="unreadCount > 0"
                 :content="unreadCount"
                 color="error"
                 dot
                 floating
-              ></v-badge>
+              ></v-badge>-->
             </v-tab>
             <v-tab value="profile">
               <v-icon start>mdi-account</v-icon>
@@ -171,9 +171,45 @@
         </v-card>
       </v-menu>
     </template>
-    <template v-if="subNavItems.length" v-slot:extension>
+    <template v-if="subNavItems.length || showEditorTabs" v-slot:extension>
       <transition name="fade">
-        <v-tabs v-model="activeTab" align-tabs="center">
+        <!-- 编辑器标签页 -->
+        <v-tabs
+          v-if="showEditorTabs"
+          v-model="activeEditorTab"
+          class="editor-tabs"
+          density="compact"
+          show-arrows
+        >
+          <v-tab
+            v-for="tab in editorTabs"
+            :key="tab.id"
+            :value="tab.id"
+            class="editor-tab"
+            :class="{ 'editor-tab--modified': tab.modified }"
+          >
+            <div class="d-flex align-center">
+              <v-icon
+                :icon="tab.icon"
+                size="16"
+                class="mr-2"
+              ></v-icon>
+              <span class="tab-title">{{ tab.title }}</span>
+              <v-btn
+                v-if="tab.closeable"
+                icon
+                size="x-small"
+                variant="text"
+                class="ml-2 close-btn"
+                @click.stop="closeTab(tab.id)"
+              >
+                <v-icon size="12">mdi-close</v-icon>
+              </v-btn>
+            </div>
+          </v-tab>
+        </v-tabs>
+        <!-- 原有的导航标签页 -->
+        <v-tabs v-else-if="subNavItems.length" v-model="activeTab" align-tabs="center">
           <div v-for="item in subNavItems" :key="item.name">
             <v-tab
               :disabled="item.disabled"
@@ -423,6 +459,11 @@ export default {
       theme: null,
       userTab: "profile",
       proxyEnabled: false,
+      // 编辑器标签页相关
+      showEditorTabs: false,
+      activeEditorTab: null,
+      editorTabs: [],
+      tabIdCounter: 0
     };
   },
   created() {
@@ -460,6 +501,18 @@ export default {
         this.notificationsCard.checkUnreadNotifications();
       }
     },
+    
+    activeEditorTab(newTabId, oldTabId) {
+      if (newTabId !== oldTabId) {
+        const previousTab = this.editorTabs.find(tab => tab.id === oldTabId);
+        const currentTab = this.editorTabs.find(tab => tab.id === newTabId);
+        
+        this.$emit('tab-switched', {
+          from: previousTab,
+          to: currentTab
+        });
+      }
+    }
   },
   methods: {
     goHome() {
@@ -620,6 +673,105 @@ export default {
     handleLoginError(error) {
       console.error('Login error:', error);
     },
+
+    // 编辑器标签页管理方法
+    enableEditorTabs() {
+      this.showEditorTabs = true;
+    },
+
+    disableEditorTabs() {
+      this.showEditorTabs = false;
+      this.editorTabs = [];
+      this.activeEditorTab = null;
+    },
+
+    addTab(tabConfig) {
+      const tabId = `tab-${++this.tabIdCounter}`;
+      const tab = {
+        id: tabId,
+        title: tabConfig.title || '未命名',
+        icon: tabConfig.icon || 'mdi-file-document',
+        type: tabConfig.type || 'editor', // editor, diff, view
+        closeable: tabConfig.closeable !== false,
+        modified: false,
+        data: tabConfig.data || {}
+      };
+      
+      this.editorTabs.push(tab);
+      this.activeEditorTab = tabId;
+      
+      // 通知父组件标签页已创建
+      this.$emit('tab-added', tab);
+      
+      return tab;
+    },
+
+    removeTab(tabId) {
+      const index = this.editorTabs.findIndex(tab => tab.id === tabId);
+      if (index !== -1) {
+        const tab = this.editorTabs[index];
+        
+        // 通知父组件标签页即将被移除
+        this.$emit('tab-removing', tab);
+        
+        this.editorTabs.splice(index, 1);
+        
+        // 如果被删除的是当前活动标签页，切换到下一个
+        if (this.activeEditorTab === tabId) {
+          if (this.editorTabs.length > 0) {
+            // 优先选择下一个标签页，如果没有就选择前一个
+            const nextIndex = index < this.editorTabs.length ? index : index - 1;
+            this.activeEditorTab = this.editorTabs[nextIndex].id;
+          } else {
+            this.activeEditorTab = null;
+          }
+        }
+        
+        // 通知父组件标签页已被移除
+        this.$emit('tab-removed', tab);
+      }
+    },
+
+    closeTab(tabId) {
+      const tab = this.editorTabs.find(t => t.id === tabId);
+      if (tab && tab.modified) {
+        // 如果有未保存的更改，弹出确认对话框
+        if (confirm(`标签页 "${tab.title}" 有未保存的更改，确定要关闭吗？`)) {
+          this.removeTab(tabId);
+        }
+      } else {
+        this.removeTab(tabId);
+      }
+    },
+
+    updateTab(tabId, updates) {
+      const tab = this.editorTabs.find(t => t.id === tabId);
+      if (tab) {
+        Object.assign(tab, updates);
+      }
+    },
+
+    setTabModified(tabId, modified = true) {
+      this.updateTab(tabId, { modified });
+    },
+
+    getActiveTab() {
+      return this.editorTabs.find(tab => tab.id === this.activeEditorTab);
+    },
+
+    switchToTab(tabId) {
+      if (this.editorTabs.find(tab => tab.id === tabId)) {
+        const previousTab = this.getActiveTab();
+        this.activeEditorTab = tabId;
+        const currentTab = this.getActiveTab();
+        
+        // 通知父组件标签页切换
+        this.$emit('tab-switched', {
+          from: previousTab,
+          to: currentTab
+        });
+      }
+    }
   },
   computed: {
     getPathSegments() {
@@ -648,5 +800,41 @@ export default {
 .fade-enter,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* 编辑器标签页样式 */
+.editor-tabs {
+  border-bottom: 1px solid rgba(var(--v-border-color), 0.12);
+}
+
+.editor-tab {
+  min-width: 120px;
+  max-width: 200px;
+  text-transform: none;
+  border-right: 1px solid rgba(var(--v-border-color), 0.12);
+  position: relative;
+}
+
+.editor-tab--modified .tab-title::after {
+  content: '●';
+  color: rgb(var(--v-theme-warning));
+  margin-left: 4px;
+}
+
+.editor-tab .close-btn {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.editor-tab:hover .close-btn {
+  opacity: 1;
+}
+
+.tab-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+  font-size: 13px;
 }
 </style>

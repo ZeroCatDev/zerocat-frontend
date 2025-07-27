@@ -42,13 +42,24 @@
               ></v-text-field>
             </v-col>
             <v-col cols="6">
-              <v-autocomplete
-                v-model="search.tag"
-                :items="tags"
-                clearable
-                label="标签"
-                prepend-inner-icon="mdi-tag"
-              ></v-autocomplete>
+            <v-combobox
+      v-model="search.tag"
+      :hide-no-data="false"
+      :items="tags"
+      label="标签"
+      chips
+      hide-selected
+      multiple
+      persistent-hint
+    >
+      <template v-slot:no-data>
+        <v-list-item>
+          <v-list-item-title>
+            No results matching "<strong>{{ search.tag }}</strong>". Press <kbd>enter</kbd> to create a new one
+          </v-list-item-title>
+        </v-list-item>
+      </template>
+    </v-combobox>
             </v-col>
             <v-col cols="4">
               <v-select
@@ -119,7 +130,7 @@ export default {
         order: "view_up",
         authorid: "",
         state: "public",
-        tag: "",
+        tag: [],
         limit: 40,
       },
       showAdvancedSearch: false,
@@ -138,7 +149,7 @@ export default {
         {name: "序号升序", type: "id_up"},
         {name: "序号降序", type: "id_down"},
       ],
-      tags: ["", "动画", "故事", "音乐", "硬核", "艺术", "水"],
+      tags: ["动画", "故事", "音乐", "硬核", "艺术", "水"],
       url: "",
     };
   },
@@ -159,7 +170,7 @@ export default {
         order: "view_up",
         authorid: "",
         state: "public",
-        tag: "",
+        tag: [],
         limit: 40,
       };
       this.onPageChange();
