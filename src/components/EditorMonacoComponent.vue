@@ -51,7 +51,7 @@ const defaultOptions = {
     scale: 2,
     showSlider: "mouseover"
   },
-  scrollBeyondLastLine: false,
+  scrollBeyondLastLine: true,
   automaticLayout: true,
   wordWrap: 'on',
   lineNumbers: 'on',

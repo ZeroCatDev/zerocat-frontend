@@ -107,6 +107,9 @@
                   <v-list-item @click="viewCommit(commit)">
                     <v-list-item-title>查看</v-list-item-title>
                   </v-list-item>
+                  <v-list-item @click="openCommitDetails(commit)">
+                    <v-list-item-title>查看详情</v-list-item-title>
+                  </v-list-item>
                   <v-list-item @click="restoreCommit(commit)">
                     <v-list-item-title>恢复</v-list-item-title>
                   </v-list-item>
@@ -367,6 +370,127 @@
       </v-card>
     </v-dialog>
 
+    <!-- 提交详情对话框 -->
+    <v-dialog v-model="showCommitDetailsDialog" max-width="800">
+      <v-card class="commit-details-dialog">
+        <v-card-title class="pa-4 d-flex align-center">
+          <v-icon class="mr-3" color="primary">mdi-source-commit</v-icon>
+          <div>
+            <div class="text-h6">{{ selectedCommit?.commit_message || '无提交信息' }}</div>
+            <div class="text-caption text-medium-emphasis">
+              {{ selectedCommit?.id?.substring(0, 7) }}
+            </div>
+          </div>
+          <v-spacer></v-spacer>
+          <v-btn icon="mdi-close" variant="text" @click="showCommitDetailsDialog = false"></v-btn>
+        </v-card-title>
+
+        <v-divider></v-divider>
+
+        <v-card-text class="pa-0">
+          <!-- 提交信息概览 -->
+          <div class="pa-4">
+            <v-row>
+              <v-col cols="12" md="8">
+                <div class="d-flex align-center mb-3">
+                  <v-avatar size="32" class="mr-3">
+                    <v-img
+                      v-if="selectedCommit?.author?.avatar"
+                      :src="getAvatarUrl(selectedCommit.author.avatar)"
+                      :alt="selectedCommit.author.display_name"
+                    ></v-img>
+                    <v-icon v-else>mdi-account</v-icon>
+                  </v-avatar>
+                  <div>
+                    <div class="text-subtitle-2">
+                      {{ selectedCommit?.author?.display_name || selectedCommit?.author?.username || '未知用户' }}
+                    </div>
+                    <div class="text-caption text-medium-emphasis">
+                      @{{ selectedCommit?.author?.username }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <div class="text-body-1 mb-2">
+                    {{ selectedCommit?.commit_message || '无提交信息' }}
+                  </div>
+                  <div v-if="selectedCommit?.commit_description" class="text-body-2 text-medium-emphasis">
+                    {{ selectedCommit.commit_description }}
+                  </div>
+                </div>
+              </v-col>
+
+              <v-col cols="12" md="4">
+                <v-card variant="outlined" class="pa-3">
+                  <div class="text-caption text-uppercase mb-2 text-medium-emphasis">提交信息</div>
+
+                  <div class="d-flex align-center mb-2">
+                    <v-icon size="16" class="mr-2 text-medium-emphasis">mdi-source-commit</v-icon>
+                    <span class="text-body-2 font-weight-mono">{{ selectedCommit?.id?.substring(0, 7) }}</span>
+                  </div>
+
+                  <div class="d-flex align-center mb-2">
+                    <v-icon size="16" class="mr-2 text-medium-emphasis">mdi-clock-outline</v-icon>
+                    <span class="text-body-2">{{ formatCommitDate(selectedCommit?.commit_date) }}</span>
+                  </div>
+
+                  <div v-if="selectedCommit?.parent_commit_id" class="d-flex align-center mb-2">
+                    <v-icon size="16" class="mr-2 text-medium-emphasis">mdi-source-branch</v-icon>
+                    <span class="text-body-2 font-weight-mono">{{ selectedCommit.parent_commit_id.substring(0, 7) }}</span>
+                  </div>
+
+                  <div v-if="selectedCommit?.commit_file" class="d-flex align-center">
+                    <v-icon size="16" class="mr-2 text-medium-emphasis">mdi-file-document</v-icon>
+                    <span class="text-body-2 font-weight-mono">{{ selectedCommit.commit_file.substring(0, 7) }}</span>
+                  </div>
+                </v-card>
+              </v-col>
+            </v-row>
+          </div>
+
+          <v-divider></v-divider>
+
+          <!-- 操作按钮 -->
+          <div class="pa-4">
+            <div class="d-flex gap-2">
+              <v-btn
+                variant="outlined"
+                prepend-icon="mdi-eye"
+                @click="viewCommitFromDetails(selectedCommit)"
+              >
+                查看代码
+              </v-btn>
+              <v-btn
+                variant="outlined"
+                prepend-icon="mdi-restore"
+                @click="restoreCommitFromDetails(selectedCommit)"
+              >
+                恢复到此提交
+              </v-btn>
+              <v-btn
+                variant="outlined"
+                prepend-icon="mdi-content-copy"
+                @click="copyCommitId(selectedCommit?.id)"
+              >
+                复制提交ID
+              </v-btn>
+            </div>
+          </div>
+
+          <v-divider></v-divider>
+
+          <!-- 详细信息 -->
+          <div class="pa-4">
+            <div class="text-subtitle-2 mb-3">详细信息</div>
+            <v-card variant="outlined" class="pa-3">
+              <pre class="text-body-2 font-weight-mono">{{ formatCommitDetailsJson(selectedCommit) }}</pre>
+            </v-card>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
     <!-- 加载遮罩 -->
     <v-overlay v-model="loading" class="align-center justify-center" persistent>
       <v-card width="300">
@@ -401,8 +525,8 @@
 import axios from "@/axios/axios";
 import EditorMonacoComponent from "@/components/EditorMonacoComponent.vue";
 import DiffMonacoComponent from "@/components/DiffMonacoComponent.vue";
-import { toRaw } from "vue";
-
+import { toRaw, ref } from "vue";
+import { get } from "@/services/serverConfig";
 export default {
   name: "ProjectEditor",
   components: {
@@ -411,6 +535,7 @@ export default {
   },
   data() {
     return {
+      s3BucketUrl: ref(''),
       // 项目基本信息
       project: null,
       fileContent: null,
@@ -444,6 +569,8 @@ export default {
       showCommitDetails: false,
       showConfirmDialog: false,
       committing: false,
+      showCommitDetailsDialog: false,
+      selectedCommit: null,
 
       // 提交相关
       commitMessage: "",
@@ -513,6 +640,7 @@ export default {
       },
     };
   },
+
   computed: {
     projectId() {
       return this.$route.query.id;
@@ -636,8 +764,10 @@ export default {
       }
     },
   },
-  mounted() {
+  async mounted() {
     // 加载项目
+    this.s3BucketUrl = await get('s3.staticurl');
+    console.log(this.s3BucketUrl);
     this.loadProject();
   },
 
@@ -1345,6 +1475,10 @@ export default {
       }
     },
 
+    getAvatarUrl(avatar) {
+      return `${this.s3BucketUrl}/user/${avatar}`;
+    },
+
     async saveAndCommitCode() {
       if (this.fileContent === null) {
         this.showSnackbarMessage("文件内容未加载", "error");
@@ -1834,6 +1968,62 @@ export default {
         callback();
       }
     },
+
+    // ===============================
+    // 提交详情对话框
+    // ===============================
+    openCommitDetails(commit) {
+      this.selectedCommit = commit;
+      this.showCommitDetailsDialog = true;
+    },
+
+    viewCommitFromDetails(commit) {
+      this.showCommitDetailsDialog = false;
+      this.viewCommit(commit);
+    },
+
+    restoreCommitFromDetails(commit) {
+      this.showCommitDetailsDialog = false;
+      this.restoreCommit(commit);
+    },
+
+    copyCommitId(commitId) {
+      if (commitId) {
+        navigator.clipboard.writeText(commitId).then(() => {
+          this.showSnackbarMessage("提交ID已复制到剪贴板", "success");
+        }).catch(() => {
+          this.showSnackbarMessage("复制失败", "error");
+        });
+      }
+    },
+
+    formatCommitDate(dateString) {
+      if (!dateString) return "未知时间";
+      const date = new Date(dateString);
+      return date.toLocaleString("zh-CN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      });
+    },
+
+    formatCommitDetailsJson(commit) {
+      if (!commit) return "无提交信息";
+
+      return JSON.stringify({
+        id: commit.id,
+        commit_message: commit.commit_message,
+        commit_description: commit.commit_description,
+        commit_date: commit.commit_date,
+        commit_file: commit.commit_file,
+        parent_commit_id: commit.parent_commit_id,
+        depth: commit.depth,
+        author: commit.author
+      }, null, 2);
+    },
   },
 };
 </script>
@@ -1996,5 +2186,25 @@ export default {
 
 .language-list-item.v-list-item--active:hover {
   background-color: rgba(var(--v-theme-primary), 0.15);
+}
+
+/* 提交详情对话框样式 */
+.font-weight-mono {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+.commit-details-dialog .v-card-title {
+  border-bottom: 1px solid rgba(var(--v-border-color), 0.12);
+}
+
+.commit-details-dialog pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.commit-details-dialog .v-avatar {
+  border: 1px solid rgba(var(--v-border-color), 0.12);
 }
 </style>
