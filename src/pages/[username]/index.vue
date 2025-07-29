@@ -91,7 +91,7 @@
               <Markdown>{{ user.bio }}</Markdown>
             </v-card-text>
           </v-card>
-          <Projects :url="url"></Projects>
+          <Projects :url="url" :showAuthor="false"></Projects>
           <v-row>
             <v-col
               v-for="item in lists"
@@ -174,7 +174,6 @@ import UserFollowers from "@/components/user/UserFollowers.vue";
 import UserFollowing from "@/components/user/UserFollowing.vue";
 import Timeline from "@/components/timeline/Timeline.vue";
 import PageAnalytics from "@/components/analytics/PageAnalytics.vue";
-import {ref, onMounted} from "vue";
 import {get} from "@/services/serverConfig";
 
 export default {
@@ -305,7 +304,7 @@ export default {
       useHead({
         title: "" + this.user.display_name,
       });
-      this.url = `/searchapi?search_userid=${this.user.id}&search_type=&search_title=&search_source=&search_description=&search_orderby=view_up&search_state=public&search_tag=`;
+      this.url = `/searchapi?search_userid=${this.user.id}&search_orderby=view_up&search_state=public`;
     },
     async getProjectList() {
       try {

@@ -20,7 +20,7 @@
       </p>
     </v-col>
   </v-row>
-  <show-projects :projects="projects" :show-author="true"></show-projects>
+  <show-projects :projects="projects" :show-author="showAuthor"></show-projects>
   <br/>
   <v-pagination
     v-if="hasTotalCount"
@@ -44,7 +44,10 @@ export default {
       type: String,
       required: true,
     },
-
+    showAuthor: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
