@@ -317,7 +317,7 @@ export default {
           detail: "项目已删除",
           life: 3000,
         });
-        this.$router.push("/explore");
+        this.$router.push("/app/explore");
       } catch (error) {
         console.error(error);
         this.$toast.add({

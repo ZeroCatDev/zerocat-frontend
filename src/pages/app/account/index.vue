@@ -88,6 +88,17 @@
 
 
           </v-window-item>
+
+          <!-- Tokens Tab -->
+          <v-window-item value="tokens">
+            <h3 class="text-h5 mb-4">API令牌管理</h3>
+            <token-manager
+              @error="handleError"
+              @token-created="handleTokenCreated"
+              @token-deleted="handleTokenDeleted"
+              @token-revoked="handleTokenRevoked"
+            />
+          </v-window-item>
         </v-window>
       </v-card-text>
     </v-card>
@@ -115,6 +126,7 @@ import AvatarEditor from "@/components/account/AvatarEditor.vue";
 import UserFollowing from "@/components/user/UserFollowing.vue";
 import UserFollowers from "@/components/user/UserFollowers.vue";
 import UserBlocked from "@/components/user/UserBlocked.vue";
+import TokenManager from "@/components/account/TokenManager.vue";
 
 export default {
   components: {
@@ -129,6 +141,7 @@ export default {
     UserFollowing,
     UserFollowers,
     UserBlocked,
+    TokenManager,
   },
   data() {
     return {
@@ -145,6 +158,7 @@ export default {
         {title: "OAuth", value: "oauth", icon: "mdi-link-variant"},
         {title: "安全", value: "security", icon: "mdi-security"},
         {title: "关系", value: "relationships", icon: "mdi-account-group", to: "/app/account/relationships"},
+        {title: "令牌", value: "tokens", icon: "mdi-key"},
         {title: "开发者", value: "developer", icon: "mdi-account-group", to: "/app/account/developer"},
 
       ],
@@ -217,6 +231,27 @@ export default {
         response.data.message
       );
       this.getUserById();
+    },
+    handleTokenCreated(response) {
+      this.showToast(
+        response.data.status || "success",
+        "创建令牌",
+        response.data.message || "令牌创建成功"
+      );
+    },
+    handleTokenDeleted(response) {
+      this.showToast(
+        "success",
+        "删除令牌",
+        "令牌删除成功"
+      );
+    },
+    handleTokenRevoked(response) {
+      this.showToast(
+        "success",
+        "吊销令牌",
+        "令牌吊销成功"
+      );
     },
     handleError(error) {
       this.showToast("error", "错误", error.message);
