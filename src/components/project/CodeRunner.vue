@@ -45,12 +45,12 @@
               v-model="code"
               :label="currentLanguage.placeholder || '在此输入代码'"
               :placeholder="currentLanguage.sample"
-              auto-grow
+
               class="mb-4"
               rows="12"
               variant="outlined"
               @keydown.enter="runCode"
-              no-resize
+
             >
               <template #prepend-inner>
                 <v-icon icon="mdi-code-tags" class="mt-1" size="20" color="grey"></v-icon>
