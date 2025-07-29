@@ -1,0 +1,1 @@
+function t(e,o){o=="scratch"&&(localStorage.getItem("embedurl")?window.open(localStorage.getItem("embedurl")+"/editor.html?id="+e):window.open("/scratch/editor.html?id="+e)),o=="python"&&window.open("/python/edit.html?id="+e),o=="text"&&window.open("/python/edit.html?id="+e)}export{t as o};
