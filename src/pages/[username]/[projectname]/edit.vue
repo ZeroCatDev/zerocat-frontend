@@ -1511,7 +1511,7 @@ export default {
 
         // 准备要保存的内容
         let contentToSave = this.fileContent;
-        let isValidJson = false;
+        let isValidJson;
 
         // 检查是否为JSON格式
         try {
@@ -1525,10 +1525,10 @@ export default {
         }
 
         console.log("准备保存文件，内容长度:", contentToSave.length);
-
+        console.log("isValidJson:", isValidJson);
         // 保存文件 - 使用不同的方式处理JSON和非JSON内容
         const saveResponse = await axios.post(
-          "/project/savefile?json=false&source=index",
+          `/project/savefile?json=${isValidJson}&${isValidJson ? "source=index" : ""}`,
           isValidJson
             ? contentToSave
             : JSON.stringify({ index: this.fileContent }),
@@ -1698,113 +1698,6 @@ export default {
       this.saveAndSubmitCommit();
     },
 
-    async saveAndSubmitCommit() {
-      try {
-        this.committing = true;
-        if (!this.commitMessage.trim()) {
-          this.showSnackbarMessage("请输入提交信息", "warning");
-          return;
-        }
-
-        // 准备要保存的内容
-        let contentToSave = this.fileContent;
-        let isValidJson = false;
-
-        // 检查是否为JSON格式
-        try {
-          JSON.parse(contentToSave);
-          isValidJson = true;
-          console.log("内容已经是有效的JSON格式");
-        } catch (e) {
-          console.log("内容不是有效的JSON格式，将直接发送");
-          isValidJson = false;
-        }
-
-        console.log("准备保存文件，内容长度:", contentToSave.length);
-
-        // 保存文件
-        const saveResponse = await axios.post(
-          "/project/savefile?json=false&source=index",
-          isValidJson
-            ? contentToSave
-            : JSON.stringify({ index: this.fileContent }),
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "X-Project-ID": this.project.id,
-            },
-          }
-        );
-
-        console.log("保存文件响应:", saveResponse.data);
-
-        if (saveResponse.data.status !== "success") {
-          throw new Error(saveResponse.data.message || "保存文件失败");
-        }
-
-        // 更新访问令牌和文件SHA256
-        this.accessFileToken = saveResponse.data.accessFileToken;
-        this.fileSha256 = saveResponse.data.sha256;
-
-        if (!this.fileSha256) {
-          console.error("服务器未返回文件SHA256");
-          throw new Error("服务器未返回文件SHA256，无法完成提交");
-        }
-
-        console.log("文件保存成功，使用SHA256:", this.fileSha256);
-        console.log("准备提交代码，分支:", this.currentBranch);
-
-        // 提交代码
-        const commitData = {
-          branch: this.currentBranch,
-          projectid: this.project.id,
-          accessFileToken: this.accessFileToken,
-          message: this.commitMessage,
-          commit_description: this.commitDescription,
-          commit_file: this.fileSha256,
-        };
-
-        console.log("提交数据:", commitData);
-
-        const commitResponse = await axios.put(
-          `/project/commit/id/${this.project.id}`,
-          commitData
-        );
-
-        console.log("提交响应:", commitResponse.data);
-
-        if (commitResponse.data.status === "success") {
-          this.commitMessage = "";
-          this.commitDescription = "";
-          this.hasUnsavedChanges = false;
-
-          // 更新所有标签页的修改状态
-          this.editorTabs.forEach((tab) => {
-            this.setTabModified(tab.id, false);
-          });
-
-          // 刷新提交历史
-          await this.loadCommitHistory();
-
-          this.showSnackbarMessage(
-            "代码保存并提交成功" + (!isValidJson ? " (已转换为JSON格式)" : ""),
-            "success"
-          );
-        } else {
-          throw new Error(commitResponse.data.message || "提交代码失败");
-        }
-        this.showSaveDialog = false;
-        this.committing = false;
-      } catch (error) {
-        console.error("提交失败:", error);
-        this.showSnackbarMessage(
-          "提交失败: " +
-            (error.response?.data?.message || error.message || "未知错误"),
-          "error"
-        );
-        this.committing = false;
-      }
-    },
 
     async restoreCommit(commit) {
       if (!commit || !commit.id) {

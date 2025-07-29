@@ -1,14 +1,14 @@
 <template>
   <v-card>
     <v-card-title class="d-flex justify-space-between">
-      Terminal
+      终端
       <div class="d-flex align-center">
         <v-chip
           :color="connected ? 'success' : 'error'"
           class="mr-2"
           small
         >
-          {{ connected ? 'Connected' : 'Disconnected' }}
+          {{ connected ? '已连接' : '未连接' }}
         </v-chip>
         <span v-if="sessionTime" class="text-caption">{{ sessionTime }}</span>
       </div>
@@ -25,7 +25,7 @@
         color="primary"
         @click="connect"
       >
-        Reconnect
+        重新连接
       </v-btn>
       <v-btn
         v-if="connected"
@@ -33,14 +33,14 @@
         color="primary"
         @click="runCode"
       >
-        Run
+        运行
       </v-btn>
       <v-btn
         v-if="connected"
         color="error"
         @click="terminateSession"
       >
-        Terminate
+        终止
       </v-btn>
     </v-card-actions>
   </v-card>

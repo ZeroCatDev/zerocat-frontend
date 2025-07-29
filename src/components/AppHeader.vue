@@ -384,6 +384,13 @@
         title="站点地图"
         to="/app/admin/sitemap"
       ></v-list-item>
+
+      <v-list-item
+        prepend-icon="mdi-puzzle"
+        rounded="xl"
+        title="扩展管理"
+        to="/app/admin/extensions"
+      ></v-list-item>
     </v-list>
 
     <v-divider></v-divider>
@@ -501,12 +508,12 @@ export default {
         this.notificationsCard.checkUnreadNotifications();
       }
     },
-    
+
     activeEditorTab(newTabId, oldTabId) {
       if (newTabId !== oldTabId) {
         const previousTab = this.editorTabs.find(tab => tab.id === oldTabId);
         const currentTab = this.editorTabs.find(tab => tab.id === newTabId);
-        
+
         this.$emit('tab-switched', {
           from: previousTab,
           to: currentTab
@@ -696,13 +703,13 @@ export default {
         modified: false,
         data: tabConfig.data || {}
       };
-      
+
       this.editorTabs.push(tab);
       this.activeEditorTab = tabId;
-      
+
       // 通知父组件标签页已创建
       this.$emit('tab-added', tab);
-      
+
       return tab;
     },
 
@@ -710,12 +717,12 @@ export default {
       const index = this.editorTabs.findIndex(tab => tab.id === tabId);
       if (index !== -1) {
         const tab = this.editorTabs[index];
-        
+
         // 通知父组件标签页即将被移除
         this.$emit('tab-removing', tab);
-        
+
         this.editorTabs.splice(index, 1);
-        
+
         // 如果被删除的是当前活动标签页，切换到下一个
         if (this.activeEditorTab === tabId) {
           if (this.editorTabs.length > 0) {
@@ -726,7 +733,7 @@ export default {
             this.activeEditorTab = null;
           }
         }
-        
+
         // 通知父组件标签页已被移除
         this.$emit('tab-removed', tab);
       }
@@ -764,7 +771,7 @@ export default {
         const previousTab = this.getActiveTab();
         this.activeEditorTab = tabId;
         const currentTab = this.getActiveTab();
-        
+
         // 通知父组件标签页切换
         this.$emit('tab-switched', {
           from: previousTab,

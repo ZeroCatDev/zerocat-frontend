@@ -86,7 +86,7 @@ export default {
   },
   computed: {
     embedurl() {
-      const baseUrl = `/scratch/embed.html?id=${this.projectId}&embed=true`;
+      const baseUrl = `http://localhost:8601/embed.html?id=${this.projectId}&embed=true`;
       if (this.commitId !== 'latest') {
         return `${baseUrl}&ref=${this.commitId}`;
       }

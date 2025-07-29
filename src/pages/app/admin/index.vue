@@ -45,6 +45,7 @@ export default {
         {name: "Sitemap", path: "/app/admin/sitemap"},
         {name: "用户管理", path: "/app/admin/users"},
         {name: "项目管理", path: "/app/admin/project"},
+        {name: "扩展管理", path: "/app/admin/extensions"},
       ],
     };
   },
