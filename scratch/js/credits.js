@@ -138,7 +138,7 @@ var GUI =
 /******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "./";
+/******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	var jsonpArray = window["webpackJsonpGUI"] = window["webpackJsonpGUI"] || [];
 /******/ 	var oldJsonpFunction = jsonpArray.push.bind(jsonpArray);
@@ -235,7 +235,7 @@ const AddonHooks = {
 // Legacy export format because this is used by some build-time scripts stuck in the past.
 // eslint-disable-next-line import/no-commonjs
 module.exports = {
-  APP_NAME: 'ZeroCat'
+  APP_NAME: 'TurboWarp'
 };
 
 /***/ }),
@@ -311,6 +311,7 @@ const guiColors = {
   'extensions-transparent': 'hsla(10, 85%, 65%, 0.35)',
   'extensions-light': 'hsla(10, 57%, 85%, 1)',
   'drop-highlight': '#ff8c8c',
+  // eslint-disable-next-line max-len
   'menu-bar-background-image': 'linear-gradient(90deg, rgba(255, 0, 0, 0.75) 0%, rgba(255, 154, 0, 0.75) 10%, rgba(208, 222, 33, 0.75) 20%, rgba(79, 220, 74, 0.75) 30%, rgba(63, 218, 216, 0.75) 40%, rgba(47, 201, 226, 0.75) 50%, rgba(28, 127, 238, 0.75) 60%, rgba(95, 21, 242, 0.75) 70%, rgba(186, 12, 248, 0.75) 80%, rgba(251, 7, 217, 0.75) 90%, rgba(255, 0, 0, 0.75) 100%)'
 };
 const blockColors = {
@@ -1318,7 +1319,7 @@ __webpack_require__.r(__webpack_exports__);
 const matchMedia = query => window.matchMedia ? window.matchMedia(query) : null;
 const PREFERS_HIGH_CONTRAST_QUERY = matchMedia('(prefers-contrast: more)');
 const PREFERS_DARK_QUERY = matchMedia('(prefers-color-scheme: dark)');
-const STORAGE_KEY = 'zc:theme';
+const STORAGE_KEY = 'tw:theme';
 
 /**
  * @returns {Theme} detected theme
@@ -1727,11 +1728,11 @@ const fromHardcoded = _ref => {
     username
   } = _ref;
   const result = {
-    image: "".concat("https://zerocat-api.houlangs.com", "/api/usertx?id=").concat(userID),
+    image: "https://trampoline.turbowarp.org/avatars/".concat(userID),
     text: username
   };
   if (username && userID !== '0') {
-    result.href = "".concat("https://zerocat-api.houlangs.com", "/user?id=").concat(userID);
+    result.href = "https://scratch.mit.edu/users/".concat(username, "/");
   }
   return result;
 };
@@ -1745,6 +1746,7 @@ const contributors = [{
   userID: '64691048',
   username: 'CST1229'
 }, {
+  userID: '128887584',
   username: 'FurryR'
 }, {
   userID: '17340565',
@@ -1759,6 +1761,7 @@ const contributors = [{
   userID: '9636514',
   username: 'Tacodiva7729'
 }, {
+  userID: '141930175',
   username: 'SimonShiki'
 }, {
   userID: '34824813',
@@ -1853,6 +1856,9 @@ const extensionDevelopers = [{
 }, {
   username: '0832'
 }, {
+  userID: '74246431',
+  username: '0znzw'
+}, {
   userID: '17235330',
   username: 'aleb2005'
 }, {
@@ -1885,6 +1891,9 @@ const extensionDevelopers = [{
 }, {
   username: 'MikeDEV'
 }, {
+  userID: '62325737',
+  username: 'mybearworld'
+}, {
   userID: '62950341',
   username: 'NamelessCat'
 }, {
@@ -1895,6 +1904,10 @@ const extensionDevelopers = [{
 }, {
   username: 'pumpkinhasapatch'
 }, {
+  userID: '126715567',
+  username: 'PwLDev'
+}, {
+  userID: '139929771',
   username: 'qxsck'
 }, {
   userID: '29118689',
@@ -1912,6 +1925,7 @@ const extensionDevelopers = [{
   userID: '103496265',
   username: 'shreder95ua'
 }, {
+  userID: '72467731',
   username: 'Skyhigh173'
 }, {
   userID: '52066199',
@@ -1932,6 +1946,9 @@ const extensionDevelopers = [{
 }, {
   userID: '3318598',
   username: 'plant2014'
+}, {
+  userID: '128778351',
+  username: 'XmerOriginals'
 }, {
   username: 'ZXMushroom63'
 }].map(fromHardcoded);

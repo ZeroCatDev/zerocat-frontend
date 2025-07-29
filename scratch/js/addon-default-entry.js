@@ -5521,7 +5521,7 @@ class BlockInputEnum extends BlockInput {
       if (typeof options[i][1] === "string" && BlockInputEnum.INVALID_VALUES.indexOf(options[i][1]) === -1) {
         this.values.push({
           value: options[i][1],
-          string: options[i][0].replaceAll(String.fromCharCode(160), " ")
+          string: options[i][0].replace(/\u00a0/g, " ")
         });
       }
     }
@@ -6904,7 +6904,7 @@ class QueryInfo {
     /** @type {WorkspaceQuerier} */
     this.querier = querier;
     /** @type {string} The query */
-    this.str = query.replaceAll(String.fromCharCode(160), " ");
+    this.str = query.replace(/\u00a0/g, " ");
     /** @type {string} A lowercase version of the query. Used for case insensitive comparisons. */
     this.lowercase = this.str.toLowerCase();
     /** @type {number} A unique identifier for this query */
@@ -7816,6 +7816,9 @@ const resources = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _turbowarp_scratch_svg_renderer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @turbowarp/scratch-svg-renderer */ "./node_modules/@turbowarp/scratch-svg-renderer/src/index.js");
+/* harmony import */ var _turbowarp_scratch_svg_renderer__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_turbowarp_scratch_svg_renderer__WEBPACK_IMPORTED_MODULE_0__);
+
 /* harmony default export */ __webpack_exports__["default"] = (async function (_ref) {
   let {
     addon,
@@ -8102,6 +8105,7 @@ __webpack_require__.r(__webpack_exports__);
     return raster;
   };
   const makeVectorOnion = (opacity, costume, asset, isBefore) => new Promise((resolve, reject) => {
+    asset = _turbowarp_scratch_svg_renderer__WEBPACK_IMPORTED_MODULE_0__["sanitizeSvg"].sanitizeSvgText(asset);
     const {
       rotationCenterX,
       rotationCenterY
@@ -9152,7 +9156,7 @@ function modifiedCreateAllInputs(connectionMap) {
   }
 
   // remove all traces of %l at the earliest possible time
-  this.procCode_ = this.procCode_.replaceAll("%l ", "");
+  this.procCode_ = this.procCode_.replace(/%l /g, "");
 }
 
 //https://github.com/scratchfoundation/scratch-blocks/blob/f210e042988b91bcdc2abeca7a2d85e178edadb2/blocks_vertical/procedures.js#L565

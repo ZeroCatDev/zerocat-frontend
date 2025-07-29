@@ -165,7 +165,7 @@ module.exports = "data:image/svg+xml;base64,PCEtLSBodHRwczovL2FrYXJpY29ucy5jb20v
 // Legacy export format because this is used by some build-time scripts stuck in the past.
 // eslint-disable-next-line import/no-commonjs
 module.exports = {
-  APP_NAME: 'ZeroCat'
+  APP_NAME: 'TurboWarp'
 };
 
 /***/ }),
@@ -191,7 +191,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 // tw: read language from localStorage
-const LANGUAGE_KEY = 'zc:language';
+const LANGUAGE_KEY = 'tw:language';
 
 /**
  * look for language setting in the browser. Check against supported locales.
@@ -424,6 +424,7 @@ const guiColors = {
   'extensions-transparent': 'hsla(10, 85%, 65%, 0.35)',
   'extensions-light': 'hsla(10, 57%, 85%, 1)',
   'drop-highlight': '#ff8c8c',
+  // eslint-disable-next-line max-len
   'menu-bar-background-image': 'linear-gradient(90deg, rgba(255, 0, 0, 0.75) 0%, rgba(255, 154, 0, 0.75) 10%, rgba(208, 222, 33, 0.75) 20%, rgba(79, 220, 74, 0.75) 30%, rgba(63, 218, 216, 0.75) 40%, rgba(47, 201, 226, 0.75) 50%, rgba(28, 127, 238, 0.75) 60%, rgba(95, 21, 242, 0.75) 70%, rgba(186, 12, 248, 0.75) 80%, rgba(251, 7, 217, 0.75) 90%, rgba(255, 0, 0, 0.75) 100%)'
 };
 const blockColors = {
@@ -1431,7 +1432,7 @@ __webpack_require__.r(__webpack_exports__);
 const matchMedia = query => window.matchMedia ? window.matchMedia(query) : null;
 const PREFERS_HIGH_CONTRAST_QUERY = matchMedia('(prefers-contrast: more)');
 const PREFERS_DARK_QUERY = matchMedia('(prefers-color-scheme: dark)');
-const STORAGE_KEY = 'zc:theme';
+const STORAGE_KEY = 'tw:theme';
 
 /**
  * @returns {Theme} detected theme

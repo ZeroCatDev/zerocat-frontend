@@ -77,7 +77,7 @@
 /******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "./";
+/******/ 	__webpack_require__.p = "";
 /******/
 /******/
 /******/ 	// Load entry module and return exports
@@ -2270,6 +2270,40 @@ module.exports = new WorkerDispatch();
 
 /***/ }),
 
+/***/ "./node_modules/scratch-vm/src/engine/scratch-blocks-constants.js":
+/*!************************************************************************!*\
+  !*** ./node_modules/scratch-vm/src/engine/scratch-blocks-constants.js ***!
+  \************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/**
+ * These constants are copied from scratch-blocks/core/constants.js
+ * @TODO find a way to require() these straight from scratch-blocks... maybe make a scratch-blocks/dist/constants.js?
+ * @readonly
+ * @enum {int}
+ */
+const ScratchBlocksConstants = {
+  /**
+   * ENUM for output shape: hexagonal (booleans/predicates).
+   * @const
+   */
+  OUTPUT_SHAPE_HEXAGONAL: 1,
+  /**
+   * ENUM for output shape: rounded (numbers).
+   * @const
+   */
+  OUTPUT_SHAPE_ROUND: 2,
+  /**
+   * ENUM for output shape: squared (any/all values; strings).
+   * @const
+   */
+  OUTPUT_SHAPE_SQUARE: 3
+};
+module.exports = ScratchBlocksConstants;
+
+/***/ }),
+
 /***/ "./node_modules/scratch-vm/src/extension-support/argument-type.js":
 /*!************************************************************************!*\
   !*** ./node_modules/scratch-vm/src/extension-support/argument-type.js ***!
@@ -2479,6 +2513,8 @@ Object.assign(global.Scratch, ScratchCommon, {
   canNotify: () => Promise.resolve(false),
   canGeolocate: () => Promise.resolve(false),
   canEmbed: () => Promise.resolve(false),
+  canDownload: () => Promise.resolve(false),
+  download: () => Promise.reject(new Error('Scratch.download not supported in sandboxed extensions')),
   translate
 });
 
@@ -2519,6 +2555,38 @@ module.exports = TargetType;
 
 /***/ }),
 
+/***/ "./node_modules/scratch-vm/src/extension-support/tw-block-shape.js":
+/*!*************************************************************************!*\
+  !*** ./node_modules/scratch-vm/src/extension-support/tw-block-shape.js ***!
+  \*************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+// Use the constants instead of manually redefining them again
+const ScratchBlocksConstants = __webpack_require__(/*! ../engine/scratch-blocks-constants */ "./node_modules/scratch-vm/src/engine/scratch-blocks-constants.js");
+
+/**
+ * Types of block shapes
+ * @enum {number}
+ */
+const BlockShape = {
+  /**
+   * Output shape: hexagonal (booleans/predicates).
+   */
+  HEXAGONAL: ScratchBlocksConstants.OUTPUT_SHAPE_HEXAGONAL,
+  /**
+   * Output shape: rounded (numbers).
+   */
+  ROUND: ScratchBlocksConstants.OUTPUT_SHAPE_ROUND,
+  /**
+   * Output shape: squared (any/all values; strings).
+   */
+  SQUARE: ScratchBlocksConstants.OUTPUT_SHAPE_SQUARE
+};
+module.exports = BlockShape;
+
+/***/ }),
+
 /***/ "./node_modules/scratch-vm/src/extension-support/tw-extension-api-common.js":
 /*!**********************************************************************************!*\
   !*** ./node_modules/scratch-vm/src/extension-support/tw-extension-api-common.js ***!
@@ -2528,11 +2596,13 @@ module.exports = TargetType;
 
 const ArgumentType = __webpack_require__(/*! ./argument-type */ "./node_modules/scratch-vm/src/extension-support/argument-type.js");
 const BlockType = __webpack_require__(/*! ./block-type */ "./node_modules/scratch-vm/src/extension-support/block-type.js");
+const BlockShape = __webpack_require__(/*! ./tw-block-shape */ "./node_modules/scratch-vm/src/extension-support/tw-block-shape.js");
 const TargetType = __webpack_require__(/*! ./target-type */ "./node_modules/scratch-vm/src/extension-support/target-type.js");
 const Cast = __webpack_require__(/*! ../util/cast */ "./node_modules/scratch-vm/src/util/cast.js");
 const Scratch = {
   ArgumentType,
   BlockType,
+  BlockShape,
   TargetType,
   Cast
 };

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Addon Settings - ZeroCat</title>
+    <title>Addon Settings - TurboWarp</title>
     <style>
       body[data-splash-theme="dark"] {
         background: #111;
@@ -16,7 +16,7 @@
   </head>
   <body>
     <noscript>
-      <h1>This page 需要使用杨博士自主研发遥遥领先的JvavScript</h1>
+      <h1>This page requires JavaScript</h1>
     </noscript>
 
     <script>
@@ -24,7 +24,7 @@
         var theme = '';
 
         try {
-          var themeSetting = localStorage.getItem('zc:theme');
+          var themeSetting = localStorage.getItem('tw:theme');
         } catch (e) {
           // ignore
         }
@@ -52,5 +52,5 @@
     </script>
 
     <div id="app"></div>
-  <script src="./js/vendors~addon-settings~credits~editor~embed~fullscreen~player.js"></script><script src="./js/addon-settings~addons~editor~fullscreen~player.js"></script><script src="./js/addon-settings~editor~embed~fullscreen~player.js"></script><script src="./js/addon-settings.js"></script></body>
+  <script src="js/vendors~addon-settings~credits~editor~embed~fullscreen~player.js"></script><script src="js/addon-settings~addons~editor~fullscreen~player.js"></script><script src="js/addon-settings~editor~embed~fullscreen~player.js"></script><script src="js/addon-settings.js"></script></body>
 </html>

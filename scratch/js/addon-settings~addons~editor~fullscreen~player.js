@@ -4537,7 +4537,7 @@ __webpack_require__.r(__webpack_exports__);
 /*! exports provided: commit, default */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"commit\":\"0d357b5\"}");
+module.exports = JSON.parse("{\"commit\":\"df5f51e\"}");
 
 /***/ }),
 
@@ -4553,13 +4553,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _settings_store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./settings-store */ "./src/addons/settings-store.js");
 
 const settingStore = new _settings_store__WEBPACK_IMPORTED_MODULE_0__["default"]();
-//const urlParameters = new URLSearchParams(location.search);
-//if (urlParameters.has('addons')) {
-//    settingStore.parseUrlParameter(urlParameters.get('addons'));
-//} else {
-settingStore.readLocalStorage();
-//}
-//从url加载扩展
+const urlParameters = new URLSearchParams(location.search);
+if (urlParameters.has('addons')) {
+  settingStore.parseUrlParameter(urlParameters.get('addons'));
+} else {
+  settingStore.readLocalStorage();
+}
 /* harmony default export */ __webpack_exports__["default"] = (settingStore);
 
 /***/ }),
@@ -4601,7 +4600,7 @@ function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = 
 
 
 
-const SETTINGS_KEY = 'zc:addons';
+const SETTINGS_KEY = 'tw:addons';
 const VERSION = 5;
 const migrateSettings = settings => {
   const oldVersion = settings._;
