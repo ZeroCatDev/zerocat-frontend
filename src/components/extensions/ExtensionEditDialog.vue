@@ -170,14 +170,20 @@
             <v-card-title class="text-subtitle-1">示例项目</v-card-title>
             <v-card-text>
               <div class="d-flex align-center mb-3">
-
-                <v-btn
-                  class="ml-2"
-                  variant="outlined"
-                  @click="showProjectSelector = true"
+                <ProjectSelector
+                  v-model="selectedSampleProjectId"
+                  :multiple="false"
+                  :author="'me'"
                 >
-                  选择
-                </v-btn>
+                  <template v-slot:default>
+                    <v-btn
+                      class="ml-2"
+                      variant="outlined"
+                    >
+                      选择
+                    </v-btn>
+                  </template>
+                </ProjectSelector>
               </div>
 
               <!-- 已选择的示例项目 -->
@@ -258,12 +264,6 @@
       </v-card-actions>
     </v-card>
 
-    <!-- 项目选择对话框 -->
-    <ProjectSelector
-      v-model="showProjectSelector"
-      :projects="myProjects"
-      @select="selectSampleProject"
-    />
   </v-dialog>
 </template>
 
@@ -271,7 +271,7 @@
 import request from "@/axios/axios";
 import { localuser } from "@/services/localAccount";
 import { get } from "@/services/serverConfig";
-import ProjectSelector from "./ProjectSelector.vue";
+import ProjectSelector from "../shared/ProjectSelector.vue";
 
 export default {
   name: "ExtensionEditDialog",
@@ -312,7 +312,7 @@ export default {
 
       myProjects: [],
       selectedSampleProject: null,
-      showProjectSelector: false
+      selectedSampleProjectId: null
     };
   },
   computed: {
@@ -350,6 +350,15 @@ export default {
       } else {
         this.fetchCommits();
       }
+    },
+
+    selectedSampleProjectId: {
+      handler(newId) {
+        if (newId) {
+          this.loadSampleProject(newId);
+        }
+      },
+      immediate: true
     }
   },
   async created() {
@@ -463,7 +472,21 @@ export default {
       }
     },
 
+    async loadSampleProject(projectId) {
+      try {
+        const response = await request.post('/project/batch', { projectIds: [projectId] });
+        const projects = response.data.data || [];
+        if (projects.length > 0) {
+          this.selectedSampleProject = projects[0];
+          this.form.samples = projectId;
+        }
+      } catch (error) {
+        console.error('Failed to load sample project:', error);
+      }
+    },
+
     selectSampleProject(project) {
+      // 保持向后兼容的方法（已废弃）
       this.selectedSampleProject = project;
       this.form.samples = project.id;
       this.showProjectSelector = false;
@@ -471,6 +494,7 @@ export default {
 
     clearSampleProject() {
       this.selectedSampleProject = null;
+      this.selectedSampleProjectId = null;
       this.form.samples = null;
     },
 

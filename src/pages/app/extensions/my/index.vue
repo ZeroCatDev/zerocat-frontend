@@ -36,17 +36,8 @@
                 md="6"
                 lg="4"
               >
-                <v-card class="extension-card" variant="tonal" border hover>
+                <v-card  border hover :to="`/app/extensions/my/${extension.id}`">
                   <v-card-item>
-                    <template v-slot:prepend>
-                      <v-avatar size="48">
-                        <v-img
-                          v-if="extension.image"
-                          :src="s3BucketUrl + '/material/asset/' + extension.image+'.png'"
-                        ></v-img>
-                        <v-icon v-else size="24">mdi-puzzle</v-icon>
-                      </v-avatar>
-                    </template>
                     <v-card-title>{{ extension.project?.title || '扩展' }}</v-card-title>
                     <v-card-subtitle>{{ extension.project?.description || '扩展' }}</v-card-subtitle>
                     <template v-slot:append>
@@ -79,17 +70,7 @@
                       </span>
                     </div>
                   </v-card-text>
-                  <v-card-actions>
-                    <v-btn
-                      variant="text"
-                      size="small"
-                      :to="`/app/extensions/my/${extension.id}`"
-                    >
-                      查看详情
-                    </v-btn>
 
-
-                  </v-card-actions>
                 </v-card>
               </v-col>
             </v-row>
@@ -377,12 +358,5 @@ export default {
 </script>
 
 <style scoped>
-.extension-card {
-  transition: transform 0.2s, box-shadow 0.2s;
-}
 
-.extension-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
 </style>

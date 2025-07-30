@@ -103,6 +103,11 @@
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
+                      <ProjectSelector
+                        v-model="userData.featured_projects"
+                        :multiple="false"
+                        :author="userData.id"
+                      />
                       <v-text-field
                         v-model="userData.featured_projects"
                         dense
@@ -471,12 +476,14 @@
 import RegionSelector from "@/components/account/RegionSelector.vue";
 import axios from "@/axios/axios";
 import {get} from "@/services/serverConfig";
+import ProjectSelector from "../shared/ProjectSelector.vue";
 
 export default {
   name: "UserEditor",
 
   components: {
     RegionSelector,
+    ProjectSelector
   },
 
   props: {

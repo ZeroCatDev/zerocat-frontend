@@ -99,7 +99,13 @@
       </v-col>
 
       <v-col cols="12" md="6">
+        <ProjectSelector
+          v-model="profileData.featured_projects"
+          :multiple="false"
+          :author="'me'"
+        />
         <v-text-field
+        disabled
           v-model="profileData.featured_projects"
           :rules="projectIdRules"
           density="comfortable"
@@ -138,11 +144,13 @@
 import {updateUserInfo} from "@/services/accountService";
 import region_zh_CN from "@/constants/region_zh-CN.json";
 import RegionSelector from "./RegionSelector.vue";
+import ProjectSelector from "../shared/ProjectSelector.vue";
 
 export default {
   name: "ProfileEditor",
   components: {
-    RegionSelector
+    RegionSelector,
+    ProjectSelector
   },
   props: {
     userData: {

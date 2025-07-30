@@ -46,6 +46,7 @@
               ></v-select>
             </v-col>
             <v-col cols="12" sm="2">
+              <ProjectSelector v-model="projectIdFilter" :multiple="false" />
               <v-text-field
                 v-model="projectIdFilter"
                 clearable
@@ -423,14 +424,15 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/zh-cn";
 import ExtensionEditor from "@/components/admin/ExtensionEditor.vue";
-
+import ProjectSelector from "@/components/shared/ProjectSelector.vue";
 dayjs.extend(relativeTime);
 dayjs.locale("zh-cn");
 
 export default {
   name: 'ExtensionsPage',
   components: {
-    ExtensionEditor
+    ExtensionEditor,
+    ProjectSelector
   },
   data() {
     return {
