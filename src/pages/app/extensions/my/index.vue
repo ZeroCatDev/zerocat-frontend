@@ -4,7 +4,7 @@
       <v-col cols="12">
         <v-card variant="flat">
           <v-card-title class="d-flex align-center">
-            <v-icon class="mr-2" color="primary">mdi-puzzle</v-icon>
+            <v-icon class="mr-2">mdi-puzzle</v-icon>
             扩展管理
             <v-spacer></v-spacer>
             <v-btn
@@ -104,7 +104,67 @@
       @created="fetchExtensions"
     />
 
-
+    <!-- 高级设置卡片 -->
+    <v-row class="mt-6">
+      <v-col cols="12">
+        <v-card variant="flat" border>
+          <v-card-title class="d-flex align-center">
+            <v-icon class="mr-2">mdi-cog</v-icon>
+            高级设置
+          </v-card-title>
+          <v-card-text>
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-card variant="tonal" border>
+                  <v-card-title class="text-h6">
+                    <v-icon class="mr-2" color="primary">mdi-cloud-upload</v-icon>
+                    批量推送
+                  </v-card-title>
+                  <v-card-text>
+                    <p class="text-body-2 text-grey-darken-1 mb-4">
+                      批量同步扩展时使用
+                    </p>
+                    <v-btn
+                      color="primary"
+                      :loading="pushAllLoading"
+                      :disabled="extensions.length === 0"
+                      prepend-icon="mdi-cloud-upload"
+                      @click="pushAllExtensions"
+                      block
+                    >
+                      全部推送 ({{ extensions.length }})
+                    </v-btn>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-card variant="tonal" border>
+                  <v-card-title class="text-h6">
+                    <v-icon class="mr-2" color="success">mdi-update</v-icon>
+                    批量更新
+                  </v-card-title>
+                  <v-card-text>
+                    <p class="text-body-2 text-grey-darken-1 mb-4">
+                      这是谁提的需求？
+                    </p>
+                    <v-btn
+                      color="success"
+                      :loading="updateAllLoading"
+                      :disabled="extensions.length === 0"
+                      prepend-icon="mdi-update"
+                      @click="updateAllExtensions"
+                      block
+                    >
+                      一键更新 ({{ extensions.length }})
+                    </v-btn>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
 
     <!-- 消息提示 -->
     <v-snackbar v-model="snackbar.show" :color="snackbar.color">
@@ -154,6 +214,10 @@ export default {
       showDeleteDialog: false,
       deleteLoading: false,
       deleteTarget: null,
+
+      // 批量操作状态
+      pushAllLoading: false,
+      updateAllLoading: false,
 
       snackbar: {
         show: false,
@@ -235,6 +299,78 @@ export default {
         message,
         color
       };
+    },
+
+    // 批量推送所有扩展
+    async pushAllExtensions() {
+      if (this.extensions.length === 0) {
+        this.showMessage('没有可推送的扩展', 'warning');
+        return;
+      }
+
+      this.pushAllLoading = true;
+      try {
+        const promises = this.extensions.map(extension =>
+          request.post(`/extensions/manager/submit/${extension.id}`)
+        );
+
+        const results = await Promise.allSettled(promises);
+        const successCount = results.filter(result =>
+          result.status === 'fulfilled' && result.value?.data?.status === 'success'
+        ).length;
+
+        const failedCount = this.extensions.length - successCount;
+
+        if (failedCount === 0) {
+          this.showMessage(`成功推送 ${successCount} 个扩展`, 'success');
+        } else {
+          this.showMessage(`推送完成: ${successCount} 个成功, ${failedCount} 个失败`, 'warning');
+        }
+
+        // 刷新扩展列表
+        await this.fetchExtensions();
+      } catch (error) {
+        console.error('Failed to push all extensions:', error);
+        this.showMessage('批量推送失败', 'error');
+      } finally {
+        this.pushAllLoading = false;
+      }
+    },
+
+    // 批量更新所有扩展
+    async updateAllExtensions() {
+      if (this.extensions.length === 0) {
+        this.showMessage('没有可更新的扩展', 'warning');
+        return;
+      }
+
+      this.updateAllLoading = true;
+      try {
+        const promises = this.extensions.map(extension =>
+          request.post(`/extensions/manager/update/${extension.id}`)
+        );
+
+        const results = await Promise.allSettled(promises);
+        const successCount = results.filter(result =>
+          result.status === 'fulfilled' && result.value?.data?.status === 'success'
+        ).length;
+
+        const failedCount = this.extensions.length - successCount;
+
+        if (failedCount === 0) {
+          this.showMessage(`成功更新 ${successCount} 个扩展`, 'success');
+        } else {
+          this.showMessage(`更新完成: ${successCount} 个成功, ${failedCount} 个失败`, 'warning');
+        }
+
+        // 刷新扩展列表
+        await this.fetchExtensions();
+      } catch (error) {
+        console.error('Failed to update all extensions:', error);
+        this.showMessage('批量更新失败', 'error');
+      } finally {
+        this.updateAllLoading = false;
+      }
     }
   }
 };
