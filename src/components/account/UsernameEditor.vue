@@ -48,8 +48,6 @@ export default {
       username: this.userData.username || '',
       usernameRules: [
         v => !!v || "用户名是必填项",
-        v => (v && v.length <= 10) || "用户名不能超过10个字符",
-        v => /^[a-z]+$/.test(v) || "用户名只能包含小写字母"
       ]
     };
   },
