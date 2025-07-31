@@ -1,5 +1,7 @@
 import request from "../axios/axios.js";
-
+import { get } from "./serverConfig";
+let s3BucketUrl = '';
+s3BucketUrl = await get('s3.staticurl');
 // 通用项目对象模板
 const defaultProject = (id) => ({
   id,
@@ -300,4 +302,8 @@ export async function getProjectContent(projectId, branch = 'main', commitId = '
       language: 'python'
     };
   }
+}
+
+export function getS3staticurl(image) {
+ return `${s3BucketUrl}/assets/${image.slice(0, 2)}/${image.slice(2,4)}/${image}`;
 }

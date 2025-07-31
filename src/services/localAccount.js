@@ -1,6 +1,6 @@
 import {ref, watch} from "vue";
 import axiosInstance from "@/axios/axios";
-
+import { get } from "./serverConfig";
 // Constants for storage keys
 const USER_INFO_KEY = "userInfo";
 const TOKEN_KEY = "token";
@@ -23,7 +23,8 @@ const DEFAULT_USER = {
   sex: "0",
   username: "virtual",
 };
-
+var s3BucketUrl = ""
+s3BucketUrl=await get('s3.staticurl')
 // Reactive states
 var token = ref(localStorage.getItem(TOKEN_KEY));
 var refreshToken = ref(localStorage.getItem(REFRESH_TOKEN_KEY));
@@ -280,7 +281,9 @@ const setUser = async (data) => {
   // 登录成功后，启动令牌刷新定时器
   startTokenRefreshTimer();
 };
-
+const getUserAvatar = (avatar) => {
+  return `${s3BucketUrl}/assets/${avatar ? avatar.slice(0,2) : user.value.avatar.slice(0,2)}/${avatar ? avatar.slice(2,4) : user.value.avatar.slice(2,4)}/${avatar ? avatar : user.value.avatar}.webp`;
+};
 /**
  * Get the current access token
  * @returns {string|null} The access token
@@ -648,6 +651,7 @@ export const localuser = {
   setUser,
   logout,
   getToken,
+  getUserAvatar,
   getRefreshToken,
   refreshAccessToken,
   logoutAllDevices,

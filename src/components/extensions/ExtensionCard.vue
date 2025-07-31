@@ -23,7 +23,7 @@
     </v-card>
     <!-- 作者信息区域 -->
     <v-card-item v-if="extension.author"
-                 :append-avatar="extension.author.avatar ? s3BucketUrl + '/user/' + extension.author.avatar : ''">
+                 :append-avatar="extension.author.avatar ? localuser.getUserAvatar(extension.author.avatar) : ''">
       <v-card-title>{{ extension.author.display_name || extension.author.username || "未知用户" }}</v-card-title>
       <v-card-subtitle>{{ extension.author.username || "" }}</v-card-subtitle>
     </v-card-item>
@@ -33,6 +33,7 @@
 </template>
 
 <script>
+import { localuser } from "@/services/localAccount";
 export default {
   name: 'ExtensionCard',
   props: {
@@ -44,6 +45,11 @@ export default {
       type: String,
       required: true
     }
+  },
+  data() {
+    return {
+      localuser,
+    };
   },
   computed: {
     extensionTags() {

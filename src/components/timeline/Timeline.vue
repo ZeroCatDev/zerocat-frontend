@@ -11,7 +11,7 @@
       </template>
       <template v-slot:icon>
         <v-avatar
-          :image="s3BucketUrl + '/user/' + event.actor.avatar"
+          :image="localuser.getUserAvatar(event.actor.avatar)"
         ></v-avatar>
       </template>
       <div class="timeline-item-content">
@@ -261,7 +261,7 @@
 <script>
 import {get} from "@/services/serverConfig";
 import {getProjectInfo} from "@/services/projectService";
-
+import { localuser } from "@/services/localAccount";
 export default {
   name: "Timeline",
   props: {
@@ -288,6 +288,7 @@ export default {
   },
   data() {
     return {
+      localuser,
       events: [],
       loading: false,
       error: null,

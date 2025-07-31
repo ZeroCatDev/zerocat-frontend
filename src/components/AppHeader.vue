@@ -62,9 +62,7 @@
               @click="notificationsCard?.fetchNotifications()"
             >
               <v-avatar
-                :image="
-                  s3BucketUrl + '/user/' + localuser.user.value.avatar
-                "
+                :image="localuser.getUserAvatar()"
               ></v-avatar>
             </v-btn>
           </template>
@@ -116,7 +114,7 @@
               <v-window-item value="profile">
                 <v-card
                   :append-avatar="
-                    s3BucketUrl + '/user/' + localuser.user.value.avatar
+                    localuser.getUserAvatar()
                   "
                   :subtitle="localuser.user.value.username"
                   :title="localuser.user.value.display_name"

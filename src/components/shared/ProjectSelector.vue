@@ -17,7 +17,7 @@
           >
             <v-avatar
               class="me-2"
-              :image="s3BucketUrl + '/user/' + selectedProject.author.avatar"
+              :image="localuser.getUserAvatar(selectedProject.author.avatar)"
             >
 
             </v-avatar>
@@ -169,7 +169,7 @@
                     >
                       <v-card rounded="lg" style="aspect-ratio: 4/3">
                         <v-img
-                          :src="s3BucketUrl + '/scratch_slt/' + project.id"
+                          :src="getS3staticurl(project.thumbnail)"
                           class="align-end"
                           cover
                           gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
@@ -191,7 +191,7 @@
                       <v-card-item
                         :append-avatar="
                           project.author?.avatar
-                            ? s3BucketUrl + '/user/' + project.author.avatar
+                            ? localuser.getUserAvatar(project.author.avatar)
                             : ''
                         "
                       >
@@ -307,7 +307,7 @@
                     >
                       <v-avatar start size="24" class="me-2">
                         <v-img
-                          :src="s3BucketUrl + '/user/' + project.author.avatar"
+                          :src="localuser.getUserAvatar(project.author.avatar)"
                           cover
                         >
                           <template v-slot:placeholder>
@@ -353,7 +353,7 @@
                       <v-card rounded="lg" elevation="2" border hover>
                         <v-card rounded="lg" style="aspect-ratio: 4/3">
                           <v-img
-                            :src="s3BucketUrl + '/scratch_slt/' + project.id"
+                            :src="getS3staticurl(project.thumbnail)"
                             class="align-end"
                             cover
                             gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
@@ -391,7 +391,7 @@
                         <v-card-item
                           :append-avatar="
                             project.author?.avatar
-                              ? s3BucketUrl + '/user/' + project.author.avatar
+                              ? localuser.getUserAvatar(project.author.avatar)
                               : ''
                           "
                         >
@@ -482,10 +482,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed } from "vue";
 import axios from "@/axios/axios";
-import { get } from "@/services/serverConfig";
 import { localuser } from "@/services/localAccount";
+import { getS3staticurl } from "@/services/projectService";
 const props = defineProps({
   modelValue: {
     type: [Number, Array],
@@ -516,9 +516,6 @@ const sortBy = ref("time_down");
 const searchState = ref("");
 const page = ref(1);
 const totalCount = ref(0);
-
-// S3 bucket URL for images
-const s3BucketUrl = ref("");
 
 const sortOptions = [
   { title: "最新发布", value: "time_down" },
@@ -742,6 +739,7 @@ watch(
 onMounted(async () => {
   initializeSelection();
   s3BucketUrl.value = await get("s3.staticurl");
+  localuser.value = localuser;
 });
 </script>
 

@@ -193,7 +193,7 @@
                     <template v-slot:prepend>
                       <v-avatar>
                         <v-img
-                          :src="s3BucketUrl + '/user/' + selectedSampleProject.author?.avatar || ''"
+                          :src="localuser.getUserAvatar(selectedSampleProject.author?.avatar) || ''"
                         ></v-img>
                       </v-avatar>
                     </template>
@@ -270,7 +270,7 @@
 <script>
 import request from "@/axios/axios";
 import { localuser } from "@/services/localAccount";
-import { get } from "@/services/serverConfig";
+
 import ProjectSelector from "../shared/ProjectSelector.vue";
 
 export default {
@@ -294,8 +294,7 @@ export default {
       formValid: false,
       loading: false,
       loadingCommits: false,
-      s3BucketUrl: '',
-
+      localuser,
       form: {
         branch: '',
         commit: '',
@@ -331,7 +330,7 @@ export default {
       }
 
       if (this.form.image) {
-        return this.s3BucketUrl + '/extension/' + this.form.image;
+        return localuser.getUserAvatar(this.form.image);
       }
 
       return null;
@@ -362,7 +361,6 @@ export default {
     }
   },
   async created() {
-    this.s3BucketUrl = await get('s3.staticurl');
     await this.fetchMyProjects();
   },
   methods: {

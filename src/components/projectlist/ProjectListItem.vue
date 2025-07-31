@@ -48,7 +48,7 @@
 import {localuser} from "../../services/localAccount";
 import {getProjectListById} from "../../services/projectListService";
 import {ref, onMounted} from "vue";
-import {get} from "@/services/serverConfig";
+
 
 export default {
   props: {
@@ -74,19 +74,14 @@ export default {
     await this.fetchProjectCount();
   },
   setup() {
-    const s3BucketUrl = ref(null);
-
-    onMounted(async () => {
-      s3BucketUrl.value = await get('s3.staticurl');
-    });
 
     const getUserAvatar = (user) => {
       if (!user || !user.avatar) return '';
-      return `${s3BucketUrl.value}/user/${user.avatar}`;
+      return localuser.getUserAvatar(user.avatar);
     };
 
     return {
-      s3BucketUrl,
+      localuser,
       getUserAvatar,
     };
   },

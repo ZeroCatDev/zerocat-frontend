@@ -90,7 +90,7 @@ import EditProjectListConfig from "./EditProjectListConfig.vue";
 import {localuser} from "../../services/localAccount";
 import ProjectCard from "../project/ProjectCard.vue";
 import {ref, onMounted} from "vue";
-import {get} from "@/services/serverConfig";
+
 
 export default {
   props: {
@@ -104,19 +104,14 @@ export default {
     ProjectCard
   },
   setup() {
-    const s3BucketUrl = ref(null);
-
-    onMounted(async () => {
-      s3BucketUrl.value = await get('s3.staticurl');
-    });
 
     const getUserAvatar = (user) => {
       if (!user || !user.avatar) return '';
-      return `${s3BucketUrl.value}/user/${user.avatar}`;
+      return localuser.getUserAvatar(user.avatar);
     };
 
     return {
-      s3BucketUrl,
+      localuser,
       getUserAvatar,
     };
   },

@@ -5,7 +5,7 @@
         <v-avatar>
           <v-img
             :alt="author.display_name"
-            :src="s3BucketUrl + '/user/' + author.avatar"
+            :src="localuser.getUserAvatar(author.avatar)"
           ></v-img>
         </v-avatar>
       </template>
@@ -26,7 +26,7 @@
 <script>
 import {localuser} from "@/services/localAccount";
 import UserRelationControls from "@/components/user/UserRelationControls.vue";
-import {get} from "@/services/serverConfig";
+
 
 export default {
   name: 'ProjectAuthorCard',
@@ -44,11 +44,9 @@ export default {
       localuser,
       loading: false,
       error: null,
-      s3BucketUrl: '',
+      localuser,
     }
   },
-  async mounted() {
-    this.s3BucketUrl = await get('s3.staticurl');
-  }
+
 }
 </script>

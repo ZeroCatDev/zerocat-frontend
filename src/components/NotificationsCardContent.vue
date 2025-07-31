@@ -36,7 +36,7 @@
                 size="42"
               >
                 <v-img
-                  :src="s3BucketUrl + '/user/' + notification.actor.avatar"
+                  :src=" localuser.getUserAvatar(notification.actor.avatar)"
                   alt="用户头像"
                 ></v-img>
               </v-avatar>
@@ -163,7 +163,7 @@ import {
 } from "@/services/notificationService";
 import {getProjectInfo, getProjectListById} from "@/services/projectService";
 import {get} from "@/services/serverConfig";
-
+import { localuser } from "@/services/localAccount";
 export default {
   name: "NotificationsCardContent",
   props: {
@@ -608,6 +608,7 @@ export default {
       s3BucketUrl,
       projectCache,
       projectListCache,
+      localuser,
     };
   },
 };

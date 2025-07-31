@@ -27,7 +27,7 @@ import {computed} from 'vue'
 import TimeAgo from '../TimeAgo.vue'
 import Markdown from '../Markdown.vue'
 import {UAParser} from 'ua-parser-js'
-
+import { localuser } from "@/services/localAccount";
 const props = defineProps({
   comment: {
     type: Object,
@@ -41,7 +41,7 @@ const props = defineProps({
 
 const avatarUrl = computed(() => {
   if (props.comment?.user?.avatar) {
-    return props.s3BucketUrl + '/user/' + props.comment.user.avatar
+    return  localuser.getUserAvatar(props.comment.user.avatar)
   }
   return ''
 })

@@ -23,7 +23,7 @@
         width="150"
       >
         <v-img
-          :src="previewImage || (s3BucketUrl + '/user/' + userData.avatar)"
+          :src="previewImage || ( localuser.getUserAvatar())"
           class="bg-grey-lighten-3"
           cover
           height="150"
@@ -56,7 +56,7 @@
 <script>
 import Compressor from "compressorjs";
 import {uploadUserAvatar} from "@/services/accountService";
-
+import { localuser } from "@/services/localAccount";
 export default {
   name: "AvatarEditor",
   props: {
@@ -73,7 +73,8 @@ export default {
     return {
       loading: false,
       avatarFile: null,
-      previewImage: null
+      previewImage: null,
+      localuser,
     };
   },
   methods: {

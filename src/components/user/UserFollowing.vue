@@ -18,7 +18,7 @@
           <template v-slot:prepend>
             <router-link :to="`/${followedUser.user.username}`">
               <v-avatar size="50">
-                <v-img :src="s3BucketUrl + '/user/' + (followedUser.user.avatar || followedUser.user.avatar)"
+                <v-img :src="localuser.getUserAvatar(followedUser.user.avatar)"
                        alt="用户头像"/>
               </v-avatar>
             </router-link>
@@ -85,7 +85,7 @@
 import request from "@/axios/axios.js";
 import {localuser} from "@/services/localAccount";
 import {ref, onMounted} from "vue";
-import {get} from "@/services/serverConfig";
+
 
 export default {
   name: "UserFollowing",
@@ -122,7 +122,7 @@ export default {
         text: "",
         color: "success"
       },
-      s3BucketUrl: '',
+      localuser,
     };
   },
   computed: {
@@ -220,9 +220,6 @@ export default {
         color
       };
     }
-  },
-  async mounted() {
-    this.s3BucketUrl = await get('s3.staticurl');
   },
 };
 </script>

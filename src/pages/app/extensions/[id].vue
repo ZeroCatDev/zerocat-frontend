@@ -17,7 +17,7 @@
           :subtitle="extension?.project?.description"
           ><v-card-item
             :prepend-avatar="
-              s3BucketUrl + '/user/' + extension?.project?.author?.avatar || ''
+              localuser.getUserAvatar(extension?.project?.author?.avatar) || ''
             "
           >
             <v-card-title>
@@ -182,7 +182,7 @@
 import { useHead } from "@unhead/vue";
 import request from "@/axios/axios";
 import { get } from "@/services/serverConfig";
-
+import { localuser } from "@/services/localAccount";
 export default {
   name: "ExtensionDetail",
   setup() {
@@ -195,6 +195,7 @@ export default {
       loading: false,
       extension: null,
       s3BucketUrl: "",
+      localuser,
     };
   },
   async created() {

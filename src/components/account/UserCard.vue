@@ -4,7 +4,7 @@
       <v-avatar class="ma-3" size="64">
         <v-img
           :alt="userData.display_name"
-          :src="s3BucketUrl + '/user/' + userData.avatar"
+          :src="localuser.getUserAvatar(userData.avatar)"
           cover
         ></v-img>
       </v-avatar>
@@ -41,6 +41,7 @@
 </template>
 
 <script>
+import { localuser } from "@/services/localAccount";
 export default {
   name: "UserCard",
   props: {
@@ -56,6 +57,11 @@ export default {
       type: String,
       required: true
     }
-  }
+  },
+  data() {
+    return {
+      localuser,
+    };
+  },
 };
 </script>

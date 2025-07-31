@@ -6,7 +6,7 @@
       style="aspect-ratio: 4/3"
     >
       <v-img
-        :src="project ? s3BucketUrl + '/scratch_slt/' + project.id : ''"
+        :src="project ? getS3staticurl(project.thumbnail) : ''"
         class="align-end"
         cover
         gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
@@ -21,7 +21,7 @@
     </v-card>
     <!-- 作者信息区域 -->
     <v-card-item v-if="showAuthor && author"
-                 :append-avatar="author.avatar ? s3BucketUrl + '/user/' + author.avatar : ''">
+                 :append-avatar="author.avatar ? localuser.getUserAvatar(author.avatar) : ''">
       <v-card-title>{{ author.display_name || author.username || "未知用户" }}</v-card-title>
       <v-card-subtitle>{{ author.username || "" }}</v-card-subtitle>
     </v-card-item>
@@ -29,9 +29,8 @@
 </template>
 
 <script>
-import {getProjectInfo} from "@/services/projectService";
-import {get} from "@/services/serverConfig";
-
+import {getProjectInfo, getS3staticurl} from "@/services/projectService";
+import { localuser } from "@/services/localAccount";
 export default {
   props: {
     project: {
@@ -51,11 +50,9 @@ export default {
     return {
       loading: false,
       error: null,
-      s3BucketUrl: '',
+      getS3staticurl: getS3staticurl,
+      localuser,
     };
-  },
-  async mounted() {
-    this.s3BucketUrl = await get('s3.staticurl');
   },
   created() {
     // 初始化数据

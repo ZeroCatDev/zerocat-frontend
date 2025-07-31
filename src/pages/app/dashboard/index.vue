@@ -52,7 +52,7 @@
             <template v-slot:prepend>
               <v-avatar size="32">
                 <v-img
-                  :src="s3BucketUrl + '/user/' + project.author.avatar"
+                  :src="localuser.getUserAvatar(project.author.avatar)"
                 />
               </v-avatar>
             </template>
@@ -204,7 +204,7 @@ import Timeline from "@/components/timeline/Timeline.vue";
 import TimeAgo from "@/components/TimeAgo.vue";
 import ProjectCard from "@/components/project/ProjectCard.vue";
 import {localuser} from "@/services/localAccount";
-import {get} from "@/services/serverConfig";
+
 
 export default {
   name: "Dashboard",
@@ -245,7 +245,7 @@ export default {
       projects: [],
       loading: false,
       error: null,
-      s3BucketUrl: '',
+      localuser,
       loadMoreTrigger: null,
     };
   },
@@ -420,7 +420,6 @@ export default {
     },
   },
   async mounted() {
-    this.s3BucketUrl = await get('s3.staticurl');
     await Promise.all([
       this.fetchTopProjects(),
       this.fetchLatestProjects(),

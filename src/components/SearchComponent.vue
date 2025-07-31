@@ -1,6 +1,5 @@
 <template>
   <div class="search-component">
-
     <v-form @submit.prevent="handleSearch">
       <div class="d-flex align-center gap-2">
         <v-text-field
@@ -104,7 +103,7 @@
                       v-bind="props"
                     >
                       <v-img
-                        :src="s3BucketUrl + '/scratch_slt/' + item.id"
+                        :src="getS3staticurl(item.thumbnail)"
                         class="align-end"
                         cover
                         error-src="../assets/43-lazyload.png"
@@ -194,8 +193,7 @@
 </template>
 
 <script>
-import {get} from '@/services/serverConfig';
-import {getProjectInfo} from '@/services/projectService';
+import {getS3staticurl} from '@/services/projectService';
 import {
   loadSearchHistory,
   addToSearchHistory,
@@ -230,7 +228,7 @@ export default {
       totalHits: 0,
       totalPages: 0,
       urlMap: {},
-      s3BucketUrl: '',
+      getS3staticurl: getS3staticurl,
       hotSearches: ['Scratch', '游戏', '动画', '音乐', '艺术', '编程'],
     };
   },
@@ -255,7 +253,6 @@ export default {
 
   async created() {
     this.searchHistory = loadSearchHistory();
-    this.s3BucketUrl = await get('s3.staticurl');
   },
 
   methods: {

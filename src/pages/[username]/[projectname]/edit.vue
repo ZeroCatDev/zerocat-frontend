@@ -526,7 +526,7 @@ import axios from "@/axios/axios";
 import EditorMonacoComponent from "@/components/EditorMonacoComponent.vue";
 import DiffMonacoComponent from "@/components/DiffMonacoComponent.vue";
 import { toRaw, ref } from "vue";
-import { get } from "@/services/serverConfig";
+import { localuser } from "@/services/localAccount";
 export default {
   name: "ProjectEditor",
   components: {
@@ -535,7 +535,7 @@ export default {
   },
   data() {
     return {
-      s3BucketUrl: ref(''),
+      localuser,
       // 项目基本信息
       project: null,
       fileContent: null,
@@ -766,8 +766,6 @@ export default {
   },
   async mounted() {
     // 加载项目
-    this.s3BucketUrl = await get('s3.staticurl');
-    console.log(this.s3BucketUrl);
     this.loadProject();
   },
 
@@ -1476,7 +1474,7 @@ export default {
     },
 
     getAvatarUrl(avatar) {
-      return `${this.s3BucketUrl}/user/${avatar}`;
+      return localuser.getUserAvatar(avatar);
     },
 
     async saveAndCommitCode() {

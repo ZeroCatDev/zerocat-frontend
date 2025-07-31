@@ -182,7 +182,7 @@
               <template v-slot:prepend>
                 <v-avatar>
                   <v-img
-                    :src="s3BucketUrl + '/user/' + extension.project.author?.avatar || ''"
+                    :src="localuser.getUserAvatar(extension.project.author?.avatar) || ''"
                   ></v-img>
                 </v-avatar>
               </template>
@@ -215,7 +215,7 @@
               <template v-slot:prepend>
                 <v-avatar>
                   <v-img
-                    :src="s3BucketUrl + '/user/' + extension.sample_project.author?.avatar || ''"
+                    :src="localuser.getUserAvatar(extension.sample_project.author?.avatar) || ''"
                   ></v-img>
                 </v-avatar>
               </template>
@@ -348,7 +348,8 @@ export default {
         color: 'success'
       },
       submitLoading: false,
-      updateLoading: false
+      updateLoading: false,
+      localuser,
     };
   },
   async created() {

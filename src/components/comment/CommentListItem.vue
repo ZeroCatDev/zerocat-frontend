@@ -13,7 +13,7 @@
 
 <script setup>
 import {computed} from 'vue'
-
+import { localuser } from "@/services/localAccount";
 const props = defineProps({
   comment: {
     type: Object,
@@ -27,7 +27,7 @@ const props = defineProps({
 
 const avatarUrl = computed(() => {
   if (props.comment?.user?.avatar) {
-    return props.s3BucketUrl + '/user/' + props.comment.user.avatar
+    return  localuser.getUserAvatar(props.comment.user.avatar)
   }
   return ''
 })

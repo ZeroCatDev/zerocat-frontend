@@ -8,7 +8,7 @@
       <v-chip pill>
         <v-avatar start>
           <v-img
-            :src="s3BucketUrl + '/user/' + author.avatar"
+            :src="localuser.getUserAvatar(author.avatar)"
           ></v-img>
         </v-avatar
         >
@@ -82,8 +82,7 @@ import ProjectAuthorCard from "@/components/project/ProjectAuthorCard.vue";
 import openEditor from "@/stores/openEdit";
 import {getProjectStats} from "@/services/projectService";
 import {ref, onMounted} from "vue";
-import {get} from "@/services/serverConfig";
-
+import { localuser } from "@/services/localAccount";
 export default {
   name: "ProjectInfoCard",
   components: {
@@ -118,11 +117,10 @@ export default {
         pageviews: 0,
         visitors: 0
       },
-      s3BucketUrl: '',
+      localuser,
     };
   },
   async mounted() {
-    this.s3BucketUrl = await get('s3.staticurl');
   },
   watch: {
     'project.id': {
