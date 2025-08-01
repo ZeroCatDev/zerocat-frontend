@@ -257,7 +257,7 @@ export default {
   },
 
   async mounted() {
-    this.scratch_proxy = await get('scratchproxy.url');
+    this.scratch_proxy = get('scratchproxy.url');
     this.loading = true;
     this.release.stat = 0;
     this.fetchReleaseData(this.scratch_proxy + "/asdm")

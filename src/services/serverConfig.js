@@ -47,28 +47,29 @@ function needsRefresh() {
   const now = Date.now();
   return now - lastFetch > CONFIG_CONSTANTS.MAX_AGE;
 }
-
 // 获取配置数据
-export async function fetchConfig() {
-  try {
-    const response = await axios.get('/api/config');
-    setStoredData(response.data);
-    updateLastFetchTime();
-    return response.data;
-  } catch (error) {
-    console.error('Failed to fetch config:', error);
-    // 如果获取失败，返回缓存的数据
-    return getStoredData();
-  }
+export function fetchConfig() {
+  return axios.get('/api/config')
+    .then(response => {
+      setStoredData(response.data);
+      updateLastFetchTime();
+      return response.data;
+    })
+    .catch(error => {
+      console.error('Failed to fetch config:', error);
+      // 如果获取失败，返回缓存的数据
+      return getStoredData();
+    });
 }
 
+
 // 智能获取配置
-export async function get(key) {
+export function get(key) {
   let data;
 
   // 如果需要刷新，先获取新数据
   if (needsRefresh()) {
-    data = await fetchConfig();
+    data = fetchConfig();
   } else {
     data = getStoredData();
   }

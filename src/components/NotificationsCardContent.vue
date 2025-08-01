@@ -203,7 +203,7 @@ export default {
     // Initialize s3BucketUrl
     onMounted(async () => {
       try {
-        s3BucketUrl.value = await get('s3.staticurl');
+        s3BucketUrl.value = get('s3.staticurl');
       } catch (err) {
         console.error('Failed to get s3BucketUrl:', err);
         s3BucketUrl.value = '';

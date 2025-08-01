@@ -738,7 +738,7 @@ watch(
 
 onMounted(async () => {
   initializeSelection();
-  s3BucketUrl.value = await get("s3.staticurl");
+  s3BucketUrl.value = get("s3.staticurl");
   localuser.value = localuser;
 });
 </script>

@@ -172,7 +172,7 @@ export default {
     const s3BucketUrl = ref(null);
 
     onMounted(async () => {
-      s3BucketUrl.value = await get('s3.staticurl');
+      s3BucketUrl.value = get('s3.staticurl');
     });
 
     return {
@@ -180,7 +180,7 @@ export default {
     };
   },
   async mounted() {
-    this.s3BucketUrl = await get('s3.staticurl');
+    this.s3BucketUrl = get('s3.staticurl');
   },
   async created() {
     if (!localuser.isLogin.value) {

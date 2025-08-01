@@ -286,8 +286,8 @@ export default {
   },
 
   async mounted() {
-    this.scratch_proxy = await get('scratchproxy.url');
-    this.scratch_proxy_gui = await get('scratchproxy.gui');
+    this.scratch_proxy = get('scratchproxy.url');
+    this.scratch_proxy_gui = get('scratchproxy.gui');
     await this.fetchProjectData();
   },
   methods: {

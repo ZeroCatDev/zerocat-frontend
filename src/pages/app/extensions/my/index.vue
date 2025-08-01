@@ -213,7 +213,7 @@ export default {
       return;
     }
 
-    this.s3BucketUrl = await get('s3.staticurl');
+    this.s3BucketUrl = get('s3.staticurl');
     await Promise.all([
       this.fetchExtensions(),
       this.fetchMyProjects()

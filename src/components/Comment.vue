@@ -179,7 +179,7 @@ const handleDelete = (id) => deleteComment(id)
 
 // Lifecycle
 onMounted(async () => {
-  s3BucketUrl.value = await get('s3.staticurl')
+  s3BucketUrl.value = get('s3.staticurl')
   loadComments()
 })
 

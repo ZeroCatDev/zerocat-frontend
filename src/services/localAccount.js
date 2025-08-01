@@ -24,7 +24,7 @@ const DEFAULT_USER = {
   username: "virtual",
 };
 var s3BucketUrl = ""
-s3BucketUrl=await get('s3.staticurl')
+s3BucketUrl=get('s3.staticurl')
 // Reactive states
 var token = ref(localStorage.getItem(TOKEN_KEY));
 var refreshToken = ref(localStorage.getItem(REFRESH_TOKEN_KEY));

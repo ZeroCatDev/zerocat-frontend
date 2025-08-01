@@ -806,7 +806,7 @@ export default {
   },
 
   async mounted() {
-    this.s3BucketUrl = await get('s3.staticurl');
+    this.s3BucketUrl = get('s3.staticurl');
     this.loadApplication();
   },
 

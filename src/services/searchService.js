@@ -7,10 +7,10 @@ const MAX_HISTORY_ITEMS = 10;
 const ITEMS_PER_PAGE = 20;
 
 export const getSearchConfig = async () => ({
-  enabled: await get('search.enabled'),
-  baseUrl: await get('search.meilisearch.url'),
-  apiKey: await get('search.meilisearch.api_key'),
-  indexName: await get('search.meilisearch.index_name'),
+  enabled: get('search.enabled'),
+  baseUrl: get('search.meilisearch.url'),
+  apiKey: get('search.meilisearch.api_key'),
+  indexName: get('search.meilisearch.index_name'),
 });
 
 export const getSearchParams = (query, page) => ({

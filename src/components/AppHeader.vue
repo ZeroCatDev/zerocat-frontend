@@ -425,9 +425,9 @@ export default {
     LoginDialog,
   },
   async mounted() {
-    this.s3BucketUrl = await get('s3.staticurl');
+    this.s3BucketUrl = get('s3.staticurl');
     // 获取scratchproxy.enabled配置
-    this.proxyEnabled = await get('scratchproxy.enabled');
+    this.proxyEnabled = get('scratchproxy.enabled');
   },
   setup() {
     const notificationsCard = ref(null);

@@ -374,7 +374,7 @@ export default {
     };
   },
   async mounted() {
-    this.s3BucketUrl = await get("s3.staticurl");
+    this.s3BucketUrl = get("s3.staticurl");
     // 初始加载时获取项目信息
     if (this.timeline.events.length > 0) {
       await this.fetchProjectInfoForEvents(this.timeline.events);

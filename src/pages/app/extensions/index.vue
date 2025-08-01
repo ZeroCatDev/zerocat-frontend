@@ -446,7 +446,7 @@ export default {
     }
   },
   async created() {
-    this.s3BucketUrl = await get('s3.staticurl');
+    this.s3BucketUrl = get('s3.staticurl');
     await this.fetchExtensions();
   },
   methods: {

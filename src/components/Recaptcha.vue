@@ -32,7 +32,7 @@ export default {
     };
   },
   async mounted() {
-    this.geeId = await get('captcha.GEE_CAPTCHA_ID');
+    this.geeId = get('captcha.GEE_CAPTCHA_ID');
     console.log(this.geeId);
     if (this.showNormal) {
       this.initRecaptcha();

@@ -594,7 +594,7 @@ export default {
       console.error("Error loading region options:", error);
       this.regionOptions = [];
     }
-    this.s3BucketUrl = await get("s3.staticurl");
+    this.s3BucketUrl = get("s3.staticurl");
   },
 
   watch: {

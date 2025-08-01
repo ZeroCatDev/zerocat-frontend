@@ -146,7 +146,7 @@ export default {
     if (this.autoload == true) this.fetchProjects();
   },
   async mounted() {
-    this.scratch_proxy = await get('scratchproxy.url');
+    this.scratch_proxy = get('scratchproxy.url');
   },
 };
 </script>
