@@ -1,7 +1,9 @@
 import request from "../axios/axios.js";
 import { get } from "./serverConfig";
 let s3BucketUrl = '';
-s3BucketUrl = await get('s3.staticurl');
+(async () => {
+  s3BucketUrl = await get('s3.staticurl');
+})();
 // 通用项目对象模板
 const defaultProject = (id) => ({
   id,
