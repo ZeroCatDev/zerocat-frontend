@@ -29194,7 +29194,7 @@ class LibraryItem extends react__WEBPACK_IMPORTED_MODULE_2___default.a.PureCompo
   }
   render() {
     const iconMd5 = this.curIconMd5();
-    const iconURL = iconMd5 ? "".concat("https://zerocat-bitiful.houlangs.com/material/asset", "/").concat(iconMd5) : this.props.iconRawURL;
+    const iconURL = iconMd5 ? "".concat("https://zerocat-bitiful.houlangs.com/assets", "/").concat(iconMd5.slice(0, 2), "/").concat(iconMd5.slice(2, 4), "/").concat(iconMd5) : this.props.iconRawURL;
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2___default.a.createElement(_components_library_item_library_item_jsx__WEBPACK_IMPORTED_MODULE_4__["default"], {
       intl: this.props.intl,
       bluetoothRequired: this.props.bluetoothRequired,
@@ -42828,7 +42828,7 @@ const ProjectFetcherHOC = function ProjectFetcherHOC(WrappedComponent) {
     vm: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.instanceOf(scratch_vm__WEBPACK_IMPORTED_MODULE_10___default.a)
   };
   ProjectFetcherComponent.defaultProps = {
-    assetHost: "https://zerocat-bitiful.houlangs.com/material/asset",
+    assetHost: "https://zerocat-bitiful.houlangs.com/assets",
     projectHost: 'https://projects.scratch.mit.edu'
   };
   const mapStateToProps = state => ({
@@ -44119,7 +44119,7 @@ class Storage extends _turbowarp_scratch_storage__WEBPACK_IMPORTED_MODULE_0___de
     this.assetHost = assetHost;
   }
   getAssetGetConfig(asset) {
-    return "".concat(this.assetHost, "/").concat(asset.assetId, ".").concat(asset.dataFormat);
+    return "".concat(this.assetHost, "/").concat(asset.assetId.slice(0, 2), "/").concat(asset.assetId.slice(2, 4), "/").concat(asset.assetId, ".").concat(asset.dataFormat);
   }
   getAssetCreateConfig(asset) {
     return {
@@ -44128,7 +44128,7 @@ class Storage extends _turbowarp_scratch_storage__WEBPACK_IMPORTED_MODULE_0___de
       // assetId as part of the create URI. So, force the method to POST.
       // Then when storage finds this config to use for the "update", still POSTs
       method: 'post',
-      url: "".concat(this.assetHost, "/").concat(asset.assetId, ".").concat(asset.dataFormat),
+      url: "".concat(this.assetHost, "/").concat(asset.assetId.slice(0, 2), "/").concat(asset.assetId.slice(2, 4), "/").concat(asset.assetId, ".").concat(asset.dataFormat),
       withCredentials: true
     };
   }
