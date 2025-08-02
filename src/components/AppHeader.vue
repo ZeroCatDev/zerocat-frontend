@@ -323,6 +323,12 @@
         title="项目比较器"
         to="/app/tools/comparer"
       ></v-list-item>
+       <v-list-item
+        prepend-icon="mdi-xml"
+        rounded="xl"
+        title="Scratch扩展"
+        to="/app/extensions"
+      ></v-list-item>
     </v-list>
 
     <v-divider></v-divider>
