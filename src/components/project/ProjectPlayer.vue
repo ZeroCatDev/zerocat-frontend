@@ -19,7 +19,8 @@
             auto-grow
             hide-details
             readonly
-            rows="10"
+            max-rows="16"
+
           ></v-textarea>
         </v-card-text>
       </v-card>
