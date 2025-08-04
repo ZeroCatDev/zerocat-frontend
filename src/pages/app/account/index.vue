@@ -89,6 +89,12 @@
 
           </v-window-item>
 
+          <!-- Notifications Tab -->
+          <v-window-item value="notifications">
+            <h3 class="text-h5 mb-4">通知设置</h3>
+            <notification-settings-card />
+          </v-window-item>
+
           <!-- Tokens Tab -->
           <v-window-item value="tokens">
             <h3 class="text-h5 mb-4">API令牌管理</h3>
@@ -127,6 +133,7 @@ import UserFollowing from "@/components/user/UserFollowing.vue";
 import UserFollowers from "@/components/user/UserFollowers.vue";
 import UserBlocked from "@/components/user/UserBlocked.vue";
 import TokenManager from "@/components/account/TokenManager.vue";
+import NotificationSettingsCard from "@/components/NotificationSettingsCard.vue";
 
 export default {
   components: {
@@ -142,6 +149,7 @@ export default {
     UserFollowers,
     UserBlocked,
     TokenManager,
+    NotificationSettingsCard,
   },
   data() {
     return {
@@ -158,6 +166,7 @@ export default {
         {title: "OAuth", value: "oauth", icon: "mdi-link-variant"},
         {title: "安全", value: "security", icon: "mdi-security"},
         {title: "关系", value: "relationships", icon: "mdi-account-group", to: "/app/account/relationships"},
+        {title: "通知", value: "notifications", icon: "mdi-bell"},
         {title: "令牌", value: "tokens", icon: "mdi-key"},
         {title: "开发者", value: "developer", icon: "mdi-account-group", to: "/app/account/developer"},
 

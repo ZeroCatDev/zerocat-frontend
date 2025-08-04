@@ -44,13 +44,12 @@
 
     <!-- 仅通知内容 (menuMode=false) -->
     <template v-else>
-      <v-card-text>
         <Suspense>
           <NotificationsCardContent
             ref="contentRef"
             :autoFetch="autoFetch"
             :maxHeight="'auto'"
-            :showPagination="showPagination"
+            :show-pagination="showPagination"
             @update:unread-count="updateUnreadCount"
           />
           <template #fallback>
@@ -59,7 +58,7 @@
             </div>
           </template>
         </Suspense>
-      </v-card-text>
+
     </template>
   </v-card>
 </template>

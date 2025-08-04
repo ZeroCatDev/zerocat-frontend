@@ -2,6 +2,9 @@
   <component :is="currentLayout">
     <router-view/>
   </component>
+  
+  <!-- 全局Snackbar -->
+  <GlobalSnackbar />
 </template>
 
 <script setup>
@@ -13,6 +16,7 @@ import {use404Helper} from "@/composables/use404";
 // 导入布局
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import SimpleLayout from "@/layouts/SimpleLayout.vue";
+import GlobalSnackbar from "@/components/GlobalSnackbar.vue";
 
 const route = useRoute();
 const router = useRouter();

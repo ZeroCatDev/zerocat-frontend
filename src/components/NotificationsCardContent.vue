@@ -23,20 +23,20 @@
             v-for="notification in notifications"
             :key="notification.id"
             :active="!notification.read"
-            :class="{ 'clickable-item': !!notification.redirect_url }"
-            :to="notification.redirect_url"
+            :class="{
+              'clickable-item': true,
+              'unread-notification': !notification.read,
+            }"
             color="primary"
             lines="three"
+            class="notification-item"
             @click="handleNotificationClick(notification)"
           >
             <template v-slot:prepend>
               <!-- 使用actor用户的头像 -->
-              <v-avatar
-                v-if="notification.actor?.avatar"
-                size="42"
-              >
+              <v-avatar v-if="notification.actor?.avatar" size="42">
                 <v-img
-                  :src=" localuser.getUserAvatar(notification.actor.avatar)"
+                  :src="localuser.getUserAvatar(notification.actor.avatar)"
                   alt="用户头像"
                 ></v-img>
               </v-avatar>
@@ -46,25 +46,42 @@
                 color="primary"
                 size="42"
               >
-                <v-icon>{{ getIconForType(notification.template_info.icon) }}</v-icon>
+                <v-icon>{{
+                  getIconForType(notification.template_info.icon)
+                }}</v-icon>
               </v-avatar>
               <v-avatar v-else class="system-avatar" color="primary" size="42">
                 <v-icon>mdi-bell</v-icon>
               </v-avatar>
             </template>
 
-            <v-list-item-title class="font-weight-medium">
-              <span v-if="notification.template_info?.title">
-                {{ notification.template_info.title }}
+            <v-list-item-title class="font-weight-medium d-flex align-center">
+              <span v-if="notification.title">
+                {{ notification.title }}
               </span>
               <span v-else>系统消息</span>
 
-              <v-icon
-                v-if="notification.template_info?.icon"
+              <v-spacer></v-spacer>
+
+              <!-- 重要标记 -->
+              <v-chip
+                v-if="notification.high_priority"
+                color="error"
+                size="x-small"
+                variant="tonal"
                 class="ml-2"
-                size="small"
               >
-                {{ getIconForType(notification.template_info.icon) }}
+                重要
+              </v-chip>
+
+              <!-- 未读指示器 -->
+              <v-icon
+                v-if="!notification.read"
+                color="primary"
+                size="small"
+                class="ml-2"
+              >
+                mdi-circle-small
               </v-icon>
             </v-list-item-title>
 
@@ -86,23 +103,26 @@
               <span v-else>{{ notification.content || "新的通知" }}</span>
             </v-list-item-subtitle>
 
-            <v-list-item-subtitle class="text-caption text-grey mt-1">
-              {{ formatDate(notification.created_at) }}
-            </v-list-item-subtitle>
-
             <template v-slot:append>
-              <v-chip
-                v-if="notification.high_priority"
-                class="mr-2"
-                color="error"
-                size="small"
-              >
-                重要
-              </v-chip>
-              <v-icon v-if="!notification.read" color="primary" size="small"
-              >mdi-circle-small
-              </v-icon
-              >
+              <div class="d-flex flex-column align-end">
+                <!-- 时间显示 -->
+                <div class="text-caption text-grey mb-1">
+                  {{ formatRelativeTime(notification.created_at) }}
+                </div>
+
+                <!-- 类型标签 -->
+                <v-chip
+                  v-if="notification.template_info?.icon"
+                  :color="getTypeColor(notification.template_info.icon)"
+                  size="x-small"
+                  variant="tonal"
+                >
+                  <v-icon start size="x-small">
+                    {{ getIconForType(notification.template_info.icon) }}
+                  </v-icon>
+                  {{ getTypeLabel(notification.template_info.icon) }}
+                </v-chip>
+              </div>
             </template>
           </v-list-item>
         </v-list>
@@ -149,21 +169,320 @@
           </v-btn>
         </div>
       </template>
+
+      <!-- 页面模式下的底部控制区 -->
+      <template v-else>
+        <v-divider class="my-1"></v-divider>
+        <div class="d-flex align-center justify-space-between pa-2">
+          <v-btn
+            :disabled="!hasUnread"
+            size="small"
+            variant="text"
+            @click="markAllAsRead"
+          >
+            标记全部已读
+          </v-btn>
+
+          <!-- 加载更多按钮（页面模式） -->
+          <v-btn
+            v-if="hasMoreNotifications && !autoLoadMore"
+            :loading="loadingMore"
+            size="small"
+            variant="outlined"
+            @click="loadMoreNotifications"
+          >
+            加载更多通知
+          </v-btn>
+
+          <!-- 自动加载模式下的加载指示器 -->
+          <div v-else-if="hasMoreNotifications && autoLoadMore && loadingMore" class="d-flex align-center">
+            <v-progress-circular
+              indeterminate
+              size="20"
+              width="2"
+              class="mr-2"
+            ></v-progress-circular>
+            <span class="text-caption">加载中...</span>
+          </div>
+
+          <!-- 没有更多数据时的提示 -->
+          <span v-else-if="!hasMoreNotifications && notifications.length > 0" class="text-caption text-grey">
+            已加载全部通知
+          </span>
+        </div>
+      </template>
     </template>
+
+    <!-- 通知详情对话框 -->
+    <v-dialog
+      v-model="showDetailDialog"
+      max-width="700px"
+      scrollable
+      persistent
+    >
+      <v-card v-if="selectedNotification">
+        <!-- 标题栏 -->
+        <v-card-title class="d-flex align-center justify-space-between pa-4">
+          <div class="d-flex align-center">
+            <!-- 头像 -->
+            <v-avatar
+              v-if="selectedNotification.actor?.avatar"
+              :image="
+                localuser.getUserAvatar(selectedNotification.actor.avatar)
+              "
+              size="40"
+              class="mr-3"
+            ></v-avatar>
+            <v-avatar
+              v-else-if="getNotificationIcon(selectedNotification)"
+              color="primary"
+              size="40"
+              class="mr-3"
+            >
+              <v-icon>{{ getNotificationIcon(selectedNotification) }}</v-icon>
+            </v-avatar>
+            <v-avatar v-else color="grey" size="40" class="mr-3">
+              <v-icon>mdi-bell</v-icon>
+            </v-avatar>
+
+            <div>
+              <h3 class="text-h6">{{ getNotificationTitle() }}</h3>
+              <div class="text-caption text-grey">
+                {{ formatDate(selectedNotification.created_at) }}
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex align-center ga-2">
+            <!-- 状态标签 -->
+            <v-chip
+              v-if="!selectedNotification.read"
+              color="error"
+              size="small"
+              variant="tonal"
+            >
+              未读
+            </v-chip>
+
+            <v-chip
+              v-if="selectedNotification.high_priority"
+              color="warning"
+              size="small"
+              variant="tonal"
+            >
+              重要
+            </v-chip>
+
+            <v-btn
+              icon="mdi-close"
+              size="small"
+              variant="text"
+              @click="closeDetailDialog"
+            ></v-btn>
+          </div>
+        </v-card-title>
+
+        <v-divider></v-divider>
+
+        <!-- 内容区域 -->
+        <v-card-text class="pa-4">
+          <!-- 通知内容 -->
+          <div class="mb-4">
+
+            <p class="text-body-1">
+              {{ getNotificationContent() }}
+            </p>
+          </div>
+
+          <!-- 发送者信息 -->
+          <div v-if="selectedNotification.actor" class="mb-4">
+            <v-card variant="tonal" @click="visitUserProfile">
+              <v-card-text class="pa-3">
+                <div class="d-flex align-center">
+                  <v-avatar
+                    v-if="selectedNotification.actor.avatar"
+                    :image="
+                      localuser.getUserAvatar(selectedNotification.actor.avatar)
+                    "
+                    size="48"
+                    class="mr-3"
+                  ></v-avatar>
+                  <v-avatar v-else color="grey" size="48" class="mr-3">
+                    <v-icon>mdi-account</v-icon>
+                  </v-avatar>
+
+                  <div class="flex-1">
+                    <div class="text-body-1 font-weight-medium">
+                      由 {{
+                        selectedNotification.actor.display_name ||
+                        selectedNotification.actor.username
+                      }} 产生
+                    </div>
+                    <div class="text-caption text-grey">
+                      @{{ selectedNotification.actor.username }}
+                    </div>
+                  </div>
+                </div>
+              </v-card-text>
+            </v-card>
+          </div>
+
+          <!-- 相关链接 -->
+          <div v-if="hasNotificationLink()" class="mb-4">
+            <!-- 目标链接卡片 -->
+            <div v-if="hasTargetLink()" class="mb-3">
+              <h4 class="text-subtitle-1 mb-2">
+                <v-icon start>mdi-target</v-icon>
+                相关内容
+              </h4>
+              <v-card variant="tonal" @click="openTargetLink">
+                <v-card-text class="pa-3">
+                  <div class="d-flex align-center justify-space-between">
+                    <div class="d-flex align-center">
+                      <v-icon color="primary" class="mr-3">mdi-link</v-icon>
+                      <div>
+                        <div class="text-body-2 font-weight-medium">
+                          {{ getTargetLinkDescription() }}
+                        </div>
+                        <div class="text-caption text-grey">
+                          链接到 {{ getTargetLink() }}
+                        </div>
+                      </div>
+                    </div>
+                    <v-btn
+                      color="primary"
+                      variant="tonal"
+                      size="small"
+                      prepend-icon="mdi-open-in-new"
+                      @click.stop="openTargetLink"
+                    >
+                      访问
+                    </v-btn>
+                  </div>
+                </v-card-text>
+              </v-card>
+            </div>
+
+            <!-- 原始链接卡片 -->
+            <div v-if="hasOriginalLink()">
+              <h4 v-if="hasTargetLink()" class="text-subtitle-1 mb-2">
+                <v-icon start>mdi-link-variant</v-icon>
+                附加链接
+              </h4>
+              <h4 v-else class="text-subtitle-1 mb-2">
+                <v-icon start>mdi-link</v-icon>
+                相关链接
+              </h4>
+              <v-card variant="tonal" @click="openOriginalLink">
+                <v-card-text class="pa-3">
+                  <div class="d-flex align-center justify-space-between">
+                    <div class="d-flex align-center">
+                      <v-icon color="secondary" class="mr-3">
+                        {{ getOriginalLink().startsWith('http') ? 'mdi-open-in-new' : 'mdi-link' }}
+                      </v-icon>
+                      <div>
+                        <div class="text-body-2 font-weight-medium">
+                          {{ getOriginalLinkDescription() }}
+                        </div>
+                        <div class="text-caption text-grey">
+                          {{ getOriginalLink() }}
+                        </div>
+                      </div>
+                    </div>
+                    <v-btn
+                      color="secondary"
+                      variant="tonal"
+                      size="small"
+                      :prepend-icon="getOriginalLink().startsWith('http') ? 'mdi-open-in-new' : 'mdi-arrow-right'"
+                      @click.stop="openOriginalLink"
+                    >
+                      {{ getOriginalLink().startsWith('http') ? '打开' : '访问' }}
+                    </v-btn>
+                  </div>
+                </v-card-text>
+              </v-card>
+            </div>
+          </div>
+
+          <!-- 其他信息 -->
+          <div v-if="selectedNotification.data" class="mb-4">
+            <v-expansion-panels variant="accordion">
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  <v-icon start>mdi-information</v-icon>
+                  展开查看详细信息
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <pre class="detail-info">{{
+                    JSON.stringify(selectedNotification.data, null, 2)
+                  }}</pre>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </div>
+
+          <!-- 元数据 -->
+          <div class="metadata-section">
+            <v-divider class="mb-3"></v-divider>
+            <div class="d-flex flex-wrap ga-4">
+              <div class="metadata-item">
+                <span class="text-caption text-grey">通知ID：</span>
+                <code class="text-caption">{{ selectedNotification.id }}</code>
+              </div>
+
+              <div class="metadata-item">
+                <span class="text-caption text-grey">类型：</span>
+                <v-chip size="small" variant="tonal">
+                  {{ getNotificationType() }}
+                </v-chip>
+              </div>
+
+              <div v-if="selectedNotification.read_at" class="metadata-item">
+                <span class="text-caption text-grey">已读时间：</span>
+                <span class="text-caption">{{
+                  formatDate(selectedNotification.read_at)
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <!-- 操作按钮 -->
+        <v-card-actions class="pa-4">
+          <div class="d-flex justify-space-between w-100">
+            <div class="d-flex ga-2">
+
+            </div>
+
+            <div class="d-flex ga-2">
+
+
+              <v-btn @click="closeDetailDialog">
+                关闭
+              </v-btn>
+            </div>
+          </div>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script>
-import {ref, computed, onMounted} from "vue";
-import {useRouter} from "vue-router";
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import {
   getNotifications,
   markNotificationAsRead,
   markAllNotificationsAsRead,
+  deleteNotifications,
 } from "@/services/notificationService";
-import {getProjectInfo, getProjectListById} from "@/services/projectService";
-import {get} from "@/services/serverConfig";
+import { getProjectInfo, getProjectListById } from "@/services/projectService";
+import { get } from "@/services/serverConfig";
 import { localuser } from "@/services/localAccount";
+import { showSnackbar } from "@/composables/useNotifications.js";
 export default {
   name: "NotificationsCardContent",
   props: {
@@ -182,11 +501,11 @@ export default {
     notification: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
   },
   emits: ["update:unread-count"],
-  async setup(props, {emit}) {
+  async setup(props, { emit }) {
     const router = useRouter();
     const notifications = ref([]);
     const loading = ref(false);
@@ -196,17 +515,22 @@ export default {
     const hasMoreNotifications = ref(false);
     const loadMoreUrl = ref(null);
     const notificationsContainer = ref(null);
-    const s3BucketUrl = ref('');
+    const s3BucketUrl = ref("");
     const projectCache = ref({});
     const projectListCache = ref({});
+    const userCache = ref({}); // 新增用户缓存
+
+    // 详情对话框状态
+    const showDetailDialog = ref(false);
+    const selectedNotification = ref(null);
 
     // Initialize s3BucketUrl
     onMounted(async () => {
       try {
-        s3BucketUrl.value = get('s3.staticurl');
+        s3BucketUrl.value = get("s3.staticurl");
       } catch (err) {
-        console.error('Failed to get s3BucketUrl:', err);
-        s3BucketUrl.value = '';
+        console.error("Failed to get s3BucketUrl:", err);
+        s3BucketUrl.value = "";
       }
     });
 
@@ -228,7 +552,7 @@ export default {
       try {
         const data = await getNotifications();
         notifications.value = data.notifications || [];
-        loadMoreUrl.value = data.load_more_url || null;
+        loadMoreUrl.value = data.load_more_notifications || null;
         hasMoreNotifications.value = !!loadMoreUrl.value;
         updateUnreadCount();
 
@@ -248,10 +572,10 @@ export default {
 
       loadingMore.value = true;
       try {
-        const data = await getNotifications({url: loadMoreUrl.value});
+        const data = await getNotifications({ url: loadMoreUrl.value });
         const newNotifications = data.notifications || [];
         notifications.value = [...notifications.value, ...newNotifications];
-        loadMoreUrl.value = data.load_more_url || null;
+        loadMoreUrl.value = data.load_more_notifications || null;
         hasMoreNotifications.value = !!loadMoreUrl.value;
 
         // 处理新加载的通知模板
@@ -264,12 +588,13 @@ export default {
       }
     };
 
-    // 预先加载通知所需的项目和项目列表数据
+    // 预先加载通知所需的项目、项目列表和用户数据
     const prepareTemplateData = async (notificationsList) => {
       try {
-        // 收集所有需要获取的项目和项目列表ID
+        // 收集所有需要获取的项目、项目列表和用户ID
         const projectIds = new Set();
         const projectListIds = new Set();
+        const userIds = new Set();
 
         // 收集所有需要的ID
         notificationsList.forEach((notification) => {
@@ -279,7 +604,19 @@ export default {
               projectIds.add(notification.target_id);
             } else if (notification.target_type === "projectlist") {
               projectListIds.add(notification.target_id);
+            } else if (notification.target_type === "user") {
+              userIds.add(notification.target_id);
             }
+          }
+
+          // 收集data中可能的项目ID
+          if (notification.data?.project_id) {
+            projectIds.add(notification.data.project_id);
+          }
+
+          // 收集actor用户ID
+          if (notification.actor?.id) {
+            userIds.add(notification.actor.id);
           }
         });
 
@@ -339,7 +676,7 @@ export default {
                 .catch((err) => {
                   console.error(`获取项目列表${projectListId}失败:`, err);
                   // 缓存空对象以避免重复请求不存在的资源
-                  projectListCache.value[projectListId] = {error: true};
+                  projectListCache.value[projectListId] = { error: true };
                 })
             );
           }
@@ -351,49 +688,97 @@ export default {
         console.log("缓存状态:", {
           projects: projectCache.value,
           projectLists: projectListCache.value,
+          users: userCache.value,
         });
 
-        // 处理redirect_url
+        // 处理redirect_url - 智能生成基于target的链接
         notificationsList.forEach((notification) => {
-          if (!notification.redirect_url) {
-            // 根据通知类型和目标构造redirect_url
-            if (
-              notification.target_type === "project" &&
-              notification.target_id
-            ) {
+          // 根据通知类型和目标构造redirect_url，优先使用target信息
+          if (notification.target_type && notification.target_id) {
+            if (notification.target_type === "project") {
               const project = projectCache.value[notification.target_id];
               if (project && project.author) {
-                notification.redirect_url = `/${project.author.username}/${
-                  project.name || project.title
-                }`;
+                // 生成项目链接：/username/projectname
+                const projectName = project.name || project.title;
+                notification.redirect_url = `/${project.author.username}/${projectName}`;
+                //notification.link = notification.redirect_url; // 同时更新link字段
                 console.log(
-                  `为通知${notification.id}生成redirect_url:`,
+                  `为通知${notification.id}生成项目链接:`,
                   notification.redirect_url
                 );
               }
-            } else if (
-              notification.target_type === "user" &&
-              notification.target_id &&
-              notification.actor
-            ) {
-              notification.redirect_url = `/${notification.actor.username}`;
-              console.log(
-                `为通知${notification.id}生成redirect_url:`,
-                notification.redirect_url
-              );
-            } else if (
-              notification.target_type === "projectlist" &&
-              notification.target_id
-            ) {
+            } else if (notification.target_type === "user") {
+              // 对于用户类型，使用actor的用户名（通常target_type为user时，actor就是目标用户）
+              if (notification.actor?.username) {
+                notification.redirect_url = `/${notification.actor.username}`;
+                  //notification.link = notification.redirect_url;
+                console.log(
+                  `为通知${notification.id}生成用户链接:`,
+                  notification.redirect_url
+                );
+              }
+            } else if (notification.target_type === "projectlist") {
               const projectList =
                 projectListCache.value[notification.target_id];
               if (projectList && !projectList.error) {
+                // 生成项目列表链接
                 notification.redirect_url = `/app/projectlist/${projectList.id}`;
+                //notification.link = notification.redirect_url;
                 console.log(
-                  `为通知${notification.id}生成redirect_url:`,
+                  `为通知${notification.id}生成项目列表链接:`,
                   notification.redirect_url
                 );
               }
+            } else if (notification.target_type === "comment") {
+              // 评论类型，尝试根据data中的项目信息生成链接
+              if (notification.data?.project_id) {
+                const project =
+                  projectCache.value[notification.data.project_id];
+                if (project && project.author) {
+                  const projectName = project.name || project.title;
+                  notification.redirect_url = `/${project.author.username}/${projectName}#comment-${notification.target_id}`;
+                  //notification.link = notification.redirect_url;
+                  console.log(
+                    `为通知${notification.id}生成评论链接:`,
+                    notification.redirect_url
+                  );
+                }
+              }
+              // 如果data中没有项目信息，但有actor信息，则链接到用户页面
+              else if (notification.actor?.username) {
+                notification.redirect_url = `/${notification.actor.username}`;
+                //notification.link = notification.redirect_url;
+                console.log(
+                  `为通知${notification.id}生成评论备用用户链接:`,
+                  notification.redirect_url
+                );
+              }
+            } else if (
+              notification.target_type === "follow" ||
+              notification.target_type === "like"
+            ) {
+              // 关注和点赞类型，通常链接到actor用户页面
+              if (notification.actor?.username) {
+                notification.redirect_url = `/${notification.actor.username}`;
+                //notification.link = notification.redirect_url;
+                console.log(
+                  `为通知${notification.id}生成${notification.target_type}链接:`,
+                  notification.redirect_url
+                );
+              }
+            }
+          }
+
+          // 如果没有通过target生成链接，但有原始链接，则保持原有逻辑
+          if (!notification.redirect_url && !notification.link) {
+            // 备用链接生成逻辑（基于actor信息）
+            if (notification.actor?.username) {
+              notification.redirect_url = `/${notification.actor.username}`;
+              //notification.link = notification.redirect_url;
+              console.log(
+                `为通知${notification.id}生成备用用户链接:`,
+                notification.redirect_url
+              );
             }
           }
         });
@@ -420,7 +805,7 @@ export default {
       if (!template) return "";
 
       let result = template;
-      const {actor, target_type, target_id, data} = notification;
+      const { actor, target_type, target_id, data } = notification;
 
       // 使用actor信息
       if (actor) {
@@ -441,7 +826,10 @@ export default {
             /{{target_name}}/g,
             notification.actor.display_name || notification.actor.username || ""
           );
-          result = result.replace(/{{target_id}}/g, notification.actor.id || "");
+          result = result.replace(
+            /{{target_id}}/g,
+            notification.actor.id || ""
+          );
         } else if (target_type === "project") {
           const targetInfo = projectCache.value[target_id];
           if (targetInfo) {
@@ -464,15 +852,19 @@ export default {
       }
 
       // 替换data字段中的变量
-      if (data && typeof data === 'object') {
+      if (data && typeof data === "object") {
         Object.entries(data).forEach(([key, value]) => {
-          const regex = new RegExp(`{{${key}}}`, 'g');
-          if (typeof value === 'object') {
+          const regex = new RegExp(`{{${key}}}`, "g");
+          if (typeof value === "object") {
             // 如果值是对象，尝试使用其display_name, name, 或 title属性
-            const displayValue = value.display_name || value.name || value.title || JSON.stringify(value);
+            const displayValue =
+              value.display_name ||
+              value.name ||
+              value.title ||
+              JSON.stringify(value);
             result = result.replace(regex, displayValue);
           } else {
-            result = result.replace(regex, value?.toString() || '');
+            result = result.replace(regex, value?.toString() || "");
           }
         });
       }
@@ -497,7 +889,7 @@ export default {
         return;
 
       const container = event.target;
-      const {scrollHeight, scrollTop, clientHeight} = container;
+      const { scrollHeight, scrollTop, clientHeight } = container;
       const scrollBottom = scrollHeight - scrollTop - clientHeight;
 
       if (scrollBottom < 50) {
@@ -540,9 +932,15 @@ export default {
 
     // 处理通知点击
     const handleNotificationClick = async (notification) => {
+      // 自动标记为已读
       if (!notification.read) {
         await markAsRead(notification.id);
       }
+      console.log("handleNotificationClick", notification);
+
+      // 直接在此组件内部打开详情弹窗，不触发事件
+      selectedNotification.value = notification;
+      showDetailDialog.value = true;
     };
 
     // 格式化日期
@@ -562,6 +960,41 @@ export default {
       return date.toLocaleDateString();
     };
 
+    // 格式化相对时间
+    const formatRelativeTime = (dateString) => {
+      return formatDate(dateString);
+    };
+
+    // 获取类型颜色
+    const getTypeColor = (type) => {
+      const colorMap = {
+        follow: "blue",
+        like: "red",
+        comment: "green",
+        fork: "purple",
+        mention: "orange",
+        system: "grey",
+        admin: "deep-purple",
+        update: "teal",
+      };
+      return colorMap[type] || "primary";
+    };
+
+    // 获取类型标签
+    const getTypeLabel = (type) => {
+      const typeMap = {
+        follow: "关注",
+        like: "点赞",
+        comment: "评论",
+        fork: "分叉",
+        mention: "提及",
+        system: "系统",
+        admin: "管理",
+        update: "更新",
+      };
+      return typeMap[type] || "通知";
+    };
+
     // 根据通知类型获取图标
     const getIconForType = (iconType) => {
       const iconMap = {
@@ -576,6 +1009,200 @@ export default {
       };
 
       return iconMap[iconType] || "mdi-bell";
+    };
+
+    // 对话框相关方法
+
+    // 关闭对话框
+    const closeDetailDialog = () => {
+      showDetailDialog.value = false;
+      selectedNotification.value = null;
+    };
+
+    // 获取通知标题
+    const getNotificationTitle = () => {
+      if (selectedNotification.value?.title) {
+        return selectedNotification.value.title;
+      }
+      return "通知详情";
+    };
+
+    // 获取通知内容
+    const getNotificationContent = () => {
+      if (selectedNotification.value?.rendered_content) {
+        return selectedNotification.value.rendered_content;
+      }
+      if (selectedNotification.value?.content) {
+        return selectedNotification.value.content;
+      }
+      return "无内容描述";
+    };
+
+    // 获取通知图标
+    const getNotificationIcon = (notification) => {
+      const iconType = notification?.template_info?.icon || notification?.type;
+      const iconMap = {
+        follow: "mdi-account-plus",
+        like: "mdi-heart",
+        comment: "mdi-comment-text",
+        fork: "mdi-source-fork",
+        mention: "mdi-at",
+        system: "mdi-information",
+        admin: "mdi-shield-account",
+        update: "mdi-update",
+      };
+      return iconMap[iconType] || "mdi-bell";
+    };
+
+    // 获取通知类型
+    const getNotificationType = () => {
+      const type =
+        selectedNotification.value?.type ||
+        selectedNotification.value?.template_info?.icon;
+      const typeMap = {
+        follow: "关注",
+        like: "点赞",
+        comment: "评论",
+        fork: "分叉",
+        mention: "提及",
+        system: "系统",
+        admin: "管理",
+        update: "更新",
+      };
+      return typeMap[type] || type || "通知";
+    };
+
+    // 检查是否有目标链接（基于target生成的链接）
+    const hasTargetLink = () => {
+      return !!(selectedNotification.value?.redirect_url);
+    };
+
+    // 检查是否有原始链接（且不是auto或target）
+    const hasOriginalLink = () => {
+      const link = selectedNotification.value?.link;
+      return !!(link && link !== "auto" && link !== "target" && link !== selectedNotification.value?.redirect_url);
+    };
+
+    // 检查是否有任何链接
+    const hasNotificationLink = () => {
+      return hasTargetLink() || hasOriginalLink();
+    };
+
+    // 获取目标链接
+    const getTargetLink = () => {
+      return selectedNotification.value?.redirect_url || "";
+    };
+
+    // 获取原始链接
+    const getOriginalLink = () => {
+      const link = selectedNotification.value?.link;
+      if (
+        link &&
+        link !== "auto" &&
+        link !== "target" &&
+        link !== selectedNotification.value?.redirect_url
+      ) {
+        return link;
+      }
+      return "";
+    };
+
+    // 获取链接（兼容性方法，优先返回目标链接）
+    const getNotificationLink = () => {
+      return getTargetLink() || getOriginalLink();
+    };
+
+    // 获取目标链接描述
+    const getTargetLinkDescription = () => {
+      const url = getTargetLink();
+      if (!url) return "";
+
+      // 基于通知的target_type来生成更准确的描述
+      if (selectedNotification.value?.target_type) {
+        const targetType = selectedNotification.value.target_type;
+
+        if (targetType === "project") {
+          return "查看项目";
+        } else if (targetType === "user") {
+          return "查看用户资料";
+        } else if (targetType === "projectlist") {
+          return '查看项目列表';
+        } else if (targetType === "comment") {
+          return "查看评论";
+        }
+      }
+
+      // 基于URL路径的描述（备用逻辑）
+      if (url.includes("/app/projectlist/")) return "查看项目列表";
+      if (url.includes("#comment-")) return "查看评论";
+      if (url.includes("/") && url.split("/").length === 3) return "查看项目";
+      if (url.includes("/") && url.split("/").length === 2)
+        return "查看用户资料";
+
+      return "相关页面";
+    };
+
+    // 获取原始链接描述
+    const getOriginalLinkDescription = () => {
+      const url = getOriginalLink();
+      if (!url) return "";
+
+      // 基于URL路径的描述
+      if (url.includes("scratch.mit.edu")) return "访问Scratch官网";
+      if (url.includes("github.com")) return "访问GitHub";
+      if (url.includes("http")) return "访问外部链接";
+
+      return "其他链接";
+    };
+
+    // 获取链接描述（兼容性方法）
+    const getLinkDescription = () => {
+      return getTargetLinkDescription() || getOriginalLinkDescription();
+    };
+
+    // 访问用户资料
+    const visitUserProfile = () => {
+      if (selectedNotification.value?.actor?.username) {
+        const url = `/${selectedNotification.value.actor.username}`;
+        closeDetailDialog();
+        router.push(url);
+      }
+    };
+
+    // 打开目标链接
+    const openTargetLink = () => {
+      const url = getTargetLink();
+      if (url) {
+        closeDetailDialog();
+        router.push(url);
+      }
+    };
+
+    // 打开原始链接
+    const openOriginalLink = () => {
+      const url = getOriginalLink();
+      if (url) {
+        closeDetailDialog();
+        if (url.startsWith("http")) {
+          // 外部链接在新窗口打开
+          window.open(url, "_blank");
+        } else {
+          // 内部链接使用路由跳转
+          router.push(url);
+        }
+      }
+    };
+
+    // 打开通知链接（兼容性方法）
+    const openNotificationLink = () => {
+      const targetUrl = getTargetLink();
+      const originalUrl = getOriginalLink();
+
+      if (targetUrl) {
+        openTargetLink();
+      } else if (originalUrl) {
+        openOriginalLink();
+      }
     };
 
     if (props.autoFetch) {
@@ -593,6 +1220,8 @@ export default {
       hasUnread,
       hasMoreNotifications,
       notificationsContainer,
+      showDetailDialog,
+      selectedNotification,
       fetchNotifications,
       loadMoreNotifications,
       handleScroll,
@@ -601,6 +1230,9 @@ export default {
       updateUnreadCount,
       handleNotificationClick,
       formatDate,
+      formatRelativeTime,
+      getTypeColor,
+      getTypeLabel,
       renderTemplate,
       getIconForType,
       processNotificationTemplates,
@@ -608,10 +1240,61 @@ export default {
       s3BucketUrl,
       projectCache,
       projectListCache,
+      userCache,
       localuser,
+      // 对话框相关方法
+      closeDetailDialog,
+      getNotificationTitle,
+      getNotificationContent,
+      getNotificationIcon,
+      getNotificationType,
+      hasNotificationLink,
+      hasTargetLink,
+      hasOriginalLink,
+      getNotificationLink,
+      getTargetLink,
+      getOriginalLink,
+      getLinkDescription,
+      getTargetLinkDescription,
+      getOriginalLinkDescription,
+      visitUserProfile,
+      openNotificationLink,
+      openTargetLink,
+      openOriginalLink,
     };
   },
 };
 </script>
 
+<style scoped>
+.notification-item.unread-notification {
+  background-color: rgba(var(--v-theme-primary), 0.04);
+  border-left: 4px solid rgb(var(--v-theme-primary));
+}
 
+.clickable-item {
+  cursor: pointer;
+}
+
+.metadata-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+code {
+  background-color: rgba(var(--v-theme-on-surface), 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "Courier New", monospace;
+}
+
+.detail-info {
+  background-color: rgba(var(--v-theme-on-surface), 0.05);
+  padding: 12px;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 12px;
+}
+</style>

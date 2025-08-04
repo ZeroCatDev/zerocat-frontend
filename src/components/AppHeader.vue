@@ -52,6 +52,44 @@
     <template #append>
       <SearchDialog/>
       <v-btn icon="mdi-plus" to="/app/new"></v-btn>
+      
+      <!-- 通知按钮 -->
+      <v-menu 
+        v-if="localuser.isLogin.value"
+        :close-on-content-click="false" 
+        location="bottom"
+      >
+        <template #activator="{ props }">
+          <v-btn
+            icon
+            v-bind="props"
+            @click="notificationsCard?.fetchNotifications()"
+          >
+            <v-badge
+              v-if="unreadCount > 0"
+              :content="unreadCount > 99 ? '99+' : unreadCount.toString()"
+              color="error"
+              floating
+            >
+              <v-icon>mdi-bell</v-icon>
+            </v-badge>
+            <v-icon v-else>mdi-bell</v-icon>
+          </v-btn>
+        </template>
+        
+        <v-card border min-width="400px" max-width="500px">
+          <NotificationsCard
+            ref="notificationsCard"
+            :autoFetch="true"
+            :maxHeight="'420px'"
+            :menuMode="true"
+            :showHeader="true"
+            @update:unread-count="updateUnreadCount"
+          />
+        </v-card>
+      </v-menu>
+      
+      <!-- 用户菜单 -->
       <v-menu :close-on-content-click="false" location="bottom">
         <template #activator="{ props, isActive }"
         >
@@ -59,7 +97,6 @@
             <v-btn
               icon
               v-bind="props"
-              @click="notificationsCard?.fetchNotifications()"
             >
               <v-avatar
                 :image="localuser.getUserAvatar()"
@@ -78,94 +115,56 @@
           </template>
         </template>
         <v-card border min-width="300px">
-          <v-tabs v-model="userTab" grow>
-            <v-tab value="notifications">
-              <v-icon start>mdi-bell</v-icon>
-              通知
-              <!--<v-badge
-                v-if="unreadCount > 0"
-                :content="unreadCount"
-                color="error"
-                dot
-                floating
-              ></v-badge>-->
-            </v-tab>
-            <v-tab value="profile">
-              <v-icon start>mdi-account</v-icon>
-              我的
-            </v-tab>
-          </v-tabs>
-
-          <v-card-text class="pa-0">
-            <v-window v-model="userTab">
-              <!-- 通知选项卡内容 -->
-              <v-window-item value="notifications">
-                <NotificationsCard
-                  ref="notificationsCard"
-                  :autoFetch="true"
-                  :maxHeight="'auto'"
-                  :menuMode="true"
-                  :showHeader="false"
-                >
-                </NotificationsCard>
-              </v-window-item>
-
-              <!-- 个人资料选项卡内容 -->
-              <v-window-item value="profile">
-                <v-card
-                  :append-avatar="
-                    localuser.getUserAvatar()
-                  "
-                  :subtitle="localuser.user.value.username"
-                  :title="localuser.user.value.display_name"
-                  @click="localuser.loadUser(true)"
-                ></v-card>
-                <v-list>
-                  <v-list-item
-                    :to="`/${localuser.user.value.username}`"
-                    color="primary"
-                    prepend-icon="mdi-account"
-                    rounded="xl"
-                    title="个人主页"
-                  ></v-list-item>
-                  <v-list-item
-                    color="primary"
-                    prepend-icon="mdi-cog"
-                    rounded="xl"
-                    title="设置"
-                    to="/app/account"
-                  ></v-list-item>
-                  <v-list-item
-                    color="primary"
-                    prepend-icon="mdi-xml"
-                    rounded="xl"
-                    title="项目"
-                    to="/app/project"
-                  ></v-list-item>
-                  <v-list-item
-                    color="primary"
-                    prepend-icon="mdi-format-list-bulleted"
-                    rounded="xl"
-                    title="列表"
-                    to="/app/projectlist"
-                  ></v-list-item>
-                </v-list>
-                <v-divider></v-divider>
-                <v-list>
-                  <v-list-item
-                    active
-                    color="error"
-                    prepend-icon="mdi-logout"
-                    rounded="xl"
-                    title="退出"
-                    to="/app/account/logout"
-                    variant="plain"
-                  ></v-list-item>
-                </v-list>
-              </v-window-item>
-            </v-window>
-          </v-card-text
-          >
+          <v-card
+            :append-avatar="
+              localuser.getUserAvatar()
+            "
+            :subtitle="localuser.user.value.username"
+            :title="localuser.user.value.display_name"
+            @click="localuser.loadUser(true)"
+          ></v-card>
+          <v-list>
+            <v-list-item
+              :to="`/${localuser.user.value.username}`"
+              color="primary"
+              prepend-icon="mdi-account"
+              rounded="xl"
+              title="个人主页"
+            ></v-list-item>
+            <v-list-item
+              color="primary"
+              prepend-icon="mdi-cog"
+              rounded="xl"
+              title="设置"
+              to="/app/account"
+            ></v-list-item>
+            <v-list-item
+              color="primary"
+              prepend-icon="mdi-xml"
+              rounded="xl"
+              title="项目"
+              to="/app/project"
+            ></v-list-item>
+            <v-list-item
+              color="primary"
+              prepend-icon="mdi-format-list-bulleted"
+              rounded="xl"
+              title="列表"
+              to="/app/projectlist"
+            ></v-list-item>
+          </v-list>
+          <v-divider></v-divider>
+          <v-list>
+            <v-list-item
+              active
+              color="error"
+              prepend-icon="mdi-logout"
+              rounded="xl"
+              title="退出"
+              to="/app/account/logout"
+              variant="plain"
+            ></v-list-item>
+          </v-list>
         </v-card>
       </v-menu>
     </template>
@@ -437,6 +436,12 @@ export default {
   },
   setup() {
     const notificationsCard = ref(null);
+    const unreadCount = ref(0);
+
+    // 更新未读通知计数
+    const updateUnreadCount = (count) => {
+      unreadCount.value = count;
+    };
 
     onMounted(async () => {
       // 如果用户已登录，等待组件实例化后检查未读通知
@@ -451,6 +456,8 @@ export default {
 
     return {
       notificationsCard,
+      unreadCount,
+      updateUnreadCount,
       localuser,
       s3BucketUrl: '',
     };
