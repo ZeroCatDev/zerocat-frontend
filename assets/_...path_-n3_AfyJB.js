@@ -1,1 +1,0 @@
-import{Y as t,o as a,a2 as r}from"./index-NKeTyzEk.js";import"https://static.geetest.com/v4/gt4.js";const _={__name:"[...path]",setup(e){return this.$route.path.startsWith("/proxy")&&this.$router.replace(`/app${route.path}`),(o,p)=>(a(),t(r))}};export{_ as default};
