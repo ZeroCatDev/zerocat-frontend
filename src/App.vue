@@ -5,6 +5,12 @@
   
   <!-- 全局Snackbar -->
   <GlobalSnackbar />
+  
+  <!-- 通知提醒Snackbar -->
+  <NotificationReminderSnackbar />
+  
+  <!-- PWA提示组件 -->
+  <PWAPrompts />
 </template>
 
 <script setup>
@@ -17,6 +23,8 @@ import {use404Helper} from "@/composables/use404";
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import SimpleLayout from "@/layouts/SimpleLayout.vue";
 import GlobalSnackbar from "@/components/GlobalSnackbar.vue";
+import NotificationReminderSnackbar from "@/components/shared/NotificationReminderSnackbar.vue";
+import PWAPrompts from "@/components/PWAPrompts.vue";
 
 const route = useRoute();
 const router = useRouter();

@@ -7,7 +7,7 @@
             <v-icon start>mdi-bug</v-icon>
             通知系统调试面板
           </v-card-title>
-          
+
           <v-card-text>
             <v-alert type="info" class="mb-4">
               此页面仅用于开发和调试目的，包含各种通知功能的测试工具。
@@ -25,7 +25,7 @@
             <v-icon start>mdi-web</v-icon>
             浏览器推送调试
           </v-card-title>
-          
+
           <v-card-text>
             <!-- 状态信息 -->
             <v-expansion-panels variant="accordion" class="mb-4">
@@ -39,39 +39,39 @@
                     <v-list-item>
                       <v-list-item-title>浏览器支持</v-list-item-title>
                       <v-list-item-subtitle>
-                        <v-chip 
-                          :color="pushStatus.supported ? 'success' : 'error'" 
+                        <v-chip
+                          :color="pushStatus.supported ? 'success' : 'error'"
                           size="small"
                         >
                           {{ pushStatus.supported ? '支持' : '不支持' }}
                         </v-chip>
                       </v-list-item-subtitle>
                     </v-list-item>
-                    
+
                     <v-list-item>
                       <v-list-item-title>通知权限</v-list-item-title>
                       <v-list-item-subtitle>
-                        <v-chip 
-                          :color="getPermissionColor(pushStatus.permission)" 
+                        <v-chip
+                          :color="getPermissionColor(pushStatus.permission)"
                           size="small"
                         >
                           {{ pushStatus.permission }}
                         </v-chip>
                       </v-list-item-subtitle>
                     </v-list-item>
-                    
+
                     <v-list-item>
                       <v-list-item-title>订阅状态</v-list-item-title>
                       <v-list-item-subtitle>
-                        <v-chip 
-                          :color="pushStatus.subscribed ? 'success' : 'warning'" 
+                        <v-chip
+                          :color="pushStatus.subscribed ? 'success' : 'warning'"
                           size="small"
                         >
                           {{ pushStatus.subscribed ? '已订阅' : '未订阅' }}
                         </v-chip>
                       </v-list-item-subtitle>
                     </v-list-item>
-                    
+
                     <v-list-item>
                       <v-list-item-title>设备信息</v-list-item-title>
                       <v-list-item-subtitle>
@@ -81,7 +81,7 @@
                   </v-list>
                 </v-expansion-panel-text>
               </v-expansion-panel>
-              
+
               <v-expansion-panel v-if="pushStatus.subscription">
                 <v-expansion-panel-title>
                   <v-icon start>mdi-code-json</v-icon>
@@ -112,7 +112,7 @@
                   请求权限
                 </v-btn>
               </v-col>
-              
+
               <v-col cols="12" sm="6">
                 <v-btn
                   block
@@ -126,19 +126,8 @@
                   {{ pushStatus.subscribed ? '取消订阅' : '订阅推送' }}
                 </v-btn>
               </v-col>
-              
-              <v-col cols="12" sm="6">
-                <v-btn
-                  block
-                  color="info"
-                  :disabled="pushStatus.permission !== 'granted'"
-                  @click="sendTestNotification"
-                >
-                  <v-icon start>mdi-test-tube</v-icon>
-                  测试本地通知
-                </v-btn>
-              </v-col>
-              
+
+
               <v-col cols="12" sm="6">
                 <v-btn
                   block
@@ -162,7 +151,7 @@
             <v-icon start>mdi-api</v-icon>
             API调试
           </v-card-title>
-          
+
           <v-card-text>
             <v-row>
               <v-col cols="12">
@@ -177,7 +166,7 @@
                   获取通知列表
                 </v-btn>
               </v-col>
-              
+
               <v-col cols="12">
                 <v-btn
                   block
@@ -190,7 +179,7 @@
                   获取未读数量
                 </v-btn>
               </v-col>
-              
+
               <v-col cols="12">
                 <v-btn
                   block
@@ -203,7 +192,7 @@
                   获取订阅列表
                 </v-btn>
               </v-col>
-              
+
               <v-col cols="12">
                 <v-btn
                   block
@@ -254,18 +243,18 @@
             <v-icon start>mdi-console</v-icon>
             控制台日志
             <v-spacer></v-spacer>
-            <v-btn 
+            <v-btn
               icon="mdi-delete"
               size="small"
               color="error"
               @click="clearLogs"
             ></v-btn>
           </v-card-title>
-          
+
           <v-card-text>
             <div class="console-container">
-              <div 
-                v-for="(log, index) in logs" 
+              <div
+                v-for="(log, index) in logs"
                 :key="index"
                 :class="['log-entry', `log-${log.level}`]"
               >
@@ -274,7 +263,7 @@
                 <span class="log-message">{{ log.message }}</span>
                 <pre v-if="log.data" class="log-data">{{ JSON.stringify(log.data, null, 2) }}</pre>
               </div>
-              
+
               <div v-if="logs.length === 0" class="text-center py-4 text-grey">
                 暂无日志
               </div>
@@ -330,7 +319,7 @@ export default {
         data,
         timestamp: new Date().toLocaleTimeString()
       });
-      
+
       if (logs.value.length > 100) {
         logs.value = logs.value.slice(0, 100);
       }
@@ -344,7 +333,7 @@ export default {
         success,
         timestamp: new Date().toLocaleTimeString()
       });
-      
+
       if (apiResponses.value.length > 10) {
         apiResponses.value = apiResponses.value.slice(0, 10);
       }
@@ -362,11 +351,11 @@ export default {
     // 请求权限
     const requestPermission = async () => {
       loading.permission = true;
-      
+
       try {
         const permission = await pushNotificationService.requestPermission();
         await notifications.loadPushStatus();
-        
+
         addLog('success', `权限请求成功: ${permission}`);
         showSnackbar(`权限已${permission === 'granted' ? '授予' : '拒绝'}`, 'success');
       } catch (error) {
@@ -380,7 +369,7 @@ export default {
     // 切换订阅
     const toggleSubscription = async () => {
       loading.subscription = true;
-      
+
       try {
         if (notifications.pushStatus.subscribed) {
           await pushNotificationService.unsubscribe();
@@ -391,7 +380,7 @@ export default {
           addLog('success', '订阅成功', subscription);
           showSnackbar('推送订阅成功', 'success');
         }
-        
+
         await notifications.loadPushStatus();
       } catch (error) {
         addLog('error', '订阅操作失败', error);
@@ -401,27 +390,11 @@ export default {
       }
     };
 
-    // 发送测试通知
-    const sendTestNotification = async () => {
-      try {
-        await pushNotificationService.showTestNotification('调试测试通知', {
-          body: `测试时间: ${new Date().toLocaleString()}`,
-          icon: '/favicon.ico',
-          tag: 'debug-test'
-        });
-        
-        addLog('success', '本地测试通知发送成功');
-        showSnackbar('测试通知已发送', 'success');
-      } catch (error) {
-        addLog('error', '本地测试通知发送失败', error);
-        showSnackbar(error.message || '发送失败', 'error');
-      }
-    };
 
     // 发送服务器测试通知
     const sendServerTestNotification = async () => {
       loading.serverTest = true;
-      
+
       try {
         const result = await debugNotificationTest();
         addLog('success', '服务器测试通知发送成功', result);
@@ -439,7 +412,7 @@ export default {
     // 获取通知列表
     const fetchNotifications = async () => {
       loading.notifications = true;
-      
+
       try {
         const result = await getNotifications();
         addLog('success', '获取通知列表成功', result);
@@ -455,7 +428,7 @@ export default {
     // 获取未读数量
     const fetchUnreadCount = async () => {
       loading.unreadCount = true;
-      
+
       try {
         const result = await getUnreadNotificationCount();
         addLog('success', '获取未读数量成功', result);
@@ -471,7 +444,7 @@ export default {
     // 获取订阅列表
     const fetchSubscriptions = async () => {
       loading.subscriptions = true;
-      
+
       try {
         const result = await pushNotificationService.getServerSubscriptions();
         addLog('success', '获取订阅列表成功', result);
@@ -487,7 +460,7 @@ export default {
     // 标记全部已读
     const markAllAsRead = async () => {
       loading.markAllRead = true;
-      
+
       try {
         const result = await markAllNotificationsAsRead();
         addLog('success', '标记全部已读成功', result);
@@ -512,7 +485,7 @@ export default {
     onMounted(async () => {
       addLog('info', '调试页面初始化');
       await notifications.loadPushStatus();
-      
+
       // 获取设备信息
       const info = pushNotificationService.getDeviceInfo();
       Object.assign(deviceInfo, info);

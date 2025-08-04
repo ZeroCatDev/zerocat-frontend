@@ -1,8 +1,8 @@
 import { ref, reactive } from 'vue';
 import pushNotificationService from '@/services/pushNotificationService.js';
-import { 
-  markAllNotificationsAsRead, 
-  getUnreadNotificationCount 
+import {
+  markAllNotificationsAsRead,
+  getUnreadNotificationCount
 } from '@/services/notificationService.js';
 
 // 创建全局snackbar状态
@@ -65,7 +65,7 @@ export const useNotifications = () => {
   // 切换推送通知
   const togglePushNotification = async () => {
     pushLoading.value = true;
-    
+
     try {
       if (pushStatus.subscribed) {
         await pushNotificationService.unsubscribe();
@@ -74,7 +74,7 @@ export const useNotifications = () => {
         await pushNotificationService.subscribe();
         showSnackbar('推送通知已开启', 'success');
       }
-      
+
       await loadPushStatus();
     } catch (error) {
       console.error('切换推送通知失败:', error);
@@ -96,20 +96,6 @@ export const useNotifications = () => {
     }
   };
 
-  // 发送测试通知
-  const sendTestNotification = async () => {
-    try {
-      await pushNotificationService.showTestNotification('测试通知', {
-        body: '这是一条来自 ZeroCat 的测试通知',
-        icon: '/favicon.ico'
-      });
-      showSnackbar('测试通知已发送', 'success');
-    } catch (error) {
-      console.error('发送测试通知失败:', error);
-      showSnackbar(error.message || '发送测试通知失败', 'error');
-    }
-  };
-
   // 更新未读数量
   const updateUnreadCount = (count) => {
     unreadCount.value = count;
@@ -120,14 +106,13 @@ export const useNotifications = () => {
     unreadCount,
     pushLoading,
     pushStatus,
-    
+
     // 方法
     getPermissionText,
     loadPushStatus,
     loadUnreadCount,
     togglePushNotification,
     markAllAsRead,
-    sendTestNotification,
     updateUnreadCount
   };
 };

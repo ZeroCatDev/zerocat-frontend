@@ -70,6 +70,7 @@
     "unplugin-vue-components": "^28.0.0",
     "unplugin-vue-router": "^0.11.2",
     "vite": "^5.0.0",
+    "vite-plugin-pwa": "^0.21.2",
     "vite-plugin-static-copy": "^2.3.0",
     "vite-plugin-vue-layouts": "^0.11.0",
     "vite-plugin-vuetify": "^2.0.4",

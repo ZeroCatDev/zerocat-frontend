@@ -23,7 +23,7 @@
                   <v-icon start>mdi-web</v-icon>
                   浏览器推送通知
                 </v-card-title>
-                
+
                 <v-card-text>
                   <div v-if="!pushStatus.supported" class="text-center py-4">
                     <v-icon color="warning" size="large">mdi-alert-circle</v-icon>
@@ -32,8 +32,8 @@
 
                   <template v-else>
                     <!-- 权限状态显示 -->
-                    <v-alert 
-                      :type="getPermissionAlertType()" 
+                    <v-alert
+                      :type="getPermissionAlertType()"
                       :text="getPermissionText()"
                       class="mb-4"
                     ></v-alert>
@@ -46,7 +46,7 @@
                           {{ pushStatus.subscribed ? '已启用' : '未启用' }}
                         </div>
                       </div>
-                      
+
                       <v-btn
                         :color="pushStatus.subscribed ? 'error' : 'primary'"
                         :loading="pushLoading"
@@ -57,21 +57,6 @@
                       </v-btn>
                     </div>
 
-                    <!-- 测试通知 -->
-                    <div class="d-flex align-center justify-space-between mb-4">
-                      <div>
-                        <div class="text-subtitle-1">测试通知</div>
-                        <div class="text-body-2 text-grey">发送一条测试通知</div>
-                      </div>
-                      
-                      <v-btn
-                        variant="outlined"
-                        :disabled="pushStatus.permission !== 'granted'"
-                        @click="sendTestNotification"
-                      >
-                        发送测试
-                      </v-btn>
-                    </div>
 
                     <!-- 设备信息 -->
                     <v-expansion-panels v-if="pushStatus.subscribed" variant="accordion">
@@ -109,26 +94,26 @@
                 <v-card-title class="text-h6">
                   <v-icon start>mdi-devices</v-icon>
                   已注册的设备
-                  <v-btn 
-                    icon="mdi-refresh" 
-                    size="small" 
+                  <v-btn
+                    icon="mdi-refresh"
+                    size="small"
                     variant="text"
                     :loading="subscriptionsLoading"
                     @click="loadSubscriptions"
                     class="ml-2"
                   ></v-btn>
                 </v-card-title>
-                
+
                 <v-card-text>
                   <div v-if="subscriptionsLoading" class="text-center py-4">
                     <v-progress-circular indeterminate></v-progress-circular>
                   </div>
-                  
+
                   <div v-else-if="subscriptions.length === 0" class="text-center py-4">
                     <v-icon color="grey" size="large">mdi-cellphone-off</v-icon>
                     <div class="text-body-2 text-grey mt-2">暂无已注册的设备</div>
                   </div>
-                  
+
                   <v-list v-else>
                     <v-list-item
                       v-for="subscription in subscriptions"
@@ -144,7 +129,7 @@
                         {{ subscription.device_info?.browser || '未知浏览器' }}
                         ({{ subscription.device_info?.os || '未知系统' }})
                       </v-list-item-title>
-                      
+
                       <v-list-item-subtitle>
                         注册时间: {{ formatDate(subscription.created_at) }}
                         <br>
@@ -173,14 +158,14 @@
                   <v-icon start>mdi-history</v-icon>
                   通知管理
                 </v-card-title>
-                
+
                 <v-card-text>
                   <div class="d-flex align-center justify-space-between mb-4">
                     <div>
                       <div class="text-subtitle-1">未读通知</div>
                       <div class="text-body-2 text-grey">{{ unreadCount }} 条未读</div>
                     </div>
-                    
+
                     <v-btn
                       color="primary"
                       :disabled="unreadCount === 0"
@@ -197,7 +182,7 @@
                       <div class="text-subtitle-1">清理历史通知</div>
                       <div class="text-body-2 text-grey">删除所有已读的通知</div>
                     </div>
-                    
+
                     <v-btn
                       color="warning"
                       variant="outlined"
@@ -228,11 +213,11 @@
           <v-icon start color="warning">mdi-alert</v-icon>
           确认清理
         </v-card-title>
-        
+
         <v-card-text>
           确定要删除所有已读的通知吗？此操作无法撤销。
         </v-card-text>
-        
+
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn @click="showCleanupDialog = false">取消</v-btn>
@@ -247,10 +232,10 @@
 import { ref, reactive, computed, watch, onMounted } from 'vue';
 import { useNotifications, showSnackbar } from '@/composables/useNotifications.js';
 import pushNotificationService from '@/services/pushNotificationService.js';
-import { 
-  markAllNotificationsAsRead, 
+import {
+  markAllNotificationsAsRead,
   deleteNotifications,
-  getUnreadNotificationCount 
+  getUnreadNotificationCount
 } from '@/services/notificationService.js';
 
 export default {
@@ -310,9 +295,9 @@ export default {
     // 获取设备图标
     const getDeviceIcon = (deviceInfo) => {
       if (!deviceInfo) return 'mdi-cellphone';
-      
+
       const { browser, os } = deviceInfo;
-      
+
       if (os?.includes('Android') || os?.includes('iOS')) {
         return 'mdi-cellphone';
       } else if (os?.includes('Windows') || os?.includes('Mac') || os?.includes('Linux')) {
@@ -328,29 +313,14 @@ export default {
       return new Date(dateString).toLocaleString();
     };
 
-    // 发送测试通知
-    const sendTestNotification = async () => {
-      try {
-        await pushNotificationService.showTestNotification('测试通知', {
-          body: '这是一条来自 ZeroCat 的测试通知',
-          icon: '/favicon.ico'
-        });
-        
-        showSnackbar('测试通知已发送', 'success');
-      } catch (error) {
-        console.error('发送测试通知失败:', error);
-        showSnackbar(error.message || '发送测试通知失败', 'error');
-      }
-    };
-
     // 加载订阅列表
     const loadSubscriptions = async () => {
       subscriptionsLoading.value = true;
-      
+
       try {
         const result = await pushNotificationService.getServerSubscriptions();
         subscriptions.value = result.subscriptions || [];
-        
+
         // 查找当前订阅信息
         if (notifications.pushStatus.subscription) {
           subscriptionInfo.value = subscriptions.value.find(
@@ -370,7 +340,7 @@ export default {
       try {
         await pushNotificationService.unregisterWithServer({ endpoint: subscription.endpoint });
         await loadSubscriptions();
-        
+
         showSnackbar('设备已移除', 'success');
       } catch (error) {
         console.error('移除订阅失败:', error);
@@ -381,7 +351,7 @@ export default {
     // 清理已读通知
     const cleanupReadNotifications = async () => {
       showCleanupDialog.value = false;
-      
+
       try {
         // 这里需要实现获取已读通知ID的逻辑
         // 暂时不实现，因为API中没有提供获取已读通知列表的接口
@@ -420,7 +390,6 @@ export default {
       getPermissionText,
       getDeviceIcon,
       formatDate,
-      sendTestNotification,
       loadSubscriptions,
       removeSubscription,
       cleanupReadNotifications,

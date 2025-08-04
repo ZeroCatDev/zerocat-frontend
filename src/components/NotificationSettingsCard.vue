@@ -8,7 +8,7 @@
             <v-icon start>mdi-bell</v-icon>
             通知概览
           </v-card-title>
-          
+
           <v-card-text>
             <v-list>
               <v-list-item>
@@ -18,7 +18,7 @@
                 <v-list-item-title>未读通知</v-list-item-title>
                 <v-list-item-subtitle>{{ unreadCount }} 条</v-list-item-subtitle>
               </v-list-item>
-              
+
               <v-list-item>
                 <template v-slot:prepend>
                   <v-icon :color="pushStatus.subscribed ? 'success' : 'grey'">
@@ -30,7 +30,7 @@
                   {{ pushStatus.subscribed ? '已开启' : '未开启' }}
                 </v-list-item-subtitle>
               </v-list-item>
-              
+
               <v-list-item>
                 <template v-slot:prepend>
                   <v-icon :color="pushStatus.permission === 'granted' ? 'success' : 'warning'">
@@ -44,10 +44,10 @@
               </v-list-item>
             </v-list>
           </v-card-text>
-          
+
           <v-card-actions>
-            <v-btn 
-              color="primary" 
+            <v-btn
+              color="primary"
               :to="'/app/notifications'"
               prepend-icon="mdi-bell"
             >
@@ -64,17 +64,17 @@
             <v-icon start>mdi-cog</v-icon>
             快速操作
           </v-card-title>
-          
+
           <v-card-text>
             <v-list>
               <v-list-item @click="togglePushNotification" :disabled="pushLoading">
                 <template v-slot:prepend>
-                  <v-progress-circular 
-                    v-if="pushLoading" 
-                    indeterminate 
+                  <v-progress-circular
+                    v-if="pushLoading"
+                    indeterminate
                     size="24"
                   ></v-progress-circular>
-                  <v-icon 
+                  <v-icon
                     v-else
                     :color="pushStatus.subscribed ? 'success' : 'primary'"
                   >
@@ -88,7 +88,7 @@
                   {{ pushStatus.subscribed ? '停止接收推送通知' : '开始接收推送通知' }}
                 </v-list-item-subtitle>
               </v-list-item>
-              
+
               <v-list-item @click="markAllAsRead" :disabled="unreadCount === 0">
                 <template v-slot:prepend>
                   <v-icon color="primary">mdi-check-all</v-icon>
@@ -96,15 +96,8 @@
                 <v-list-item-title>标记全部已读</v-list-item-title>
                 <v-list-item-subtitle>将所有通知标记为已读</v-list-item-subtitle>
               </v-list-item>
-              
-              <v-list-item @click="sendTestNotification" :disabled="pushStatus.permission !== 'granted'">
-                <template v-slot:prepend>
-                  <v-icon color="primary">mdi-test-tube</v-icon>
-                </template>
-                <v-list-item-title>发送测试通知</v-list-item-title>
-                <v-list-item-subtitle>测试浏览器推送功能</v-list-item-subtitle>
-              </v-list-item>
-              
+
+
               <v-list-item @click="openSettings">
                 <template v-slot:prepend>
                   <v-icon color="primary">mdi-cog</v-icon>
@@ -117,31 +110,6 @@
         </v-card>
       </v-col>
 
-      <!-- 最近通知预览 -->
-      <v-col cols="12">
-        <v-card>
-          <v-card-title>
-            <v-icon start>mdi-history</v-icon>
-            最近通知
-            <v-spacer></v-spacer>
-            <v-btn 
-              icon="mdi-refresh" 
-              size="small" 
-              variant="text"
-              @click="refreshNotifications"
-            ></v-btn>
-          </v-card-title>
-          
-          <v-card-text>
-            <notifications-card 
-              :show-header="false"
-              :show-pagination="false"
-              :auto-fetch="true"
-              @update:unread-count="updateUnreadCount"
-            />
-          </v-card-text>
-        </v-card>
-      </v-col>
     </v-row>
 
     <!-- 设置对话框 -->
@@ -163,7 +131,7 @@ export default {
   },
   setup() {
     const showSettingsDialog = ref(false);
-    
+
     // 使用统一的通知管理
     const notifications = useNotifications();
 

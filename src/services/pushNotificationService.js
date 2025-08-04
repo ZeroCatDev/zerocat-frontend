@@ -67,15 +67,15 @@ class PushNotificationService {
       // 请求权限
       await this.requestPermission();
 
-      // 注册Service Worker
+      // 使用现有的Service Worker注册
       if (!this.registration) {
         if (!('serviceWorker' in navigator)) {
           throw new Error('浏览器不支持Service Worker');
         }
 
-        this.registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
-        console.log('Service Worker注册成功:', this.registration);
-        await navigator.serviceWorker.ready;
+        // 等待已注册的Service Worker准备就绪
+        this.registration = await navigator.serviceWorker.ready;
+        console.log('使用现有Service Worker:', this.registration);
       }
 
       // 检查是否已有订阅
@@ -122,8 +122,8 @@ class PushNotificationService {
   async unsubscribe() {
     try {
       if (!this.subscription) {
-        const registration = await navigator.serviceWorker.ready;
-        this.subscription = await registration.pushManager.getSubscription();
+        this.registration = await navigator.serviceWorker.ready;
+        this.subscription = await this.registration.pushManager.getSubscription();
       }
 
       if (this.subscription) {
@@ -182,8 +182,8 @@ class PushNotificationService {
       let subscription = null;
 
       if (permission === 'granted') {
-        const registration = await navigator.serviceWorker.ready;
-        subscription = await registration.pushManager.getSubscription();
+        this.registration = await navigator.serviceWorker.ready;
+        subscription = await this.registration.pushManager.getSubscription();
         subscribed = !!subscription;
         this.subscription = subscription;
       }
