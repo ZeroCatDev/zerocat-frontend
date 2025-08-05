@@ -53,7 +53,7 @@
       <v-row>
         <v-col cols="12" lg="8">
           <!-- 扩展详细信息卡片 -->
-          <v-card border class="mb-6">
+          <v-card border class="mb-6" v-if="extension">
             <v-card-title> 扩展详细信息 </v-card-title>
 
             <v-card-text class="pa-0">
@@ -242,7 +242,7 @@
             v-if="extension?.project"
             border
             class="mb-6"
-            :to="extension.project.url"
+            :href="extension.project.url"
           >
             <v-card-title> 关联项目 </v-card-title>
             <v-card-item>
@@ -364,7 +364,7 @@
     </v-container>
 
     <!-- 扩展不存在 -->
-    <v-container v-else-if="!loading && !extension" class="text-center py-8">
+    <v-container v-else-if="!extension" class="text-center py-8">
       <v-icon size="64" color="grey-lighten-1">mdi-puzzle-remove</v-icon>
       <p class="text-h6 mt-4 text-grey-darken-1">扩展不存在</p>
       <p class="text-body-2 text-grey">找不到指定的扩展信息</p>

@@ -1,9 +1,8 @@
 <template>
   <v-container>
     <!-- 页面标题 -->
-    <v-row>
-      <v-col cols="12">
-        <v-card  class="mb-4"><v-card-item prepend-icon="mdi-puzzle">
+
+        <v-card  class="mb-4" border><v-card-item prepend-icon="mdi-puzzle" >
           <v-card-title>
 
             扩展市场
@@ -13,16 +12,14 @@
           </v-card-subtitle>
         </v-card-item>
         <v-card-actions>
-          <v-btn color="primary"  to="/app/extensions/my">
+          <v-btn to="/app/extensions/my">
             我的扩展
           </v-btn>
         </v-card-actions>
         </v-card>
-      </v-col>
-    </v-row>
 
     <!-- 筛选器 -->
-    <v-card variant="flat" class="mb-4">
+    <v-card variant="flat" class="mb-4" border>
       <v-card-text>
         <v-row>
           <!-- 搜索框 -->
@@ -91,14 +88,7 @@
               重置筛选
             </v-btn>
 
-            <v-chip
-              v-if="activeFiltersCount > 0"
-              color="primary"
-              variant="outlined"
-              size="small"
-            >
-              {{ activeFiltersCount }} 个筛选条件
-            </v-chip>
+
           </v-col>
         </v-row>
       </v-card-text>
@@ -107,7 +97,7 @@
     <!-- 统计信息 -->
     <v-row v-if="!loading && extensions.length > 0">
       <v-col cols="12">
-        <v-card variant="flat" class="mb-4">
+        <v-card variant="flat" class="mb-4" border>
           <v-card-text class="d-flex align-center justify-space-between">
             <div class="d-flex align-center">
               <v-icon class="mr-2" color="primary">mdi-information</v-icon>
@@ -438,12 +428,7 @@ export default {
       return [];
     },
 
-    activeFiltersCount() {
-      let count = 0;
-      if (this.searchQuery) count++;
-      if (this.scratchCompatibleFilter !== null) count++;
-      return count;
-    }
+
   },
   async created() {
     this.s3BucketUrl = get('s3.staticurl');
