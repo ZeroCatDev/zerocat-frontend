@@ -41,141 +41,157 @@
   </v-snackbar>
 </template>
 
-<script setup>
-import { ref, computed, onMounted, watch } from 'vue'
-import { localuser } from '@/services/localAccount'
-import { useNotifications, showSnackbar } from '@/composables/useNotifications'
+<script>
+import { ref, onMounted, watch } from 'vue';
+import { localuser } from '@/services/localAccount';
+import { useNotifications, showSnackbar } from '@/composables/useNotifications';
 
-const { togglePushNotification, pushStatus } = useNotifications()
+export default {
+  name: 'NotificationReminderSnackbar',
 
-const show = ref(false)
-const STORAGE_KEY = 'notificationReminderDismissed'
-const DISMISS_THRESHOLD = 3 // 拒绝3次后停止提醒
+  setup() {
+    const show = ref(false);
+    const STORAGE_KEY = 'notificationReminderDismissed';
+    const DISMISS_THRESHOLD = 3; // 拒绝3次后停止提醒
 
-// 检查是否应该显示提醒
-const shouldShowReminder = () => {
-  // 只有已登录用户才显示
-  if (!localuser.isLogin.value) {
-    alert('请先登录')
-    return false
-  }
-
-  // 如果已经开启通知，不再提醒
-  if (pushStatus.subscribed) {
-    alert('您已开启通知提醒')
-    return false
-  }
-
-  // 检查拒绝次数
-  const dismissData = getDismissData()
-  if (dismissData.count >= DISMISS_THRESHOLD) {
-    alert('您已拒绝开启通知提醒多次，已停止提醒')
-    return false
-  }
-
-
-  return true
-}
-
-// 获取拒绝数据
-const getDismissData = () => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      return JSON.parse(stored)
-    }
-  } catch (error) {
-    console.error('Error reading dismiss data:', error)
-  }
-
-  return {
-    count: 0,
-    lastShown: null,
-    lastDismissed: null
-  }
-}
-
-// 保存拒绝数据
-const saveDismissData = (data) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-  } catch (error) {
-    console.error('Error saving dismiss data:', error)
-  }
-}
-
-// 处理开启通知
-const handleEnable = async () => {
-  show.value = false
-
-  try {
-    await togglePushNotification()
-
-    // 清除拒绝记录
-    localStorage.removeItem(STORAGE_KEY)
-  } catch (error) {
-    console.error('Failed to enable notifications:', error)
-  }
-}
-
-// 处理暂不开启
-const handleDismiss = () => {
-  show.value = false
-
-  const dismissData = getDismissData()
-  const newData = {
-    count: dismissData.count + 1,
-    lastShown: new Date().toDateString(),
-    lastDismissed: new Date().toISOString()
-  }
-
-  saveDismissData(newData)
-
-  if (newData.count >= DISMISS_THRESHOLD) {
-    showSnackbar('已停止通知提醒，您可以在设置中随时开启', 'info', 4000)
-  }
-}
-
-// 显示提醒
-const showReminder = () => {
-  if (shouldShowReminder()) {
-    // 延迟显示，避免与其他通知冲突
-    setTimeout(() => {
-      show.value = true
-
-      // 更新显示记录
-      const dismissData = getDismissData()
-      const newData = {
-        ...dismissData,
-        lastShown: new Date().toDateString()
+    // 使用统一的通知管理
+    const notifications = useNotifications();
+console.error(notifications.pushStatus)
+    // 获取拒绝数据
+    const getDismissData = () => {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          return JSON.parse(stored);
+        }
+      } catch (error) {
+        console.error('Error reading dismiss data:', error);
       }
-      saveDismissData(newData)
-    }, 2000)
-  }
-}
 
-// 监听登录状态变化
-watch(() => localuser.isLogin.value, (isLoggedIn) => {
-  if (isLoggedIn) {
-    showReminder()
-  } else {
-    show.value = false
-  }
-})
+      return {
+        count: 0,
+        lastShown: null,
+        lastDismissed: null
+      };
+    };
 
-// 监听推送状态变化
-watch(() => pushStatus.subscribed, (subscribed) => {
-  if (subscribed) {
-    show.value = false
-  }
-})
+    // 保存拒绝数据
+    const saveDismissData = (data) => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch (error) {
+        console.error('Error saving dismiss data:', error);
+      }
+    };
 
-// 组件挂载时检查
-onMounted(() => {
-  if (localuser.isLogin.value) {
-    showReminder()
+    // 检查是否应该显示提醒
+    const shouldShowReminder = () => {
+      // 只有已登录用户才显示
+      if (!localuser.isLogin.value) {
+        //alert('请先登录');
+        return false;
+      }
+
+      // 如果已经开启通知，不再提醒
+      if (notifications.pushStatus?.subscribed) {
+        //alert('您已开启通知');
+        return false;
+      }
+
+      // 检查拒绝次数
+      const dismissData = getDismissData();
+      if (dismissData.count >= DISMISS_THRESHOLD) {
+        //alert('您已拒绝开启通知超过3次，已停止提醒');
+        return false;
+      }
+
+      return true;
+    };
+
+    // 处理开启通知
+    const handleEnable = async () => {
+      show.value = false;
+
+      try {
+        await notifications.togglePushNotification();
+        await notifications.loadPushStatus(); // 刷新推送状态
+
+        // 清除拒绝记录
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (error) {
+        console.error('Failed to enable notifications:', error);
+      }
+    };
+
+    // 处理暂不开启
+    const handleDismiss = () => {
+      show.value = false;
+
+      const dismissData = getDismissData();
+      const newData = {
+        count: dismissData.count + 1,
+        lastShown: new Date().toDateString(),
+        lastDismissed: new Date().toISOString()
+      };
+
+      saveDismissData(newData);
+
+      if (newData.count >= DISMISS_THRESHOLD) {
+        showSnackbar('已停止通知提醒，您可以在设置中随时开启', 'info', 4000);
+      }
+    };
+
+    // 显示提醒
+    const showReminder = () => {
+      if (shouldShowReminder()) {
+        // 延迟显示，避免与其他通知冲突
+        setTimeout(() => {
+          show.value = true;
+
+          // 更新显示记录
+          const dismissData = getDismissData();
+          const newData = {
+            ...dismissData,
+            lastShown: new Date().toDateString()
+          };
+          saveDismissData(newData);
+        }, 2000);
+      }
+    };
+
+    // 监听登录状态变化
+    watch(() => localuser.isLogin.value, (isLoggedIn) => {
+      if (isLoggedIn) {
+        notifications.loadPushStatus().then(() => {
+          showReminder();
+        });
+      } else {
+        show.value = false;
+      }
+    });
+
+    // 监听推送状态变化
+    watch(() => notifications.pushStatus.subscribed, (subscribed) => {
+      if (subscribed) {
+        show.value = false;
+      }
+    });
+
+    // 组件挂载时检查
+    onMounted(async () => {
+      if (localuser.isLogin.value) {
+        await notifications.loadPushStatus();
+        showReminder();
+      }
+    });
+
+    return {
+      show,
+      handleEnable,
+      handleDismiss,
+    };
   }
-})
+};
 </script>
 
 <style scoped>

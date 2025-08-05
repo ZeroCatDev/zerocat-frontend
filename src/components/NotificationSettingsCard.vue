@@ -89,13 +89,6 @@
                 </v-list-item-subtitle>
               </v-list-item>
 
-              <v-list-item @click="markAllAsRead" :disabled="unreadCount === 0">
-                <template v-slot:prepend>
-                  <v-icon color="primary">mdi-check-all</v-icon>
-                </template>
-                <v-list-item-title>标记全部已读</v-list-item-title>
-                <v-list-item-subtitle>将所有通知标记为已读</v-list-item-subtitle>
-              </v-list-item>
 
 
               <v-list-item @click="openSettings">

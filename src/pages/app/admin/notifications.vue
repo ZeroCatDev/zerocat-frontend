@@ -74,7 +74,7 @@
               <v-col v-if="sendMode === 'single'" cols="12">
                 <v-text-field
                   v-model="singleRecipient"
-                  :rules="[v => !!v || '请输入接收者']"
+                  :rules="[(v) => !!v || '请输入接收者']"
                   :label="getRecipientLabel()"
                   :placeholder="getRecipientPlaceholder()"
                   required
@@ -85,7 +85,7 @@
               <v-col v-if="sendMode === 'batch'" cols="12">
                 <v-textarea
                   v-model="batchRecipients"
-                  :rules="[v => !!v || '请输入接收者']"
+                  :rules="[(v) => !!v || '请输入接收者']"
                   :label="`批量${getRecipientLabel()}（多个用逗号分隔）`"
                   :placeholder="`输入多个${getRecipientPlaceholder()}，用逗号分隔`"
                   required
@@ -97,7 +97,7 @@
               <v-col cols="12">
                 <v-text-field
                   v-model="notificationForm.title"
-                  :rules="[v => !!v || '请输入通知标题']"
+                  :rules="[(v) => !!v || '请输入通知标题']"
                   label="通知标题"
                   required
                 ></v-text-field>
@@ -107,7 +107,7 @@
               <v-col cols="12">
                 <v-textarea
                   v-model="notificationForm.content"
-                  :rules="[v => !!v || '请输入通知内容']"
+                  :rules="[(v) => !!v || '请输入通知内容']"
                   label="通知内容"
                   required
                   rows="4"
@@ -116,15 +116,13 @@
 
               <!-- 推送渠道选择 -->
               <v-col cols="12">
-                <v-label class="mb-2">推送渠道</v-label>
-                <v-checkbox-group v-model="notificationForm.push_channels" row>
-                  <v-checkbox
-                    v-for="channel in pushChannels"
-                    :key="channel.value"
-                    :label="channel.title"
-                    :value="channel.value"
-                  ></v-checkbox>
-                </v-checkbox-group>
+                <v-combobox
+                  v-model="notificationForm.push_channels"
+                  chips
+                  multiple
+                  label="推送渠道"
+                  :items="['browser', 'email']"
+                ></v-combobox>
               </v-col>
 
               <!-- 通知类型和设置 -->
@@ -192,7 +190,7 @@
             @click="sendNotification"
           >
             <v-icon left>mdi-send</v-icon>
-            {{ sendMode === 'single' ? '发送通知' : '批量发送' }}
+            {{ sendMode === "single" ? "发送通知" : "批量发送" }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -291,11 +289,8 @@
 
             <!-- 读取状态列 -->
             <template v-slot:item.read="{ item }">
-              <v-chip
-                :color="item.read ? 'success' : 'warning'"
-                size="small"
-              >
-                {{ item.read ? '已读' : '未读' }}
+              <v-chip :color="item.read ? 'success' : 'warning'" size="small">
+                {{ item.read ? "已读" : "未读" }}
               </v-chip>
             </template>
 
@@ -322,7 +317,6 @@
               <v-card outlined>
                 <v-card-title class="text-h6">基础统计</v-card-title>
                 <v-card-text>
-
                   <div class="stat-item">
                     <span>总通知数：</span>
                     <strong>{{ detailedStats.total || 0 }}</strong>
@@ -339,20 +333,18 @@
                     <span>本周通知：</span>
                     <strong>{{ detailedStats.week || 0 }}</strong>
                   </div>
-
-
-
-
-
-
-                  </v-card-text>
+                </v-card-text>
               </v-card>
             </v-col>
             <v-col cols="12" md="6">
               <v-card outlined>
                 <v-card-title class="text-h6">通知类型分布</v-card-title>
                 <v-card-text>
-                  <div class="stat-item" v-for="item in detailedStats.byType" :key="item.type">
+                  <div
+                    class="stat-item"
+                    v-for="item in detailedStats.byType"
+                    :key="item.type"
+                  >
                     <span>{{ item.type }}：</span>
                     <strong>{{ item.count || 0 }}</strong>
                   </div>
@@ -392,68 +384,73 @@ dayjs.extend(relativeTime);
 dayjs.locale("zh-cn");
 
 export default {
-  name: 'NotificationsAdmin',
+  name: "NotificationsAdmin",
   data() {
     return {
-      activeTab: 'send',
+      activeTab: "send",
 
       // 统计信息
       notificationStats: [
         { title: "总通知数", value: 0, type: "total", icon: "mdi-bell" },
         { title: "未读通知", value: 0, type: "unread", icon: "mdi-bell-alert" },
         { title: "今日发送", value: 0, type: "today", icon: "mdi-clock" },
-        { title: "本周发送", value: 0, type: "week", icon: "mdi-calendar-week" },
+        {
+          title: "本周发送",
+          value: 0,
+          type: "week",
+          icon: "mdi-calendar-week",
+        },
       ],
       detailedStats: {},
 
       // 发送通知表单
-      sendMode: 'single',
+      sendMode: "single",
       sendFormValid: false,
       sending: false,
-      singleRecipient: '',
-      batchRecipients: '',
+      singleRecipient: "",
+      batchRecipients: "",
       notificationForm: {
-        recipient_type: 'user_id',
-        title: '',
-        content: '',
-        link: '',
-        push_channels: ['browser'],
+        recipient_type: "user_id",
+        title: "",
+        content: "",
+        link: "",
+        push_channels: ["browser"],
         hidden: false,
         high_priority: false,
-        notification_type: 'admin_notification',
-        target_type: '',
-        target_id: '',
-        metadata: {}
+        notification_type: "admin_notification",
+        target_type: "",
+        target_id: "",
+        metadata: {},
       },
 
       // 接收者类型选项
       recipientTypes: [
-        { title: '用户ID', value: 'user_id' },
-        { title: '用户名', value: 'username' },
-        { title: '邮箱', value: 'email' },
+        { title: "用户ID", value: "user_id" },
+        { title: "用户名", value: "username" },
+        { title: "邮箱", value: "email" },
       ],
 
       // 推送渠道选项
       pushChannels: [
-        { title: '浏览器通知', value: 'browser' },
-        { title: '邮件通知', value: 'email' },
+        { title: "浏览器通知", value: "browser" },
+        { title: "邮件通知", value: "email" },
       ],
 
       // 目标类型选项
       targetTypes: [
-        { title: '项目', value: 'project' },
-        { title: '用户', value: 'user' },
-        { title: '系统', value: 'system' },
+        { title: "项目", value: "project" },
+        { title: "用户", value: "user" },
+        { title: "系统", value: "system" },
       ],
 
       // 通知类型选项
       notificationTypes: [
-        { title: '管理员通知', value: 'admin_notification' },
-        { title: '系统公告', value: 'system_announcement' },
-        { title: '用户互动', value: 'user_interaction' },
-        { title: '功能公告', value: 'feature_announcement' },
-        { title: '安全提醒', value: 'security_alert' },
-        { title: '维护通知', value: 'maintenance_notice' },
+        { title: "管理员通知", value: "admin_notification" },
+        { title: "系统公告", value: "system_announcement" },
+        { title: "用户互动", value: "user_interaction" },
+        { title: "功能公告", value: "feature_announcement" },
+        { title: "安全提醒", value: "security_alert" },
+        { title: "维护通知", value: "maintenance_notice" },
       ],
 
       // 通知列表
@@ -471,13 +468,23 @@ export default {
         { title: "ID", value: "id", width: "80px", sortable: false },
         { title: "通知内容", value: "content", sortable: false },
         { title: "接收用户", value: "user", width: "150px", sortable: false },
-        { title: "类型", value: "notification_type", width: "120px", sortable: false },
+        {
+          title: "类型",
+          value: "notification_type",
+          width: "120px",
+          sortable: false,
+        },
         { title: "状态", value: "read", width: "100px", sortable: false },
-        { title: "创建时间", value: "created_at", width: "180px", sortable: false },
+        {
+          title: "创建时间",
+          value: "created_at",
+          width: "180px",
+          sortable: false,
+        },
       ],
       listFilters: {
-        search: '',
-        notification_type: '',
+        search: "",
+        notification_type: "",
         unread_only: false,
       },
 
@@ -486,8 +493,8 @@ export default {
         text: "",
         color: "success",
         timeout: 3000,
-      }
-    }
+      },
+    };
   },
   methods: {
     // 发送通知
@@ -501,10 +508,13 @@ export default {
         };
 
         // 设置接收者
-        if (this.sendMode === 'single') {
+        if (this.sendMode === "single") {
           payload.recipients = this.singleRecipient;
         } else {
-          payload.recipients = this.batchRecipients.split(',').map(item => item.trim()).filter(item => item);
+          payload.recipients = this.batchRecipients
+            .split(",")
+            .map((item) => item.trim())
+            .filter((item) => item);
         }
 
         // 清理空值
@@ -514,20 +524,20 @@ export default {
         }
         if (!payload.link) delete payload.link;
 
-        const { data } = await axios.post('/admin/notifications/send', payload);
-        
+        const { data } = await axios.post("/admin/notifications/send", payload);
+
         if (data.success) {
           this.showSuccess(data.message);
           this.showSendResults(data.result);
         } else {
-          this.showError(data.message || '发送通知失败');
+          this.showError(data.message || "发送通知失败");
         }
 
         this.resetForm();
         this.loadStats();
       } catch (error) {
-        this.showError(error.response?.data?.message || '发送通知失败');
-        console.error('Error sending notification:', error);
+        this.showError(error.response?.data?.message || "发送通知失败");
+        console.error("Error sending notification:", error);
       } finally {
         this.sending = false;
       }
@@ -536,7 +546,9 @@ export default {
     // 显示发送结果详情
     showSendResults(result) {
       if (result.failed && result.failed.length > 0) {
-        const failedList = result.errors.map(err => `${err.original_recipient}: ${err.error}`).join('\n');
+        const failedList = result.errors
+          .map((err) => `${err.original_recipient}: ${err.error}`)
+          .join("\n");
         this.showError(`部分发送失败:\n${failedList}`);
       }
     },
@@ -544,47 +556,47 @@ export default {
     // 重置表单
     resetForm() {
       this.notificationForm = {
-        recipient_type: 'user_id',
-        title: '',
-        content: '',
-        link: '',
-        push_channels: ['browser'],
+        recipient_type: "user_id",
+        title: "",
+        content: "",
+        link: "",
+        push_channels: ["browser"],
         hidden: false,
         high_priority: false,
-        notification_type: 'admin_notification',
-        target_type: '',
-        target_id: '',
-        metadata: {}
+        notification_type: "admin_notification",
+        target_type: "",
+        target_id: "",
+        metadata: {},
       };
-      this.singleRecipient = '';
-      this.batchRecipients = '';
+      this.singleRecipient = "";
+      this.batchRecipients = "";
       this.$refs.sendForm?.resetValidation();
     },
 
     // 获取接收者标签
     getRecipientLabel() {
       const labels = {
-        'user_id': '接收用户ID',
-        'username': '接收用户名',
-        'email': '接收邮箱'
+        user_id: "接收用户ID",
+        username: "接收用户名",
+        email: "接收邮箱",
       };
-      return labels[this.notificationForm.recipient_type] || '接收者';
+      return labels[this.notificationForm.recipient_type] || "接收者";
     },
 
     // 获取接收者占位符
     getRecipientPlaceholder() {
       const placeholders = {
-        'user_id': '输入用户ID，如：123',
-        'username': '输入用户名，如：john_doe',
-        'email': '输入邮箱，如：user@example.com'
+        user_id: "输入用户ID，如：123",
+        username: "输入用户名，如：john_doe",
+        email: "输入邮箱，如：user@example.com",
       };
-      return placeholders[this.notificationForm.recipient_type] || '输入接收者';
+      return placeholders[this.notificationForm.recipient_type] || "输入接收者";
     },
 
     // 加载统计信息
     async loadStats() {
       try {
-        const { data } = await axios.get('/admin/notifications/stats');
+        const { data } = await axios.get("/admin/notifications/stats");
         this.detailedStats = data.stats;
 
         // 更新顶部统计卡片
@@ -593,7 +605,7 @@ export default {
         this.notificationStats[2].value = data.stats.today || 0;
         this.notificationStats[3].value = data.stats.week || 0;
       } catch (error) {
-        console.error('Error loading stats:', error);
+        console.error("Error loading stats:", error);
       }
     },
 
@@ -603,19 +615,24 @@ export default {
       try {
         const params = {
           limit: this.notificationOptions.itemsPerPage,
-          offset: (this.notificationOptions.page - 1) * this.notificationOptions.itemsPerPage,
+          offset:
+            (this.notificationOptions.page - 1) *
+            this.notificationOptions.itemsPerPage,
         };
 
         if (this.listFilters.search) params.user_id = this.listFilters.search;
-        if (this.listFilters.notification_type) params.notification_type = this.listFilters.notification_type;
+        if (this.listFilters.notification_type)
+          params.notification_type = this.listFilters.notification_type;
         if (this.listFilters.unread_only) params.unread_only = true;
 
-        const { data } = await axios.get('/admin/notifications/list', { params });
+        const { data } = await axios.get("/admin/notifications/list", {
+          params,
+        });
         this.notifications = data.notifications;
         this.notificationTotal = data.total;
       } catch (error) {
-        this.showError('加载通知列表失败');
-        console.error('Error loading notifications:', error);
+        this.showError("加载通知列表失败");
+        console.error("Error loading notifications:", error);
       } finally {
         this.loadingNotifications = false;
       }
@@ -628,9 +645,9 @@ export default {
       this.refreshingNotifications = true;
       try {
         await this.loadNotifications();
-        this.showSuccess('通知列表已更新');
+        this.showSuccess("通知列表已更新");
       } catch (error) {
-        this.showError('刷新失败');
+        this.showError("刷新失败");
       } finally {
         this.refreshingNotifications = false;
       }
@@ -644,20 +661,20 @@ export default {
     },
 
     getTypeText(type) {
-      const option = this.notificationTypes.find(opt => opt.value === type);
+      const option = this.notificationTypes.find((opt) => opt.value === type);
       return option ? option.title : type;
     },
 
     getTypeColor(type) {
       const colors = {
-        admin_notification: 'indigo',
-        system_announcement: 'blue',
-        user_interaction: 'green',
-        feature_announcement: 'purple',
-        security_alert: 'red',
-        maintenance_notice: 'orange',
+        admin_notification: "indigo",
+        system_announcement: "blue",
+        user_interaction: "green",
+        feature_announcement: "purple",
+        security_alert: "red",
+        maintenance_notice: "orange",
       };
-      return colors[type] || 'grey';
+      return colors[type] || "grey";
     },
 
     formatDate(date) {
@@ -669,8 +686,10 @@ export default {
     },
 
     truncateText(text, maxLength) {
-      if (!text) return '';
-      return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+      if (!text) return "";
+      return text.length > maxLength
+        ? text.substring(0, maxLength) + "..."
+        : text;
     },
 
     showSuccess(text) {
@@ -693,14 +712,14 @@ export default {
 
     debouncedLoadNotifications: debounce(function () {
       this.loadNotifications();
-    }, 300)
+    }, 300),
   },
 
   mounted() {
     this.loadStats();
     this.loadNotifications();
-  }
-}
+  },
+};
 </script>
 
 <style lang="scss" scoped>

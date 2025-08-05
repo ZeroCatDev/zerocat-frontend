@@ -482,7 +482,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch, onMounted, nextTick } from "vue";
 import axios from "@/axios/axios";
 import { localuser } from "@/services/localAccount";
 import { getS3staticurl } from "@/services/projectService";
@@ -635,9 +635,14 @@ const removeProject = (projectId) => {
 };
 
 const confirmSelection = () => {
-  const selectedIds = Array.from(selectedProjectsMap.value.keys());
-  emit("update:modelValue", selectedIds);
-  dialog.value = false;
+  try {
+    const selectedIds = Array.from(selectedProjectsMap.value.keys());
+    console.log(selectedIds);
+    emit("update:modelValue", selectedIds);
+    dialog.value = false;
+  } catch (error) {
+    console.error("Error in confirmSelection:", error);
+  }
 };
 
 const openDialog = () => {
@@ -653,13 +658,23 @@ const formatDate = (dateString) => {
 };
 
 const loadProjectsDetails = async (projectIds) => {
+  if (!projectIds || projectIds.length === 0) return;
+  
   try {
     const response = await axios.post("/project/batch", { projectIds });
-    const projects = response.data.data;
+    const projects = response.data?.data;
+    
+    if (!projects || !Array.isArray(projects)) {
+      console.warn("Invalid project data received:", response.data);
+      return;
+    }
 
+    // 使用 nextTick 确保更新在下一个 tick 中进行
+    await nextTick();
+    
     // 更新已选择项目的详细信息
     projects.forEach((project) => {
-      if (selectedProjectsMap.value.has(project.id)) {
+      if (project && project.id && selectedProjectsMap.value.has(project.id)) {
         selectedProjectsMap.value.set(project.id, project);
       }
     });
@@ -669,52 +684,44 @@ const loadProjectsDetails = async (projectIds) => {
 };
 
 const initializeSelection = async () => {
+  // 防止在组件销毁期间执行
+  if (!selectedProjectsMap.value) return;
+  
   selectedProjectsMap.value.clear();
 
-  if (props.modelValue) {
-    const projectIds = [];
+  if (!props.modelValue) return;
+  
+  const projectIds = [];
+  const createTempProject = (id) => ({
+    id,
+    title: `项目 ${id}`,
+    loading: true,
+    author: {
+      display_name: "加载中...",
+      username: "",
+      avatar: "",
+      id: 0,
+    },
+    description: "加载中...",
+    view_count: 0,
+    star_count: 0,
+    time: new Date().toISOString(),
+    tags: "",
+    state: "public",
+  });
 
+  try {
     if (props.multiple && Array.isArray(props.modelValue)) {
       // 多选模式，先创建临时项目对象
       props.modelValue.forEach((id) => {
-        selectedProjectsMap.value.set(id, {
-          id,
-          title: `项目 ${id}`,
-          loading: true,
-          author: {
-            display_name: "加载中...",
-            username: "",
-            avatar: "",
-            id: 0,
-          },
-          description: "加载中...",
-          view_count: 0,
-          star_count: 0,
-          time: new Date().toISOString(),
-          tags: "",
-          state: "public",
-        });
-        projectIds.push(id);
+        if (id && typeof id === 'number') {
+          selectedProjectsMap.value.set(id, createTempProject(id));
+          projectIds.push(id);
+        }
       });
     } else if (!props.multiple && typeof props.modelValue === "number") {
       // 单选模式，同样创建临时项目对象
-      selectedProjectsMap.value.set(props.modelValue, {
-        id: props.modelValue,
-        title: `项目 ${props.modelValue}`,
-        loading: true,
-        author: {
-          display_name: "加载中...",
-          username: "",
-          avatar: "",
-          id: 0,
-        },
-        description: "加载中...",
-        view_count: 0,
-        star_count: 0,
-        time: new Date().toISOString(),
-        tags: "",
-        state: "public",
-      });
+      selectedProjectsMap.value.set(props.modelValue, createTempProject(props.modelValue));
       projectIds.push(props.modelValue);
     }
 
@@ -722,23 +729,28 @@ const initializeSelection = async () => {
     if (projectIds.length > 0) {
       await loadProjectsDetails(projectIds);
     }
+  } catch (error) {
+    console.error("Error in initializeSelection:", error);
   }
 };
 
 watch(
   () => props.modelValue,
-  (newValue, oldValue) => {
+  async (newValue, oldValue) => {
     // 深度比较，只有当值真正改变时才重新初始化
     if (JSON.stringify(newValue) !== JSON.stringify(oldValue)) {
-      initializeSelection();
+      // 使用 nextTick 确保组件完全初始化后再执行
+      await nextTick();
+      await initializeSelection();
     }
   },
   { immediate: true, deep: true }
 );
 
 onMounted(async () => {
-  initializeSelection();
-  s3BucketUrl.value = get("s3.staticurl");
+  // 确保在下一个 tick 中初始化，避免组件未完全挂载的问题
+  await nextTick();
+  await initializeSelection();
   localuser.value = localuser;
 });
 </script>

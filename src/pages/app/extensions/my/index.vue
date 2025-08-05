@@ -268,7 +268,7 @@ export default {
       const textMap = {
         'developing': '开发中',
             'pending': '待审核',
-        'verified': '已审核',
+        'verified': '上架',
         'rejected': '已拒绝'
       };
       return textMap[status] || '未知';

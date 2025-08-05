@@ -160,7 +160,7 @@
                 </v-card-title>
 
                 <v-card-text>
-                  <div class="d-flex align-center justify-space-between mb-4">
+                  <div class="d-flex align-center justify-space-between">
                     <div>
                       <div class="text-subtitle-1">未读通知</div>
                       <div class="text-body-2 text-grey">{{ unreadCount }} 条未读</div>
@@ -175,22 +175,6 @@
                     </v-btn>
                   </div>
 
-                  <v-divider class="my-4"></v-divider>
-
-                  <div class="d-flex align-center justify-space-between">
-                    <div>
-                      <div class="text-subtitle-1">清理历史通知</div>
-                      <div class="text-body-2 text-grey">删除所有已读的通知</div>
-                    </div>
-
-                    <v-btn
-                      color="warning"
-                      variant="outlined"
-                      @click="showCleanupDialog = true"
-                    >
-                      清理历史
-                    </v-btn>
-                  </div>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -206,25 +190,6 @@
       </v-card-actions>
     </v-card>
 
-    <!-- 清理确认对话框 -->
-    <v-dialog v-model="showCleanupDialog" max-width="400px">
-      <v-card>
-        <v-card-title>
-          <v-icon start color="warning">mdi-alert</v-icon>
-          确认清理
-        </v-card-title>
-
-        <v-card-text>
-          确定要删除所有已读的通知吗？此操作无法撤销。
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn @click="showCleanupDialog = false">取消</v-btn>
-          <v-btn color="warning" @click="cleanupReadNotifications">确认删除</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-dialog>
 </template>
 
@@ -348,19 +313,6 @@ export default {
       }
     };
 
-    // 清理已读通知
-    const cleanupReadNotifications = async () => {
-      showCleanupDialog.value = false;
-
-      try {
-        // 这里需要实现获取已读通知ID的逻辑
-        // 暂时不实现，因为API中没有提供获取已读通知列表的接口
-        showSnackbar('清理功能暂未实现', 'info');
-      } catch (error) {
-        console.error('清理通知失败:', error);
-        showSnackbar('清理失败', 'error');
-      }
-    };
 
     // 监听对话框打开
     watch(dialog, async (newVal) => {
@@ -392,7 +344,6 @@ export default {
       formatDate,
       loadSubscriptions,
       removeSubscription,
-      cleanupReadNotifications,
       ...notifications
     };
   }

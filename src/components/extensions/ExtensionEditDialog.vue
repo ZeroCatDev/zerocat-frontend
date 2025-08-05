@@ -78,7 +78,7 @@
 
                   <!-- 提交选择列表 -->
                   <div v-if="!useLatestCommit && commits.length > 0" class="mt-3">
-                    <v-list density="compact" max-height="200" class="overflow-y-auto" variant="outlined">
+                    <v-list density="compact" max-height="200" class="overflow-y-auto">
                       <v-list-item
                         v-for="commit in commits"
                         :key="commit.id"
@@ -101,7 +101,7 @@
 
                   <v-btn
                     v-if="!useLatestCommit"
-                    variant="outlined"
+                    variant="tonal"
                     size="small"
                     class="mt-2"
                     prepend-icon="mdi-refresh"

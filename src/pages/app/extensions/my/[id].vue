@@ -11,21 +11,13 @@
           <!-- 扩展详情 -->
           <v-card class="mb-4" variant="flat">
             <v-card-item>
-              <template v-slot:prepend>
-                <v-avatar size="64">
-                  <v-img
-                    v-if="extension.image"
-                    :src="s3BucketUrl + '/extension/' + extension.image"
-                  ></v-img>
-                  <v-icon v-else size="32">mdi-puzzle</v-icon>
-                </v-avatar>
-              </template>
-              <v-card-title class="text-h4">
+              <v-card-title >
                 {{ extension.project?.title || '扩展' }}
               </v-card-title>
-              <v-card-subtitle class="text-h6 mt-2">
+              <v-card-subtitle>
                 {{ extension.project?.description || '扩展' }}
               </v-card-subtitle>
+
               <template v-slot:append>
                 <v-chip
                   :color="getStatusColor(extension.status)"
@@ -173,12 +165,12 @@
         <!-- 项目 -->
         <v-col cols="12" lg="4" md="4" sm="12">
           <!-- 项目 -->
-          <v-card v-if="extension.project" class="mb-4" variant="tonal" border hover>
+          <v-card v-if="extension.project" class="mb-4" variant="tonal" border hover :to="`/${ extension.project.author?.username }/${ extension.project.name}`">
             <v-card-title class="d-flex align-center">
               <v-icon class="mr-2">mdi-folder</v-icon>
               项目
             </v-card-title>
-            <v-card-item>
+            <v-card-item >
               <template v-slot:prepend>
                 <v-avatar>
                   <v-img
@@ -458,7 +450,7 @@ export default {
       const textMap = {
         'developing': '开发中',
         'pending': '待审核',
-        'verified': '已审核',
+        'verified': '上架',
         'rejected': '已拒绝'
       };
       return textMap[status] || '未知';

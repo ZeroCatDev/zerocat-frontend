@@ -50,61 +50,36 @@
       <template v-else><strong>Zero</strong>Cat</template>
     </v-app-bar-title>
     <template #append>
-      <SearchDialog/>
-      <v-btn icon="mdi-plus" to="/app/new"></v-btn>
-      
-      <!-- 通知按钮 -->
-      <v-menu 
-        v-if="localuser.isLogin.value"
-        :close-on-content-click="false" 
-        location="bottom"
-      >
-        <template #activator="{ props }">
-          <v-btn
-            icon
-            v-bind="props"
-            @click="notificationsCard?.fetchNotifications()"
-          >
-            <v-badge
-              v-if="unreadCount > 0"
-              :content="unreadCount > 99 ? '99+' : unreadCount.toString()"
-              color="error"
-              floating
-            >
-              <v-icon>mdi-bell</v-icon>
-            </v-badge>
-            <v-icon v-else>mdi-bell</v-icon>
-          </v-btn>
+      <SearchDialog />
+      <v-menu>
+        <template v-slot:activator="{ props }">
+          <v-btn icon="mdi-plus" v-bind="props"></v-btn>
         </template>
-        
-        <v-card border min-width="400px" max-width="500px">
-          <NotificationsCard
-            ref="notificationsCard"
-            :autoFetch="true"
-            :maxHeight="'420px'"
-            :menuMode="true"
-            :showHeader="true"
-            @update:unread-count="updateUnreadCount"
-          />
-        </v-card>
+        <v-list>
+          <v-list-item to="/app/new" prepend-icon="mdi-plus">
+            <v-list-item-title>项目</v-list-item-title>
+            <v-list-item-subtitle>创建新的项目</v-list-item-subtitle>
+          </v-list-item>
+          <v-list-item to="/app/extensions/my" prepend-icon="mdi-puzzle">
+            <v-list-item-title>扩展</v-list-item-title>
+            <v-list-item-subtitle>发布你的Scratch扩展</v-list-item-subtitle>
+          </v-list-item>
+        </v-list>
       </v-menu>
-      
+
       <!-- 用户菜单 -->
       <v-menu :close-on-content-click="false" location="bottom">
-        <template #activator="{ props, isActive }"
-        >
+        <template #activator="{ props, isActive }">
           <template v-if="localuser.isLogin.value">
-            <v-btn
-              icon
-              v-bind="props"
-            >
-              <v-avatar
-                :image="localuser.getUserAvatar()"
-              ></v-avatar>
+            <v-btn icon v-bind="props">
+              <v-avatar :image="localuser.getUserAvatar()"></v-avatar>
             </v-btn>
           </template>
           <template v-else>
-            <LoginDialog @login-success="handleLoginSuccess" @login-error="handleLoginError"/>
+            <LoginDialog
+              @login-success="handleLoginSuccess"
+              @login-error="handleLoginError"
+            />
             <v-btn
               color="primary"
               rounded="xl"
@@ -114,57 +89,81 @@
             ></v-btn>
           </template>
         </template>
-        <v-card border min-width="300px">
-          <v-card
-            :append-avatar="
-              localuser.getUserAvatar()
-            "
-            :subtitle="localuser.user.value.username"
-            :title="localuser.user.value.display_name"
-            @click="localuser.loadUser(true)"
-          ></v-card>
-          <v-list>
-            <v-list-item
-              :to="`/${localuser.user.value.username}`"
-              color="primary"
-              prepend-icon="mdi-account"
-              rounded="xl"
-              title="个人主页"
-            ></v-list-item>
-            <v-list-item
-              color="primary"
-              prepend-icon="mdi-cog"
-              rounded="xl"
-              title="设置"
-              to="/app/account"
-            ></v-list-item>
-            <v-list-item
-              color="primary"
-              prepend-icon="mdi-xml"
-              rounded="xl"
-              title="项目"
-              to="/app/project"
-            ></v-list-item>
-            <v-list-item
-              color="primary"
-              prepend-icon="mdi-format-list-bulleted"
-              rounded="xl"
-              title="列表"
-              to="/app/projectlist"
-            ></v-list-item>
-          </v-list>
+        <v-card border min-width="300px"
+          ><v-tabs v-model="userTab" grow>
+            <v-tab value="notifications">通知</v-tab>
+            <v-tab value="profile">个人资料</v-tab>
+          </v-tabs>
           <v-divider></v-divider>
-          <v-list>
-            <v-list-item
-              active
-              color="error"
-              prepend-icon="mdi-logout"
-              rounded="xl"
-              title="退出"
-              to="/app/account/logout"
-              variant="plain"
-            ></v-list-item>
-          </v-list>
+
+          <v-tabs-window v-model="userTab">
+            <v-tabs-window-item value="notifications">
+              <NotificationsCard
+                min-width="400px"
+                max-width="500px"
+                ref="notificationsCard"
+                :autoFetch="true"
+                :maxHeight="'420px'"
+                :menuMode="true"
+                :showHeader="false"
+                @update:unread-count="updateUnreadCount"
+              />
+            </v-tabs-window-item>
+
+            <v-tabs-window-item value="profile">
+              <v-card
+                :append-avatar="localuser.getUserAvatar()"
+                :subtitle="localuser.user.value.username"
+                :title="localuser.user.value.display_name"
+                @click="localuser.loadUser(true)"
+              ></v-card>
+
+              <v-list>
+                <v-list-item
+                  :to="`/${localuser.user.value.username}`"
+                  color="primary"
+                  prepend-icon="mdi-account"
+                  rounded="xl"
+                  title="个人主页"
+                ></v-list-item>
+                <v-list-item
+                  color="primary"
+                  prepend-icon="mdi-cog"
+                  rounded="xl"
+                  title="设置"
+                  to="/app/account"
+                ></v-list-item>
+                <v-list-item
+                  color="primary"
+                  prepend-icon="mdi-xml"
+                  rounded="xl"
+                  title="项目"
+                  to="/app/project"
+                ></v-list-item>
+                <v-list-item
+                  color="primary"
+                  prepend-icon="mdi-format-list-bulleted"
+                  rounded="xl"
+                  title="列表"
+                  to="/app/projectlist"
+                ></v-list-item>
+              </v-list>
+              <v-divider></v-divider>
+              <v-list>
+                <v-list-item
+                  active
+                  color="error"
+                  prepend-icon="mdi-logout"
+                  rounded="xl"
+                  title="退出"
+                  to="/app/account/logout"
+                  variant="plain"
+                ></v-list-item>
+              </v-list>
+            </v-tabs-window-item>
+
+            <v-tabs-window-item value="three"> Three </v-tabs-window-item>
+          </v-tabs-window>
         </v-card>
       </v-menu>
     </template>
@@ -186,11 +185,7 @@
             :class="{ 'editor-tab--modified': tab.modified }"
           >
             <div class="d-flex align-center">
-              <v-icon
-                :icon="tab.icon"
-                size="16"
-                class="mr-2"
-              ></v-icon>
+              <v-icon :icon="tab.icon" size="16" class="mr-2"></v-icon>
               <span class="tab-title">{{ tab.title }}</span>
               <v-btn
                 v-if="tab.closeable"
@@ -206,7 +201,11 @@
           </v-tab>
         </v-tabs>
         <!-- 原有的导航标签页 -->
-        <v-tabs v-else-if="subNavItems.length" v-model="activeTab" align-tabs="center">
+        <v-tabs
+          v-else-if="subNavItems.length"
+          v-model="activeTab"
+          align-tabs="center"
+        >
           <div v-for="item in subNavItems" :key="item.name">
             <v-tab
               :disabled="item.disabled"
@@ -221,7 +220,12 @@
       </transition>
     </template>
   </v-app-bar>
-  <v-navigation-drawer v-if="!isAdminRoute" v-model="drawer" :rail="drawerRail" expand-on-hover>
+  <v-navigation-drawer
+    v-if="!isAdminRoute"
+    v-model="drawer"
+    :rail="drawerRail"
+    expand-on-hover
+  >
     <!-- 导航部分 -->
     <v-list>
       <v-list-subheader>
@@ -322,7 +326,7 @@
         title="项目比较器"
         to="/app/tools/comparer"
       ></v-list-item>
-       <v-list-item
+      <v-list-item
         prepend-icon="mdi-xml"
         rounded="xl"
         title="Scratch扩展"
@@ -347,7 +351,12 @@
     </v-list>
   </v-navigation-drawer>
 
-  <v-navigation-drawer v-else v-model="drawer" :rail="drawerRail" expand-on-hover>
+  <v-navigation-drawer
+    v-else
+    v-model="drawer"
+    :rail="drawerRail"
+    expand-on-hover
+  >
     <v-list>
       <v-list-item
         prepend-icon="mdi-arrow-left"
@@ -415,13 +424,13 @@
 </template>
 
 <script>
-import {localuser} from "@/services/localAccount";
-import {useTheme} from "vuetify";
-import {ref, onMounted, watch, nextTick} from "vue";
+import { localuser } from "@/services/localAccount";
+import { useTheme } from "vuetify";
+import { ref, onMounted, watch, nextTick } from "vue";
 import NotificationsCard from "@/components/NotificationsCard.vue";
 import SearchDialog from "@/components/SearchDialog.vue";
 import LoginDialog from "@/components/account/LoginDialog.vue";
-import {get} from "@/services/serverConfig";
+import { get } from "@/services/serverConfig";
 
 export default {
   components: {
@@ -430,9 +439,9 @@ export default {
     LoginDialog,
   },
   async mounted() {
-    this.s3BucketUrl = get('s3.staticurl');
+    this.s3BucketUrl = get("s3.staticurl");
     // 获取scratchproxy.enabled配置
-    this.proxyEnabled = get('scratchproxy.enabled');
+    this.proxyEnabled = get("scratchproxy.enabled");
   },
   setup() {
     const notificationsCard = ref(null);
@@ -451,7 +460,6 @@ export default {
           notificationsCard.value.checkUnreadNotifications();
         }
       }
-
     });
 
     return {
@@ -459,7 +467,7 @@ export default {
       unreadCount,
       updateUnreadCount,
       localuser,
-      s3BucketUrl: '',
+      s3BucketUrl: "",
     };
   },
   data() {
@@ -481,7 +489,7 @@ export default {
       showEditorTabs: false,
       activeEditorTab: null,
       editorTabs: [],
-      tabIdCounter: 0
+      tabIdCounter: 0,
     };
   },
   created() {
@@ -522,15 +530,15 @@ export default {
 
     activeEditorTab(newTabId, oldTabId) {
       if (newTabId !== oldTabId) {
-        const previousTab = this.editorTabs.find(tab => tab.id === oldTabId);
-        const currentTab = this.editorTabs.find(tab => tab.id === newTabId);
+        const previousTab = this.editorTabs.find((tab) => tab.id === oldTabId);
+        const currentTab = this.editorTabs.find((tab) => tab.id === newTabId);
 
-        this.$emit('tab-switched', {
+        this.$emit("tab-switched", {
           from: previousTab,
-          to: currentTab
+          to: currentTab,
         });
       }
-    }
+    },
   },
   methods: {
     goHome() {
@@ -565,7 +573,7 @@ export default {
           icon: "mdi-menu",
           login: false,
           list: [
-            {title: "首页", link: "/", icon: "mdi-home", login: false},
+            { title: "首页", link: "/", icon: "mdi-home", login: false },
             {
               title: "仪表盘",
               link: "/app/dashboard",
@@ -578,7 +586,12 @@ export default {
               icon: "mdi-xml",
               login: false,
             },
-            {title: "搜索", link: "/app/search", icon: "mdi-earth", login: false},
+            {
+              title: "搜索",
+              link: "/app/search",
+              icon: "mdi-earth",
+              login: false,
+            },
           ],
         },
         tools: {
@@ -590,13 +603,13 @@ export default {
               title: "桌面版镜像",
               link: "/app/tools/asdm",
               icon: "mdi-download",
-              login: false
+              login: false,
             },
             {
               title: "项目比较器",
               link: "/app/tools/comparer",
               icon: "mdi-xml",
-              login: false
+              login: false,
             },
           ],
         },
@@ -609,11 +622,36 @@ export default {
           icon: "mdi-link-variant",
           login: true,
           list: [
-            {title: "首页", link: "/app/proxy", icon: "mdi-home", login: false},
-            {title: "探索", link: "/app/proxy/explore", icon: "mdi-earth", login: false},
-            {title: "搜索", link: "/app/proxy/search", icon: "mdi-xml", login: false},
-            {title: "新闻", link: "/app/proxy/news", icon: "mdi-newspaper", login: false},
-            {title: "打开", link: "/app/proxy/open", icon: "mdi-link", login: false},
+            {
+              title: "首页",
+              link: "/app/proxy",
+              icon: "mdi-home",
+              login: false,
+            },
+            {
+              title: "探索",
+              link: "/app/proxy/explore",
+              icon: "mdi-earth",
+              login: false,
+            },
+            {
+              title: "搜索",
+              link: "/app/proxy/search",
+              icon: "mdi-xml",
+              login: false,
+            },
+            {
+              title: "新闻",
+              link: "/app/proxy/news",
+              icon: "mdi-newspaper",
+              login: false,
+            },
+            {
+              title: "打开",
+              link: "/app/proxy/open",
+              icon: "mdi-link",
+              login: false,
+            },
           ],
         };
       }
@@ -652,21 +690,21 @@ export default {
     },
     getUserSubNavItems(userId) {
       return [
-        {title: "主页", link: `/${userId}`, name: "home"},
-        {title: "评论", link: `/${userId}/?tab=comment`, name: "comment"},
-        {title: "关注", link: `/${userId}/?tab=following`, name: "following"},
+        { title: "主页", link: `/${userId}`, name: "home" },
+        { title: "评论", link: `/${userId}/?tab=comment`, name: "comment" },
+        { title: "关注", link: `/${userId}/?tab=following`, name: "following" },
         {
           title: "关注者",
           link: `/${userId}/?tab=followers`,
           name: "followers",
         },
-        {title: "时间线", link: `/${userId}/?tab=timeline`, name: "timeline"},
+        { title: "时间线", link: `/${userId}/?tab=timeline`, name: "timeline" },
       ];
     },
     getProjectSubNavItems(projectname, authorname) {
       const isAuthor = localuser.user.value.username == authorname;
       return [
-        {title: "代码", link: `/${authorname}/${projectname}`, name: "home"},
+        { title: "代码", link: `/${authorname}/${projectname}`, name: "home" },
         {
           title: "分析",
           link: `/${authorname}/${projectname}/analytics`,
@@ -674,12 +712,12 @@ export default {
         },
         ...(isAuthor
           ? [
-            {
-              title: "设置",
-              link: `/${authorname}/${projectname}/settings`,
-              name: "settings",
-            },
-          ]
+              {
+                title: "设置",
+                link: `/${authorname}/${projectname}/settings`,
+                name: "settings",
+              },
+            ]
           : []),
       ];
     },
@@ -689,7 +727,7 @@ export default {
     },
 
     handleLoginError(error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
     },
 
     // 编辑器标签页管理方法
@@ -707,30 +745,30 @@ export default {
       const tabId = `tab-${++this.tabIdCounter}`;
       const tab = {
         id: tabId,
-        title: tabConfig.title || '未命名',
-        icon: tabConfig.icon || 'mdi-file-document',
-        type: tabConfig.type || 'editor', // editor, diff, view
+        title: tabConfig.title || "未命名",
+        icon: tabConfig.icon || "mdi-file-document",
+        type: tabConfig.type || "editor", // editor, diff, view
         closeable: tabConfig.closeable !== false,
         modified: false,
-        data: tabConfig.data || {}
+        data: tabConfig.data || {},
       };
 
       this.editorTabs.push(tab);
       this.activeEditorTab = tabId;
 
       // 通知父组件标签页已创建
-      this.$emit('tab-added', tab);
+      this.$emit("tab-added", tab);
 
       return tab;
     },
 
     removeTab(tabId) {
-      const index = this.editorTabs.findIndex(tab => tab.id === tabId);
+      const index = this.editorTabs.findIndex((tab) => tab.id === tabId);
       if (index !== -1) {
         const tab = this.editorTabs[index];
 
         // 通知父组件标签页即将被移除
-        this.$emit('tab-removing', tab);
+        this.$emit("tab-removing", tab);
 
         this.editorTabs.splice(index, 1);
 
@@ -738,7 +776,8 @@ export default {
         if (this.activeEditorTab === tabId) {
           if (this.editorTabs.length > 0) {
             // 优先选择下一个标签页，如果没有就选择前一个
-            const nextIndex = index < this.editorTabs.length ? index : index - 1;
+            const nextIndex =
+              index < this.editorTabs.length ? index : index - 1;
             this.activeEditorTab = this.editorTabs[nextIndex].id;
           } else {
             this.activeEditorTab = null;
@@ -746,12 +785,12 @@ export default {
         }
 
         // 通知父组件标签页已被移除
-        this.$emit('tab-removed', tab);
+        this.$emit("tab-removed", tab);
       }
     },
 
     closeTab(tabId) {
-      const tab = this.editorTabs.find(t => t.id === tabId);
+      const tab = this.editorTabs.find((t) => t.id === tabId);
       if (tab && tab.modified) {
         // 如果有未保存的更改，弹出确认对话框
         if (confirm(`标签页 "${tab.title}" 有未保存的更改，确定要关闭吗？`)) {
@@ -763,7 +802,7 @@ export default {
     },
 
     updateTab(tabId, updates) {
-      const tab = this.editorTabs.find(t => t.id === tabId);
+      const tab = this.editorTabs.find((t) => t.id === tabId);
       if (tab) {
         Object.assign(tab, updates);
       }
@@ -774,22 +813,22 @@ export default {
     },
 
     getActiveTab() {
-      return this.editorTabs.find(tab => tab.id === this.activeEditorTab);
+      return this.editorTabs.find((tab) => tab.id === this.activeEditorTab);
     },
 
     switchToTab(tabId) {
-      if (this.editorTabs.find(tab => tab.id === tabId)) {
+      if (this.editorTabs.find((tab) => tab.id === tabId)) {
         const previousTab = this.getActiveTab();
         this.activeEditorTab = tabId;
         const currentTab = this.getActiveTab();
 
         // 通知父组件标签页切换
-        this.$emit('tab-switched', {
+        this.$emit("tab-switched", {
           from: previousTab,
-          to: currentTab
+          to: currentTab,
         });
       }
-    }
+    },
   },
   computed: {
     getPathSegments() {
@@ -803,7 +842,7 @@ export default {
       );
     },
     isAdminRoute() {
-      return this.$route.path.startsWith('/app/admin');
+      return this.$route.path.startsWith("/app/admin");
     },
   },
 };
@@ -834,7 +873,7 @@ export default {
 }
 
 .editor-tab--modified .tab-title::after {
-  content: '●';
+  content: "●";
   color: rgb(var(--v-theme-warning));
   margin-left: 4px;
 }
