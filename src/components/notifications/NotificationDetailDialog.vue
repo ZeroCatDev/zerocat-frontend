@@ -4,16 +4,16 @@
       <!-- 卡片标题 -->
       <v-card-title class="d-flex align-center justify-space-between">
         <div class="d-flex align-center">
-          <v-avatar 
-            v-if="notification.actor?.avatar" 
+          <v-avatar
+            v-if="notification.actor?.avatar"
             :image="getAvatarUrl(notification.actor.avatar)"
             size="40"
             class="mr-3"
           ></v-avatar>
-          <v-avatar 
+          <v-avatar
             v-else-if="notification.template_info?.icon"
             color="primary"
-            size="40" 
+            size="40"
             class="mr-3"
           >
             <v-icon :icon="getIconForType(notification.template_info.icon)"></v-icon>
@@ -21,7 +21,7 @@
           <v-avatar v-else color="grey" size="40" class="mr-3">
             <v-icon>mdi-bell</v-icon>
           </v-avatar>
-          
+
           <div>
             <h3 class="text-h6">{{ getNotificationTitle() }}</h3>
             <div class="text-caption text-grey">
@@ -29,7 +29,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="d-flex align-center ga-1">
           <!-- 状态徽章 -->
           <v-chip
@@ -40,7 +40,7 @@
           >
             未读
           </v-chip>
-          
+
           <v-chip
             v-if="notification.high_priority"
             color="warning"
@@ -49,7 +49,7 @@
           >
             重要
           </v-chip>
-          
+
           <v-btn
             icon="mdi-close"
             size="small"
@@ -68,7 +68,7 @@
           <div v-if="notification.rendered_content || notification.content" class="text-body-1 mb-4">
             {{ notification.rendered_content || notification.content }}
           </div>
-          
+
           <!-- 额外信息 -->
           <div v-if="notification.data" class="additional-info">
             <v-expansion-panels variant="accordion" class="mb-4">
@@ -99,7 +99,7 @@
             <v-icon start>mdi-link</v-icon>
             相关链接
           </h4>
-          
+
           <v-card variant="outlined" class="link-card">
             <v-card-text class="pa-4">
               <div class="d-flex align-center justify-space-between">
@@ -134,7 +134,7 @@
             <v-icon start>mdi-account</v-icon>
             来自
           </h4>
-          
+
           <v-card variant="outlined" class="actor-card">
             <v-card-text class="pa-4">
               <div class="d-flex align-center">
@@ -147,7 +147,7 @@
                 <v-avatar v-else color="grey" size="48" class="mr-4">
                   <v-icon>mdi-account</v-icon>
                 </v-avatar>
-                
+
                 <div class="flex-1">
                   <div class="text-body-1 font-weight-medium">
                     {{ notification.actor.display_name || notification.actor.username }}
@@ -156,7 +156,7 @@
                     @{{ notification.actor.username }}
                   </div>
                 </div>
-                
+
                 <v-btn
                   variant="tonal"
                   size="small"
@@ -173,7 +173,7 @@
         <!-- 元数据 -->
         <div class="metadata">
           <v-divider class="mb-4"></v-divider>
-          
+
           <div class="d-flex flex-wrap ga-4">
             <div class="metadata-item">
               <span class="text-caption text-grey">类型：</span>
@@ -182,12 +182,12 @@
                 {{ getTypeLabel(notification.type) }}
               </v-chip>
             </div>
-            
+
             <div class="metadata-item">
               <span class="text-caption text-grey">ID：</span>
               <code class="text-caption">{{ notification.id }}</code>
             </div>
-            
+
             <div v-if="notification.read_at" class="metadata-item">
               <span class="text-caption text-grey">已读时间：</span>
               <span class="text-caption">{{ formatDate(notification.read_at) }}</span>
@@ -212,7 +212,7 @@
               访问链接
             </v-btn>
           </div>
-          
+
           <div class="d-flex ga-2">
             <v-btn
               color="error"
@@ -222,7 +222,7 @@
             >
               删除
             </v-btn>
-            
+
             <v-btn
               variant="outlined"
               @click="dialog = false"
@@ -258,7 +258,7 @@ export default {
   emits: ['update:modelValue', 'mark-read', 'navigate', 'delete'],
   setup(props, { emit }) {
     const router = useRouter();
-    
+
     // 对话框状态
     const dialog = computed({
       get: () => props.modelValue,
@@ -282,7 +282,7 @@ export default {
     const getLinkTitle = () => {
       const url = props.notification?.link || props.notification?.redirect_url;
       if (!url) return '';
-      
+
       if (url.includes('/projects/')) return '查看项目';
       if (url.includes('/users/')) return '查看用户';
       if (url.includes('/comments/')) return '查看评论';
@@ -295,7 +295,7 @@ export default {
         follow: '关注',
         like: '点赞',
         comment: '评论',
-        fork: '分叉',
+        fork: '复刻',
         mention: '提及',
         system: '系统',
         admin: '管理',
@@ -359,7 +359,7 @@ export default {
         await markNotificationAsRead(props.notification.id);
         props.notification.read = true;
         props.notification.read_at = new Date().toISOString();
-        
+
         emit('mark-read', props.notification);
         showSnackbar('通知已标记为已读', 'success');
       } catch (error) {

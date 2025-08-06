@@ -59,7 +59,7 @@
               <v-avatar v-else color="grey" size="48">
                 <v-icon>mdi-bell</v-icon>
               </v-avatar>
-              
+
               <!-- 未读指示器 -->
               <v-badge
                 v-if="!notification.read"
@@ -83,12 +83,12 @@
                     来自 {{ notification.actor.display_name || notification.actor.username }}
                   </div>
                 </div>
-                
+
                 <div class="notification-meta text-right">
                   <div class="text-caption text-grey mb-1">
                     {{ formatRelativeTime(notification.created_at) }}
                   </div>
-                  
+
                   <div class="d-flex align-center justify-end ga-1">
                     <!-- 重要标记 -->
                     <v-chip
@@ -99,7 +99,7 @@
                     >
                       重要
                     </v-chip>
-                    
+
                     <!-- 类型标记 -->
                     <v-chip
                       :color="getTypeColor(notification.type)"
@@ -132,7 +132,7 @@
                   >
                     标记已读
                   </v-btn>
-                  
+
                   <v-btn
                     v-if="notification.link || notification.redirect_url"
                     size="small"
@@ -144,7 +144,7 @@
                     查看
                   </v-btn>
                 </div>
-                
+
                 <div class="d-flex align-center ga-1">
                   <v-btn
                     icon="mdi-information-outline"
@@ -152,7 +152,7 @@
                     variant="text"
                     @click.stop="showDetails(notification)"
                   ></v-btn>
-                  
+
                   <v-btn
                     icon="mdi-delete-outline"
                     size="small"
@@ -214,10 +214,10 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { showSnackbar } from '@/composables/useNotifications.js';
-import { 
-  getNotifications, 
-  markNotificationAsRead, 
-  deleteNotifications 
+import {
+  getNotifications,
+  markNotificationAsRead,
+  deleteNotifications
 } from '@/services/notificationService.js';
 import { localuser } from "@/services/localAccount";
 
@@ -248,7 +248,7 @@ export default {
   emits: ['update:unread-count', 'notification-click'],
   setup(props, { emit }) {
     const router = useRouter();
-    
+
     // 状态管理
     const notifications = ref([]);
     const loading = ref(false);
@@ -261,7 +261,7 @@ export default {
     // 计算属性
     const filteredNotifications = computed(() => {
       let filtered = [...notifications.value];
-      
+
       // 应用筛选
       switch (props.filter) {
         case 'unread':
@@ -280,18 +280,18 @@ export default {
           filtered = filtered.filter(n => n.type === 'system');
           break;
       }
-      
+
       // 应用搜索
       if (props.search) {
         const searchLower = props.search.toLowerCase();
-        filtered = filtered.filter(n => 
+        filtered = filtered.filter(n =>
           (n.content || '').toLowerCase().includes(searchLower) ||
           (n.rendered_content || '').toLowerCase().includes(searchLower) ||
           (n.actor?.username || '').toLowerCase().includes(searchLower) ||
           (n.actor?.display_name || '').toLowerCase().includes(searchLower)
         );
       }
-      
+
       // 应用排序
       switch (props.sort) {
         case 'oldest':
@@ -314,7 +314,7 @@ export default {
         default: // newest
           filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
       }
-      
+
       return filtered;
     });
 
@@ -326,7 +326,7 @@ export default {
       if (!props.showPagination) {
         return filteredNotifications.value;
       }
-      
+
       const start = (currentPage.value - 1) * props.itemsPerPage;
       const end = start + props.itemsPerPage;
       return filteredNotifications.value.slice(start, end);
@@ -354,7 +354,7 @@ export default {
         follow: '关注',
         like: '点赞',
         comment: '评论',
-        fork: '分叉',
+        fork: '复刻',
         mention: '提及',
         system: '系统',
         admin: '管理',
@@ -440,11 +440,11 @@ export default {
         notifications.value = data.notifications || [];
         loadMoreUrl.value = data.load_more_notifications || null;
         hasMoreNotifications.value = !!loadMoreUrl.value;
-        
+
         // 更新未读数量
         const unreadCount = notifications.value.filter(n => !n.read).length;
         emit('update:unread-count', unreadCount);
-        
+
       } catch (err) {
         error.value = '加载通知失败，请稍后重试';
         console.error('Error fetching notifications:', err);
@@ -482,10 +482,10 @@ export default {
         await markNotificationAsRead(notification.id);
         notification.read = true;
         notification.read_at = new Date().toISOString();
-        
+
         const unreadCount = notifications.value.filter(n => !n.read).length;
         emit('update:unread-count', unreadCount);
-        
+
         showSnackbar('已标记为已读', 'success');
       } catch (error) {
         showSnackbar('操作失败', 'error');
@@ -510,10 +510,10 @@ export default {
       try {
         await deleteNotifications([notification.id]);
         notifications.value = notifications.value.filter(n => n.id !== notification.id);
-        
+
         const unreadCount = notifications.value.filter(n => !n.read).length;
         emit('update:unread-count', unreadCount);
-        
+
         showSnackbar('通知已删除', 'success');
       } catch (error) {
         showSnackbar('删除失败', 'error');

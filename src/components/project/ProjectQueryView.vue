@@ -101,7 +101,7 @@ export default {
     getTitle() {
       switch (this.type) {
         case "fork":
-          return "分叉项目";
+          return "复刻项目";
         case "tag":
           return `标签: ${this.target}`;
         case "author":
@@ -115,7 +115,7 @@ export default {
     getDescription() {
       switch (this.type) {
         case "fork":
-          return "从原项目分叉的所有项目";
+          return "从原项目复刻的所有项目";
         case "tag":
           return `包含 "${this.target}" 标签的所有项目`;
         case "author":

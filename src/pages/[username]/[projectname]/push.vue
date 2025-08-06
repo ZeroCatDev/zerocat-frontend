@@ -89,7 +89,7 @@ export default {
       this.project = await getProjectInfoByNamespace(username, projectname);
       this.projectid = this.project.id; // 更新 projectid
       useHead({
-        title: "分叉" + this.project.title,
+        title: "复刻" + this.project.title,
       });
       console.log(this.project);
     },

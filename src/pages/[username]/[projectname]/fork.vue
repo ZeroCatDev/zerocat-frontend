@@ -21,15 +21,15 @@
     </v-card>
     <br/>
     <v-card border hover>
-      <template v-slot:title> 你正在分叉一个项目</template>
+      <template v-slot:title> 你正在复刻一个项目</template>
 
       <template v-slot:subtitle>等等，确认点事</template>
 
       <template v-slot:text>
-        你正在分叉
+        你正在复刻
         <span v-text="project.title"></span>
-        ，这将会从此项目的生产环境创建一个一模一样的项目，新的项目将拥有一样的名称，简介与源代码内容。分叉是一个技术概念，不代表作者对你有任何授权。
-        <br/>分叉设立的目的是为了让社区中的作品得到更好的发展，请不要滥用分叉，更不能直接抄袭。
+        ，这将会从此项目的生产环境创建一个一模一样的项目，新的项目将拥有一样的名称，简介与源代码内容。复刻是一个技术概念，不代表作者对你有任何授权。
+        <br/>复刻设立的目的是为了让社区中的作品得到更好的发展，请不要滥用复刻，更不能直接抄袭。
       </template>
       <v-card-actions>
         <v-checkbox v-model="checkknow" label="我已了解并确认"></v-checkbox>
@@ -56,7 +56,7 @@
         <br/><br/>
         开源许可证授予您某些权利，前提是您必须遵守相关许可证条款。如未明确标示许可证（显示为NULL），则默认作品受专有版权保护。在分发该作品之前，您需联系作者并获得授权。
         <br/>
-        用户在ZeroCat上分发该作品，并不意味着其拥有该作品的所有权。作品的分叉仅为技术行为，不等同于获得作者的法律授权。<br/>
+        用户在ZeroCat上分发该作品，并不意味着其拥有该作品的所有权。作品的复刻仅为技术行为，不等同于获得作者的法律授权。<br/>
         ZeroCat对用户上传、分发或使用的任何作品不承担任何法律责任。ZeroCat仅提供技术支持和托管服务，用户对所上传、分发及使用的作品负责，若因作品内容引发任何法律纠纷或损失，ZeroCat不承担任何责任。
       </template>
       <v-card-actions>
@@ -71,7 +71,7 @@
       :rules="textRules"
       clearable
       hint="请准确输入上方的话"
-      label="我保证会好好对待分叉的作品"
+      label="我保证会好好对待复刻的作品"
       required
       type="input"
       variant="outlined"
@@ -79,7 +79,7 @@
     <v-text-field
       v-model="forkprojectinfo.name"
       :color="checkname ? 'success' : 'error'"
-      label="分叉后项目名称"
+      label="复刻后项目名称"
       variant="outlined"
       @keyup.enter="verifyname()"
     ></v-text-field>
@@ -120,7 +120,7 @@ export default {
       textRules: [
         (value) => (value ? true : "记得输入内容哦~"),
         (value) =>
-          value === "我保证会好好对待分叉的作品" ? true : "输的不太对~",
+          value === "我保证会好好对待复刻的作品" ? true : "输的不太对~",
       ],
       forkprojectinfo: {
         name: "",
@@ -136,7 +136,7 @@ export default {
   },
   setup() {
     useHead({
-      title: "分叉",
+      title: "复刻",
     });
   },
   methods: {
@@ -148,7 +148,7 @@ export default {
       this.forkprojectinfo.name = this.project.name;
       verifyname();
       useHead({
-        title: "分叉" + this.project.title,
+        title: "复刻" + this.project.title,
       });
       this.author = this.project.author;
     },

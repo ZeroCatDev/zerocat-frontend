@@ -7,35 +7,34 @@
     <div class="px-4 d-flex ga-2 mb-2">
       <v-chip pill>
         <v-avatar start>
-          <v-img
-            :src="localuser.getUserAvatar(author.avatar)"
-          ></v-img>
-        </v-avatar
-        >
+          <v-img :src="localuser.getUserAvatar(author.avatar)"></v-img>
+        </v-avatar>
         {{ author.display_name }}
       </v-chip>
     </div>
     <div class="px-4 d-flex ga-2 mb-2">
-      <v-chip pill prepend-icon="mdi-chart-line">{{ stats.pageviews }}浏览</v-chip>
-      <v-chip pill prepend-icon="mdi-account-multiple">{{ stats.visitors }}访客</v-chip>
+      <v-chip pill prepend-icon="mdi-chart-line"
+        >{{ stats.pageviews }}浏览</v-chip
+      >
+      <v-chip pill prepend-icon="mdi-account-multiple"
+        >{{ stats.visitors }}访客</v-chip
+      >
       <v-chip pill prepend-icon="mdi-clock">
-        <TimeAgo :date="project.time"/>
+        <TimeAgo :date="project.time" />
       </v-chip>
     </div>
     <div class="px-4 d-flex ga-2 mb-2">
       <v-chip v-if="project.state == 'public'" pill prepend-icon="mdi-xml"
-      >开源作品
-      </v-chip
-      >
+        >开源作品
+      </v-chip>
       <v-chip
         v-if="project.state == 'private'"
         color="red"
         pill
         prepend-icon="mdi-xml"
         variant="outlined"
-      >私密作品
-      </v-chip
-      >
+        >私密作品
+      </v-chip>
       <v-chip pill prepend-icon="mdi-application">{{ project.type }}</v-chip>
     </div>
     <div class="px-4 d-flex ga-2 mb-2">
@@ -44,7 +43,7 @@
       </div>
     </div>
     <div class="px-4 d-flex ga-2 mb-2">
-      <ProjectStar :projectId="project.id" :starcount="project.star_count"/>
+      <ProjectStar :projectId="project.id" :starcount="project.star_count" />
     </div>
     <div class="px-4 d-flex ga-2 mb-2">
       <v-btn-group border density="compact" rounded="lg" size="x-small">
@@ -53,25 +52,37 @@
           class="text-none"
           variant="tonal"
         >
-          分叉
+          复刻
         </v-btn>
-        <v-btn :to="`/app/projects/fork/${project.id}`" text>{{stats.forks}}</v-btn>
+        <v-btn :to="`/app/projects/fork/${project.id}`" text>{{
+          stats.forks
+        }}</v-btn>
       </v-btn-group>
     </div>
     <div class="px-4 d-flex ga-2 mb-2">
-      <v-btn variant="text" @click="openEditor(project.id, project.type)"
-      >打开创造页
-      </v-btn
-      >
-      <v-btn :to="`/${username}/${projectname}/edit`" variant="text"
-      >编辑源文件
-      </v-btn
-      >
+      <v-btn
+        variant="text"
+        v-if="project.type == 'scratch'"
+        @click="openEditor(project.id, project.type)"
+        border
+        hover
+        append-icon="mdi-open-in-new"
+        class="text-none"
+        >Scratch编辑器
+      </v-btn>
+      <v-btn
+        :to="`/${username}/${projectname}/edit`"
+        variant="text"
+        border
+        hover
+        class="text-none"
+        >编辑
+      </v-btn>
     </div>
     <div class="px-4">
-      <ProjectAuthorCard :author="author"/>
+      <ProjectAuthorCard :author="author" />
     </div>
-    <br/>
+    <br />
   </v-card>
 </template>
 
@@ -80,8 +91,8 @@ import TimeAgo from "@/components/TimeAgo.vue";
 import ProjectStar from "@/components/project/ProjectStar.vue";
 import ProjectAuthorCard from "@/components/project/ProjectAuthorCard.vue";
 import openEditor from "@/stores/openEdit";
-import {getProjectStats} from "@/services/projectService";
-import {ref, onMounted} from "vue";
+import { getProjectStats } from "@/services/projectService";
+import { ref, onMounted } from "vue";
 import { localuser } from "@/services/localAccount";
 export default {
   name: "ProjectInfoCard",
@@ -115,35 +126,34 @@ export default {
       error: null,
       stats: {
         pageviews: 0,
-        visitors: 0
+        visitors: 0,
       },
       localuser,
     };
   },
-  async mounted() {
-  },
+  async mounted() {},
   watch: {
-    'project.id': {
+    "project.id": {
       immediate: true,
       handler(newId) {
         if (newId) {
           this.loadProjectStats();
         }
-      }
-    }
+      },
+    },
   },
   methods: {
     async loadProjectStats() {
       try {
         this.stats = await getProjectStats(this.project.id);
       } catch (error) {
-        console.error('Error fetching project stats:', error);
+        console.error("Error fetching project stats:", error);
         this.stats = {
           pageviews: 0,
-          visitors: 0
+          visitors: 0,
         };
       }
-    }
-  }
+    },
+  },
 };
 </script>
