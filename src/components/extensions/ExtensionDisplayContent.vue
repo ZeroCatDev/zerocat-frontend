@@ -23,7 +23,7 @@
               {{ extension?.project?.title || "扩展" }}
             </v-card-title>
             <v-card-subtitle>
-              {{ extension?.description || "暂无描述" }}
+              {{ extension?.project?.description || "暂无描述" }}
             </v-card-subtitle>
 
             <v-row>
@@ -188,6 +188,18 @@
       <v-icon size="64" color="grey-lighten-1">mdi-puzzle-remove</v-icon>
       <p class="text-h6 mt-4 text-grey-darken-1">扩展不存在</p>
       <p class="text-body-2 text-grey">找不到指定的扩展信息</p>
+
+      <!-- 如果是用户自己的项目，显示创建扩展按钮 -->
+      <v-btn
+        v-if="isCurrentUserProject"
+        class="mt-4 mr-2"
+        color="success"
+        prepend-icon="mdi-plus"
+        @click="showCreateExtensionDialog = true"
+      >
+        创建扩展
+      </v-btn>
+
       <v-btn class="mt-4" to="/app/extensions" color="primary">
         返回扩展列表
       </v-btn>
@@ -219,6 +231,27 @@
             @click="handleDeleteExtension"
           >
             删除
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- 创建扩展确认对话框 -->
+    <v-dialog v-model="showCreateExtensionDialog" max-width="400">
+      <v-card>
+        <v-card-title>创建扩展</v-card-title>
+        <v-card-text>
+          确定要为此项目创建扩展吗？
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn @click="showCreateExtensionDialog = false">取消</v-btn>
+          <v-btn
+            color="success"
+            :loading="createExtensionLoading"
+            @click="handleCreateExtension"
+          >
+            创建
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -273,7 +306,9 @@ export default {
       // Dialog states
       showEditDialog: false,
       showDeleteDialog: false,
+      showCreateExtensionDialog: false,
       deleteLoading: false,
+      createExtensionLoading: false,
 
       // API loading states
       submitLoading: false,
@@ -291,6 +326,11 @@ export default {
     isOwner() {
       if (!this.extension || !localuser.isLogin.value) return false;
       return localuser.user.value?.id === this.extension?.project?.author?.id;
+    },
+
+    isCurrentUserProject() {
+      if (!localuser.isLogin.value || !this.$route.params.username) return false;
+      return localuser.user.value?.username === this.$route.params.username;
     },
   },
   watch: {
@@ -414,6 +454,33 @@ export default {
         this.showMessage("删除扩展失败", "error");
       } finally {
         this.deleteLoading = false;
+      }
+    },
+
+    async handleCreateExtension() {
+      if (!this.projectId || !this.isCurrentUserProject) return;
+
+      this.createExtensionLoading = true;
+      try {
+        const payload = {
+          projectid: this.projectId,
+          scratchCompatible: false // 默认值，可以根据需要调整
+        };
+        const response = await request.post('/extensions/manager/create', payload);
+
+        if (response.data.status === 'success') {
+          this.showMessage('创建扩展成功', 'success');
+          this.showCreateExtensionDialog = false;
+          // 重新加载扩展详情
+          await this.fetchExtensionDetail();
+        } else {
+          this.showMessage(response.data.message || '创建扩展失败', 'error');
+        }
+      } catch (error) {
+        console.error('Failed to create extension:', error);
+        this.showMessage('创建扩展失败', 'error');
+      } finally {
+        this.createExtensionLoading = false;
       }
     },
 
