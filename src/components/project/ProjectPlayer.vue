@@ -10,7 +10,11 @@
         ></iframe>
       </v-card>
     </template>
-
+    <template v-else-if="projectType === 'scratch-extension'">
+      <ExtensionDisplayContent
+        :project-id="projectId"
+      />
+    </template>
     <template v-else-if="projectType === 'text'">
       <v-card v-if="showplayer" border hover>
         <v-card-text>
@@ -48,11 +52,12 @@
 <script>
 import {initProject, getProjectContent} from "@/services/projectService";
 import CodeRunner from './CodeRunner.vue';
-
+import ExtensionDisplayContent from "../extensions/ExtensionDisplayContent.vue";
 export default {
   name: 'ProjectPlayer',
   components: {
-    CodeRunner
+    CodeRunner,
+    ExtensionDisplayContent
   },
   props: {
     projectId: {

@@ -114,7 +114,8 @@
 <script>
 import Projects from "../../../components/project/Projects.vue";
 import {useHead} from "@unhead/vue";
-
+import languages from "@/constants/programming_languages.js";
+import specialTypes from "@/constants/special_languages.js";
 export default {
   components: {Projects},
   setup() {
@@ -136,8 +137,6 @@ export default {
       showAdvancedSearch: false,
       typeitems: [
         {name: "所有", type: ""},
-        {name: "Scratch", type: "scratch"},
-        {name: "Python", type: "python"},
       ],
       orderitems: [
         {name: "观看量升序", type: "view_up"},
@@ -190,6 +189,22 @@ export default {
   },
   async created() {
     this.onPageChange();
+
+    // 添加编程语言选项
+    Object.entries(languages).forEach(([key, value]) => {
+      this.typeitems.push({
+        name: value.name,
+        type: key
+      });
+    });
+
+    // 添加特殊类型选项
+    Object.entries(specialTypes).forEach(([key, value]) => {
+      this.typeitems.push({
+        name: value.name,
+        type: key
+      });
+    });
   },
 };
 </script>

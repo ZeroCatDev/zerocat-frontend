@@ -36,7 +36,7 @@
                 md="6"
                 lg="4"
               >
-                <v-card  border hover :to="`/app/extensions/my/${extension.id}`">
+                <v-card  border hover :to="`/${extension.project?.author?.username}/${extension.project?.name}`">
                   <v-card-item>
                     <v-card-title>{{ extension.project?.title || '扩展' }}</v-card-title>
                     <v-card-subtitle>{{ extension.project?.description || '扩展' }}</v-card-subtitle>
