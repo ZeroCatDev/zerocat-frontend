@@ -388,6 +388,15 @@ const logout = async (logoutFromServer = true) => {
     }
   }
 
+  // 注销推送通知
+  try {
+    const { pushNotificationService } = await import('./pushNotificationService.js');
+    await pushNotificationService.unsubscribe();
+    console.log('推送通知已在退出时注销');
+  } catch (error) {
+    console.warn('退出时注销推送通知失败:', error);
+  }
+
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(TOKEN_EXPIRES_AT_KEY);

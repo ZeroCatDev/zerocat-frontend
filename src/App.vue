@@ -11,6 +11,9 @@
   
   <!-- PWA提示组件 -->
   <PWAPrompts />
+  
+  <!-- 通知推送账户检查组件 -->
+  <NotificationAccountChecker />
 </template>
 
 <script setup>
@@ -25,6 +28,7 @@ import SimpleLayout from "@/layouts/SimpleLayout.vue";
 import GlobalSnackbar from "@/components/GlobalSnackbar.vue";
 import NotificationReminderSnackbar from "@/components/shared/NotificationReminderSnackbar.vue";
 import PWAPrompts from "@/components/PWAPrompts.vue";
+import NotificationAccountChecker from "@/components/NotificationAccountChecker.vue";
 
 const route = useRoute();
 const router = useRouter();
