@@ -39899,6 +39899,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _opcode_labels_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./opcode-labels.js */ "./src/lib/opcode-labels.js");
 
 const isUndefined = a => typeof a === 'undefined';
+const circularReplacer = () => {
+  const stack = new Set();
+  return (_, value) => {
+    if (typeof value === 'object' && value !== null) {
+      if (stack.has(value)) return Array.isArray(value) ? '[...]' : '{...}';
+      stack.add(value);
+    }
+    return value;
+  };
+};
 
 /**
  * Convert monitors from VM format to what the GUI needs to render.
@@ -39942,18 +39952,26 @@ const isUndefined = a => typeof a === 'undefined';
     value = Number(value.toFixed(6));
   }
 
-  // Turn the value to a string, for handle boolean values
+  // Turn the value to a string, to handle boolean values
   if (typeof value === 'boolean') {
     value = value.toString();
   }
 
-  // Lists can contain booleans, which should also be turned to strings
+  // Turn the value to a string, to handle JSON values
+  // do not convert arrays as it will be confused for lists
+  if (typeof value === 'object' && !Array.isArray(value)) {
+    value = JSON.stringify(value, circularReplacer());
+  }
+
+  // Lists can contain booleans or Objects, which should also be turned to strings
   if (Array.isArray(value)) {
     value = value.slice();
     for (let i = 0; i < value.length; i++) {
       const item = value[i];
       if (typeof item === 'boolean') {
         value[i] = item.toString();
+      } else if (typeof value[i] === 'object' && !Array.isArray(value[i])) {
+        value[i] = JSON.stringify(item, circularReplacer());
       }
     }
   }
