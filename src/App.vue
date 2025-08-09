@@ -2,16 +2,17 @@
   <component :is="currentLayout">
     <router-view/>
   </component>
-  
+
   <!-- 全局Snackbar -->
   <GlobalSnackbar />
-  
+  <!-- Sudo认证管理组件 -->
+  <SudoManager ref="sudoManager" />
   <!-- 通知提醒Snackbar -->
   <NotificationReminderSnackbar />
-  
+
   <!-- PWA提示组件 -->
   <PWAPrompts />
-  
+
   <!-- 通知推送账户检查组件 -->
   <NotificationAccountChecker />
 </template>
@@ -21,6 +22,7 @@ import {computed} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useHead} from "@unhead/vue";
 import {use404Helper} from "@/composables/use404";
+import SudoManager from '@/components/auth/SudoManager.vue';
 
 // 导入布局
 import DefaultLayout from "@/layouts/DefaultLayout.vue";

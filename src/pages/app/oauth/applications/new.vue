@@ -153,6 +153,7 @@
 <script>
 import {useRouter} from 'vue-router'
 import axios from '@/axios/axios'
+import { useSudoManager } from '@/composables/useSudoManager'
 
 export default {
   name: 'NewOAuthApplication',
@@ -171,7 +172,8 @@ export default {
         show: false,
         text: '',
         color: 'success'
-      }
+      },
+      sudoManager: useSudoManager()
     }
   },
 
@@ -180,6 +182,13 @@ export default {
     async saveApplication() {
       this.loading = true
       try {
+        // 请求sudo认证
+        const sudoToken = await this.sudoManager.requireSudo({
+          title: '创建 OAuth 应用',
+          subtitle: `您正在创建名为"${this.form.name}"的OAuth应用。此操作需要验证您的身份。`,
+          persistent: true
+        });
+
         // 创建应用
         const response = await axios.post('/oauth/applications', {
           name: this.form.name,
@@ -188,13 +197,19 @@ export default {
           redirect_uris: this.form.redirect_uris.filter(uri => uri.trim()),
           type: 'oauth',
           scopes: this.form.scopes
+        }, {
+          headers: {
+            'X-Sudo-Token': sudoToken
+          }
         })
 
         this.showSuccess('应用创建成功')
         this.$router.push('/app/oauth/applications/' + response.data.client_id)
       } catch (error) {
-        this.showError('创建应用失败')
-        console.error('Failed to create application:', error)
+        if (error.type !== 'cancelled') {
+          this.showError('创建应用失败')
+          console.error('Failed to create application:', error)
+        }
       }
       this.loading = false
     },

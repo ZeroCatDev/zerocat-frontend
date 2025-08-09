@@ -15,19 +15,29 @@ export function updateUserInfo(data) {
   });
 }
 
-export function updateUsername(data) {
+export function updateUsername(data, sudoToken) {
+  const headers = {};
+  if (sudoToken) {
+    headers['X-Sudo-Token'] = sudoToken;
+  }
   return request({
     url: "/my/set/username",
     method: "post",
     data,
+    headers,
   });
 }
 
-export function updatePassword(data) {
+export function updatePassword(data, sudoToken) {
+  const headers = {};
+  if (sudoToken) {
+    headers['X-Sudo-Token'] = sudoToken;
+  }
   return request({
     url: "/my/set/pw",
     method: "post",
     data,
+    headers,
   });
 }
 

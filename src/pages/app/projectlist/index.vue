@@ -9,11 +9,6 @@ import {useHead} from "@unhead/vue";
 
 export default {
   components: {ProjectListsView},
-  async created() {
-    if (localuser.isLogin.value === false) {
-      this.$router.push("/app/account/login");
-    }
-  },
   data() {
     return {
       localuser: localuser,

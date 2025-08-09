@@ -1,11 +1,16 @@
 import request from "@/axios/axios";
 
 // 创建令牌
-export function createAccountToken(data) {
+export function createAccountToken(data, sudoToken) {
+  const headers = {};
+  if (sudoToken) {
+    headers['X-Sudo-Token'] = sudoToken;
+  }
   return request({
     url: "/accounttoken/create",
     method: "post",
     data,
+    headers,
   });
 }
 

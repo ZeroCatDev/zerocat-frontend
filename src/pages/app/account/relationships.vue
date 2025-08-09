@@ -82,11 +82,7 @@ export default {
     }
   },
   async created() {
-    if (!localuser.isLogin.value) {
-      this.$router.push("/app/account/login");
-    } else {
-      await this.getUserById();
-    }
+    await this.getUserById();
   },
   methods: {
     async getUserById() {

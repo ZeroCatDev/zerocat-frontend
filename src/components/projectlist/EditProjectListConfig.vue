@@ -69,6 +69,7 @@
 
 <script>
 import request from "../../axios/axios";
+import { useSudoManager } from '@/composables/useSudoManager';
 
 export default {
   data() {
@@ -83,6 +84,7 @@ export default {
       deleteDialog: false,
       listInfo: {},
       newListInfo: {},
+      sudoManager: useSudoManager()
     };
   },
   props: {
@@ -172,7 +174,18 @@ export default {
     async deleteProjectList() {
       this.deleting = true;
       try {
-        const res = await request.post(`/projectlist/lists/delete`, {id: this.listid});
+        // 请求sudo认证
+        const sudoToken = await this.sudoManager.requireSudo({
+          title: '删除作品列表',
+          subtitle: `您正在删除作品列表"${this.listInfo.title}"。此操作不可逆，请验证您的身份。`,
+          persistent: true
+        });
+
+        const res = await request.post(`/projectlist/lists/delete`, {id: this.listid}, {
+          headers: {
+            'X-Sudo-Token': sudoToken
+          }
+        });
 
         this.$toast.add({
           severity: res.data.status === "success" ? "info" : "error",
@@ -187,13 +200,15 @@ export default {
           if (this.close) this.close();
         }
       } catch (error) {
-        console.error("删除列表失败:", error);
-        this.$toast.add({
-          severity: "error",
-          summary: "错误",
-          detail: "删除列表失败",
-          life: 3000,
-        });
+        if (error.type !== 'cancelled') {
+          console.error("删除列表失败:", error);
+          this.$toast.add({
+            severity: "error",
+            summary: "错误",
+            detail: "删除列表失败",
+            life: 3000,
+          });
+        }
       } finally {
         this.deleting = false;
       }

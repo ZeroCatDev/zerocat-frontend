@@ -62,7 +62,7 @@
       <v-card>
         <v-card-title>添加新邮箱</v-card-title>
         <v-card-text>
-          <v-form ref="addForm" @submit.prevent="sendPrimaryVerification">
+          <v-form ref="addForm" @submit.prevent="addNewEmail">
             <v-text-field
               v-model="newEmail"
               :rules="[rules.required, rules.email]"
@@ -93,9 +93,9 @@
           <v-btn
             :loading="isLoading"
             color="primary"
-            @click="showVerificationInput ? addNewEmail() : sendPrimaryVerification()"
+            @click="addNewEmail"
           >
-            {{ showVerificationInput ? '添加' : '发送验证码' }}
+            添加
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -136,7 +136,9 @@
 import {ref, onMounted} from 'vue'
 import VerifyEmail from '@/components/verifyEmail.vue'
 import {getEmails, sendVerificationCode, addEmail, removeEmail, verifyEmail} from '@/services/emailService'
+import { useSudoManager } from '@/composables/useSudoManager';
 
+const sudoManager = useSudoManager();
 const emails = ref([])
 const showAddDialog = ref(false)
 const showDeleteDialog = ref(false)
@@ -187,36 +189,18 @@ const handleVerified = (code) => {
   }
 }
 
-const sendPrimaryVerification = async () => {
-  if (!newEmail.value) {
-    addMessage.value = '请输入新邮箱地址'
-    addMessageType.value = 'error'
-    return
-  }
-
-  const primaryEmail = emails.value.find(e => e.is_primary)
-  if (!primaryEmail) {
-    addMessage.value = '未找到主邮箱'
-    addMessageType.value = 'error'
-    return
-  }
-
-  requestVerifyCode(
-    primaryEmail.contact_value,
-    '验证主邮箱',
-    (code) => {
-      verificationCode.value = code
-      addNewEmail()
-    }
-  )
-}
-
 const addNewEmail = async () => {
-  if (!newEmail.value || !verificationCode.value) return
+  if (!newEmail.value) return
 
   isLoading.value = true
   try {
-    const response = await addEmail(newEmail.value, verificationCode.value)
+    const sudoToken = await sudoManager.requireSudo({
+      title: '添加邮箱',
+      subtitle: `您正在尝试添加新的邮箱地址。此操作需要验证您的身份。`,
+      persistent: true
+    });
+
+    const response = await addEmail(newEmail.value, null, sudoToken);
     if (response.status === 'success') {
       await fetchEmails()
       closeAddDialog()
@@ -225,8 +209,10 @@ const addNewEmail = async () => {
       addMessageType.value = 'error'
     }
   } catch (error) {
-    addMessage.value = '添加邮箱失败'
-    addMessageType.value = 'error'
+    if (error.type !== 'cancel') {
+      addMessage.value = '添加邮箱失败'
+      addMessageType.value = 'error'
+    }
   } finally {
     isLoading.value = false
   }
@@ -237,27 +223,28 @@ const confirmDelete = (email) => {
   showDeleteDialog.value = true
 }
 
-const startDeleteEmail = () => {
-  const primaryEmail = emails.value.find(e => e.is_primary)
-  if (primaryEmail && emailToDelete.value) {
-    requestVerifyCode(
-      primaryEmail.contact_value,
-      '验证主邮箱',
-      async (code) => {
-        isLoading.value = true
-        try {
-          const response = await removeEmail(emailToDelete.value.contact_value, code)
-          if (response.status === 'success') {
-            await fetchEmails()
-            closeDeleteDialog()
-          }
-        } catch (error) {
-          console.error('删除失败:', error)
-        } finally {
-          isLoading.value = false
-        }
-      }
-    )
+const startDeleteEmail = async () => {
+  if (!emailToDelete.value) return;
+
+  isLoading.value = true;
+  try {
+    const sudoToken = await sudoManager.requireSudo({
+      title: '删除邮箱',
+      subtitle: `您正在尝试删除邮箱 ${emailToDelete.value.contact_value}。此操作需要验证您的身份。`,
+      persistent: true
+    });
+
+    const response = await removeEmail(emailToDelete.value.contact_value, sudoToken);
+    if (response.status === 'success') {
+      await fetchEmails();
+      closeDeleteDialog();
+    }
+  } catch (error) {
+    if (error.type !== 'cancel') {
+      console.error('删除失败:', error);
+    }
+  } finally {
+    isLoading.value = false;
   }
 }
 

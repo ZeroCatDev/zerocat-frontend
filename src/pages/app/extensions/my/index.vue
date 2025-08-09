@@ -207,12 +207,7 @@ export default {
       }
     };
   },
-  async created() {
-    if (localuser.isLogin.value === false) {
-      this.$router.push("/app/account/login");
-      return;
-    }
-
+  async mounted() {
     this.s3BucketUrl = get('s3.staticurl');
     await Promise.all([
       this.fetchExtensions(),

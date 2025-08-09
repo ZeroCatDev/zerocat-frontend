@@ -246,6 +246,7 @@ import {
   deleteAccountToken,
   revokeAccountToken,
 } from "@/services/accountTokenService";
+import { useSudoManager } from '@/composables/useSudoManager';
 
 export default {
   name: "TokenManager",
@@ -284,6 +285,10 @@ export default {
       ],
     };
   },
+  setup() {
+    const sudoManager = useSudoManager();
+    return { sudoManager };
+  },
   async mounted() {
     await this.loadTokens();
   },
@@ -303,7 +308,13 @@ export default {
     async createToken() {
       this.creating = true;
       try {
-        const response = await createAccountToken(this.createForm);
+        const sudoToken = await this.sudoManager.requireSudo({
+          title: '创建令牌',
+          subtitle: '创建个人访问令牌是一个敏感操作，需要验证您的身份。',
+          persistent: true
+        });
+
+        const response = await createAccountToken(this.createForm, sudoToken);
         this.newToken = response.data.data.token;
         this.showNewTokenDialog = true;
 
@@ -316,7 +327,9 @@ export default {
 
         this.$emit("token-created", response);
       } catch (error) {
-        this.$emit("error", error);
+        if (error.type !== 'cancel') {
+          this.$emit("error", error);
+        }
       } finally {
         this.creating = false;
       }

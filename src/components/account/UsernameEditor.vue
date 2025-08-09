@@ -32,6 +32,7 @@
 
 <script>
 import {updateUsername} from "@/services/accountService";
+import { useSudoManager } from '@/composables/useSudoManager';
 
 export default {
   name: "UsernameEditor",
@@ -59,19 +60,31 @@ export default {
       immediate: true
     }
   },
+  setup() {
+    const sudoManager = useSudoManager();
+    return { sudoManager };
+  },
   methods: {
     async changeUsername() {
       if (!this.valid) return;
 
       this.loading = true;
       try {
+        const sudoToken = await this.sudoManager.requireSudo({
+          title: '修改用户名',
+          subtitle: '修改用户名是一个敏感操作，需要验证您的身份。',
+          persistent: true
+        });
+
         const response = await updateUsername({
           username: this.username
-        });
+        }, sudoToken);
 
         this.$emit('username-updated', response);
       } catch (error) {
-        this.$emit('error', error);
+        if (error.type !== 'cancel') {
+          this.$emit('error', error);
+        }
       } finally {
         this.loading = false;
       }

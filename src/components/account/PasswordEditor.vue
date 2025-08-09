@@ -59,6 +59,7 @@
 
 <script>
 import {updatePassword} from "@/services/accountService";
+import { useSudoManager } from '@/composables/useSudoManager';
 
 export default {
   name: "PasswordEditor",
@@ -76,16 +77,26 @@ export default {
       ]
     };
   },
+  setup() {
+    const sudoManager = useSudoManager();
+    return { sudoManager };
+  },
   methods: {
     async changePassword() {
       if (!this.valid) return;
 
       this.loading = true;
       try {
+        const sudoToken = await this.sudoManager.requireSudo({
+          title: '修改密码',
+          subtitle: '这是一个重要操作，需要验证您的身份。',
+          persistent: true
+        });
+
         const response = await updatePassword({
           oldpw: this.oldPassword,
           newpw: this.newPassword
-        });
+        }, sudoToken);
 
         this.$emit('password-updated', response);
 
@@ -94,7 +105,9 @@ export default {
         this.newPassword = "";
         this.confirmPassword = "";
       } catch (error) {
-        this.$emit('error', error);
+        if (error.type !== 'cancel') {
+          this.$emit('error', error);
+        }
       } finally {
         this.loading = false;
       }

@@ -10,19 +10,26 @@ export const sendVerificationCode = async (email) => {
   return response.data
 }
 
-export const addEmail = async (email, verificationCode) => {
+export const addEmail = async (email, verificationCode, sudoToken) => {
+  const headers = {};
+  if (sudoToken) {
+    headers['X-Sudo-Token'] = sudoToken;
+  }
   const response = await axios.post('/account/add-email', {
     email,
     verificationCode
-  })
+  }, { headers });
   return response.data
 }
 
-export const removeEmail = async (email, verificationCode) => {
+export const removeEmail = async (email, sudoToken) => {
+  const headers = {};
+  if (sudoToken) {
+    headers['X-Sudo-Token'] = sudoToken;
+  }
   const response = await axios.post('/account/remove-email', {
-    email,
-    verificationCode
-  })
+    email
+  }, { headers });
   return response.data
 }
 

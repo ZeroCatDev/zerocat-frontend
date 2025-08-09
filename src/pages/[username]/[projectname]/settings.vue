@@ -251,6 +251,7 @@ import {useHead} from "@unhead/vue";
 import {getProjectInfoByNamespace} from "@/services/projectService";
 import LicenseSelector from "@/components/LicenseSelector.vue";
 import LanguageSelector from "@/components/LanguageSelector.vue";
+import { useSudoManager } from '@/composables/useSudoManager';
 
 export default {
   components: {
@@ -286,6 +287,10 @@ export default {
   },
   setup() {
     useHead({title: "项目设置"});
+    const sudoManager = useSudoManager();
+    return {
+      sudoManager
+    }
   },
   methods: {
     removeTag(item) {
@@ -310,7 +315,17 @@ export default {
     },
     async deleteProject() {
       try {
-        await request.delete(`/project/${this.projectID}`);
+        const sudoToken = await this.sudoManager.requireSudo({
+          title: '删除项目',
+          subtitle: `您正在尝试删除项目 ${this.project.name}。此操作不可逆，请输入密码以确认。`,
+          persistent: true
+        });
+
+        await request.delete(`/project/${this.projectID}`, {
+          headers: {
+            'X-Sudo-Token': sudoToken
+          }
+        });
         this.$toast.add({
           severity: "info",
           summary: "成功",
@@ -320,12 +335,14 @@ export default {
         this.$router.push("/app/explore");
       } catch (error) {
         console.error(error);
-        this.$toast.add({
-          severity: "error",
-          summary: "错误",
-          detail: "删除项目失败",
-          life: 3000,
-        });
+        if (error.type !== 'cancel') {
+          this.$toast.add({
+            severity: "error",
+            summary: "错误",
+            detail: "删除项目失败",
+            life: 3000,
+          });
+        }
       }
     },
     async saveProject() {
@@ -386,9 +403,20 @@ export default {
     },
     async changeProjectVisibility() {
       try {
+        // 请求sudo认证
+        const sudoToken = await this.sudoManager.requireSudo({
+          title: '更改项目可见性',
+          subtitle: `您正在将项目"${this.project.name}"的可见性从${this.project.state === "public" ? "公开" : "私密"}更改为${this.project.state === "public" ? "私密" : "公开"}。此操作需要验证您的身份。`,
+          persistent: true
+        });
+
         const response = (
           await request.put(`/project/changevisibility/${this.projectID}`, {
             newState: this.project.state === "public" ? "private" : "public",
+          }, {
+            headers: {
+              'X-Sudo-Token': sudoToken
+            }
           })
         ).data;
         this.$toast.add({
@@ -399,13 +427,15 @@ export default {
         });
         this.$router.push(`/explore/${localuser.user.value.username}/${this.project.name}`);
       } catch (error) {
-        console.error(error);
-        this.$toast.add({
-          severity: "error",
-          summary: "错误",
-          detail: "修改项目状态失败",
-          life: 3000,
-        });
+        if (error.type !== 'cancelled') {
+          console.error(error);
+          this.$toast.add({
+            severity: "error",
+            summary: "错误",
+            detail: "修改项目状态失败",
+            life: 3000,
+          });
+        }
       }
     },
     cancel() {

@@ -300,16 +300,13 @@ export default {
     };
   },
 
-  async created() {
-    if (localuser.isLogin.value === false) {
-      this.$router.push("/app/account/login");
-    }
-    await this.onPageChange();
-  },
   setup() {
     useHead({
       title: "我的作品",
     });
+  },
+  async mounted() {
+    await this.onPageChange();
   },
   methods: {
     removetag(item) {

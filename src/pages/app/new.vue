@@ -1,8 +1,8 @@
 <template>
   <v-container>
-    <h1>创建一个新的作品</h1>
-    <p>作品包含你的代码文件，包括修订历史记录。作品信息可以随时修改。</p>
-    <br/>
+      <h1>创建一个新的作品</h1>
+      <p>作品包含你的代码文件，包括修订历史记录。作品信息可以随时修改。</p>
+      <br/>
 
     <v-text-field
       v-model="projectinfo.name"
@@ -115,11 +115,6 @@ export default {
     };
   },
 
-  async created() {
-    if (localuser.isLogin.value === false) {
-      this.$router.push("/app/account/login");
-    }
-  },
   methods: {
     async newProject() {
       this.projectinfo.title = this.projectinfo.name;

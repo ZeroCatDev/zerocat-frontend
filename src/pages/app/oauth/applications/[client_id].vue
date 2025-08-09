@@ -601,6 +601,7 @@ import axios from '@/axios/axios'
 import Compressor from 'compressorjs'
 import {ref, onMounted} from "vue";
 import {get} from "@/services/serverConfig";
+import { useSudoManager } from '@/composables/useSudoManager'
 
 export default {
   data() {
@@ -630,6 +631,7 @@ export default {
         color: 'success'
       },
       s3BucketUrl: '',
+      sudoManager: useSudoManager()
     }
   },
 
@@ -674,12 +676,25 @@ export default {
     async deleteApplication() {
       this.loading = true
       try {
-        await axios.delete(`/oauth/applications/${this.$route.params.client_id}`)
+        // 请求sudo认证
+        const sudoToken = await this.sudoManager.requireSudo({
+          title: '删除 OAuth 应用',
+          subtitle: `您正在删除OAuth应用"${this.form.name}"。此操作不可逆，请验证您的身份。`,
+          persistent: true
+        });
+
+        await axios.delete(`/oauth/applications/${this.$route.params.client_id}`, {
+          headers: {
+            'X-Sudo-Token': sudoToken
+          }
+        })
         this.showSuccess('应用已删除')
         this.$router.push("/app/oauth/applications")
       } catch (error) {
-        this.showError('删除应用失败')
-        console.error('Failed to delete application:', error)
+        if (error.type !== 'cancelled') {
+          this.showError('删除应用失败')
+          console.error('Failed to delete application:', error)
+        }
       }
       this.loading = false
       this.deleteDialog = false

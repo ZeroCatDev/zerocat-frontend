@@ -1,6 +1,6 @@
 <template>
   <div>
-    <PageAnalytics target-id="1" target-type="home"/>
+    <PageAnalytics target-id="1" target-type="home" />
 
     <div class="landing-page">
       <!-- 顶部导航 -->
@@ -41,7 +41,9 @@
           <v-row align="center">
             <v-col class="text-center text-md-left" cols="12" md="6">
               <div class="mb-8">
-                <h1 class="mb-2 font-weight-bold hero-title text-gradient text-glow">
+                <h1
+                  class="mb-2 font-weight-bold hero-title text-gradient text-glow"
+                >
                   ZeroCat
                 </h1>
                 <h2 class="mb-6 hero-subtitle text-glow">
@@ -62,18 +64,34 @@
                 >
                   浏览作品
                 </v-btn>
-                <v-btn href="https://langs.ink/article/houlangs/" target="_blank" variant="outlined"> 了解更多</v-btn>
+                <v-btn
+                  href="https://langs.ink/article/houlangs/"
+                  target="_blank"
+                  variant="outlined"
+                >
+                  了解更多</v-btn
+                >
               </div>
 
-              <v-chip
-                class="mt-4"
+
+             <v-chip
+                class=""
                 color="primary"
                 href="https://www.rainyun.com/wuyuan_?s=zerocat"
                 size="small"
                 target="_blank"
-                variant="outlined"
+                variant="tonal"
               >
-                由雨云提供技术支持
+                托管于雨云
+              </v-chip> <v-chip
+                color="primary"
+                size="small"
+                target="_blank"
+                variant="tonal"
+                :href="randomLink.href"
+                append-icon="mdi-open-in-new"
+              >
+                友情链接 {{ randomLink.text }}
               </v-chip>
             </v-col>
 
@@ -111,9 +129,8 @@
               sm="6"
             >
               <v-card class="h-100 pa-4 card-glass">
-                <v-icon :color="feature.color" class="mb-4" size="36">{{
-                  feature.icon
-                  }}
+                <v-icon :color="feature.color" class="mb-4" size="36"
+                  >{{ feature.icon }}
                 </v-icon>
                 <div class="font-weight-medium mb-2">{{ feature.title }}</div>
                 <p class="text-caption text-medium-emphasis">
@@ -180,7 +197,9 @@
             <v-col class="text-center" cols="12" md="8">
               <span class="text-overline text-primary">团队介绍</span>
               <h2 class="mb-2 font-weight-medium">厚浪开发组</h2>
-              <p class="text-medium-emphasis">一支朝气蓬勃、热爱代码的创新团队</p>
+              <p class="text-medium-emphasis">
+                一支朝气蓬勃、热爱代码的创新团队
+              </p>
             </v-col>
           </v-row>
 
@@ -234,7 +253,9 @@
 
             <v-col cols="12" md="6">
               <span class="text-overline text-primary">100% 开源</span>
-              <h2 class="mb-4 font-weight-medium">开放所有代码，允许自由使用</h2>
+              <h2 class="mb-4 font-weight-medium">
+                开放所有代码，允许自由使用
+              </h2>
               <p class="text-medium-emphasis mb-6">
                 ZeroCat是国内少有的完整开源且内容完善的编程社区，我们向您提供了完整的在线编程解决方案
               </p>
@@ -285,10 +306,16 @@
                       <p class="my-6 text-medium-emphasis font-italic">
                         "{{ testimonial.quote }}"
                       </p>
-                      <v-avatar v-if="testimonial.avatar" class="mb-2" size="64">
+                      <v-avatar
+                        v-if="testimonial.avatar"
+                        class="mb-2"
+                        size="64"
+                      >
                         <v-img :src="testimonial.avatar"></v-img>
                       </v-avatar>
-                      <div class="font-weight-medium">{{ testimonial.name }}</div>
+                      <div class="font-weight-medium">
+                        {{ testimonial.name }}
+                      </div>
                       <div class="text-caption text-medium-emphasis">
                         {{ testimonial.title }}
                       </div>
@@ -393,7 +420,9 @@
         <v-row>
           <v-col cols="12" lg="4" md="12">
             <div class="d-flex align-center mb-6">
-              <span class="text-h5 font-weight-bold primary--text">ZeroCat</span>
+              <span class="text-h5 font-weight-bold primary--text"
+                >ZeroCat</span
+              >
             </div>
             <p class="text-medium-emphasis">新一代开源编程社区</p>
             <div class="mt-3">
@@ -433,8 +462,13 @@
 
         <v-divider class="mt-6"></v-divider>
 
-        <div class="px-4 py-2 text-caption text-center w-100 d-flex align-center justify-space-between flex-wrap">
-          <span>&copy; {{ new Date().getFullYear() }} ZeroCat. Sunwuyuan & 厚浪开发组</span>
+        <div
+          class="px-4 py-2 text-caption text-center w-100 d-flex align-center justify-space-between flex-wrap"
+        >
+          <span
+            >&copy; {{ new Date().getFullYear() }} ZeroCat. Sunwuyuan &
+            厚浪开发组</span
+          >
           <div>
             <v-chip
               v-for="(partner, index) in partners"
@@ -454,13 +488,13 @@
   </div>
 </template>
 
-<script setup>
-import {ref, onMounted} from "vue";
-import {useHead} from "@unhead/vue";
+<script>
 import axios from "@/axios/axios";
 import Typewriter from "@/components/Typewriter.vue";
 import PageAnalytics from "@/components/analytics/PageAnalytics.vue";
-// 设置页面元数据
+
+import { ref, onMounted } from "vue";
+import { useHead } from "@unhead/vue";
 useHead({
   title: "ZeroCat - 新一代开源编程社区",
   meta: [
@@ -471,241 +505,254 @@ useHead({
     },
   ],
 });
+export default {
+  name: "IndexPage",
 
-// 特性数据
-const features = [
-  {
-    icon: "mdi-code-tags",
-    color: "primary",
-    title: "开源代码",
-    text: "100%开源，允许自由使用和贡献",
+  components: {
+    Typewriter,
+    PageAnalytics,
   },
-  {
-    icon: "mdi-account-group",
-    color: "secondary",
-    title: "活跃社区",
-    text: "拥有大量用户和作品展示",
-  },
-  {
-    icon: "mdi-school",
-    color: "info",
-    title: "学习资源",
-    text: "提供丰富的学习资源和教程",
-  },
-  {
-    icon: "mdi-cloud",
-    color: "success",
-    title: "云端服务",
-    text: "由雨云提供可靠的云端服务",
-  },
-  {
-    icon: "mdi-view-dashboard",
-    color: "warning",
-    title: "直观界面",
-    text: "现代化界面设计，操作简单直观",
-  },
-  {
-    icon: "mdi-security",
-    color: "error",
-    title: "安全可靠",
-    text: "确保用户数据和作品安全",
-  },
-];
 
-// 统计数据
-const stats = ref([
-  {
-    title: "1+",
-    subtitle: "开发者",
-  },
-]);
+  data() {
+    return {
+      randomLink: { name: "随机链接", link: "#" },
+      features: [
+        {
+          icon: "mdi-code-tags",
+          color: "primary",
+          title: "开源代码",
+          text: "100%开源，允许自由使用和贡献",
+        },
+        {
+          icon: "mdi-account-group",
+          color: "secondary",
+          title: "活跃社区",
+          text: "拥有大量用户和作品展示",
+        },
+        {
+          icon: "mdi-school",
+          color: "info",
+          title: "学习资源",
+          text: "提供丰富的学习资源和教程",
+        },
+        {
+          icon: "mdi-cloud",
+          color: "success",
+          title: "云端服务",
+          text: "由雨云提供可靠的云端服务",
+        },
+        {
+          icon: "mdi-view-dashboard",
+          color: "warning",
+          title: "直观界面",
+          text: "现代化界面设计，操作简单直观",
+        },
+        {
+          icon: "mdi-security",
+          color: "error",
+          title: "安全可靠",
+          text: "确保用户数据和作品安全",
+        },
+      ],
+      stats: [
+        {
+          title: "1+",
+          subtitle: "开发者",
+        },
+      ],
+      teamMembers: [
+        {
+          title: "孙悟元",
+          subtitle: "全栈",
+          avatar: "https://langs.ink/sunwuyuan-logo.webp",
+          link: "https://wuyuan.dev",
+        },
+        {
+          title: "Jacopo",
+          subtitle: "站长",
+          avatar: "https://langs.ink/jacopo-logo.webp",
+          link: "https://github.com/houlangs",
+        },
+        {
+          title: "Guaning",
+          subtitle: "后端",
+          avatar: "https://langs.ink/guaning-logo.webp",
+          link: "https://github.com/iguaning",
+        },
+        {
+          title: "时迁酱",
+          subtitle: "前端",
+          avatar: "https://langs.ink/shiqian-logo.webp",
+          link: "https://github.com/timeshiftsauce",
+        },
+        {
+          title: "Chris Z",
+          subtitle: "AI",
+          avatar: "https://langs.ink/chris-logo.webp",
+          link: "#",
+        },
+        {
+          title: "WaterMAN",
+          subtitle: "如你所见，水",
+          avatar: "#",
+          link: "#",
+        },
+      ],
+      testimonials: [
+        {
+          quote:
+            "各位scratcher们，是不是嫌自己的社区太少了？ 那就来zerocat吧！",
+          name: "吾家九尾",
+          title: "Scratcher",
+        },
+      ],
+      faqs: [
+        {
+          question: "ZeroCat是什么？",
+          answer:
+            "ZeroCat是一个开源的编程社区平台，专为青少年设计，提供作品展示、社区交流和学习资源等功能。",
+        },
+        {
+          question: "如何开始使用ZeroCat？",
+          answer:
+            '点击页面上的"立即开始"按钮，注册一个账号，然后就可以开始浏览或上传您的作品了。',
+        },
+        {
+          question: "ZeroCat是否完全免费？",
+          answer:
+            "是的，ZeroCat是一个完全免费的开源平台，所有功能都可以免费使用。",
+        },
+        {
+          question: "我可以如何贡献代码？",
+          answer:
+            "ZeroCat是开源项目，您可以在GitHub上fork我们的代码库，提交PR来贡献代码或提出改进建议。",
+        },
+        {
+          question: "如何联系ZeroCat团队？",
+          answer:
+            "您可以通过GitHub平台或访问我们的开发者个人网站联系团队成员。",
+        },
+      ],
+      techStack: [
+        { name: "Express", icon: "mdi-server" },
+        { name: "Prisma", icon: "mdi-database" },
+        { name: "Vue.js", icon: "mdi-vuejs" },
+        { name: "JavaScript", icon: "mdi-language-javascript" },
+        { name: "Node.js", icon: "mdi-nodejs" },
+        { name: "Git", icon: "mdi-git" },
+        { name: "Docker", icon: "mdi-docker" },
+        { name: "Vuetify", icon: "mdi-vuetify" },
+        { name: "REST API", icon: "mdi-api" },
+        { name: "Scratch", icon: "mdi-cat" },
+      ],
+      footerLinks: [
+        {
+          title: "产品",
+          links: [
+            { text: "ZeroCat社区", to: "/app/explore" },
+            { text: "Classworks", href: "https://cs.houlangs.com" },
+          ],
+        },
+        {
+          title: "资源",
+          links: [
+            { text: "开发文档", href: "https://docs.wuyuan.dev" },
+            { text: "技术栈", href: "#tech-stack" },
+            { text: "常见问题", href: "#faq" },
+          ],
+        },
+        {
+          title: "关于",
+          links: [
+            { text: "团队", href: "https://langs.ink/article/houlangs/" },
+            { text: "联系我们", href: "mailto:sun@wuyuan.dev" },
+            {
+              text: "加入我们",
+              href: "https://hlyun.org/article/houlangs/join.html",
+            },
+            { text: "开源", href: "https://github.com/zerocatdev" },
+          ],
+        },
+        {
+          title: "社群",
+          links: [
+            { text: "Telegram", href: "https://t.me/zerocatdev" },
+            { text: "QQ", href: "https://qm.qq.com/q/W4YRztB94q" },
+            { text: "Discord", href: "https://discord.gg/YmW2JWnbdy" },
+          ],
+        },
+        {
+          title: "友情链接",
+          links: [
+            { text: "小盒子社区", href: "https://sbox.yearnstudio.cn" },
+            { text: "ShangCloud", href: "https://api.yearnstudio.cn/" },
+            { text: "40code", href: "https://www.40code.com/" },
+          ],
+        },
+      ],
+      socialLinks: [
+        { icon: "mdi-github", link: "https://github.com/zerocatdev" },
+        { icon: "mdi-twitter", link: "https://x.com/wuyuandev" },
+        { icon: "mdi-airplane", link: "https://t.me/zerocatdev" },
 
-// 团队成员
-const teamMembers = [
-  {
-    title: "孙悟元",
-    subtitle: "全栈",
-    avatar: "https://langs.ink/sunwuyuan-logo.webp",
-    link: "https://wuyuan.dev",
+        { icon: "mdi-youtube", link: "https://www.youtube.com/@sunwuyuan" },
+        { icon: "mdi-discord", link: "https://discord.gg/YmW2JWnbdy" },
+      ],
+      partners: [
+        { name: "雨云", link: "https://www.rainyun.com/wuyuan_?s=zerocat" },
+        { name: "GitHub", link: "https://github.com/zerocatdev" },
+      ],
+    };
   },
-  {
-    title: "Jacopo",
-    subtitle: "站长",
-    avatar: "https://langs.ink/jacopo-logo.webp",
-    link: "https://github.com/houlangs",
-  },
-  {
-    title: "Guaning",
-    subtitle: "后端",
-    avatar: "https://langs.ink/guaning-logo.webp",
-    link: "https://github.com/iguaning",
-  },
-  {
-    title: "时迁酱",
-    subtitle: "前端",
-    avatar: "https://langs.ink/shiqian-logo.webp",
-    link: "https://github.com/timeshiftsauce",
-  },
-  {
-    title: "Chris Z",
-    subtitle: "AI",
-    avatar: "https://langs.ink/chris-logo.webp",
-    link: "#",
-  },
-  {
-    title: "WaterMAN",
-    subtitle: "如你所见，水",
-    avatar: "#",
-    link: "#",
-  },
-];
 
-// 用户评价数据
-const testimonials = [
-  {
-    quote: "各位scratcher们，是不是嫌自己的社区太少了？ 那就来zerocat吧！",
-    name: "吾家九尾",
-    title: "Scratcher",
-  },
-];
+  methods: {
+    async getInfo() {
+      try {
+        const response = await axios.get("/api/info");
+        const data = response.data;
 
-// 常见问题数据
-const faqs = [
-  {
-    question: "ZeroCat是什么？",
-    answer:
-      "ZeroCat是一个开源的编程社区平台，专为青少年设计，提供作品展示、社区交流和学习资源等功能。",
+        this.stats = [
+          {
+            title: data.user || "0+",
+            subtitle: "用户",
+          },
+          {
+            title: data.project || "0+",
+            subtitle: "作品",
+          },
+          {
+            title: "1+",
+            subtitle: "开发者",
+          },
+          {
+            title: "100%",
+            subtitle: "开源",
+          },
+        ];
+      } catch (error) {
+        console.error("获取统计信息失败", error);
+      }
+    },
   },
-  {
-    question: "如何开始使用ZeroCat？",
-    answer:
-      '点击页面上的"立即开始"按钮，注册一个账号，然后就可以开始浏览或上传您的作品了。',
-  },
-  {
-    question: "ZeroCat是否完全免费？",
-    answer: "是的，ZeroCat是一个完全免费的开源平台，所有功能都可以免费使用。",
-  },
-  {
-    question: "我可以如何贡献代码？",
-    answer:
-      "ZeroCat是开源项目，您可以在GitHub上fork我们的代码库，提交PR来贡献代码或提出改进建议。",
-  },
-  {
-    question: "如何联系ZeroCat团队？",
-    answer: "您可以通过GitHub平台或访问我们的开发者个人网站联系团队成员。",
-  },
-];
 
-// 技术栈数据
-const techStack = [
-  {name: "Express", icon: "mdi-server"},
-  {name: "Prisma", icon: "mdi-database"},
-  {name: "Vue.js", icon: "mdi-vuejs"},
-  {name: "JavaScript", icon: "mdi-language-javascript"},
-  {name: "Node.js", icon: "mdi-nodejs"},
-  {name: "Git", icon: "mdi-git"},
-  {name: "Docker", icon: "mdi-docker"},
-  {name: "Vuetify", icon: "mdi-vuetify"},
-  {name: "REST API", icon: "mdi-api"},
-  {name: "Scratch", icon: "mdi-cat"},
-];
-
-
-// 获取统计信息
-const getInfo = async () => {
-  try {
-    const response = await axios.get("/api/info");
-    const data = response.data;
-
-    stats.value = [
-      {
-        title: data.user || "0+",
-        subtitle: "用户",
-      },
-      {
-        title: data.project || "0+",
-        subtitle: "作品",
-      },
-      {
-        title: "1+",
-        subtitle: "开发者",
-      },
-      {
-        title: "100%",
-        subtitle: "开源",
-      },
-    ];
-  } catch (error) {
-    console.error("获取统计信息失败", error);
-  }
+  mounted() {
+    this.getInfo();
+    // 在友情链接中随机选择一个链接
+    this.randomLink =
+      this.footerLinks[4].links[
+        Math.floor(Math.random() * this.footerLinks[4].links.length)
+      ];
+  },
 };
-
-// 页脚链接数据
-const footerLinks = [
-  {
-    title: "产品",
-    links: [
-      {text: "ZeroCat社区", to: "/app/explore"},
-      {text: "Classworks", href: "https://cs.houlangs.com"},
-    ],
-  },
-  {
-    title: "资源",
-    links: [
-      {text: "开发文档", href: "https://docs.wuyuan.dev"},
-      {text: "技术栈", href: "#tech-stack"},
-      {text: "常见问题", href: "#faq"},
-    ],
-  },
-  {
-    title: "关于",
-    links: [
-      {text: "团队", href: "https://langs.ink/article/houlangs/"},
-      {text: "联系我们", href: "mailto:sun@wuyuan.dev"},
-      {text: "加入我们", href: "https://hlyun.org/article/houlangs/join.html"},
-      {text: "开源", href: "https://github.com/zerocatdev"},
-    ],
-  },
-  {
-    title: "社群",
-    links: [
-      {text: "Telegram", href: "https://t.me/zerocatdev"},
-      {text: "QQ", href: "https://qm.qq.com/q/W4YRztB94q"},
-      {text: "Discord", href: "https://discord.gg/YmW2JWnbdy"},
-    ],
-  },
-  {
-    title: "友情链接",
-    links: [
-      {text: "LINUX DO", href: "https://linux.do"},
-    ],
-  },
-];
-
-// 社交媒体链接
-const socialLinks = [
-  {icon: "mdi-github", link: "https://github.com/zerocatdev"},
-  {icon: "mdi-twitter", link: "https://x.com/wuyuandev"},
-  {icon: "mdi-airplane", link: "https://t.me/zerocatdev"},
-
-  {icon: "mdi-youtube", link: "https://www.youtube.com/@sunwuyuan"},
-  {icon: "mdi-discord", link: "https://discord.gg/YmW2JWnbdy"},
-];
-
-// 合作伙伴
-const partners = [
-  {name: "雨云", link: "https://www.rainyun.com/wuyuan_?s=zerocat"},
-  {name: "GitHub", link: "https://github.com/zerocatdev"},
-];
-
-onMounted(() => {
-  getInfo();
-});
 </script>
 
 <style scoped>
 .card-glass {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.15),
+    rgba(255, 255, 255, 0.05)
+  );
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
@@ -728,13 +775,13 @@ onMounted(() => {
   position: relative;
   overflow: hidden;
   background: radial-gradient(
-    circle at 50% 50%,
-    rgba(var(--v-theme-primary), 0.08) 0%,
-    rgba(var(--v-theme-primary), 0) 70%
-  ),
-  linear-gradient(180deg, rgba(var(--v-theme-primary), 0.02), transparent);
+      circle at 50% 50%,
+      rgba(var(--v-theme-primary), 0.08) 0%,
+      rgba(var(--v-theme-primary), 0) 70%
+    ),
+    linear-gradient(180deg, rgba(var(--v-theme-primary), 0.02), transparent);
   box-shadow: inset 0 0 60px rgba(var(--v-theme-primary), 0.15),
-  inset 0 0 120px rgba(var(--v-theme-secondary), 0.1);
+    inset 0 0 120px rgba(var(--v-theme-secondary), 0.1);
 }
 
 .hero-section::before {
@@ -745,6 +792,7 @@ onMounted(() => {
   width: 400px;
   height: 400px;
   border-radius: 50%;
+  pointer-events: none;
   background: radial-gradient(
     circle,
     rgba(var(--v-theme-primary), 0.1) 0%,
@@ -761,6 +809,7 @@ onMounted(() => {
   width: 300px;
   height: 300px;
   border-radius: 50%;
+  pointer-events: none;
   background: radial-gradient(
     circle,
     rgba(var(--v-theme-secondary), 0.08) 0%,
@@ -791,7 +840,11 @@ onMounted(() => {
 .features-section {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(180deg, rgba(var(--v-theme-primary), 0.02), transparent);
+  background: linear-gradient(
+    180deg,
+    rgba(var(--v-theme-primary), 0.02),
+    transparent
+  );
 }
 
 .features-section::before {
@@ -834,7 +887,11 @@ onMounted(() => {
 .cta-section {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, rgb(var(--v-theme-primary)), rgba(var(--v-theme-secondary), 0.8));
+  background: linear-gradient(
+    135deg,
+    rgb(var(--v-theme-primary)),
+    rgba(var(--v-theme-secondary), 0.8)
+  );
 }
 
 .cta-section::before {
@@ -955,18 +1012,13 @@ onMounted(() => {
 
 .text-glow {
   text-shadow: 0 0 6px rgba(var(--v-theme-primary), 0.1),
-  0 0 12px rgba(var(--v-theme-primary), 0.1),
-  0 0 24px rgba(var(--v-theme-primary), 0.1);
+    0 0 12px rgba(var(--v-theme-primary), 0.1),
+    0 0 24px rgba(var(--v-theme-primary), 0.1);
 }
 
 .text-gradient {
-  background: linear-gradient(
-    90deg,
-    rgb(var(--v-theme-primary)),
-    rgb(0, 0, 0)
-  );
+  background: linear-gradient(90deg, rgb(var(--v-theme-primary)), rgb(0, 0, 0));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
 </style>

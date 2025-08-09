@@ -206,7 +206,9 @@ import axios from '@/axios/axios';
 import {localuser} from '@/services/localAccount';
 import VerifyEmail from '@/components/verifyEmail.vue';
 import oauthProviders from '@/constants/oauth_providers.json';
+import { useSudoManager } from '@/composables/useSudoManager';
 
+const sudoManager = useSudoManager();
 const oauthAccounts = ref([]);
 const message = ref('');
 const messageType = ref('info');
@@ -308,8 +310,18 @@ const unlinkOAuth = async () => {
 
   unlinking.value = true;
   try {
+    const sudoToken = await sudoManager.requireSudo({
+      title: '解绑 OAuth 账号',
+      subtitle: `您正在尝试解绑 ${getProviderName(selectedAccount.value.contact_type)} 账号。此操作需要验证您的身份。`,
+      persistent: true
+    });
+
     const response = await axios.post('/account/unlink-oauth', {
       provider: selectedAccount.value.contact_type
+    }, {
+      headers: {
+        'X-Sudo-Token': sudoToken
+      }
     });
 
     if (response.data.status === 'success') {
@@ -322,8 +334,10 @@ const unlinkOAuth = async () => {
       messageType.value = 'error';
     }
   } catch (error) {
-    message.value = error.response?.data?.message || '解绑 OAuth 账号失败';
-    messageType.value = 'error';
+    if (error.type !== 'cancel') {
+      message.value = error.response?.data?.message || '解绑 OAuth 账号失败';
+      messageType.value = 'error';
+    }
   } finally {
     unlinking.value = false;
     selectedAccount.value = null;

@@ -162,7 +162,7 @@
               </v-list>
             </v-tabs-window-item>
 
-            <v-tabs-window-item value="three"> Three </v-tabs-window-item>
+
           </v-tabs-window>
         </v-card>
       </v-menu>
@@ -241,7 +241,7 @@
       ></v-list-item>
 
       <v-list-item
-        v-if="localuser.isLogin"
+        v-if="localuser.isLogin.value"
         prepend-icon="mdi-view-dashboard"
         rounded="xl"
         title="仪表盘"
@@ -427,10 +427,12 @@
 import { localuser } from "@/services/localAccount";
 import { useTheme } from "vuetify";
 import { ref, onMounted, watch, nextTick } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import NotificationsCard from "@/components/NotificationsCard.vue";
 import SearchDialog from "@/components/SearchDialog.vue";
 import LoginDialog from "@/components/account/LoginDialog.vue";
 import { get } from "@/services/serverConfig";
+import { requiresAuth, getMatchedRoute } from "@/services/authRoutes";
 
 export default {
   components: {
@@ -444,8 +446,52 @@ export default {
     this.proxyEnabled = get("scratchproxy.enabled");
   },
   setup() {
+    const route = useRoute();
+    const router = useRouter();
     const notificationsCard = ref(null);
     const unreadCount = ref(0);
+
+    // 认证检查函数
+    const checkAuth = (currentPath) => {
+      if (requiresAuth(currentPath) && !localuser.isLogin.value) {
+        const matchedRoute = getMatchedRoute(currentPath);
+        console.log(`路由 ${currentPath} 需要登录认证，匹配规则:`, matchedRoute?.description);
+
+        // 跳转到登录页面，并保存当前路径用于登录后返回
+        const loginPath = '/app/account/login';
+        const returnUrl = encodeURIComponent(currentPath);
+        router.push(`${loginPath}?redirect=${returnUrl}`);
+        return false;
+      }
+      return true;
+    };
+
+    // 监听路由变化
+    watch(
+      () => route.path,
+      (newPath) => {
+        checkAuth(newPath);
+      },
+      { immediate: true }
+    );
+
+    // 监听登录状态变化
+    watch(
+      () => localuser.isLogin.value,
+      (isLogin) => {
+        if (isLogin) {
+          // 用户刚登录，检查URL中是否有redirect参数
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirectPath = urlParams.get('redirect');
+          if (redirectPath) {
+            router.push(decodeURIComponent(redirectPath));
+          }
+        } else {
+          // 用户登出，检查当前页面是否需要认证
+          checkAuth(route.path);
+        }
+      }
+    );
 
     // 更新未读通知计数
     const updateUnreadCount = (count) => {
@@ -453,8 +499,11 @@ export default {
     };
 
     onMounted(async () => {
+      // 初始认证检查
+      checkAuth(route.path);
+
       // 如果用户已登录，等待组件实例化后检查未读通知
-      if (localuser.isLogin) {
+      if (localuser.isLogin.value) {
         await nextTick();
         if (notificationsCard.value) {
           notificationsCard.value.checkUnreadNotifications();
@@ -468,6 +517,7 @@ export default {
       updateUnreadCount,
       localuser,
       s3BucketUrl: "",
+      checkAuth,
     };
   },
   data() {
