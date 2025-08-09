@@ -53,22 +53,22 @@
               </template>
 
               <template v-slot:default="{ isActive }">
-                <v-card title="您正在使用由厚浪(及孙悟元)提供的服务">
+                <v-card title="您正在使用由ZeroCat零猫社区提供的服务">
                   <v-card-text>
                     <div class="mb-4">
                       我们可能会收集您的个人信息,具体参见
                       <v-tooltip location="bottom">
                         <template v-slot:activator="{ props }">
                           <a
-                            href="https://wuyuan.dev/privacy-policy/privacy-policy.html"
+                            href="/app/legal/privacy"
                             target="_blank"
                             v-bind="props"
                             @click.stop
                           >
-                            隐私策略
+                          ZeroCat零猫社区隐私策略
                           </a>
                         </template>
-                        孙悟元网站与服务隐私策略
+                        ZeroCat零猫社区隐私策略
                       </v-tooltip>
                     </div>
 
@@ -118,15 +118,15 @@
                       <v-tooltip location="bottom">
                         <template v-slot:activator="{ props }">
                           <a
-                            href="https://wuyuan.dev/privacy-policy/terms-of-service.html"
+                            href="/app/legal/terms"
                             target="_blank"
                             v-bind="props"
                             @click.stop
                           >
-                            用户协议
+                          ZeroCat零猫社区用户协议
                           </a>
                         </template>
-                        孙悟元网站与服务用户协议
+                        ZeroCat零猫社区用户协议
                       </v-tooltip>
                     </div>
 
