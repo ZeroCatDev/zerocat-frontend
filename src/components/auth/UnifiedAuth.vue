@@ -34,6 +34,22 @@
           >
             邮箱认证
           </v-chip>
+          <v-chip
+            v-if="availableMethods.includes('totp')"
+            value="totp"
+            prepend-icon="mdi-shield-key"
+            variant="outlined"
+          >
+            TOTP
+          </v-chip>
+          <v-chip
+            v-if="availableMethods.includes('passkey') && isPasskeySupported"
+            value="passkey"
+            prepend-icon="mdi-fingerprint"
+            variant="outlined"
+          >
+            Passkey
+          </v-chip>
         </v-chip-group>
 
         <!-- 密码认证表单 -->
@@ -226,6 +242,28 @@
           </div>
         </div>
 
+        <!-- TOTP 认证表单 -->
+        <div v-if="selectedMethod === 'totp'">
+          <v-alert type="info" variant="tonal" class="mb-3" text="请输入您认证器中的6位一次性验证码"></v-alert>
+          <div class="d-flex justify-center mb-3">
+            <v-otp-input
+              v-model="totpForm.code"
+              :length="6"
+              :disabled="loading"
+              type="number"
+
+            />
+          </div>
+        </div>
+
+        <!-- Passkey 认证按钮 -->
+        <div v-if="selectedMethod === 'passkey'">
+          <v-alert type="info" variant="tonal" class="mb-3" text="使用设备内的Passkey进行快速验证"></v-alert>
+          <v-btn color="primary" :loading="loading" :disabled="!isPasskeySupported" @click="handlePasskey">
+            使用 Passkey 验证
+          </v-btn>
+        </div>
+
         <!-- 错误信息显示 -->
         <v-alert
           v-if="errorMessage"
@@ -239,11 +277,12 @@
         <div class="d-flex justify-end gap-2">
           <v-btn
             v-if="showCancel"
-            @click="$emit('cancel')"
-            variant="outlined"
+            @click="handleCancel"
+            variant="tonal"
             :disabled="loading"
+            :append-icon="forceMode ? 'mdi-refresh' : 'mdi-close'"
           >
-            取消
+          取消
           </v-btn>
 
           <v-btn
@@ -293,6 +332,10 @@ export default {
       type: Boolean,
       default: true
     },
+    forceMode: {
+      type: Boolean,
+      default: false
+    },
     maxWidth: {
       type: [String, Number],
       default: 400
@@ -312,6 +355,7 @@ export default {
       errorMessage: '',
       availableMethods: ['password'],
       selectedMethod: 'password',
+      isPasskeySupported: !!(window.PublicKeyCredential),
       resendCountdown: 0,
       resendTimer: null,
       emailsLoading: false,
@@ -326,6 +370,9 @@ export default {
         code: '',
         codeId: null,
         codeSent: false
+      },
+      totpForm: {
+        code: ''
       },
       localuser,
       UserInfo: localuser.user.value,
@@ -376,6 +423,10 @@ export default {
         return this.emailForm.email && this.emailForm.code && this.emailForm.codeSent;
       }
 
+      if (this.selectedMethod === 'totp') {
+        return !!this.totpForm.code;
+      }
+
       return false;
     },
 
@@ -386,6 +437,7 @@ export default {
       this.errorMessage = '';
       this.passwordForm = { identifier: '', password: '' };
       this.emailForm = { email: '', code: '', codeId: null, codeSent: false };
+      this.totpForm = { code: '' };
       this.showManualInput = false;
 
       if (this.resendTimer) {
@@ -421,9 +473,11 @@ export default {
     async loadAuthMethods() {
       const result = await this.sudoStore.getAuthMethods();
       if (result.success) {
-        this.availableMethods = result.methods;
-        if (result.methods.length > 0) {
-          this.selectedMethod = result.methods[0];
+        const methods = Array.isArray(result.methods) ? [...result.methods] : ['password'];
+        if (this.isPasskeySupported && !methods.includes('passkey')) methods.push('passkey');
+        this.availableMethods = methods;
+        if (methods.length > 0) {
+          this.selectedMethod = methods[0];
         }
       }
     },
@@ -529,6 +583,12 @@ export default {
             this.emailForm.codeId,
             this.emailForm.code
           );
+        } else if (this.selectedMethod === 'totp') {
+          result = await this.sudoStore.authenticateWithTotp(
+            this.totpForm.code
+          );
+        } else if (this.selectedMethod === 'passkey') {
+          result = await this.sudoStore.authenticateWithPasskey();
         }
 
         if (result.success) {
@@ -540,6 +600,31 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+
+    async handlePasskey() {
+      if (!this.isPasskeySupported) return;
+      this.loading = true;
+      this.errorMessage = '';
+      try {
+        const result = await this.sudoStore.authenticateWithPasskey();
+        if (result.success) {
+          this.$emit('success', result.data);
+        } else {
+          this.errorMessage = result.message;
+          this.$emit('error', result.message);
+        }
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    handleCancel() {
+      if (this.forceMode) {
+        window.location.reload();
+        return;
+      }
+      this.$emit('cancel');
     },
 
     cleanup() {

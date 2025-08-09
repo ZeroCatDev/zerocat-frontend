@@ -1,5 +1,5 @@
 <template>
-  <v-dialog 
+  <v-dialog
     v-model="dialogVisible"
     :persistent="persistent"
     :max-width="maxWidth"
@@ -12,6 +12,7 @@
       :identifier-label="identifierLabel"
       :submit-text="submitText"
       :show-cancel="showCancel"
+      :force-mode="persistent"
       :user-id="userId"
       @success="handleSuccess"
       @cancel="handleCancel"
@@ -81,7 +82,7 @@ const dialogVisible = computed({
 const handleSuccess = (data) => {
   dialogVisible.value = false;
   emit('success', data);
-  
+
   // 清理认证组件
   nextTick(() => {
     authComponent.value?.cleanup?.();
@@ -92,7 +93,7 @@ const handleCancel = () => {
   if (!props.persistent) {
     dialogVisible.value = false;
     emit('cancel');
-    
+
     // 清理认证组件
     nextTick(() => {
       authComponent.value?.cleanup?.();

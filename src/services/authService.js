@@ -1,5 +1,6 @@
 import axios from '@/axios/axios';
 import {localuser} from './localAccount';
+import TwoFAService from './twofaService';
 
 export const AuthService = {
   // User registration

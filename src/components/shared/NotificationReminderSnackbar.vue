@@ -7,56 +7,44 @@
     class="notification-reminder-snackbar"
   >
     <div class="d-flex align-center">
-      <v-icon class="me-3" size="24">
-        mdi-bell-outline
-      </v-icon>
+      <v-icon class="me-3" size="24"> mdi-bell-outline </v-icon>
       <div class="flex-grow-1">
-        <div class="text-subtitle-2 font-weight-medium">
-          开启通知提醒
-        </div>
-        <div class="text-caption opacity-80">
-          及时获取重要消息和项目更新
-        </div>
+        <div class="text-subtitle-2 font-weight-medium">开启通知提醒</div>
+        <div class="text-caption opacity-80">及时获取重要消息和项目更新</div>
       </div>
     </div>
 
     <template v-slot:actions>
-      <v-btn
-        variant="text"
-        size="small"
-        @click="handleEnable"
-        class="text-white"
-      >
+      <v-btn variant="text" @click="handleEnable" class="text-white">
         开启
       </v-btn>
       <v-btn
         variant="text"
-        size="small"
         @click="handleDismiss"
         class="text-white opacity-80"
+        icon="mdi-close"
       >
-        暂不开启
       </v-btn>
     </template>
   </v-snackbar>
 </template>
 
 <script>
-import { ref, onMounted, watch } from 'vue';
-import { localuser } from '@/services/localAccount';
-import { useNotifications, showSnackbar } from '@/composables/useNotifications';
+import { ref, onMounted, watch } from "vue";
+import { localuser } from "@/services/localAccount";
+import { useNotifications, showSnackbar } from "@/composables/useNotifications";
 
 export default {
-  name: 'NotificationReminderSnackbar',
+  name: "NotificationReminderSnackbar",
 
   setup() {
     const show = ref(false);
-    const STORAGE_KEY = 'notificationReminderDismissed';
+    const STORAGE_KEY = "notificationReminderDismissed";
     const DISMISS_THRESHOLD = 3; // 拒绝3次后停止提醒
 
     // 使用统一的通知管理
     const notifications = useNotifications();
-console.error(notifications.pushStatus)
+    console.error(notifications.pushStatus);
     // 获取拒绝数据
     const getDismissData = () => {
       try {
@@ -65,13 +53,13 @@ console.error(notifications.pushStatus)
           return JSON.parse(stored);
         }
       } catch (error) {
-        console.error('Error reading dismiss data:', error);
+        console.error("Error reading dismiss data:", error);
       }
 
       return {
         count: 0,
         lastShown: null,
-        lastDismissed: null
+        lastDismissed: null,
       };
     };
 
@@ -80,7 +68,7 @@ console.error(notifications.pushStatus)
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       } catch (error) {
-        console.error('Error saving dismiss data:', error);
+        console.error("Error saving dismiss data:", error);
       }
     };
 
@@ -119,7 +107,7 @@ console.error(notifications.pushStatus)
         // 清除拒绝记录
         localStorage.removeItem(STORAGE_KEY);
       } catch (error) {
-        console.error('Failed to enable notifications:', error);
+        console.error("Failed to enable notifications:", error);
       }
     };
 
@@ -131,13 +119,13 @@ console.error(notifications.pushStatus)
       const newData = {
         count: dismissData.count + 1,
         lastShown: new Date().toDateString(),
-        lastDismissed: new Date().toISOString()
+        lastDismissed: new Date().toISOString(),
       };
 
       saveDismissData(newData);
 
       if (newData.count >= DISMISS_THRESHOLD) {
-        showSnackbar('已停止通知提醒，您可以在设置中随时开启', 'info', 4000);
+        showSnackbar("已停止通知提醒，您可以在设置中随时开启", "info", 4000);
       }
     };
 
@@ -152,7 +140,7 @@ console.error(notifications.pushStatus)
           const dismissData = getDismissData();
           const newData = {
             ...dismissData,
-            lastShown: new Date().toDateString()
+            lastShown: new Date().toDateString(),
           };
           saveDismissData(newData);
         }, 2000);
@@ -160,22 +148,28 @@ console.error(notifications.pushStatus)
     };
 
     // 监听登录状态变化
-    watch(() => localuser.isLogin.value, (isLoggedIn) => {
-      if (isLoggedIn) {
-        notifications.loadPushStatus().then(() => {
-          showReminder();
-        });
-      } else {
-        show.value = false;
+    watch(
+      () => localuser.isLogin.value,
+      (isLoggedIn) => {
+        if (isLoggedIn) {
+          notifications.loadPushStatus().then(() => {
+            showReminder();
+          });
+        } else {
+          show.value = false;
+        }
       }
-    });
+    );
 
     // 监听推送状态变化
-    watch(() => notifications.pushStatus.subscribed, (subscribed) => {
-      if (subscribed) {
-        show.value = false;
+    watch(
+      () => notifications.pushStatus.subscribed,
+      (subscribed) => {
+        if (subscribed) {
+          show.value = false;
+        }
       }
-    });
+    );
 
     // 组件挂载时检查
     onMounted(async () => {
@@ -190,7 +184,7 @@ console.error(notifications.pushStatus)
       handleEnable,
       handleDismiss,
     };
-  }
+  },
 };
 </script>
 

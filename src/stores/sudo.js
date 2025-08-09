@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import SudoService from '@/services/sudoService';
+import PasskeyService from '@/services/passkeyService';
+import { transformAssertionOptions, publicKeyCredentialToJSON } from '@/services/webauthn';
 
 // localStorage 键名
 const STORAGE_KEYS = {
@@ -146,6 +148,23 @@ export const useSudoStore = defineStore('sudo', () => {
     }
   };
 
+  const authenticateWithTotp = async (code) => {
+    isLoading.value = true;
+    try {
+      const response = await SudoService.authenticateWithTotp(code, 'sudo');
+      if (response.status === 'success' && response.data.sudo_token) {
+        setSudoToken(response.data.sudo_token, response.data.expires_in);
+        return { success: true, data: response.data };
+      }
+      return { success: false, message: response.message || '认证失败' };
+    } catch (error) {
+      const message = error.response?.data?.message || error.message || '认证失败';
+      return { success: false, message };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
   const sendVerificationCode = async (email, userId = null) => {
     isLoading.value = true;
 
@@ -179,6 +198,32 @@ export const useSudoStore = defineStore('sudo', () => {
     }
   };
 
+  const authenticateWithPasskey = async () => {
+    isLoading.value = true;
+    try {
+      const begin = await PasskeyService.sudoBegin();
+      if (begin.status !== 'success') {
+        return { success: false, message: begin.message || '无法开始Passkey验证' };
+      }
+
+      const options = transformAssertionOptions(begin.data);
+      const cred = await navigator.credentials.get(options);
+      const assertion = publicKeyCredentialToJSON(cred);
+      const finish = await PasskeyService.sudoFinish(assertion);
+
+      if (finish.status === 'success' && finish.data?.sudo_token) {
+        setSudoToken(finish.data.sudo_token, finish.data.expires_in);
+        return { success: true, data: finish.data };
+      }
+      return { success: false, message: finish.message || 'Passkey 验证失败' };
+    } catch (error) {
+      const message = error.message || 'Passkey 验证被取消或失败';
+      return { success: false, message };
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
   return {
     // 状态
     isLoading: computed(() => isLoading.value),
@@ -194,7 +239,9 @@ export const useSudoStore = defineStore('sudo', () => {
     clearSudoToken,
     authenticateWithPassword,
     authenticateWithEmail,
+    authenticateWithTotp,
     sendVerificationCode,
-    getAuthMethods
+    getAuthMethods,
+    authenticateWithPasskey,
   };
 });

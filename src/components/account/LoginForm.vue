@@ -72,6 +72,7 @@
           variant="flat"
           @click="handleLoginAction"
         ></v-btn>
+
       </v-col>
 
       <v-col v-if="showLinks" cols="12">
@@ -99,310 +100,318 @@
         ></v-btn>
       </v-col>
       <v-col v-if="showOAuth" cols="12">
+        <v-btn
+          v-if="isPasskeySupported"
+          class="ml-3 text-none"
+          variant="tonal"
+          color="secondary"
+          prepend-icon="mdi-fingerprint"
+          :loading="passkeyLoading"
+          @click="loginWithPasskey"
+        >
+          使用 Passkey 一键登录
+        </v-btn>
         <OAuthButtons divider-text="或使用以下方式登录" mode="login"/>
       </v-col>
     </v-row>
   </v-form>
   <LoadingDialog :show="loading" text="登录中"/>
+  <TotpDialog
+    v-model="showTotpDialog"
+    title="二次验证"
+    subtitle="请在认证器中获取 6 位验证码"
+    :loading="totpLoading"
+    :error-message="totpError"
+    @confirm="handleTotpConfirm"
+  />
 </template>
 
 <script>
-import {ref, watch} from "vue";
-import {useRouter} from "vue-router";
-import {localuser} from "@/services/localAccount";
 import AuthService from "@/services/authService";
+import PasskeyService from "@/services/passkeyService";
+import TwoFAService from "@/services/twofaService";
+import { transformAssertionOptions, publicKeyCredentialToJSON } from "@/services/webauthn";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
 import OAuthButtons from "@/components/account/OAuthButtons.vue";
+import TotpDialog from "@/components/TotpDialog.vue";
 
 export default {
   name: "LoginForm",
-  components: {LoadingDialog, Recaptcha, OAuthButtons},
-  props: {
-    showLinks: {
-      type: Boolean,
-      default: true
-    },
-    showOAuth: {
-      type: Boolean,
-      default: true
-    },
-    redirectPath: {
-      type: String,
-      default: "/app/dashboard"
-    }
-  },
+  components: { LoadingDialog, Recaptcha, OAuthButtons, TotpDialog },
   emits: ["login-success", "login-error", "close"],
+  props: {
+    showLinks: { type: Boolean, default: true },
+    showOAuth: { type: Boolean, default: true },
+    redirectPath: { type: String, default: "/app/dashboard" },
+  },
+  data() {
+    return {
+      // capability
+      isPasskeySupported: !!(window.PublicKeyCredential),
 
-  setup(props, {emit}) {
-    const router = useRouter();
+      // form state
+      email: "",
+      password: "",
+      verificationCode: "",
+      loginType: "password",
 
-    // State variables
-    const email = ref("");
-    const password = ref("");
-    const verificationCode = ref("");
-    const loginType = ref("password");
-    const countdown = ref(0);
-    const loading = ref(false);
-    const showPassword = ref(false);
-    const recaptcha = ref(null);
-    const magicLinkSent = ref(false);
+      // ui state
+      countdown: 0,
+      loading: false,
+      passkeyLoading: false,
+      showPassword: false,
+      magicLinkSent: false,
 
-    // Validation rules
-    const rules = {
-      required: (value) => !!value || "此字段为必填项",
-      length: (value) => value?.length === 6 || "验证码必须是6位数字",
+      // 2FA state
+      twoFAChallenge: null,
+      showTotpDialog: false,
+      totpLoading: false,
+      totpError: '',
+
+      // validation
+      rules: {
+        required: (value) => !!value || "此字段为必填项",
+        length: (value) => value?.length === 6 || "验证码必须是6位数字",
+      },
+      emailRules: [
+        (value) => !!value || "必须填写邮箱",
+        (value) => /.+@.+\..+/.test(value) || "不符合格式",
+      ],
+      passwordRules: [
+        (value) => !!value || "必须填写密码",
+      ],
     };
+  },
+  methods: {
+    handleClose() {
+      this.$emit("close");
+    },
 
-    const emailRules = [
-      (value) => !!value || "必须填写邮箱",
-      (value) => /.+@.+\..+/.test(value) || "不符合格式",
-    ];
-
-    const passwordRules = [
-      (value) => !!value || "必须填写密码",
-    ];
-
-    // Methods
-    const handleClose = () => {
-      emit('close');
-    };
-
-    const getLoginButtonText = () => {
-      if (loginType.value === "password") return "登录";
-      if (loginType.value === "code") {
-        return verificationCode.value ? "登录" : "发送验证码";
-      }
-      if (loginType.value === "magiclink") {
-        return magicLinkSent.value ? "已发送，请检查邮箱" : "发送登录链接";
-      }
+    getLoginButtonText() {
+      if (this.loginType === "password") return "登录";
+      if (this.loginType === "code") return this.verificationCode ? "登录" : "发送验证码";
+      if (this.loginType === "magiclink") return this.magicLinkSent ? "已发送，请检查邮箱" : "发送登录链接";
       return "登录";
-    };
+    },
 
-    const handleLoginAction = async () => {
-      switch (loginType.value) {
+    async handleLoginAction() {
+      switch (this.loginType) {
         case "password":
-          await loginWithPassword();
+          await this.loginWithPassword();
           break;
         case "code":
-          if (verificationCode.value) {
-            await loginWithCode();
-          } else {
-            await sendVerificationCode();
-          }
+          if (this.verificationCode) await this.loginWithCode();
+          else await this.sendVerificationCode();
           break;
         case "magiclink":
-          await sendMagicLink();
+          await this.sendMagicLink();
           break;
       }
-    };
+    },
 
-    const loginWithPassword = async () => {
-      if (!email.value || !password.value) {
-        showErrorToast("请输入邮箱和密码");
+    async loginWithPassword() {
+      if (!this.email || !this.password) {
+        this.showErrorToast("请输入邮箱和密码");
         return;
       }
 
-      loading.value = true;
+      this.loading = true;
       try {
-        const captcha = recaptcha.value?.getResponse() || null;
-        const response = await AuthService.loginWithPassword(
-          email.value,
-          password.value,
-          captcha
-        );
-
-        handleLoginResponse(response);
+        const captcha = this.$refs.recaptcha?.getResponse() || null;
+        const response = await AuthService.loginWithPassword(this.email, this.password, captcha);
+        await this.handleLoginResponse(response);
       } catch (error) {
-        handleError(error);
+        this.handleError(error);
       } finally {
-        loading.value = false;
+        this.loading = false;
       }
-    };
+    },
 
-    const loginWithCode = async () => {
-      if (!email.value || !verificationCode.value) {
-        showErrorToast("请输入邮箱和验证码");
+    async loginWithCode() {
+      if (!this.email || !this.verificationCode) {
+        this.showErrorToast("请输入邮箱和验证码");
         return;
       }
 
-      loading.value = true;
+      this.loading = true;
       try {
-        const response = await AuthService.loginWithCode(
-          email.value,
-          verificationCode.value
-        );
-
-        handleLoginResponse(response);
+        const response = await AuthService.loginWithCode(this.email, this.verificationCode);
+        await this.handleLoginResponse(response);
       } catch (error) {
-        handleError(error);
+        this.handleError(error);
       } finally {
-        loading.value = false;
+        this.loading = false;
       }
-    };
+    },
 
-    const sendVerificationCode = async () => {
-      if (countdown.value > 0) return;
-
-      if (!email.value || !/.+@.+\..+/.test(email.value)) {
-        showErrorToast("请输入正确的邮箱地址");
+    async sendVerificationCode() {
+      if (this.countdown > 0) return;
+      if (!this.email || !/.+@.+\..+/.test(this.email)) {
+        this.showErrorToast("请输入正确的邮箱地址");
         return;
       }
 
-      loading.value = true;
+      this.loading = true;
       try {
-        const captcha = recaptcha.value?.getResponse() || null;
-        const response = await AuthService.sendLoginCode(email.value, captcha);
-
+        const captcha = this.$refs.recaptcha?.getResponse() || null;
+        const response = await AuthService.sendLoginCode(this.email, captcha);
         if (response.status === "success") {
-          showSuccessToast("验证码已发送");
-          startCountdown();
+          this.showSuccessToast("验证码已发送");
+          this.startCountdown();
         } else {
-          showErrorToast(response.message);
+          this.showErrorToast(response.message);
         }
       } catch (error) {
-        handleError(error);
+        this.handleError(error);
       } finally {
-        loading.value = false;
+        this.loading = false;
       }
-    };
+    },
 
-    const sendMagicLink = async () => {
-      if (magicLinkSent.value) return;
-
-      if (!email.value || !/.+@.+\..+/.test(email.value)) {
-        showErrorToast("请输入正确的邮箱地址");
+    async sendMagicLink() {
+      if (this.magicLinkSent) return;
+      if (!this.email || !/.+@.+\..+/.test(this.email)) {
+        this.showErrorToast("请输入正确的邮箱地址");
         return;
       }
 
-      loading.value = true;
+      this.loading = true;
       try {
-        const captcha = recaptcha.value?.getResponse() || null;
+        const captcha = this.$refs.recaptcha?.getResponse() || null;
         if (!captcha) {
-          showErrorToast("请完成人机验证");
-          loading.value = false;
+          this.showErrorToast("请完成人机验证");
+          this.loading = false;
           return;
         }
-
         const response = await AuthService.generateMagicLink(
-          email.value,
-          window.location.origin + '/app/account/magiclink/validate',
+          this.email,
+          window.location.origin + "/app/account/magiclink/validate",
           captcha
         );
-
         if (response.status === "success") {
-          showSuccessToast("登录链接已发送到您的邮箱");
-          magicLinkSent.value = true;
+          this.showSuccessToast("登录链接已发送到您的邮箱");
+          this.magicLinkSent = true;
         } else {
-          showErrorToast(response.message);
+          this.showErrorToast(response.message);
         }
       } catch (error) {
-        handleError(error);
+        this.handleError(error);
       } finally {
-        loading.value = false;
+        this.loading = false;
       }
-    };
+    },
 
-    const handleLoginResponse = (response) => {
+    async handleLoginResponse(response) {
       if (response.status === "success") {
-        showSuccessToast("登录成功，欢迎回来，" + response.display_name);
-        emit('login-success', response);
+        this.showSuccessToast("登录成功，欢迎回来，" + response.display_name);
+        this.$emit("login-success", response);
         setTimeout(() => {
-          router.push(props.redirectPath);
+          this.$router.push(this.redirectPath);
         }, 1000);
+      } else if (response.status === "need_2fa") {
+        this.twoFAChallenge = response.data;
+        this.promptTotpDialog();
       } else {
-        showErrorToast(response.message);
-        emit('login-error', response);
+        this.showErrorToast(response.message);
+        this.$emit("login-error", response);
       }
-    };
+    },
 
-    const handleError = (error) => {
-      const message = error.response?.data?.message || error.message;
-      showErrorToast(message);
-      emit('login-error', {message});
-    };
+    promptTotpDialog() {
+      this.totpError = '';
+      this.showTotpDialog = true;
+    },
 
-    const showSuccessToast = (message) => {
-      // Using PrimeVue toast
-      this?.$toast?.add({
-        severity: "success",
-        summary: "成功",
-        detail: message,
-        life: 3000,
-      });
-    };
-
-    const showErrorToast = (message) => {
-      // Using PrimeVue toast
-      this?.$toast?.add({
-        severity: "error",
-        summary: "错误",
-        detail: message,
-        life: 3000,
-      });
-    };
-
-    const startCountdown = () => {
-      countdown.value = 60;
-      const timer = setInterval(() => {
-        countdown.value--;
-        if (countdown.value <= 0) {
-          clearInterval(timer);
+    async handleTotpConfirm(token) {
+      if (!this.twoFAChallenge?.challenge_id) return;
+      this.totpLoading = true;
+      this.totpError = '';
+      try {
+        const totpRes = await TwoFAService.loginTotp(this.twoFAChallenge.challenge_id, token);
+        if (totpRes.status === 'success') {
+          this.showTotpDialog = false;
+          await this.handleLoginResponse(totpRes);
+        } else {
+          this.totpError = totpRes.message || '验证码无效，请重试';
         }
+      } catch (e) {
+        this.totpError = e?.response?.data?.message || e?.message || '验证失败';
+      } finally {
+        this.totpLoading = false;
+      }
+    },
+
+    async loginWithPasskey() {
+      if (!this.isPasskeySupported) return;
+      this.passkeyLoading = true;
+      try {
+        const begin = await PasskeyService.beginLogin();
+        if (begin.status !== "success") {
+          this.showErrorToast(begin.message || "Passkey 登录失败");
+          return;
+        }
+        const options = transformAssertionOptions(begin.data);
+        const cred = await navigator.credentials.get(options);
+        const assertion = publicKeyCredentialToJSON(cred);
+        const finish = await PasskeyService.finishLogin(assertion);
+        await this.handleLoginResponse(finish);
+      } catch (e) {
+        this.showErrorToast(e.message || "Passkey 登录被取消或失败");
+      } finally {
+        this.passkeyLoading = false;
+      }
+    },
+
+    handleError(error) {
+      const message = error?.response?.data?.message || error?.message || "发生错误";
+      this.showErrorToast(message);
+      this.$emit("login-error", { message });
+    },
+
+    showSuccessToast(message) {
+      if (this.$toast) {
+        this.$toast.add({ severity: "success", summary: "成功", detail: message, life: 3000 });
+      }
+    },
+
+    showErrorToast(message) {
+      if (this.$toast) {
+        this.$toast.add({ severity: "error", summary: "错误", detail: message, life: 3000 });
+      }
+    },
+
+    startCountdown() {
+      this.countdown = 60;
+      const timer = setInterval(() => {
+        this.countdown--;
+        if (this.countdown <= 0) clearInterval(timer);
       }, 1000);
-    };
+    },
 
     // ReCAPTCHA handlers
-    const handleBindVerified = (response) => {
-      if (loginType.value === "code" && !verificationCode.value) {
-        sendVerificationCode();
+    handleBindVerified() {
+      if (this.loginType === "code" && !this.verificationCode) {
+        this.sendVerificationCode();
       }
-    };
+    },
 
-    const handleBindError = () => {
-      showErrorToast("验证失败，请重试");
-    };
+    handleBindError() {
+      this.showErrorToast("验证失败，请重试");
+    },
 
-    const handleBindClose = () => {
-      // Handle close
-    };
-
-    // Reset verification code when login type changes
-    watch(loginType, (newValue) => {
-      verificationCode.value = "";
-      magicLinkSent.value = false;
-
-      setTimeout(() => {
-        if (recaptcha.value) {
-          recaptcha.value.resetCaptcha();
-        }
-      }, 100);
-    });
-
-    return {
-      email,
-      password,
-      verificationCode,
-      loginType,
-      countdown,
-      loading,
-      showPassword,
-      rules,
-      emailRules,
-      passwordRules,
-      recaptcha,
-      magicLinkSent,
-      getLoginButtonText,
-      handleLoginAction,
-      loginWithPassword,
-      loginWithCode,
-      sendVerificationCode,
-      sendMagicLink,
-      handleBindVerified,
-      handleBindError,
-      handleBindClose,
-      handleClose, // Add this to the returned object
-    };
+    handleBindClose() {
+      // no-op for now
+    },
+  },
+  watch: {
+    loginType() {
+      this.verificationCode = "";
+      this.magicLinkSent = false;
+      this.$nextTick(() => {
+        if (this.$refs.recaptcha) this.$refs.recaptcha.resetCaptcha();
+      });
+    },
   },
 };
 </script>

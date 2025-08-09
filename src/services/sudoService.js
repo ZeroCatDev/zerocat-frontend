@@ -17,6 +17,20 @@ export const SudoService = {
   },
 
   /**
+   * TOTP 认证
+   * @param {string} code - 6位TOTP验证码
+   * @param {string} purpose - 认证目的
+   * @returns {Promise<Object>}
+   */
+  authenticateWithTotp: async (code, purpose = 'sudo') => {
+    return await SudoService.authenticate({
+      method: 'totp',
+      purpose,
+      code
+    });
+  },
+
+  /**
    * 发送验证码
    * @param {string} email - 邮箱地址
    * @param {string} purpose - 认证目的
@@ -27,7 +41,7 @@ export const SudoService = {
     try {
       const data = { email, purpose };
       if (userId) data.userId = userId;
-      
+
       const response = await axios.post('/auth/send-code', data);
       return response.data;
     } catch (error) {
