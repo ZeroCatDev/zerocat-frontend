@@ -1,0 +1,1 @@
+import{_ as o}from"./EmailManager-DEvAfPaP.js";import{X as r,o as t}from"./index-BpIYSfoU.js";import"./VTable-eHpr1Xrn.js";import"https://static.geetest.com/v4/gt4.js";const n={__name:"index",setup(e){return(_,a)=>(t(),r(o))}};export{n as default};
