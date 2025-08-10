@@ -43,6 +43,14 @@
               验证
             </v-btn>
             <v-btn
+              v-if="!email.is_primary&& email.verified"
+              color="secondary"
+              size="small"
+              variant="text"
+              @click="startSetPrimaryEmail(email)">
+            设为主邮箱
+            </v-btn>
+            <v-btn
               v-if="!email.is_primary"
               color="error"
               size="small"
@@ -135,7 +143,7 @@
 <script setup>
 import {ref, onMounted} from 'vue'
 import VerifyEmail from '@/components/verifyEmail.vue'
-import {getEmails, sendVerificationCode, addEmail, removeEmail, verifyEmail} from '@/services/emailService'
+import {getEmails, sendVerificationCode,setPrimaryEmail, addEmail, removeEmail, verifyEmail} from '@/services/emailService'
 import { useSudoManager } from '@/composables/useSudoManager';
 
 const sudoManager = useSudoManager();
@@ -222,7 +230,29 @@ const confirmDelete = (email) => {
   emailToDelete.value = email
   showDeleteDialog.value = true
 }
+const startSetPrimaryEmail = async (email) => {
+  if (!email) return;
 
+  isLoading.value = true;
+  try {
+    const sudoToken = await sudoManager.requireSudo({
+      title: '设置主邮箱',
+      subtitle: `您正在尝试将邮箱 ${email.contact_value} 设置为主邮箱。此操作需要验证您的身份。`,
+      persistent: true
+    });
+
+    const response = await setPrimaryEmail(email.contact_value, sudoToken);
+    if (response.status === 'success') {
+      await fetchEmails();
+    }
+  } catch (error) {
+    if (error.type !== 'cancel') {
+      console.error('设置主邮箱失败:', error);
+    }
+  } finally {
+    isLoading.value = false;
+  }
+}
 const startDeleteEmail = async () => {
   if (!emailToDelete.value) return;
 

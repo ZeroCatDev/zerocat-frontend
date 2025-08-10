@@ -40,3 +40,13 @@ export const verifyEmail = async (email, token) => {
   })
   return response.data
 }
+export const setPrimaryEmail = async (email, sudoToken) => {
+  const headers = {};
+  if (sudoToken) {
+    headers['X-Sudo-Token'] = sudoToken;
+  }
+  const response = await axios.post('/account/set-primary-email', {
+    email
+  }, { headers });
+  return response.data
+}
