@@ -19,7 +19,7 @@ export default {
   setup() {
     const route = useRoute();
     const router = useRouter();
-    
+
     // Check if user is already logged in
     if (localuser.isLogin.value === true) {
       // If there's a redirect parameter, go there, otherwise go to dashboard
@@ -35,7 +35,7 @@ export default {
 
     const handleLoginSuccess = (response) => {
       console.log("Login success:", response);
-      
+
       // After successful login, redirect to the requested page or dashboard
       const redirectPath = route.query.redirect;
       const targetPath = redirectPath ? decodeURIComponent(redirectPath) : "/app/dashboard";

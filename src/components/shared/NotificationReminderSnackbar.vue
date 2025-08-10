@@ -147,14 +147,41 @@ export default {
       }
     };
 
+    // 检查并处理通知逻辑
+    const checkAndHandleNotifications = async () => {
+      if (!localuser.isLogin.value) {
+        show.value = false;
+        return;
+      }
+
+      await notifications.loadPushStatus();
+
+      // 如果浏览器不支持通知，则不执行任何操作
+      if (!notifications.pushStatus.supported) {
+        console.log("浏览器不支持推送通知。");
+        return;
+      }
+
+      // 如果已经授予权限，则自动尝试订阅（如果尚未订阅）
+      if (notifications.pushStatus.permission === 'granted') {
+        if (!notifications.pushStatus.subscribed) {
+          console.log("已授予权限，自动订阅通知...");
+          await notifications.togglePushNotification();
+        }
+        show.value = false; // 无论如何都不显示弹窗
+      }
+      // 如果权限是默认或被拒绝，则显示提醒弹窗
+      else {
+        showReminder();
+      }
+    };
+
     // 监听登录状态变化
     watch(
       () => localuser.isLogin.value,
       (isLoggedIn) => {
         if (isLoggedIn) {
-          notifications.loadPushStatus().then(() => {
-            showReminder();
-          });
+          checkAndHandleNotifications();
         } else {
           show.value = false;
         }
@@ -172,11 +199,8 @@ export default {
     );
 
     // 组件挂载时检查
-    onMounted(async () => {
-      if (localuser.isLogin.value) {
-        await notifications.loadPushStatus();
-        showReminder();
-      }
+    onMounted(() => {
+      checkAndHandleNotifications();
     });
 
     return {

@@ -306,9 +306,6 @@ export default {
       if (response.status === "success") {
         this.showSuccessToast("登录成功，欢迎回来，" + response.display_name);
         this.$emit("login-success", response);
-        setTimeout(() => {
-          this.$router.push(this.redirectPath);
-        }, 1000);
       } else if (response.status === "need_2fa") {
         this.twoFAChallenge = response.data;
         this.promptTotpDialog();
