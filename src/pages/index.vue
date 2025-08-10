@@ -659,6 +659,9 @@ export default {
             { text: "开发文档", href: "https://docs.wuyuan.dev" },
             { text: "技术栈", href: "#tech-stack" },
             { text: "常见问题", href: "#faq" },
+            { text: "社区准则", href: "/app/legal/community-guidelines" },
+            { text: "隐私政策", href: "/app/legal/privacy" },
+            { text: "服务条款", href: "/app/legal/terms" },
           ],
         },
         {

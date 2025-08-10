@@ -33,7 +33,7 @@
           </v-col>
 
           <v-col cols="12">
-            <Recaptcha ref="recaptcha" recaptchaId="recaptcha-div"/>
+            <Recaptcha ref="recaptcha" recaptchaId="recaptcha-div" />
           </v-col>
 
           <v-col cols="12">
@@ -55,8 +55,8 @@
               <template v-slot:default="{ isActive }">
                 <v-card title="您正在使用由ZeroCat零猫社区提供的服务">
                   <v-card-text>
-                    <div class="mb-4">
-                      我们可能会收集您的个人信息,具体参见
+                    <div class="mb-2">
+                      你需要同意
                       <v-tooltip location="bottom">
                         <template v-slot:activator="{ props }">
                           <a
@@ -65,20 +65,20 @@
                             v-bind="props"
                             @click.stop
                           >
-                          ZeroCat零猫社区隐私策略
+                            ZeroCat零猫社区隐私政策
                           </a>
                         </template>
-                        ZeroCat零猫社区隐私策略
+                        ZeroCat零猫社区隐私政策
                       </v-tooltip>
                     </div>
 
                     <v-checkbox v-model="agreement.privacy">
                       <template v-slot:label>
-                        <div>我已阅读并同意隐私策略</div>
+                        <div>我已阅读并同意隐私政策</div>
                       </template>
                     </v-checkbox>
 
-                    <div class="mb-4">
+                    <div class="mb-2">
                       我们将在中国大陆安全的存储您的数据，我们暂不提供自助删除您的个人数据，如果您希望删除您的数据，您需要优先选择联系我们
                     </div>
 
@@ -90,20 +90,20 @@
                       </template>
                     </v-checkbox>
 
-                    <div class="mb-4">
+                    <div class="mb-2">
                       在 ZeroCat 上，你需要遵守
                       <v-tooltip location="bottom">
                         <template v-slot:activator="{ props }">
                           <a
-                            href="https://scratch.mit.edu/community_guidelines"
+                            href="/legal/community-guidelines"
                             target="_blank"
                             v-bind="props"
                             @click.stop
                           >
-                            社区行为准则(第三方站点)
+                            社区行为准则
                           </a>
                         </template>
-                        你的当前地区可能无法访问此网站
+                        社区行为准则
                       </v-tooltip>
                     </div>
 
@@ -113,7 +113,7 @@
                       </template>
                     </v-checkbox>
 
-                    <div class="mb-4">
+                    <div class="mb-2">
                       你需要同意
                       <v-tooltip location="bottom">
                         <template v-slot:activator="{ props }">
@@ -123,7 +123,7 @@
                             v-bind="props"
                             @click.stop
                           >
-                          ZeroCat零猫社区用户协议
+                            ZeroCat零猫社区用户协议
                           </a>
                         </template>
                         ZeroCat零猫社区用户协议
@@ -198,31 +198,30 @@
             ></v-btn>
           </v-col>
 
-
           <v-col cols="12">
-            <OAuthButtons mode="register"/>
+            <OAuthButtons mode="register" />
           </v-col>
         </v-row>
       </v-form>
     </AuthCard>
-    <LoadingDialog :show="loading" text="正在注册"/>
+    <LoadingDialog :show="loading" text="正在注册" />
   </div>
 </template>
 
 <script>
-import {ref} from "vue";
-import {useRouter} from "vue-router";
-import {localuser} from "@/services/localAccount";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { localuser } from "@/services/localAccount";
 import AuthService from "@/services/authService";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
 import AuthCard from "@/components/AuthCard.vue";
-import {useHead} from "@unhead/vue";
-import oauthProviders from '@/constants/oauth_providers.json';
+import { useHead } from "@unhead/vue";
+import oauthProviders from "@/constants/oauth_providers.json";
 import OAuthButtons from "@/components/account/OAuthButtons.vue";
 
 export default {
-  components: {LoadingDialog, Recaptcha, AuthCard, OAuthButtons},
+  components: { LoadingDialog, Recaptcha, AuthCard, OAuthButtons },
 
   setup() {
     const router = useRouter();
@@ -258,15 +257,16 @@ export default {
     const passwordRules = [
       (v) => !!v || "必须填写密码",
       (v) => v.length >= 8 || "密码至少需要8个字符",
-      (v) => /[A-Za-z]/.test(v) && /[0-9]/.test(v) || "密码必须包含字母和数字",
+      (v) =>
+        (/[A-Za-z]/.test(v) && /[0-9]/.test(v)) || "密码必须包含字母和数字",
     ];
 
     // OAuth providers
     const providers = Object.entries(oauthProviders)
-      .filter(([key]) => key !== 'default')
+      .filter(([key]) => key !== "default")
       .map(([key, value]) => ({
         id: key,
-        ...value
+        ...value,
       }));
 
     // Check if user is already logged in
@@ -313,18 +313,21 @@ export default {
           username: username.value,
           password: password.value,
           captcha: recaptchaToken,
-          skipPassword: false
+          skipPassword: false,
         };
 
         // Call the register API
         const response = await AuthService.register(data);
 
-        if (response.status === 'success') {
+        if (response.status === "success") {
           if (response.needVerify) {
             // Store email and temporary token for verification
-            localStorage.setItem('verificationEmail', email.value);
+            localStorage.setItem("verificationEmail", email.value);
             if (response.temporaryToken) {
-              localStorage.setItem('verificationToken', response.temporaryToken);
+              localStorage.setItem(
+                "verificationToken",
+                response.temporaryToken
+              );
             }
 
             // Redirect to verification page
@@ -343,7 +346,8 @@ export default {
         }
       } catch (error) {
         console.error(error);
-        const errorMessage = error.response?.data?.message || "注册失败，请稍后再试";
+        const errorMessage =
+          error.response?.data?.message || "注册失败，请稍后再试";
         showErrorToast(errorMessage);
       } finally {
         loading.value = false;
@@ -358,19 +362,19 @@ export default {
       // Try different toast systems
       if (window.$toast) {
         window.$toast.add({
-          severity: 'success',
-          summary: '成功',
+          severity: "success",
+          summary: "成功",
           detail: message,
-          life: 3000
+          life: 3000,
         });
       } else if (window.$notify) {
         window.$notify({
-          title: '成功',
+          title: "成功",
           message: message,
-          type: 'success'
+          type: "success",
         });
       } else {
-        console.log('Success:', message);
+        console.log("Success:", message);
         alert(message);
       }
     };
@@ -379,19 +383,19 @@ export default {
       // Try different toast systems
       if (window.$toast) {
         window.$toast.add({
-          severity: 'error',
-          summary: '错误',
+          severity: "error",
+          summary: "错误",
           detail: message,
-          life: 3000
+          life: 3000,
         });
       } else if (window.$notify) {
         window.$notify({
-          title: '错误',
+          title: "错误",
           message: message,
-          type: 'error'
+          type: "error",
         });
       } else {
-        console.error('Error:', message);
+        console.error("Error:", message);
         alert(message);
       }
     };
