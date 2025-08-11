@@ -1,0 +1,1 @@
+import{_ as n}from"./OAuthManager-B4Y8rYLO.js";import{_ as e,X as t,o as _}from"./index-CoinsG4v.js";import"https://static.geetest.com/v4/gt4.js";const c={};function r(s,a){const o=n;return _(),t(o)}const i=e(c,[["render",r]]);export{i as default};
