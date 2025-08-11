@@ -293,7 +293,7 @@
             variant="tonal"
             class="mr-2"
             :disabled="loading"
-            :append-icon="forceMode ? 'mdi-refresh' : 'mdi-close'"
+
           >
           取消
           </v-btn>
@@ -633,10 +633,8 @@ export default {
     },
 
     handleCancel() {
-      if (this.forceMode) {
-        window.location.reload();
-        return;
-      }
+      // 统一触发 cancel 事件，由父组件决定如何响应（例如关闭对话框）
+      // 在 forceMode 下，父组件可以根据此事件来显示特定的提示信息
       this.$emit('cancel');
     },
 

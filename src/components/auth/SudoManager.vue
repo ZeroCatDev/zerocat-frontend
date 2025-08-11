@@ -173,6 +173,7 @@ export default {
         resolve(data.sudo_token);
       }
       this.pendingRequests.clear();
+      this.showDialog = false;
     },
 
     handleAuthCancel() {
@@ -184,6 +185,7 @@ export default {
         reject(error);
       }
       this.pendingRequests.clear();
+      this.showDialog = false;
     },
 
     handleAuthError(error) {
@@ -195,6 +197,7 @@ export default {
         reject(authError);
       }
       this.pendingRequests.clear();
+      this.showDialog = false;
     }
   },
 

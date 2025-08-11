@@ -90,15 +90,13 @@ const handleSuccess = (data) => {
 };
 
 const handleCancel = () => {
-  if (!props.persistent) {
-    dialogVisible.value = false;
-    emit('cancel');
+  dialogVisible.value = false;
+  emit('cancel');
 
-    // 清理认证组件
-    nextTick(() => {
-      authComponent.value?.cleanup?.();
-    });
-  }
+  // 清理认证组件
+  nextTick(() => {
+    authComponent.value?.cleanup?.();
+  });
 };
 
 const handleError = (error) => {
