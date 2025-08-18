@@ -15744,7 +15744,7 @@ const MonitorComponent = props => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0_
 , {
   disable: !props.draggable && !props.onExport,
   holdToDisplay: props.mode === 'slider' ? -1 : 1000,
-  id: "monitor-".concat(props.label)
+  id: "monitor-".concat(props.id)
 }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_draggable__WEBPACK_IMPORTED_MODULE_3___default.a, {
   bounds: ".monitor-overlay" // Class for monitor container
   ,
@@ -15772,7 +15772,7 @@ const MonitorComponent = props => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0_
 // the context menus `position: fixed`. For more details, see
 // http://meyerweb.com/eric/thoughts/2011/09/12/un-fixing-fixed-elements-with-css-transforms/
 react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_context_menu_context_menu_jsx__WEBPACK_IMPORTED_MODULE_6__["ContextMenu"], {
-  id: "monitor-".concat(props.label)
+  id: "monitor-".concat(props.id)
 }, props.draggable && props.onSetModeToDefault && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_context_menu_context_menu_jsx__WEBPACK_IMPORTED_MODULE_6__["MenuItem"], {
   onClick: props.onSetModeToDefault
 }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_intl__WEBPACK_IMPORTED_MODULE_4__["FormattedMessage"], {
@@ -44104,7 +44104,7 @@ class Storage extends _turbowarp_scratch_storage__WEBPACK_IMPORTED_MODULE_0___de
   }
   addOfficialScratchWebStores() {
     this.addWebStore([this.AssetType.Project], this.getProjectGetConfig.bind(this), this.getProjectCreateConfig.bind(this), this.getProjectUpdateConfig.bind(this));
-    this.addWebStore([this.AssetType.ImageVector, this.AssetType.ImageBitmap, this.AssetType.Sound], this.getAssetGetConfig.bind(this),
+    this.addWebStore([this.AssetType.ImageVector, this.AssetType.ImageBitmap, this.AssetType.Sound, this.AssetType.Font], this.getAssetGetConfig.bind(this),
     // We set both the create and update configs to the same method because
     // storage assumes it should update if there is an assetId, but the
     // asset store uses the assetId as part of the create URI.
