@@ -10,7 +10,7 @@
       @click="dialog = true"
     ></v-text-field>
 
-    <v-dialog v-model="dialog" max-width="500px">
+    <v-dialog v-model="dialog" >
       <v-card>
         <v-card-title>选择作品类型</v-card-title>
         <v-card-text>
@@ -31,8 +31,10 @@
                 <v-card
                   :color="modelValue === key ? 'primary' : undefined"
                   class="pa-4 cursor-pointer"
-                  variant="tonal"
+                  :variant="modelValue === key ? 'tonal':undefined"
                   @click="selectLanguage(key)"
+                  border
+                  hover
                 >
                   <div class="d-flex align-center">
                     <v-icon :icon="type.icon" class="mr-2"></v-icon>
@@ -59,8 +61,10 @@
                 <v-card
                   :color="modelValue === key ? 'primary' : undefined"
                   class="pa-4 cursor-pointer"
-                  variant="tonal"
+                  :variant="modelValue === key ? 'tonal':undefined"
                   @click="selectLanguage(key)"
+  border
+                  hover
                 >
                   <div class="d-flex align-center">
                     <v-icon :icon="lang.icon" class="mr-2"></v-icon>
