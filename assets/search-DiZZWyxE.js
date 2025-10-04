@@ -1,1 +1,0 @@
-import{_ as t,eO as e,X as n,o as a,M as s,e as c,U as r,a6 as p}from"./index-CmO9_o1Q.js";import"https://static.geetest.com/v4/gt4.js";const _={components:{SearchComponent:e},setup(){p({title:"搜索 - ZeroCat"})}};function m(u,i,d,l,f,h){const o=e;return a(),n(r,null,{default:s(()=>[c(o,{mode:"page"})]),_:1})}const $=t(_,[["render",m]]);export{$ as default};
