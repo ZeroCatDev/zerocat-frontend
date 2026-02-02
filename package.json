@@ -36,7 +36,7 @@
     "lodash-es": "^4.17.21",
     "markdown-it": "^14.1.0",
     "markdown-it-emoji": "^3.0.0",
-    "monaco-editor": "^0.52.2",
+    "monaco-editor": "^0.53.0",
     "prettydiff": "^101.2.6",
     "primevue": "^4.2.5",
     "qrcode": "^1.5.4",
