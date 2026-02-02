@@ -61,6 +61,7 @@ import {use404Helper} from '@/composables/use404';
 import {localuser} from "@/services/localAccount";
 import Comment from "@/components/Comment.vue";
 import {useHead} from "@unhead/vue";
+import {ref} from "vue";
 import {
   getProjectInfoByNamespace,
   initProject,
@@ -104,6 +105,15 @@ export default {
       initProject,
     };
   },
+  setup() {
+    const pageTitle = ref("项目");
+    useHead({
+      title: pageTitle,
+    });
+    return {
+      pageTitle,
+    };
+  },
   async mounted() {
     this.initlizeProject();
   },
@@ -141,7 +151,7 @@ export default {
         this.player.latest_commit_hash = currentBranch.latest_commit_hash;
       }
       this.loadBranchHistory();
-      useHead({title: this.project.title});
+      this.pageTitle = this.project.title;
       this.author = this.project.author;
     },
     async loadBranchHistory() {

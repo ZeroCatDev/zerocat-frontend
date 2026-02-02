@@ -88,9 +88,6 @@ export default {
       const projectname = this.$route.params.projectname;
       this.project = await getProjectInfoByNamespace(username, projectname);
       this.projectid = this.project.id; // 更新 projectid
-      useHead({
-        title: "复刻" + this.project.title,
-      });
       console.log(this.project);
     },
     async pushproject(id) {

@@ -10,6 +10,7 @@ import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { VitePWA } from 'vite-plugin-pwa';
 import * as sass from "sass";
+import vueDevTools from 'vite-plugin-vue-devtools'
 
 // Utilities
 import { defineConfig } from "vite";
@@ -34,6 +35,7 @@ export default defineConfig({
     }
   },
   plugins: [
+
     VueRouter(),
     Layouts(),
     Vue({
@@ -73,6 +75,8 @@ export default defineConfig({
         }
       ]
     }),
+            vueDevTools(),
+
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
@@ -162,7 +166,7 @@ export default defineConfig({
         ]
       },
       devOptions: {
-        enabled: true,
+        enabled: false,
         type: 'module'
       }
     }),

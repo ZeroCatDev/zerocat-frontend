@@ -161,6 +161,7 @@
 <script>
 import Comment from "../../components/Comment.vue";
 import {useHead} from "@unhead/vue";
+import {ref} from "vue";
 import {getUserByUsername} from "../../stores/user.js";
 import request from "../../axios/axios.js";
 import Markdown from "@/components/Markdown.vue";
@@ -284,6 +285,15 @@ export default {
       this.tab = newTab || "home";
     },
   },
+  setup() {
+    const pageTitle = ref("用户主页");
+    useHead({
+      title: pageTitle,
+    });
+    return {
+      pageTitle,
+    };
+  },
   async created() {
     await this.fetchUser();
     await this.getProjectList();
@@ -298,9 +308,7 @@ export default {
   methods: {
     async fetchUser() {
       this.user = await getUserByUsername(this.username);
-      useHead({
-        title: "" + this.user.display_name,
-      });
+      this.pageTitle = "" + this.user.display_name;
       this.url = `/searchapi?search_userid=${this.user.id}&search_orderby=view_up&search_state=public`;
     },
     async getProjectList() {

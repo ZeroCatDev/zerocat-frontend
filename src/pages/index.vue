@@ -495,22 +495,26 @@ import PageAnalytics from "@/components/analytics/PageAnalytics.vue";
 
 import { ref, onMounted } from "vue";
 import { useHead } from "@unhead/vue";
-useHead({
-  title: "ZeroCat - 新一代开源编程社区",
-  meta: [
-    {
-      name: "description",
-      content:
-        "国内少有的完整开源且内容完善的编程社区，提供完整的在线编程解决方案",
-    },
-  ],
-});
+
 export default {
   name: "IndexPage",
 
   components: {
     Typewriter,
     PageAnalytics,
+  },
+
+  setup() {
+    useHead({
+      title: "ZeroCat - 新一代开源编程社区",
+      meta: [
+        {
+          name: "description",
+          content:
+            "国内少有的完整开源且内容完善的编程社区，提供完整的在线编程解决方案",
+        },
+      ],
+    });
   },
 
   data() {

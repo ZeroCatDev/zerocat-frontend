@@ -74,10 +74,12 @@ export default {
       isLoadingFollowingMore: false
     };
   },
-  created() {
+  setup() {
     useHead({
       title: "我的动态 - ZeroCat",
     });
+  },
+  created() {
     this.fetchTimeline();
     this.fetchFollowingTimeline();
   },

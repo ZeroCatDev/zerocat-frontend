@@ -76,6 +76,7 @@
 import {use404Helper} from "@/composables/use404";
 import {localuser} from "@/services/localAccount";
 import {useHead} from "@unhead/vue";
+import {ref} from "vue";
 import {
   getProjectInfoByNamespace,
   initProject,
@@ -97,6 +98,15 @@ export default {
       showplayer: true,
       commitInfo: null,
       initProject,
+    };
+  },
+  setup() {
+    const pageTitle = ref("提交详情");
+    useHead({
+      title: pageTitle,
+    });
+    return {
+      pageTitle,
     };
   },
   async mounted() {
@@ -136,10 +146,7 @@ export default {
         use404Helper.show404();
         return;
       }
-
-      useHead({
-        title: `${this.project.title} at ${this.commitInfo.commit_message}`,
-      });
+      this.pageTitle = `${this.project.title} at ${this.commitInfo.commit_message}`;
       this.author = this.project.author;
     },
   },

@@ -5,6 +5,7 @@
 <script>
 import showProjectList from "@/components/projectlist/showProjectList.vue";
 import {useHead} from "@unhead/vue";
+import {ref} from "vue";
 import {getProjectListById} from "@/services/projectService";
 
 export default {
@@ -22,23 +23,21 @@ export default {
       const listData = await getProjectListById(this.listId);
       if (listData && listData.title) {
         this.listTitle = listData.title;
-        this.updatePageTitle();
+        this.pageTitle = this.listTitle;
       }
     } catch (error) {
       console.error("获取列表信息失败:", error);
     }
   },
-  methods: {
-    updatePageTitle() {
-      useHead({
-        title: this.listTitle,
-      });
-    },
-  },
+  methods: {},
   setup() {
+    const pageTitle = ref("项目列表");
     useHead({
-      title: "项目列表",
+      title: pageTitle,
     });
+    return {
+      pageTitle,
+    };
   },
 };
 </script>

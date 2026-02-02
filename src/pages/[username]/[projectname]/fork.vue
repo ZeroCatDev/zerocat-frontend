@@ -147,9 +147,6 @@ export default {
       this.projectid = this.project.id; // 更新 projectid
       this.forkprojectinfo.name = this.project.name;
       verifyname();
-      useHead({
-        title: "复刻" + this.project.title,
-      });
       this.author = this.project.author;
     },
     async verifyname() {

@@ -10,7 +10,7 @@ import ToastService from "primevue/toastservice";
 import PrimeVue from "primevue/config";
 import Aura from "@primevue/themes/aura";
 
-import {createHead} from "@unhead/vue";
+import { createHead  } from "@unhead/vue/client";
 
 // Components
 import App from "./App.vue";
@@ -20,8 +20,15 @@ import {createApp} from "vue";
 
 import './styles/settings.scss'
 
+// 导入 Vue DevTools
+import {devtools} from '@vue/devtools'
 
 const app = createApp(App);
+
+// 如果是开发环境，启用 Vue DevTools
+if (import.meta.env.DEV) {
+  devtools.init()
+}
 
 const head = createHead();
 app.use(head);

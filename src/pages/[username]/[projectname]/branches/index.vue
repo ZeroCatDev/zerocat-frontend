@@ -133,6 +133,7 @@ import {
   deleteBranch as deleteBranchApi,
 } from "@/services/projectService";
 import {useHead} from "@unhead/vue";
+import {ref} from "vue";
 
 export default {
   data() {
@@ -148,6 +149,15 @@ export default {
         name: "",
         source: "",
       },
+    };
+  },
+  setup() {
+    const pageTitle = ref("分支");
+    useHead({
+      title: pageTitle,
+    });
+    return {
+      pageTitle,
     };
   },
   async mounted() {
@@ -176,7 +186,7 @@ export default {
 
       this.project = projectFromCloud;
       await this.loadBranches();
-      useHead({title: `分支 · ${this.project.title}`});
+      this.pageTitle = `分支 · ${this.project.title}`;
     },
     async loadBranches() {
       const res = await getBranchs(this.project.id);
