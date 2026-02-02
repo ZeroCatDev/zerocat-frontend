@@ -1,1 +1,0 @@
-import{_ as n}from"./OAuthManager-BfqYmngC.js";import{_ as e,Y as t,o as _}from"./index-sIbGf8Dn.js";import"https://static.geetest.com/v4/gt4.js";const c={};function r(s,a){const o=n;return _(),t(o)}const i=e(c,[["render",r]]);export{i as default};

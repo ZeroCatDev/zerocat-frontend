@@ -28534,7 +28534,7 @@ const translateGalleryItem = (extension, locale) => _objectSpread(_objectSpread(
 });
 let cachedGallery = null;
 const fetchLibrary = async () => {
-  const res = await fetch("https://zerocat-api.houlangs.com" + '/extensions');
+  const res = await fetch("https://api.zcservice.houlang.cloud" + '/extensions');
   if (!res.ok) {
     throw new Error("HTTP status ".concat(res.status));
   }
@@ -28545,7 +28545,7 @@ const fetchLibrary = async () => {
     description: extension.description,
     descriptionTranslations: extension.descriptionTranslations || {},
     extensionId: extension.id,
-    extensionURL: "".concat("https://zerocat-api.houlangs.com", "/extensions/").concat(extension.slug, ".js"),
+    extensionURL: "".concat("https://api.zcservice.houlang.cloud", "/extensions/").concat(extension.slug, ".js"),
     iconURL: extension.image,
     tags: ['zerocat'],
     credits: [...(extension.original || []), ...(extension.by || [])].map(credit => {
@@ -28559,9 +28559,9 @@ const fetchLibrary = async () => {
       }
       return credit.name;
     }),
-    docsURI: extension.docs ? "".concat("https://zerocat-api.houlangs.com", "/extensions/").concat(extension.slug) : null,
+    docsURI: extension.docs ? "".concat("https://api.zcservice.houlang.cloud", "/extensions/").concat(extension.slug) : null,
     samples: extension.samples ? extension.samples.map(sample => ({
-      href: "".concat("", "editor?project_url=").concat("https://zerocat-api.houlangs.com", "/extensions/samples/").concat(encodeURIComponent(sample), ".sb3"),
+      href: "".concat("", "editor?project_url=").concat("https://api.zcservice.houlang.cloud", "/extensions/samples/").concat(encodeURIComponent(sample), ".sb3"),
       text: sample
     })) : null,
     incompatibleWithScratch: !extension.scratchCompatible,
@@ -35629,7 +35629,7 @@ const isTrustedExtension = url =>
 // Always trust our official extension repostiory.
 url.startsWith('https://extensions.turbowarp.org/') ||
 // Always trust ZeroCat official extension repostiory.
-url.startsWith("https://zerocat-api.houlangs.com" + '/extensions/') ||
+url.startsWith("https://api.zcservice.houlang.cloud" + '/extensions/') ||
 // For development.
 url.startsWith('http://localhost:8000/') || extensionsTrustedByUser.has(url);
 

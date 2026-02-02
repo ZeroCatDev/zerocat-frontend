@@ -1,0 +1,1 @@
+import{o as t,Y as a,a8 as r}from"./index-C30_-gqw.js";import"https://static.geetest.com/v4/gt4.js";const _={__name:"[...path]",setup(e){return this.$route.path.startsWith("/proxy")&&this.$router.replace(`/app${route.path}`),(o,p)=>(t(),a(r))}};export{_ as default};
