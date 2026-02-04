@@ -631,6 +631,12 @@ export default {
               login: true,
             },
             {
+              title: "推文",
+              link: "/app/posts",
+              icon: "mdi-twitter",
+              login: false,
+            },
+            {
               title: "项目",
               link: "/app/explore",
               icon: "mdi-xml",

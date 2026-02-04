@@ -12,7 +12,12 @@ export const authRequiredRoutes = [
     description: '创建新项目'
   },
   {
-    type: 'exact', 
+    type: 'exact',
+    path: '/app/posts/mentions',
+    description: '提及我的'
+  },
+  {
+    type: 'exact',
     path: '/app/project',
     description: '项目管理'
   },
@@ -28,7 +33,7 @@ export const authRequiredRoutes = [
     path: '/app/account',
     excludes: [
       '/app/account/login',
-      '/app/account/register', 
+      '/app/account/register',
       '/app/account/register/verify',
       '/app/account/retrieve',
       '/app/account/retrievecallback',
@@ -80,7 +85,7 @@ export function requiresAuth(path) {
     switch (route.type) {
       case 'exact':
         return path === route.path;
-        
+
       case 'prefix':
         if (!path.startsWith(route.path)) {
           return false;
@@ -90,10 +95,10 @@ export function requiresAuth(path) {
           return !route.excludes.some(exclude => path.startsWith(exclude));
         }
         return true;
-        
+
       case 'regex':
         return route.pattern.test(path);
-        
+
       default:
         return false;
     }
@@ -110,7 +115,7 @@ export function getMatchedRoute(path) {
     switch (route.type) {
       case 'exact':
         return path === route.path;
-        
+
       case 'prefix':
         if (!path.startsWith(route.path)) {
           return false;
@@ -119,10 +124,10 @@ export function getMatchedRoute(path) {
           return !route.excludes.some(exclude => path.startsWith(exclude));
         }
         return true;
-        
+
       case 'regex':
         return route.pattern.test(path);
-        
+
       default:
         return false;
     }

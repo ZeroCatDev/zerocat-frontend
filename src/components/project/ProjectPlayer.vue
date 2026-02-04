@@ -92,7 +92,9 @@ export default {
   },
   computed: {
     embedurl() {
-      let baseUrl = `/scratch/embed.html?id=${this.projectId}&embed=true`;
+
+         let baseUrl = import.meta.env.DEV ?`http://localhost:8601/embed.html?id=${this.projectId}&embed=true` : `/scratch/embed.html?id=${this.projectId}&embed=true`;
+
       if(localStorage.getItem('embedurl')){
         baseUrl = `${localStorage.getItem('embedurl')}/embed.html?id=${this.projectId}&embed=true`;
       }
