@@ -27,3 +27,5 @@ pnpm-debug.log*
 .dev-dist
 
 scratch-gui
+
+.claude

@@ -3,91 +3,88 @@
     <PageAnalytics :target-id="user.id" target-type="user"/>
 
     <v-container>
-      <!-- <v-tabs align="center" v-model="tab" bg-color="primary">
-        <v-tab value="home">首页</v-tab>
-        <v-tab value="comment">评论</v-tab>
-        <v-tab value="followers">关注者</v-tab>
-        <v-tab value="following">关注的人</v-tab>
-        <v-tab value="timeline">时间线</v-tab>
-      </v-tabs>-->
+      <!-- 用户信息区域 -->
+      <v-responsive class="mt-8">
+        <v-row class="d-flex align-center">
+          <v-col>
+            <p class="font-weight-medium text-primary">
+              {{ user.type === "administrator" ? "ZeroCat 管理员" : "开发者" }}
+            </p>
+            <p class="font-weight-bold text-sm-h2 text-h4 mt-2 d-inline-flex align-center username">
+              {{ user.display_name }}
+              <v-avatar class="ma-2" size="52">
+                <v-img :src="localuser.getUserAvatar(user.avatar)"/>
+              </v-avatar>
+            </p>
+            <p class="mt-2 text-body-1 text-medium-emphasis user-motto">
+              {{ user.motto }}
+            </p>
+            <p class="mt-2 text-medium-emphasis">
+              <v-chip class="mr-2">
+                <v-icon icon="mdi-account-circle" start></v-icon>
+                #{{ user.id }}
+              </v-chip>
+              <v-chip class="mr-2">
+                <v-icon icon="mdi-clock" start></v-icon>
+                <TimeAgo :date="user.regTime"></TimeAgo>
+                注册
+              </v-chip>
+              <v-chip v-if="user.location" class="mr-2">
+                <v-icon icon="mdi-map-marker" start></v-icon>
+                {{ user.location }}
+              </v-chip>
+              <v-chip v-if="user.birthday" class="mr-2">
+                <v-icon icon="mdi-cake-variant" start></v-icon>
+                {{ new Date(user.birthday).toLocaleDateString() }}
+              </v-chip>
+              <v-chip v-if="user.url" append-icon="mdi-open-in-new" class="mr-2">
+                <v-icon icon="mdi-web" start></v-icon>
+                <a :href="user.url" class="text-decoration-none" target="_blank">{{ user.url }}</a>
+              </v-chip>
+              <v-chip v-if="!user.isActive" color="error">
+                <v-icon icon="mdi-alert-circle" start></v-icon>
+                异常
+              </v-chip>
+            </p>
+            <user-relation-controls
+              :display-name="user.display_name"
+              :user-id="user.id"
+              :username="username"
+            />
+            <follow-stats :user-id="user.id" :username="username" class="mt-3"/>
+          </v-col>
+        </v-row>
+      </v-responsive>
+
+      <!-- 主标签页导航 -->
+      <v-tabs v-model="tab" class="mt-4" color="primary">
+        <v-tab value="home">
+          <v-icon start>mdi-home</v-icon>
+          首页
+        </v-tab>
+        <v-tab value="posts">
+          <v-icon start>mdi-post</v-icon>
+          帖子
+        </v-tab>
+        <v-tab value="timeline">
+          <v-icon start>mdi-timeline-clock</v-icon>
+          动态
+        </v-tab>
+        <v-tab value="followers">
+          <v-icon start>mdi-account-multiple</v-icon>
+          关注者
+        </v-tab>
+        <v-tab value="following">
+          <v-icon start>mdi-account-heart</v-icon>
+          正在关注
+        </v-tab>
+      </v-tabs>
 
       <v-tabs-window v-model="tab">
+        <!-- 首页 -->
         <v-tabs-window-item value="home">
-          <v-responsive class="mt-8">
-            <v-row class="d-flex align-center">
-              <v-col>
-                <p class="font-weight-medium text-primary">
-                  {{
-                  user.type === "administrator" ? "ZeroCat 管理员" : "开发者"
-                  }}
-                </p>
-                <p
-                  class="font-weight-bold text-sm-h2 text-h4 mt-2 d-inline-flex align-center username"
-                >
-                  {{ user.display_name }}
-                  <!--   <span v-if="user.custom_status" class="ml-2" style="font-size: 1.2rem;">
-                    {{ user.custom_status.emoji }} {{ user.custom_status.text }}
-                  </span>-->
-                  <v-avatar class="ma-2" size="52">
-                    <v-img :src="localuser.getUserAvatar(user.avatar)"/>
-                  </v-avatar>
-                </p>
-                <p class="mt-2 text-body-1 text-medium-emphasis user-motto">
-                  {{ user.motto }}
-                </p>
-                <p class="mt-2 text-medium-emphasis">
-                  <v-chip class="mr-2">
-                    <v-icon icon="mdi-account-circle" start></v-icon>
-                    #{{ user.id }}
-                  </v-chip>
-                  <v-chip class="mr-2">
-                    <v-icon icon="mdi-clock" start></v-icon>
-                    <TimeAgo :date="user.regTime"></TimeAgo>
-                    注册
-                  </v-chip>
-                  <v-chip v-if="user.location" class="mr-2">
-                    <v-icon icon="mdi-map-marker" start></v-icon>
-                    {{ user.location }}
-                  </v-chip>
-                  <v-chip v-if="user.birthday" class="mr-2">
-                    <v-icon icon="mdi-cake-variant" start></v-icon>
-                    {{ new Date(user.birthday).toLocaleDateString() }}
-                  </v-chip>
-                  <v-chip
-                    v-if="user.url"
-                    append-icon="mdi-open-in-new"
-                    class="mr-2"
-                  >
-                    <v-icon icon="mdi-web" start></v-icon>
-                    <a
-                      :href="user.url"
-                      class="text-decoration-none"
-                      target="_blank"
-                    >{{ user.url }}</a
-                    >
-                  </v-chip>
-                  <v-chip v-if="!user.isActive" color="error">
-                    <v-icon icon="mdi-alert-circle" start></v-icon>
-                    异常
-                  </v-chip>
-                </p>
-                <user-relation-controls
-                  :display-name="user.display_name"
-                  :user-id="user.id"
-                  :username="username"
-                />
-                <follow-stats
-                  :user-id="user.id"
-                  :username="username"
-                  class="mt-3"
-                />
-              </v-col>
-            </v-row>
-          </v-responsive>
-          <br/>
-          <v-card subtitle="README.md" title="关于我">
+          <v-card subtitle="README.md" title="关于我" class="mt-4">
             <v-card-text class="markdown-body">
-              <br/>
               <Markdown>{{ user.bio }}</Markdown>
             </v-card-text>
           </v-card>
@@ -116,28 +113,43 @@
                 </v-card>
               </v-card>
             </v-col>
-          </v-row
-          >
-          <br/>
-          <user-project-lists :project-lists="lists" :user-id="user.id"/>
-          <br/>
-          <Comment :url="'user-' + user.id" name="用户"></Comment>
+          </v-row>
+          <user-project-lists :project-lists="lists" :user-id="user.id" class="mt-4"/>
+          <Comment :url="'user-' + user.id" name="用户" class="mt-4"></Comment>
         </v-tabs-window-item>
-        <v-tabs-window-item value="comment">
-          <Comment :url="'user-' + user.id" name="用户"></Comment>
+
+        <!-- 帖子 -->
+        <v-tabs-window-item value="posts">
+          <div class="posts-section">
+            <!-- 帖子子标签页 -->
+            <div class="posts-tabs">
+              <button
+                v-for="postTab in availablePostTabs"
+                :key="postTab.value"
+                class="posts-tab"
+                :class="{ 'posts-tab--active': activePostTab === postTab.value }"
+                @click="switchPostTab(postTab.value)"
+              >
+                {{ postTab.label }}
+              </button>
+            </div>
+
+            <!-- 帖子列表 -->
+            <PostList
+              :items="posts"
+              :includes="postsIncludes"
+              :loading="postsLoading"
+              :loading-more="postsLoadingMore"
+              :has-more="postsHasMore"
+              :empty-title="postsEmptyTitle"
+              :empty-text="postsEmptyText"
+              @deleted="removePostFromList"
+              @load-more="loadMorePosts"
+            />
+          </div>
         </v-tabs-window-item>
-        <v-tabs-window-item value="followers">
-          <v-container>
-            <h2 class="text-h5 mb-4">关注者</h2>
-            <user-followers :show-all="false" :user-id="user.id"/>
-          </v-container>
-        </v-tabs-window-item>
-        <v-tabs-window-item value="following">
-          <v-container>
-            <h2 class="text-h5 mb-4">正在关注</h2>
-            <user-following :show-all="false" :user-id="user.id"/>
-          </v-container>
-        </v-tabs-window-item>
+
+        <!-- 动态 -->
         <v-tabs-window-item value="timeline">
           <v-card class="mt-4" variant="flat">
             <v-card-title class="d-flex align-center">
@@ -153,6 +165,22 @@
             </v-card-text>
           </v-card>
         </v-tabs-window-item>
+
+        <!-- 关注者 -->
+        <v-tabs-window-item value="followers">
+          <v-container>
+            <h2 class="text-h5 mb-4">关注者</h2>
+            <user-followers :show-all="false" :user-id="user.id"/>
+          </v-container>
+        </v-tabs-window-item>
+
+        <!-- 正在关注 -->
+        <v-tabs-window-item value="following">
+          <v-container>
+            <h2 class="text-h5 mb-4">正在关注</h2>
+            <user-following :show-all="false" :user-id="user.id"/>
+          </v-container>
+        </v-tabs-window-item>
       </v-tabs-window>
     </v-container>
   </div>
@@ -160,9 +188,9 @@
 
 <script>
 import Comment from "../../components/Comment.vue";
-import {useHead} from "@unhead/vue";
-import {ref} from "vue";
-import {getUserByUsername} from "../../stores/user.js";
+import { useHead } from "@unhead/vue";
+import { ref, computed, watch } from "vue";
+import { getUserByUsername } from "../../stores/user.js";
 import request from "../../axios/axios.js";
 import Markdown from "@/components/Markdown.vue";
 import "github-markdown-css";
@@ -170,12 +198,15 @@ import TimeAgo from "@/components/TimeAgo.vue";
 import UserProjectLists from "@/components/projectlist/UserProjectLists.vue";
 import UserRelationControls from "@/components/user/UserRelationControls.vue";
 import FollowStats from "@/components/user/FollowStats.vue";
-import {localuser} from "@/services/localAccount";
+import { localuser } from "@/services/localAccount";
 import UserFollowers from "@/components/user/UserFollowers.vue";
 import UserFollowing from "@/components/user/UserFollowing.vue";
 import Timeline from "@/components/timeline/Timeline.vue";
 import PageAnalytics from "@/components/analytics/PageAnalytics.vue";
-
+import PostList from "@/components/posts/PostList.vue";
+import PostsService from "@/services/postsService";
+import { showSnackbar } from "@/composables/useNotifications";
+import Projects from "@/components/project/Projects.vue";
 
 export default {
   components: {
@@ -189,6 +220,8 @@ export default {
     UserFollowing,
     Timeline,
     PageAnalytics,
+    PostList,
+    Projects,
   },
   data() {
     return {
@@ -207,82 +240,71 @@ export default {
       },
       isLoadingMore: false,
       localuser,
-      eventTypes: {
-        project_create: {
-          text: "创建了新项目",
-          label: "新建",
-          color: "success",
-          isProject: true,
-        },
-        project_publish: {
-          text: "更新了项目",
-          label: "更新",
-          color: "info",
-          isProject: true,
-        },
-        project_fork: {
-          text: "复刻了项目",
-          label: "复刻",
-          color: "warning",
-          isProject: true,
-        },
-        project_delete: {
-          text: "删除了项目",
-          label: "删除",
-          color: "error",
-          isProject: true,
-        },
-        user_profile_update: {
-          text: "更新了个人资料",
-          label: "更新",
-          color: "info",
-        },
-        user_register: {
-          text: "加入了 ZeroCat",
-          label: "注册",
-          color: "primary",
-        },
-        project_commit: {
-          text: "提交了项目更新",
-          label: "提交",
-          color: "info",
-          isProject: true,
-        },
-        project_rename: {
-          text: "重命名了项目",
-          label: "重命名",
-          color: "warning",
-          isProject: true,
-        },
-        project_info_update: {
-          text: "更新了项目信息",
-          label: "更新信息",
-          color: "info",
-          isProject: true,
-        },
-      },
-      fieldDisplayNames: {
-        display_name: "昵称",
-        bio: "个性签名",
-        sex: "性别",
-        birthday: "生日",
-        avatar: "头像",
-        background: "背景图片",
-        email: "邮箱",
-        phone: "手机号",
-        website: "个人网站",
-        bio: "个人简介",
-        social_links: "社交链接",
-        preferences: "偏好设置",
-        visibility: "可见性设置",
-        language: "语言设置",
-      },
-      localuser,
+      // Posts state
+      activePostTab: "originals",
+      posts: [],
+      postsIncludes: { posts: {} },
+      postsLoading: false,
+      postsLoadingMore: false,
+      postsCursor: null,
+      postsHasMore: true,
     };
+  },
+  computed: {
+    isCurrentUser() {
+      return localuser.user.value?.id && Number(localuser.user.value.id) === Number(this.user.id);
+    },
+    availablePostTabs() {
+      const tabs = [
+        { value: "originals", label: "帖子" },
+        { value: "replies", label: "回复" },
+        { value: "media", label: "媒体" },
+      ];
+      // 喜欢和收藏仅自己可见
+      if (this.isCurrentUser) {
+        tabs.push({ value: "likes", label: "喜欢" });
+        tabs.push({ value: "bookmarks", label: "收藏" });
+      }
+      return tabs;
+    },
+    postsEmptyTitle() {
+      const titles = {
+        originals: "暂无帖子",
+        replies: "暂无回复",
+        media: "暂无媒体",
+        likes: "暂无喜欢",
+        bookmarks: "暂无收藏",
+      };
+      return titles[this.activePostTab] || "暂无内容";
+    },
+    postsEmptyText() {
+      const name = this.user.display_name || "该用户";
+      const texts = {
+        originals: `${name}还没有发布任何帖子。`,
+        replies: `${name}还没有回复任何帖子。`,
+        media: `${name}还没有发布任何包含媒体的帖子。`,
+        likes: `${name}还没有喜欢任何帖子。`,
+        bookmarks: `${name}还没有收藏任何帖子。`,
+      };
+      return texts[this.activePostTab] || "这里还没有任何内容。";
+    },
+    hasMoreEvents() {
+      return this.timeline.events.length < this.timeline.pagination.total;
+    },
   },
   watch: {
     "$route.query.tab"(newTab) {
       this.tab = newTab || "home";
+    },
+    "$route.query.postTab"(newPostTab) {
+      if (newPostTab && this.tab === "posts") {
+        this.switchPostTab(newPostTab);
+      }
+    },
+    tab(newTab) {
+      if (newTab === "posts" && this.posts.length === 0) {
+        this.loadPosts(true);
+      }
     },
   },
   setup() {
@@ -299,11 +321,15 @@ export default {
     await this.getProjectList();
     await this.fetchTimeline();
     this.tab = this.$route.query.tab || "home";
-  },
-  computed: {
-    hasMoreEvents() {
-      return this.timeline.events.length < this.timeline.pagination.total;
-    },
+
+    // 如果初始 tab 是 posts，加载帖子
+    if (this.tab === "posts") {
+      const postTab = this.$route.query.postTab;
+      if (postTab) {
+        this.activePostTab = postTab;
+      }
+      await this.loadPosts(true);
+    }
   },
   methods: {
     async fetchUser() {
@@ -349,12 +375,6 @@ export default {
         console.error("Failed to fetch timeline:", error);
       }
     },
-    getUpdatedFields(fields) {
-      if (!fields?.length) return "";
-      return fields
-        .map((field) => this.fieldDisplayNames[field] || field)
-        .join("、");
-    },
     async loadMoreEvents() {
       if (this.isLoadingMore) return;
 
@@ -365,34 +385,87 @@ export default {
         this.isLoadingMore = false;
       }
     },
-    getTargetContent(target, eventType) {
-      if (!target) return "";
+    // Posts methods
+    switchPostTab(tabValue) {
+      if (this.activePostTab === tabValue) return;
+      this.activePostTab = tabValue;
+      this.loadPosts(true);
 
-      switch (target.type) {
-        case "project": {
-          return target.title || `项目 #${target.id}`;
+      // Update URL without navigation
+      const query = { ...this.$route.query, postTab: tabValue };
+      this.$router.replace({ query });
+    },
+    async loadPosts(isInitial = false) {
+      if (!this.user.id) return;
+
+      if (isInitial) {
+        this.postsLoading = true;
+        this.postsCursor = null;
+        this.posts = [];
+        this.postsIncludes = { posts: {} };
+      } else {
+        this.postsLoadingMore = true;
+      }
+
+      try {
+        let res;
+        const params = {
+          cursor: isInitial ? undefined : this.postsCursor,
+          limit: 20,
+        };
+
+        switch (this.activePostTab) {
+          case "originals":
+            res = await PostsService.getUserOriginals(this.user.id, params);
+            break;
+          case "replies":
+            res = await PostsService.getUserReplies(this.user.id, params);
+            // getUserReplies 返回 { items, includes, ... } 格式
+            if (res.items) {
+              res = {
+                posts: res.items.map(item => item.post || item),
+                includes: res.includes,
+                nextCursor: res.nextCursor,
+                hasMore: res.hasMore,
+              };
+            }
+            break;
+          case "media":
+            res = await PostsService.getUserMedia(this.user.id, params);
+            break;
+          case "likes":
+            res = await PostsService.getUserLikes(this.user.id, params);
+            break;
+          case "bookmarks":
+            res = await PostsService.getUserBookmarks(this.user.id, params);
+            break;
+          default:
+            res = await PostsService.getUserOriginals(this.user.id, params);
         }
-        case "user": {
-          return target.display_name || `用户 #${target.id}`;
+
+        if (isInitial) {
+          this.posts = res.posts || [];
+          this.postsIncludes = res.includes || { posts: {} };
+        } else {
+          this.posts.push(...(res.posts || []));
+          Object.assign(this.postsIncludes.posts, res.includes?.posts || {});
         }
-        case "projectlist":
-          return `项目列表 #${target.id}`;
-        default:
-          return `${target.type} #${target.id}`;
+
+        this.postsCursor = res.nextCursor;
+        this.postsHasMore = res.hasMore;
+      } catch (e) {
+        showSnackbar(e?.message || "加载帖子失败", "error");
+      } finally {
+        this.postsLoading = false;
+        this.postsLoadingMore = false;
       }
     },
-    getFieldDisplayName(field) {
-      const fieldNames = {
-        title: "标题",
-        description: "描述",
-        type: "类型",
-        state: "状态",
-        visibility: "可见性",
-        tags: "标签",
-        category: "分类",
-        // Add more field names as needed
-      };
-      return fieldNames[field] || field;
+    loadMorePosts() {
+      if (!this.postsHasMore || this.postsLoadingMore || this.postsLoading) return;
+      this.loadPosts(false);
+    },
+    removePostFromList(postId) {
+      this.posts = this.posts.filter((p) => (p?.id ?? p?.postId) !== postId);
     },
   },
 };
@@ -401,7 +474,6 @@ export default {
 <style scoped>
 .username {
   color: #fff;
-  /* 白色文本 */
   font-weight: bold;
   background: linear-gradient(
     90deg,
@@ -436,161 +508,6 @@ export default {
   cursor: pointer;
 }
 
-.v-btn {
-  min-width: 120px;
-}
-
-.timeline-item-content {
-  width: 100%;
-}
-
-.project-card {
-  border-left: 3px solid var(--v-primary-base);
-  padding-left: 12px;
-}
-
-.comment-preview {
-  background-color: rgba(0, 0, 0, 0.03);
-  border-radius: 4px;
-  padding: 8px 12px;
-  font-style: italic;
-}
-
-.v-timeline-item {
-  margin-bottom: 16px;
-}
-
-.simple-event {
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.simple-event:hover {
-  background-color: rgba(var(--v-theme-surface-variant), 0.06);
-}
-
-.comment-text {
-  font-style: italic;
-  color: var(--v-medium-emphasis-color);
-}
-
-.text-decoration-none {
-  color: var(--v-primary-base);
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.event-header {
-  display: flex;
-  align-items: center;
-}
-
-.project-event {
-  border-left: 3px solid var(--v-primary-base);
-  background-color: var(--v-surface-variant);
-}
-
-.project-info {
-  padding-left: 12px;
-}
-
-.event-content {
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.event-content:hover {
-  background-color: rgba(var(--v-theme-surface-variant), 0.06);
-}
-
-.comment-text {
-  font-style: italic;
-  color: var(--v-medium-emphasis-color);
-  padding: 8px 12px;
-  background-color: rgba(0, 0, 0, 0.03);
-  border-radius: 4px;
-}
-
-.commit-card {
-  border-left: 3px solid var(--v-info-base);
-  background-color: var(--v-surface-variant);
-  transition: transform 0.2s;
-}
-
-.commit-card:hover {
-  transform: translateY(-2px);
-}
-
-.commit-message {
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.commit-hash {
-  font-family: monospace;
-}
-
-.rename-card {
-  border-left: 3px solid var(--v-warning-base);
-  background-color: var(--v-surface-variant);
-  transition: transform 0.2s;
-}
-
-.rename-card:hover {
-  transform: translateY(-2px);
-}
-
-.rename-details {
-  padding: 8px;
-  background-color: rgba(0, 0, 0, 0.03);
-  border-radius: 4px;
-}
-
-.project-meta {
-  margin-top: 8px;
-}
-
-.info-update-card {
-  border-left: 3px solid var(--v-info-base);
-  background-color: var(--v-surface-variant);
-  transition: transform 0.2s;
-}
-
-.info-update-card:hover {
-  transform: translateY(-2px);
-}
-
-.info-updates {
-  padding: 8px;
-  background-color: rgba(0, 0, 0, 0.03);
-  border-radius: 4px;
-}
-
-.update-item {
-  padding: 8px;
-  border-radius: 4px;
-  background-color: rgba(255, 255, 255, 0.5);
-}
-
-.field-changes {
-  margin-left: 8px;
-  padding: 4px 8px;
-  border-left: 2px solid var(--v-info-base);
-}
-
-.old-value,
-.new-value {
-  font-family: monospace;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.new-value {
-  font-weight: 500;
-}
-
 .user-motto {
   word-break: break-word;
   white-space: nowrap;
@@ -615,5 +532,54 @@ export default {
       opacity: 0.8;
     }
   }
+}
+
+/* Posts section */
+.posts-section {
+  margin-top: 16px;
+}
+
+.posts-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  margin-bottom: 0;
+}
+
+.posts-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.posts-tab:hover {
+  background: rgba(var(--v-theme-on-surface), 0.05);
+}
+
+.posts-tab--active {
+  font-weight: 700;
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.posts-tab--active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 3px;
+  background: rgb(var(--v-theme-primary));
+  border-radius: 2px;
 }
 </style>

@@ -3,7 +3,8 @@
     "allow": [
       "Bash(dir:*)",
       "Bash(grep:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(ls -la \"D:\\\\ZeroCat\\\\zerocat-frontend\\\\src\\\\composables\"\" 2>/dev/null || echo \"Directory not found \")"
     ]
   }
 }
