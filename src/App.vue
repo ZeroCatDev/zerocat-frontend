@@ -15,6 +15,12 @@
 
   <!-- 通知推送账户检查组件 -->
   <NotificationAccountChecker />
+
+  <!-- 全局删除确认对话框 -->
+  <DeleteConfirmDialog />
+
+  <!-- 底部悬浮发帖栏 -->
+  <FloatingPostBar />
 </template>
 
 <script setup>
@@ -31,6 +37,8 @@ import GlobalSnackbar from "@/components/GlobalSnackbar.vue";
 import NotificationReminderSnackbar from "@/components/shared/NotificationReminderSnackbar.vue";
 import PWAPrompts from "@/components/PWAPrompts.vue";
 import NotificationAccountChecker from "@/components/NotificationAccountChecker.vue";
+import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog.vue";
+import FloatingPostBar from "@/components/posts/FloatingPostBar.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -44,7 +52,7 @@ const layouts = {
 // 根据路由元数据确定使用哪个布局
 const currentLayout = computed(() => {
   const layoutName = route.meta.layout || "default";
-  return layouts[layoutName];
+  return layouts[layoutName] || DefaultLayout;
 });
 
 // 监听路由错误

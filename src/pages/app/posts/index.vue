@@ -191,7 +191,7 @@ onMounted(() => {
 /* Header */
 .posts-header {
   position: sticky;
-  top: 0;
+  top: 64px;
   z-index: 100;
   background: rgba(var(--v-theme-surface), 0.85);
   backdrop-filter: blur(12px);

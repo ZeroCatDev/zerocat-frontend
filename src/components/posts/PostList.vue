@@ -23,6 +23,7 @@
           :post="getActualPost(post)"
           :includes="mergedIncludes"
           :show-thread-line="showThreadLine(index)"
+          :hide-reply-indicator="threadMode"
           :retweet-author="getRetweetAuthor(post)"
           @deleted="onDeleted"
           @created="onCreated"

@@ -9,10 +9,67 @@ const TOKEN_EXPIRES_AT_KEY = "tokenExpiresAt";
 const REFRESH_TOKEN_EXPIRES_AT_KEY = "refreshTokenExpiresAt";
 // 令牌过期前多少秒开始刷新（默认5分钟前）
 const TOKEN_REFRESH_THRESHOLD = 5 * 60;
-// 令牌刷新定时器
-let tokenRefreshTimer = null;
 // 是否启用自动刷新（默认启用）
 const AUTO_REFRESH_ENABLED = true;
+
+/**
+ * 单例模式的令牌刷新管理器
+ */
+const TokenRefreshManager = {
+  // 定时器实例
+  timer: null,
+  // 是否正在刷新令牌
+  isRefreshing: false,
+  // 定时器是否正在运行
+  isRunning: false,
+  // 上次启动时间戳（防止短时间内重复启动）
+  lastStartTime: 0,
+  // 最小启动间隔（毫秒）
+  minStartInterval: 1000,
+
+  /**
+   * 检查是否可以启动新的定时器
+   */
+  canStart() {
+    const now = Date.now();
+    return !this.isRunning && (now - this.lastStartTime) >= this.minStartInterval;
+  },
+
+  /**
+   * 清除定时器
+   */
+  clear() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+      this.timer = null;
+      this.isRunning = false;
+      window.tokenRefreshTimer = null;
+    }
+  },
+
+  /**
+   * 设置定时器
+   */
+  set(callback, delay) {
+    // 先清除旧的定时器
+    this.clear();
+
+    // 设置新定时器
+    this.timer = setTimeout(callback, delay);
+    this.isRunning = true;
+    this.lastStartTime = Date.now();
+
+    // 导出到window用于调试
+    window.tokenRefreshTimer = this.timer;
+  },
+
+  /**
+   * 设置刷新状态
+   */
+  setRefreshing(status) {
+    this.isRefreshing = status;
+  }
+};
 
 const DEFAULT_USER = {
   id: 0,
@@ -120,7 +177,15 @@ const fetchUserInfo = async () => {
  * @returns {Promise<boolean>} Whether refresh was successful
  */
 const refreshAccessToken = async () => {
+  // 防止并发刷新
+  if (TokenRefreshManager.isRefreshing) {
+    console.log('令牌刷新已在进行中，跳过重复请求');
+    return false;
+  }
+
   try {
+    TokenRefreshManager.setRefreshing(true);
+
     const storedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
     if (!storedRefreshToken) {
       logout(false);
@@ -156,6 +221,11 @@ const refreshAccessToken = async () => {
     console.error("Token refresh failed:", error);
     // Don't logout on network errors or other temporary issues
     return false;
+  } finally {
+    // 延迟重置刷新状态，确保 watch 已经完成
+    setTimeout(() => {
+      TokenRefreshManager.setRefreshing(false);
+    }, 100);
   }
 };
 
@@ -191,7 +261,29 @@ const checkAndRefreshToken = async () => {
 };
 
 /**
- * 启动自动令牌刷新定时任务
+ * 根据实时令牌过期时间动态计算定时器延迟时间
+ * @returns {number} 定时器延迟时间（毫秒）
+ */
+const calculateRefreshDelay = () => {
+  const expirationTime = getTokenExpirationTime();
+
+  if (expirationTime <= 0) {
+    return 0; // 已过期，立即处理
+  }
+
+  // 计算下一次刷新的时间（过期前TOKEN_REFRESH_THRESHOLD秒或一半时间，取小的那个）
+  const halfExpirationTime = Math.floor(expirationTime / 2);
+  const nextRefreshIn = Math.min(
+    expirationTime - TOKEN_REFRESH_THRESHOLD,
+    halfExpirationTime
+  );
+
+  // 至少等待10秒再检查，最多等待一半的剩余时间
+  return Math.max(nextRefreshIn * 1000, 10000);
+};
+
+/**
+ * 启动自动令牌刷新定时任务（单例模式）
  */
 const startTokenRefreshTimer = () => {
   // 如果禁用了自动刷新，不启动定时器
@@ -200,11 +292,15 @@ const startTokenRefreshTimer = () => {
     return;
   }
 
-  // 清除之前的定时器
-  stopTokenRefreshTimer();
+  // 使用单例模式，检查是否可以启动
+  if (!TokenRefreshManager.canStart()) {
+    console.log('令牌刷新定时器已在运行或启动间隔过短，跳过重复启动');
+    return;
+  }
 
   // 如果没有登录，不需要启动定时器
   if (!isLogin.value) {
+    TokenRefreshManager.clear();
     return;
   }
 
@@ -216,20 +312,13 @@ const startTokenRefreshTimer = () => {
     return;
   }
 
-  // 计算下一次刷新的时间（过期前TOKEN_REFRESH_THRESHOLD秒或一半时间，取小的那个）
-  const halfExpirationTime = Math.floor(expirationTime / 2);
-  const nextRefreshIn = Math.min(
-    expirationTime - TOKEN_REFRESH_THRESHOLD,
-    halfExpirationTime
-  );
+  // 根据实时时间动态计算定时器延迟
+  const timeoutDuration = calculateRefreshDelay();
 
-  // 至少等待10秒再检查
-  const timeoutDuration = Math.max(nextRefreshIn * 1000, 10000);
+  console.log(`[单例] 令牌自动刷新计划: ${Math.floor(timeoutDuration / 1000)}秒后检查 (令牌剩余${expirationTime}秒)`);
 
-  console.log(`令牌自动刷新计划: ${Math.floor(timeoutDuration / 1000)}秒后检查`);
-
-  // 设置定时器
-  tokenRefreshTimer = setTimeout(async () => {
+  // 使用单例管理器设置定时器
+  TokenRefreshManager.set(async () => {
     const refreshed = await checkAndRefreshToken();
     if (refreshed) {
       // 如果刷新成功，重新启动定时器
@@ -237,27 +326,29 @@ const startTokenRefreshTimer = () => {
     } else {
       // 如果刷新失败，尝试再次刷新
       console.log('令牌刷新失败，将在10秒后重试');
-      tokenRefreshTimer = setTimeout(() => {
-        startTokenRefreshTimer();
+      // 使用内部重试机制
+      TokenRefreshManager.set(async () => {
+        const retryRefreshed = await checkAndRefreshToken();
+        if (retryRefreshed) {
+          startTokenRefreshTimer();
+        } else {
+          // 重试仍然失败，根据动态时间安排下次重试
+          const retryDelay = Math.min(calculateRefreshDelay(), 30000); // 最多重试延迟30秒
+          console.log(`令牌刷新重试失败，将在${Math.floor(retryDelay / 1000)}秒后再次重试`);
+          TokenRefreshManager.set(() => {
+            startTokenRefreshTimer();
+          }, retryDelay);
+        }
       }, 10000);
     }
   }, timeoutDuration);
-
-  // 导出定时器到window对象，用于调试
-  window.tokenRefreshTimer = tokenRefreshTimer;
 };
 
 /**
  * 停止令牌刷新定时任务
  */
 const stopTokenRefreshTimer = () => {
-  if (tokenRefreshTimer) {
-    clearTimeout(tokenRefreshTimer);
-    tokenRefreshTimer = null;
-
-    // 从window对象中移除
-    window.tokenRefreshTimer = null;
-  }
+  TokenRefreshManager.clear();
 };
 
 /**
@@ -641,6 +732,12 @@ initializeTokenRefresh();
 watch(token, (newToken) => {
   loadUser();
 
+  // 如果正在刷新令牌过程中，跳过启动定时器（避免重复日志）
+  if (TokenRefreshManager.isRefreshing) {
+    console.log('[单例] 令牌刷新中，跳过定时器启动');
+    return;
+  }
+
   // 如果有新的token，启动自动刷新
   if (newToken && AUTO_REFRESH_ENABLED) {
     startTokenRefreshTimer();
@@ -696,4 +793,8 @@ export const localuser = {
   startTokenRefreshTimer,
   stopTokenRefreshTimer,
   initializeTokenRefresh,
+  calculateRefreshDelay,
+
+  // 单例管理器（用于调试）
+  TokenRefreshManager,
 };

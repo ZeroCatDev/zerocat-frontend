@@ -32,30 +32,47 @@
     </div>
 
     <!-- 线程内容 -->
-    <template v-else-if="rootPost">
+    <template v-else-if="post">
+      <!-- 祖先链（使用 PostCard 渲染，带连接线） -->
+      <div v-if="ancestors.length > 0" class="thread-ancestors">
+        <PostCard
+          v-for="(ancestor, index) in ancestors"
+          :key="ancestor.id"
+          :post="ancestor"
+          :includes="mergedIncludes"
+          :show-thread-line="true"
+          hide-reply-indicator
+          class="ancestor-card"
+        />
+      </div>
+
       <!-- 主帖（大号展示） -->
-      <article class="thread-root">
+      <article class="thread-root" :class="{ 'has-ancestors': ancestors.length > 0 }">
         <div class="root-header">
           <v-avatar
             size="48"
             class="root-avatar"
-            @click="goToUser(rootPost.author?.id)"
+            @click="goToUser(post.author?.username)"
           >
-            <v-img :src="getAuthorAvatar(rootPost)" :alt="getAuthorUsername(rootPost)" />
+            <v-img :src="getAuthorAvatar(post)" :alt="getAuthorUsername(post)" />
           </v-avatar>
-          <div class="root-author" @click="goToUser(rootPost.author?.id)">
-            <div class="root-display-name">{{ getAuthorDisplayName(rootPost) }}</div>
-            <div class="root-username">@{{ getAuthorUsername(rootPost) }}</div>
-          </div>
+          <router-link
+            :to="`/${getAuthorUsername(post)}`"
+            class="root-author-link"
+            @click.stop
+          >
+            <div class="root-display-name">{{ getAuthorDisplayName(post) }}</div>
+            <div class="root-username">@{{ getAuthorUsername(post) }}</div>
+          </router-link>
           <v-spacer />
-          <v-menu v-if="canDelete(rootPost)" location="bottom end">
+          <v-menu v-if="canDelete(post)" location="bottom end">
             <template #activator="{ props: menuProps }">
               <v-btn v-bind="menuProps" icon size="small" variant="text">
                 <v-icon>mdi-dots-horizontal</v-icon>
               </v-btn>
             </template>
             <v-list density="compact">
-              <v-list-item class="text-error" @click="deletePost(rootPost)">
+              <v-list-item class="text-error" @click="deletePost(post)">
                 <template #prepend>
                   <v-icon size="18">mdi-delete-outline</v-icon>
                 </template>
@@ -66,12 +83,12 @@
         </div>
 
         <!-- 内容 -->
-        <div class="root-content" v-html="formatContent(rootPost.content)" />
+        <div class="root-content" v-html="formatContent(post.content)" />
 
         <!-- 媒体 -->
-        <div v-if="rootMedia.length" class="root-media" :class="`root-media--${Math.min(rootMedia.length, 4)}`">
+        <div v-if="postMedia.length" class="root-media" :class="`root-media--${Math.min(postMedia.length, 4)}`">
           <div
-            v-for="(media, idx) in rootMedia.slice(0, 4)"
+            v-for="(media, idx) in postMedia.slice(0, 4)"
             :key="media.id || idx"
             v-ripple
             class="root-media-item"
@@ -79,15 +96,15 @@
           >
             <v-img
               :src="getMediaUrl(media)"
-              :cover="rootMedia.length > 1"
-              :max-height="rootMedia.length === 1 ? 600 : undefined"
+              :cover="postMedia.length > 1"
+              :max-height="postMedia.length === 1 ? 600 : undefined"
               class="root-media-img"
             />
           </div>
         </div>
 
         <!-- 嵌入内容 -->
-        <PostEmbed v-if="rootPost.embed" :embed="rootPost.embed" class="mt-4" />
+        <PostEmbed v-if="post.embed" :embed="post.embed" class="mt-4" />
 
         <!-- 引用的帖子 -->
         <QuotedPost
@@ -100,23 +117,23 @@
 
         <!-- 时间 -->
         <div class="root-time">
-          <time :datetime="rootPost.created_at">
-            {{ formatFullTime(rootPost.created_at) }}
+          <time :datetime="post.created_at">
+            {{ formatFullTime(post.created_at) }}
           </time>
         </div>
 
         <!-- 统计数据 -->
         <div v-if="hasStats" class="root-stats">
-          <div v-if="rootPost.stats?.retweets > 0" class="root-stat">
-            <span class="root-stat-value">{{ formatCount(rootPost.stats.retweets) }}</span>
+          <div v-if="post.stats?.retweets > 0" class="root-stat">
+            <span class="root-stat-value">{{ formatCount(post.stats.retweets) }}</span>
             <span class="root-stat-label">转推</span>
           </div>
-          <div v-if="rootPost.stats?.likes > 0" class="root-stat">
-            <span class="root-stat-value">{{ formatCount(rootPost.stats.likes) }}</span>
+          <div v-if="post.stats?.likes > 0" class="root-stat">
+            <span class="root-stat-value">{{ formatCount(post.stats.likes) }}</span>
             <span class="root-stat-label">喜欢</span>
           </div>
-          <div v-if="rootPost.stats?.bookmarks > 0" class="root-stat">
-            <span class="root-stat-value">{{ formatCount(rootPost.stats.bookmarks) }}</span>
+          <div v-if="post.stats?.bookmarks > 0" class="root-stat">
+            <span class="root-stat-value">{{ formatCount(post.stats.bookmarks) }}</span>
             <span class="root-stat-label">书签</span>
           </div>
         </div>
@@ -165,7 +182,7 @@
         <PostComposer
           ref="replyComposerRef"
           :submit="submitReply"
-          :placeholder="`回复 @${getAuthorUsername(rootPost)}`"
+          :placeholder="`回复 @${getAuthorUsername(post)}`"
           submit-label="回复"
           :disabled="!isLogin"
           :show-login-hint="!isLogin"
@@ -205,12 +222,12 @@
         <v-carousel
           v-model="mediaViewerIndex"
           hide-delimiters
-          :show-arrows="rootMedia.length > 1"
+          :show-arrows="postMedia.length > 1"
           height="100%"
           @click.stop
         >
           <v-carousel-item
-            v-for="(media, idx) in rootMedia"
+            v-for="(media, idx) in postMedia"
             :key="media.id || idx"
           >
             <div class="media-viewer-item">
@@ -229,13 +246,15 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch, nextTick } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { localuser } from '@/services/localAccount';
 import { getS3staticurl } from '@/services/projectService';
 import PostsService from '@/services/postsService';
 import { showSnackbar } from '@/composables/useNotifications';
+import { useDeleteConfirm } from '@/composables/useDeleteConfirm';
 import PostComposer from '@/components/posts/PostComposer.vue';
+import PostCard from '@/components/posts/PostCard.vue';
 import PostList from '@/components/posts/PostList.vue';
 import PostEmbed from '@/components/posts/PostEmbed.vue';
 import QuotedPost from '@/components/posts/QuotedPost.vue';
@@ -246,8 +265,9 @@ const router = useRouter();
 const postId = computed(() => route.params.id);
 
 // State
-const rootPost = ref(null);
-const replies = ref([]);
+const post = ref(null);
+const ancestors = ref([]); // 祖先链（从根帖到直接父帖）
+const repliesByParent = ref({}); // 按父帖ID分组的回复
 const includes = ref({ posts: {} });
 const loading = ref(false);
 const loadingMore = ref(false);
@@ -259,54 +279,74 @@ const mediaViewerIndex = ref(0);
 
 const replyComposerRef = ref(null);
 
+// Delete confirmation
+const { showDeleteConfirm } = useDeleteConfirm();
+
 // Auth
 const isLogin = computed(() => localuser.isLogin.value);
 const currentUserId = computed(() => localuser.user.value?.id);
 
-// Root post computed
-const rootMedia = computed(() => {
-  const media = rootPost.value?.media || rootPost.value?.mediaAssets || [];
+// 当前帖子的回复（featured + regular）
+const replies = computed(() => {
+  const parentId = post.value?.id;
+  if (!parentId) return [];
+  const group = repliesByParent.value[parentId] || repliesByParent.value[String(parentId)];
+  if (!group) return [];
+  // 精选回复在前，普通回复在后
+  return [...(group.featured || []), ...(group.regular || [])];
+});
+
+// Post computed
+const postMedia = computed(() => {
+  const media = post.value?.media || post.value?.mediaAssets || [];
   return Array.isArray(media) ? media : [];
 });
 
 const quotedPost = computed(() => {
-  const quotedId = rootPost.value?.quote_of_id;
+  const quotedId = post.value?.quote_of_id;
   if (!quotedId) return null;
-  // 先在includes中查找
   const posts = includes.value?.posts || {};
   let found = posts[quotedId] || posts[String(quotedId)];
   if (found) return found;
-  // 再在replies中查找（如果引用的帖子也是回复之一）
   return replies.value.find(p => p.id === quotedId || p.id === Number(quotedId)) || null;
 });
 
-// 合并includes，将replies中的帖子也加入，供PostList使用
+// 合并includes，将所有帖子加入供PostList使用
 const mergedIncludes = computed(() => {
   const result = { posts: { ...includes.value?.posts } };
-  // 添加rootPost
-  if (rootPost.value?.id) {
-    result.posts[rootPost.value.id] = rootPost.value;
-    result.posts[String(rootPost.value.id)] = rootPost.value;
+  // 添加当前帖子
+  if (post.value?.id) {
+    result.posts[post.value.id] = post.value;
+    result.posts[String(post.value.id)] = post.value;
   }
-  // 添加所有replies
-  for (const reply of replies.value) {
-    if (reply?.id) {
-      result.posts[reply.id] = reply;
-      result.posts[String(reply.id)] = reply;
+  // 添加所有祖先
+  for (const ancestor of ancestors.value) {
+    if (ancestor?.id) {
+      result.posts[ancestor.id] = ancestor;
+      result.posts[String(ancestor.id)] = ancestor;
+    }
+  }
+  // 添加所有回复
+  for (const [, group] of Object.entries(repliesByParent.value)) {
+    for (const reply of [...(group.featured || []), ...(group.regular || [])]) {
+      if (reply?.id) {
+        result.posts[reply.id] = reply;
+        result.posts[String(reply.id)] = reply;
+      }
     }
   }
   return result;
 });
 
 const hasStats = computed(() => {
-  const stats = rootPost.value?.stats;
+  const stats = post.value?.stats;
   return stats && (stats.retweets > 0 || stats.likes > 0 || stats.bookmarks > 0);
 });
 
-const viewerContext = computed(() => rootPost.value?.viewer_context || {});
-const isLiked = computed(() => viewerContext.value.liked ?? rootPost.value?.liked ?? false);
-const isRetweeted = computed(() => viewerContext.value.retweeted ?? rootPost.value?.retweeted ?? false);
-const isBookmarked = computed(() => viewerContext.value.bookmarked ?? rootPost.value?.bookmarked ?? false);
+const viewerContext = computed(() => post.value?.viewer_context || {});
+const isLiked = computed(() => viewerContext.value.liked ?? post.value?.liked ?? false);
+const isRetweeted = computed(() => viewerContext.value.retweeted ?? post.value?.retweeted ?? false);
+const isBookmarked = computed(() => viewerContext.value.bookmarked ?? post.value?.bookmarked ?? false);
 
 // Load thread
 const loadThread = async () => {
@@ -318,19 +358,27 @@ const loadThread = async () => {
   try {
     const res = await PostsService.getThread(postId.value, { limit: 50 });
 
-    if (res.root) {
-      rootPost.value = res.root;
-      replies.value = res.replies;
+    if (res.post) {
+      post.value = res.post;
+      ancestors.value = res.ancestors || [];
+      repliesByParent.value = res.repliesByParent || {};
       includes.value = res.includes;
       cursor.value = res.nextCursor;
       hasMoreReplies.value = res.hasMore;
     } else {
-      // 兼容旧API，尝试单独获取帖子
+      // 兼容：尝试单独获取帖子
       const singleRes = await PostsService.getPost(postId.value);
       if (singleRes.post) {
-        rootPost.value = singleRes.post;
+        post.value = singleRes.post;
+        ancestors.value = singleRes.ancestors || [];
         includes.value = singleRes.includes;
-        replies.value = [];
+        if (singleRes.replies) {
+          repliesByParent.value = {
+            [singleRes.post.id]: singleRes.replies
+          };
+        } else {
+          repliesByParent.value = {};
+        }
         hasMoreReplies.value = false;
       } else {
         notFound.value = true;
@@ -357,7 +405,15 @@ const loadMoreReplies = async () => {
       limit: 50
     });
 
-    replies.value.push(...res.replies);
+    // 合并新的 repliesByParent
+    for (const [parentId, group] of Object.entries(res.repliesByParent || {})) {
+      if (!repliesByParent.value[parentId]) {
+        repliesByParent.value[parentId] = { featured: [], regular: [] };
+      }
+      repliesByParent.value[parentId].featured.push(...(group.featured || []));
+      repliesByParent.value[parentId].regular.push(...(group.regular || []));
+    }
+
     Object.assign(includes.value.posts, res.includes.posts);
     cursor.value = res.nextCursor;
     hasMoreReplies.value = res.hasMore;
@@ -369,18 +425,18 @@ const loadMoreReplies = async () => {
 };
 
 // Helpers
-const getAuthorAvatar = (post) => {
-  const avatar = post?.author?.avatar;
+const getAuthorAvatar = (p) => {
+  const avatar = p?.author?.avatar;
   if (!avatar) return '/default-avatar.png';
   return localuser.getUserAvatar(avatar);
 };
 
-const getAuthorUsername = (post) => {
-  return post?.author?.username ?? 'unknown';
+const getAuthorUsername = (p) => {
+  return p?.author?.username ?? 'unknown';
 };
 
-const getAuthorDisplayName = (post) => {
-  return post?.author?.display_name ?? post?.author?.displayName ?? getAuthorUsername(post);
+const getAuthorDisplayName = (p) => {
+  return p?.author?.display_name ?? p?.author?.displayName ?? getAuthorUsername(p);
 };
 
 const getMediaUrl = (media) => {
@@ -438,8 +494,8 @@ const goBack = () => {
   }
 };
 
-const goToUser = (userId) => {
-  if (userId) router.push(`/app/posts/user/${userId}`);
+const goToUser = (username) => {
+  if (username) router.push(`/${username}`);
 };
 
 const goToPost = (id) => {
@@ -460,14 +516,14 @@ const toggleLike = async () => {
   try {
     if (isLiked.value) {
       await PostsService.unlike(postId.value);
-      if (rootPost.value.viewer_context) rootPost.value.viewer_context.liked = false;
-      else rootPost.value.liked = false;
-      if (rootPost.value.stats) rootPost.value.stats.likes--;
+      if (post.value.viewer_context) post.value.viewer_context.liked = false;
+      else post.value.liked = false;
+      if (post.value.stats) post.value.stats.likes--;
     } else {
       await PostsService.like(postId.value);
-      if (rootPost.value.viewer_context) rootPost.value.viewer_context.liked = true;
-      else rootPost.value.liked = true;
-      if (rootPost.value.stats) rootPost.value.stats.likes++;
+      if (post.value.viewer_context) post.value.viewer_context.liked = true;
+      else post.value.liked = true;
+      if (post.value.stats) post.value.stats.likes++;
     }
   } catch (e) {
     showSnackbar(e?.message || '操作失败', 'error');
@@ -479,14 +535,14 @@ const toggleRetweet = async () => {
   try {
     if (isRetweeted.value) {
       await PostsService.unretweet(postId.value);
-      if (rootPost.value.viewer_context) rootPost.value.viewer_context.retweeted = false;
-      else rootPost.value.retweeted = false;
-      if (rootPost.value.stats) rootPost.value.stats.retweets--;
+      if (post.value.viewer_context) post.value.viewer_context.retweeted = false;
+      else post.value.retweeted = false;
+      if (post.value.stats) post.value.stats.retweets--;
     } else {
       await PostsService.retweet(postId.value);
-      if (rootPost.value.viewer_context) rootPost.value.viewer_context.retweeted = true;
-      else rootPost.value.retweeted = true;
-      if (rootPost.value.stats) rootPost.value.stats.retweets++;
+      if (post.value.viewer_context) post.value.viewer_context.retweeted = true;
+      else post.value.retweeted = true;
+      if (post.value.stats) post.value.stats.retweets++;
     }
   } catch (e) {
     showSnackbar(e?.message || '操作失败', 'error');
@@ -498,13 +554,13 @@ const toggleBookmark = async () => {
   try {
     if (isBookmarked.value) {
       await PostsService.unbookmark(postId.value);
-      if (rootPost.value.viewer_context) rootPost.value.viewer_context.bookmarked = false;
-      else rootPost.value.bookmarked = false;
+      if (post.value.viewer_context) post.value.viewer_context.bookmarked = false;
+      else post.value.bookmarked = false;
       showSnackbar('已取消收藏', 'success');
     } else {
       await PostsService.bookmark(postId.value);
-      if (rootPost.value.viewer_context) rootPost.value.viewer_context.bookmarked = true;
-      else rootPost.value.bookmarked = true;
+      if (post.value.viewer_context) post.value.viewer_context.bookmarked = true;
+      else post.value.bookmarked = true;
       showSnackbar('已添加到书签', 'success');
     }
   } catch (e) {
@@ -517,8 +573,8 @@ const sharePost = async () => {
   if (navigator.share) {
     try {
       await navigator.share({
-        title: `${getAuthorDisplayName(rootPost.value)}的推文`,
-        text: rootPost.value?.content?.slice(0, 100),
+        title: `${getAuthorDisplayName(post.value)}的推文`,
+        text: post.value?.content?.slice(0, 100),
         url
       });
     } catch {}
@@ -532,14 +588,20 @@ const sharePost = async () => {
   }
 };
 
-const deletePost = async (post) => {
-  try {
-    await PostsService.remove(post.id);
-    showSnackbar('推文已删除', 'success');
-    router.push('/app/posts');
-  } catch (e) {
-    showSnackbar(e?.message || '删除失败', 'error');
-  }
+const deletePost = async (p) => {
+  showDeleteConfirm(
+    async () => {
+      await PostsService.remove(p.id);
+      showSnackbar('推文已删除', 'success');
+      router.push('/app/posts');
+    },
+    {
+      title: '删除推文？',
+      message: '此操作无法撤消。该推文将从你的个人资料、任何关注你的用户的时间线以及搜索结果中删除。',
+      confirmText: '删除',
+      cancelText: '取消'
+    }
+  );
 };
 
 // Reply
@@ -551,10 +613,13 @@ const focusReply = () => {
 const submitReply = async ({ content, mediaIds, embed }) => {
   const res = await PostsService.reply(postId.value, { content, mediaIds, embed });
   if (res.post) {
-    replies.value.unshift(res.post);
-    if (rootPost.value.stats) rootPost.value.stats.replies++;
+    const parentId = post.value.id;
+    if (!repliesByParent.value[parentId]) {
+      repliesByParent.value[parentId] = { featured: [], regular: [] };
+    }
+    repliesByParent.value[parentId].regular.unshift(res.post);
+    if (post.value.stats) post.value.stats.replies++;
   }
-  // 合并includes（被回复的帖子等）
   if (res.includes?.posts) {
     Object.assign(includes.value.posts, res.includes.posts);
   }
@@ -562,17 +627,27 @@ const submitReply = async ({ content, mediaIds, embed }) => {
 };
 
 const removeReply = (replyId) => {
-  replies.value = replies.value.filter((r) => r.id !== replyId);
-  if (rootPost.value.stats) rootPost.value.stats.replies--;
+  const parentId = post.value?.id;
+  if (parentId && repliesByParent.value[parentId]) {
+    const group = repliesByParent.value[parentId];
+    group.featured = group.featured.filter((r) => r.id !== replyId);
+    group.regular = group.regular.filter((r) => r.id !== replyId);
+  }
+  if (post.value?.stats) post.value.stats.replies--;
 };
 
 const addReply = (data) => {
-  // 支持 { post, includes } 格式或直接传入 post
-  const post = data?.post ?? data;
+  const newPost = data?.post ?? data;
   const newIncludes = data?.includes?.posts;
 
-  if (post) {
-    replies.value.unshift(post);
+  if (newPost) {
+    const parentId = post.value?.id;
+    if (parentId) {
+      if (!repliesByParent.value[parentId]) {
+        repliesByParent.value[parentId] = { featured: [], regular: [] };
+      }
+      repliesByParent.value[parentId].regular.unshift(newPost);
+    }
   }
   if (newIncludes) {
     Object.assign(includes.value.posts, newIncludes);
@@ -603,7 +678,7 @@ onMounted(loadThread);
 /* Header */
 .thread-header {
   position: sticky;
-  top: 0;
+  top: 64px;
   z-index: 100;
   display: flex;
   align-items: center;
@@ -662,6 +737,30 @@ onMounted(loadThread);
   border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
 }
 
+/* Ancestors - 使用 PostCard 渲染 */
+.thread-ancestors {
+  /* 移除边框，让 PostCard 自带样式 */
+}
+
+.thread-ancestors :deep(.post-card) {
+  border-bottom: none;
+}
+
+/* 主帖与祖先链的连接线 */
+.thread-root.has-ancestors {
+  position: relative;
+}
+
+.thread-root.has-ancestors::before {
+  content: '';
+  position: absolute;
+  left: 39px;
+  top: 0;
+  width: 2px;
+  height: 16px;
+  background: rgba(var(--v-theme-on-surface), 0.2);
+}
+
 .root-header {
   display: flex;
   align-items: center;
@@ -673,11 +772,13 @@ onMounted(loadThread);
   margin-right: 12px;
 }
 
-.root-author {
+.root-author-link {
   cursor: pointer;
+  text-decoration: none;
+  color: inherit;
 }
 
-.root-author:hover .root-display-name {
+.root-author-link:hover .root-display-name {
   text-decoration: underline;
 }
 

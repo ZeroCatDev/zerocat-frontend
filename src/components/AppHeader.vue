@@ -1,7 +1,9 @@
 <template>
   <v-app-bar :elevation="2" fixed>
     <template #prepend>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon
+        @click.stop="$emit('toggle-drawer')"
+      ></v-app-bar-nav-icon>
     </template>
     <v-btn :active="false" icon variant="text" @click="goHome">
       <v-icon>
@@ -220,213 +222,12 @@
       </transition>
     </template>
   </v-app-bar>
-  <v-navigation-drawer
-    v-if="!isAdminRoute"
-    v-model="drawer"
-    :rail="drawerRail"
-    expand-on-hover
-  >
-    <!-- 导航部分 -->
-    <v-list>
-      <v-list-subheader>
-        <v-icon icon="mdi-menu" size="small"></v-icon>
-        导航
-      </v-list-subheader>
-
-      <v-list-item
-        prepend-icon="mdi-home"
-        rounded="xl"
-        title="首页"
-        to="/"
-      ></v-list-item>
-
-      <v-list-item
-        v-if="localuser.isLogin.value"
-        prepend-icon="mdi-view-dashboard"
-        rounded="xl"
-        title="仪表盘"
-        to="/app/dashboard"
-      ></v-list-item>
-
-      <v-list-item
-        prepend-icon="mdi-xml"
-        rounded="xl"
-        title="项目"
-        to="/app/explore"
-      ></v-list-item>
-
-      <v-list-item
-        prepend-icon="mdi-earth"
-        rounded="xl"
-        title="搜索"
-        to="/app/search"
-      ></v-list-item>
-    </v-list>
-
-    <!-- 镜像部分 -->
-    <v-list v-if="proxyEnabled">
-      <v-list-subheader>
-        <v-icon icon="mdi-link-variant" size="small"></v-icon>
-        镜像
-      </v-list-subheader>
-
-      <v-list-item
-        prepend-icon="mdi-home"
-        rounded="xl"
-        title="首页"
-        to="/app/proxy"
-      ></v-list-item>
-
-      <v-list-item
-        prepend-icon="mdi-earth"
-        rounded="xl"
-        title="探索"
-        to="/app/proxy/explore"
-      ></v-list-item>
-
-      <v-list-item
-        prepend-icon="mdi-xml"
-        rounded="xl"
-        title="搜索"
-        to="/app/proxy/search"
-      ></v-list-item>
-
-      <v-list-item
-        prepend-icon="mdi-newspaper"
-        rounded="xl"
-        title="新闻"
-        to="/app/proxy/news"
-      ></v-list-item>
-
-      <v-list-item
-        prepend-icon="mdi-link"
-        rounded="xl"
-        title="打开"
-        to="/app/proxy/open"
-      ></v-list-item>
-    </v-list>
-
-    <!-- 工具部分 -->
-    <v-list>
-      <v-list-subheader>
-        <v-icon icon="mdi-tools" size="small"></v-icon>
-        工具
-      </v-list-subheader>
-
-      <v-list-item
-        prepend-icon="mdi-download"
-        rounded="xl"
-        title="桌面版镜像"
-        to="/app/tools/asdm"
-      ></v-list-item>
-
-      <v-list-item
-        prepend-icon="mdi-xml"
-        rounded="xl"
-        title="项目比较器"
-        to="/app/tools/comparer"
-      ></v-list-item>
-      <v-list-item
-        prepend-icon="mdi-xml"
-        rounded="xl"
-        title="Scratch扩展"
-        to="/app/extensions"
-      ></v-list-item>
-    </v-list>
-
-    <v-divider></v-divider>
-
-    <!-- 主题和抽屉控制 -->
-    <v-list>
-      <v-list-item
-        :prepend-icon="isDarkTheme ? 'mdi-weather-sunny' : 'mdi-weather-night'"
-        rounded="xl"
-        @click="toggleTheme"
-      ></v-list-item>
-      <v-list-item
-        :prepend-icon="drawerRail ? 'mdi-chevron-right' : 'mdi-chevron-left'"
-        rounded="xl"
-        @click="drawerRail = !drawerRail"
-      ></v-list-item>
-    </v-list>
-  </v-navigation-drawer>
-
-  <v-navigation-drawer
-    v-else
-    v-model="drawer"
-    :rail="drawerRail"
-    expand-on-hover
-  >
-    <v-list>
-      <v-list-item
-        prepend-icon="mdi-arrow-left"
-        rounded="xl"
-        title="返回"
-        to="/"
-      ></v-list-item>
-      <v-list-subheader>
-        <v-icon icon="mdi-shield" size="small"></v-icon>
-        管理
-      </v-list-subheader>
-
-      <v-list-item
-        prepend-icon="mdi-account-group"
-        rounded="xl"
-        title="用户管理"
-        to="/app/admin/users"
-      ></v-list-item>
-
-      <v-list-item
-        prepend-icon="mdi-xml"
-        rounded="xl"
-        title="项目管理"
-        to="/app/admin/project"
-      ></v-list-item>
-
-      <v-list-item
-        prepend-icon="mdi-cog"
-        rounded="xl"
-        title="系统设置"
-        to="/app/admin/config"
-      ></v-list-item>
-
-      <v-list-item
-        prepend-icon="mdi-sitemap"
-        rounded="xl"
-        title="站点地图"
-        to="/app/admin/sitemap"
-      ></v-list-item>
-
-      <v-list-item
-        prepend-icon="mdi-puzzle"
-        rounded="xl"
-        title="扩展管理"
-        to="/app/admin/extensions"
-      ></v-list-item>
-    </v-list>
-
-    <v-divider></v-divider>
-
-    <!-- 主题和抽屉控制 -->
-    <v-list>
-      <v-list-item
-        :prepend-icon="isDarkTheme ? 'mdi-weather-sunny' : 'mdi-weather-night'"
-        rounded="xl"
-        @click="toggleTheme"
-      ></v-list-item>
-      <v-list-item
-        :prepend-icon="drawerRail ? 'mdi-chevron-right' : 'mdi-chevron-left'"
-        rounded="xl"
-        @click="drawerRail = !drawerRail"
-      ></v-list-item>
-    </v-list>
-  </v-navigation-drawer>
 </template>
 
 <script>
 import { localuser } from "@/services/localAccount";
 import { useTheme } from "vuetify";
-import { ref, onMounted, watch, nextTick } from "vue";
+import { ref, onMounted, watch, nextTick, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import NotificationsCard from "@/components/NotificationsCard.vue";
 import SearchDialog from "@/components/SearchDialog.vue";
@@ -440,12 +241,14 @@ export default {
     SearchDialog,
     LoginDialog,
   },
+  props: {},
+  emits: ['toggle-drawer', 'tab-switched', 'tab-added', 'tab-removing', 'tab-removed'],
   async mounted() {
     this.s3BucketUrl = get("s3.staticurl");
     // 获取scratchproxy.enabled配置
     this.proxyEnabled = get("scratchproxy.enabled");
   },
-  setup() {
+  setup(props) {
     const route = useRoute();
     const router = useRouter();
     const notificationsCard = ref(null);
@@ -523,8 +326,6 @@ export default {
   data() {
     return {
       BASE_API: import.meta.env.VITE_APP_BASE_API,
-      drawer: true,
-      drawerRail: true,
       isLogin: localuser.isLogin,
       items: this.initializeNavItems(),
       subNavItems: [],
@@ -543,12 +344,8 @@ export default {
     };
   },
   created() {
-    const drawerStatus = localStorage.getItem("drawerStatus");
-    const drawerRailStatus = localStorage.getItem("drawerRailStatus");
     const savedTheme = localStorage.getItem("theme");
 
-    this.drawer = drawerStatus === "true";
-    this.drawerRail = drawerRailStatus === "true";
     this.updateSubNavItems(this.$route);
 
     // Initialize theme
@@ -559,12 +356,6 @@ export default {
   watch: {
     userInfo() {
       this.$forceUpdate();
-    },
-    drawer(newVal) {
-      localStorage.setItem("drawerStatus", newVal);
-    },
-    drawerRail(newVal) {
-      localStorage.setItem("drawerRailStatus", newVal);
     },
     $route(to) {
       this.updateSubNavItems(to);
@@ -723,12 +514,22 @@ export default {
       }
     },
     shouldHideNav(path) {
+      // /app/proxy 需要显示子项目 tabs
+      if (path.startsWith("/app/proxy")) return false;
       return (
         this.hideNavPaths.some((hidePath) => path.startsWith(hidePath)) ||
         this.hideExactPaths.includes(path)
       );
     },
     setSubNavItems(route) {
+      // /app/proxy 子项目 tabs
+      if (route.path.startsWith("/app/proxy")) {
+        this.subNavItems = this.getProxySubNavItems();
+        const matched = this.subNavItems.find((i) => i.link === route.path);
+        this.activeTab = matched?.name || null;
+        return;
+      }
+
       const pathSegments = route.path.split("/").filter(Boolean);
       if (this.shouldHideNav(route.path)) {
         this.subNavItems = [];
@@ -743,6 +544,16 @@ export default {
         );
         this.activeTab = pathSegments[2] || "home";
       }
+    },
+    getProxySubNavItems() {
+      if (!this.proxyEnabled) return [];
+      return [
+        { title: "首页", link: "/app/proxy",name:"proxy-home"},
+        { title: "探索", link: "/app/proxy/explore", name: "proxy-explore" },
+        { title: "搜索", link: "/app/proxy/search", name: "proxy-search" },
+        { title: "新闻", link: "/app/proxy/news", name: "proxy-news" },
+        { title: "打开", link: "/app/proxy/open", name: "proxy-open" },
+      ];
     },
     getUserSubNavItems(userId) {
       return [
@@ -899,6 +710,9 @@ export default {
     },
     isAdminRoute() {
       return this.$route.path.startsWith("/app/admin");
+    },
+    isHomePage() {
+      return this.$route.path === "/" || this.$route.path === "/index.html";
     },
   },
 };

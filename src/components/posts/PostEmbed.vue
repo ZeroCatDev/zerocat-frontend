@@ -115,28 +115,105 @@
     <!-- 用户嵌入 -->
     <template v-else-if="embed.type === 'user'">
       <div
-        class="post-embed post-embed--user"
+        class="user-embed-card"
+        :class="{ 'user-embed-card--compact': compact }"
+        @click="handleClick"
+      >
+        <!-- 背景装饰 -->
+        <div class="user-embed-bg">
+          <div class="user-embed-bg-pattern" />
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="user-embed-content">
+          <!-- 头部：头像 + 关注按钮 -->
+          <div class="user-embed-header">
+            <v-avatar
+              :size="compact ? 48 : 64"
+              class="user-embed-avatar"
+            >
+              <v-img
+                v-if="userData?.avatar"
+                :src="getAvatarUrl(userData.avatar)"
+                cover
+              />
+              <v-icon v-else :size="compact ? 24 : 32">mdi-account</v-icon>
+            </v-avatar>
+
+            <v-btn
+              v-if="!isSelf && !compact"
+              :variant="isFollowingUser ? 'outlined' : 'flat'"
+              :color="isFollowingUser ? 'default' : 'primary'"
+              size="small"
+              class="user-embed-follow-btn"
+              :loading="userFollowLoading"
+              @click.stop="toggleUserFollow"
+            >
+              {{ isFollowingUser ? '已关注' : '关注' }}
+            </v-btn>
+          </div>
+
+          <!-- 用户信息 -->
+          <div class="user-embed-info">
+            <div class="user-embed-names">
+              <span class="user-embed-display-name">
+                {{ userData?.display_name || userData?.username || embed.username || `用户 #${embed.id}` }}
+              </span>
+              <v-icon
+                v-if="userData?.role === 'admin'"
+                size="16"
+                color="primary"
+                class="user-embed-badge"
+              >
+                mdi-check-decagram
+              </v-icon>
+            </div>
+            <div class="user-embed-username">
+              @{{ userData?.username || embed.username || embed.id }}
+            </div>
+          </div>
+
+          <!-- 简介 -->
+          <div v-if="userData?.bio && !compact" class="user-embed-bio">
+            {{ userData.bio }}
+          </div>
+
+          <!-- 统计信息 -->
+          <div v-if="!compact" class="user-embed-stats">
+            <div class="user-embed-stat">
+              <span class="user-embed-stat-value">{{ formatStatNumber(userData?.following_count || 0) }}</span>
+              <span class="user-embed-stat-label">正在关注</span>
+            </div>
+            <div class="user-embed-stat">
+              <span class="user-embed-stat-value">{{ formatStatNumber(userData?.followers_count || 0) }}</span>
+              <span class="user-embed-stat-label">关注者</span>
+            </div>
+            <div v-if="userData?.project_count" class="user-embed-stat">
+              <span class="user-embed-stat-value">{{ formatStatNumber(userData.project_count) }}</span>
+              <span class="user-embed-stat-label">作品</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 悬浮箭头 -->
+        <v-icon class="user-embed-arrow" size="16">mdi-arrow-top-right</v-icon>
+      </div>
+    </template>
+
+    <!-- URL 嵌入 -->
+    <template v-else-if="embed.type === 'url'">
+      <div
+        class="post-embed post-embed--url"
         :class="{ 'post-embed--compact': compact }"
         @click="handleClick"
       >
-        <v-avatar size="56" class="embed-user-avatar">
-          <v-img
-            v-if="userData?.avatar"
-            :src="getAvatarUrl(userData.avatar)"
-          />
-          <v-icon v-else size="28">mdi-account</v-icon>
-        </v-avatar>
+        <div class="embed-icon embed-icon--url">
+          <v-icon size="20">mdi-link-variant</v-icon>
+        </div>
         <div class="embed-content">
-          <div class="embed-label">用户</div>
-          <div class="embed-title">
-            {{ userData?.display_name || userData?.username || embed.username || `用户 #${embed.id}` }}
-          </div>
-          <div v-if="userData?.username" class="embed-username">
-            @{{ userData.username }}
-          </div>
-          <div v-if="userData?.bio && !compact" class="embed-description">
-            {{ userData.bio }}
-          </div>
+          <div class="embed-label">{{ urlDomain }}</div>
+          <div class="embed-title">{{ urlTitle }}</div>
+          <div v-if="!compact" class="embed-url-path">{{ urlPath }}</div>
         </div>
         <v-icon class="embed-arrow" size="16">mdi-arrow-top-right</v-icon>
       </div>
@@ -167,6 +244,7 @@ import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { localuser } from '@/services/localAccount';
 import { getProjectInfo, getS3staticurl } from '@/services/projectService';
+import axios from '@/axios/axios';
 import ProjectPlayer from '@/components/project/ProjectPlayer.vue';
 
 const props = defineProps({
@@ -181,6 +259,16 @@ const projectData = ref(null);
 const listData = ref(null);
 const userData = ref(null);
 const loading = ref(false);
+
+// User follow state
+const userFollowLoading = ref(false);
+const isFollowingUser = ref(false);
+
+// Check if viewing own profile
+const isSelf = computed(() => {
+  if (!localuser.isLogin.value || !userData.value?.id) return true;
+  return Number(localuser.user.value?.id) === Number(userData.value.id);
+});
 
 // Computed properties
 const isScratchProject = computed(() => {
@@ -201,13 +289,97 @@ const projectTypeLabel = computed(() => {
   return labels[type] || '项目';
 });
 
+// URL embed computed properties
+const urlDomain = computed(() => {
+  if (props.embed.type !== 'url' || !props.embed.url) return '';
+  try {
+    const url = new URL(props.embed.url);
+    return url.hostname.replace(/^www\./, '');
+  } catch {
+    return '链接';
+  }
+});
+
+const urlTitle = computed(() => {
+  if (props.embed.type !== 'url' || !props.embed.url) return '';
+  try {
+    const url = new URL(props.embed.url);
+    // Extract meaningful title from pathname
+    const pathParts = url.pathname.split('/').filter(Boolean);
+    if (pathParts.length > 0) {
+      return decodeURIComponent(pathParts[pathParts.length - 1]).replace(/[-_]/g, ' ');
+    }
+    return url.hostname;
+  } catch {
+    return props.embed.url;
+  }
+});
+
+const urlPath = computed(() => {
+  if (props.embed.type !== 'url' || !props.embed.url) return '';
+  try {
+    const url = new URL(props.embed.url);
+    return url.pathname + url.search;
+  } catch {
+    return '';
+  }
+});
+
 // Get URLs
 const getAvatarUrl = (avatar) => localuser.getUserAvatar(avatar);
 const getThumbnailUrl = (thumbnail) => getS3staticurl(thumbnail);
 
+// Format number for stats
+const formatStatNumber = (num) => {
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+  if (num >= 10000) return `${(num / 1000).toFixed(1)}K`;
+  if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+  return num.toString();
+};
+
+// Toggle user follow
+const toggleUserFollow = async () => {
+  if (!localuser.isLogin.value) {
+    router.push('/login');
+    return;
+  }
+  if (!userData.value?.id) return;
+
+  userFollowLoading.value = true;
+  try {
+    if (isFollowingUser.value) {
+      await axios.delete(`/follows/${userData.value.id}`);
+      isFollowingUser.value = false;
+      if (userData.value.followers_count > 0) {
+        userData.value.followers_count--;
+      }
+    } else {
+      await axios.post(`/follows/${userData.value.id}`);
+      isFollowingUser.value = true;
+      userData.value.followers_count = (userData.value.followers_count || 0) + 1;
+    }
+  } catch (e) {
+    console.error('Follow action failed:', e);
+  } finally {
+    userFollowLoading.value = false;
+  }
+};
+
+// Check user follow status
+const checkUserFollowStatus = async () => {
+  if (!localuser.isLogin.value || !userData.value?.id || isSelf.value) return;
+  try {
+    const res = await axios.get(`/follows/relationships/${userData.value.id}`);
+    const data = res.data?.data || res.data;
+    isFollowingUser.value = data?.isFollowing || false;
+  } catch {
+    isFollowingUser.value = false;
+  }
+};
+
 // Load embed data
 const loadEmbedData = async () => {
-  if (!props.embed?.id) return;
+  if (!props.embed?.id && !props.embed?.username) return;
 
   loading.value = true;
   try {
@@ -223,11 +395,28 @@ const loadEmbedData = async () => {
         listData.value = { id: props.embed.id };
         break;
       case 'user':
-        // TODO: Implement user fetching
-        userData.value = {
-          id: props.embed.id,
-          username: props.embed.username
-        };
+        // Fetch user data from API
+        try {
+          const endpoint = props.embed.id
+            ? `/user/id/${props.embed.id}`
+            : `/user/name/${props.embed.username}`;
+          const res = await axios.get(endpoint);
+          if (res.data?.status === 'success' && res.data?.data) {
+            userData.value = res.data.data;
+            // Check follow status after loading user data
+            checkUserFollowStatus();
+          } else {
+            userData.value = {
+              id: props.embed.id,
+              username: props.embed.username
+            };
+          }
+        } catch {
+          userData.value = {
+            id: props.embed.id,
+            username: props.embed.username
+          };
+        }
         break;
     }
   } catch (e) {
@@ -255,6 +444,11 @@ const handleClick = () => {
         router.push(`/${userData.value?.username || props.embed.username}`);
       } else {
         router.push(`/app/posts/user/${props.embed.id}`);
+      }
+      break;
+    case 'url':
+      if (props.embed.url) {
+        window.open(props.embed.url, '_blank', 'noopener,noreferrer');
       }
       break;
   }
@@ -466,6 +660,23 @@ watch(() => props.embed, loadEmbedData, { immediate: true, deep: true });
   color: rgb(var(--v-theme-secondary));
 }
 
+.embed-icon--url {
+  background: rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.embed-icon--url .v-icon {
+  color: rgba(var(--v-theme-on-surface), 0.7);
+}
+
+.embed-url-path {
+  font-size: 12px;
+  color: rgba(var(--v-theme-on-surface), 0.5);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .post-embed--compact .embed-icon {
   width: 32px;
   height: 32px;
@@ -558,5 +769,219 @@ watch(() => props.embed, loadEmbedData, { immediate: true, deep: true });
 /* User embed specific */
 .post-embed--user {
   align-items: center;
+}
+
+/* Modern User Embed Card */
+.user-embed-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: rgb(var(--v-theme-surface));
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.12);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-embed-card:hover {
+  border-color: rgba(var(--v-theme-primary), 0.3);
+  box-shadow: 0 4px 20px rgba(var(--v-theme-primary), 0.08);
+}
+
+.user-embed-card--compact {
+  flex-direction: row;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 12px;
+}
+
+/* Background decoration */
+.user-embed-bg {
+  position: relative;
+  height: 60px;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--v-theme-primary), 0.15) 0%,
+    rgba(var(--v-theme-primary), 0.05) 50%,
+    rgba(var(--v-theme-secondary), 0.1) 100%
+  );
+  overflow: hidden;
+}
+
+.user-embed-card--compact .user-embed-bg {
+  display: none;
+}
+
+.user-embed-bg-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle at 20% 80%,
+    rgba(var(--v-theme-primary), 0.1) 0%,
+    transparent 50%
+  ),
+  radial-gradient(
+    circle at 80% 20%,
+    rgba(var(--v-theme-secondary), 0.08) 0%,
+    transparent 50%
+  );
+}
+
+/* Main content area */
+.user-embed-content {
+  padding: 0 16px 16px;
+  margin-top: -32px;
+  position: relative;
+}
+
+.user-embed-card--compact .user-embed-content {
+  padding: 0;
+  margin-top: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Header with avatar and follow button */
+.user-embed-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.user-embed-card--compact .user-embed-header {
+  display: contents;
+}
+
+.user-embed-avatar {
+  border: 3px solid rgb(var(--v-theme-surface));
+  background: rgb(var(--v-theme-surface));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.user-embed-card--compact .user-embed-avatar {
+  border-width: 2px;
+  margin-right: 12px;
+}
+
+.user-embed-follow-btn {
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  border-radius: 20px;
+  padding: 0 16px;
+  height: 32px !important;
+  min-width: 80px;
+}
+
+.user-embed-follow-btn:hover {
+  transform: scale(1.02);
+}
+
+/* User info section */
+.user-embed-info {
+  margin-bottom: 8px;
+}
+
+.user-embed-card--compact .user-embed-info {
+  margin-bottom: 0;
+}
+
+.user-embed-names {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.user-embed-display-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: rgb(var(--v-theme-on-surface));
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-embed-card--compact .user-embed-display-name {
+  font-size: 15px;
+}
+
+.user-embed-badge {
+  flex-shrink: 0;
+}
+
+.user-embed-username {
+  font-size: 14px;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-embed-card--compact .user-embed-username {
+  font-size: 13px;
+}
+
+/* Bio section */
+.user-embed-bio {
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgb(var(--v-theme-on-surface));
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Stats section */
+.user-embed-stats {
+  display: flex;
+  gap: 16px;
+}
+
+.user-embed-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.user-embed-stat-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.user-embed-stat-label {
+  font-size: 13px;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+}
+
+/* Arrow icon */
+.user-embed-arrow {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: rgba(var(--v-theme-on-surface), 0.3);
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.user-embed-card:hover .user-embed-arrow {
+  opacity: 1;
+  color: rgb(var(--v-theme-primary));
+}
+
+.user-embed-card--compact .user-embed-arrow {
+  position: static;
+  opacity: 0.4;
+  flex-shrink: 0;
+}
+
+.user-embed-card--compact:hover .user-embed-arrow {
+  opacity: 1;
 }
 </style>

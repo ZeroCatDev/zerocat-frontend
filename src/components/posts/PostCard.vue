@@ -11,7 +11,7 @@
     <div v-if="retweetAuthor" class="post-retweet-indicator">
       <v-icon size="14" class="mr-2">mdi-repeat</v-icon>
       <router-link
-        :to="`/user/${retweetAuthor.id}`"
+        :to="`/${retweetAuthor.username || retweetAuthor.id}`"
         class="post-retweet-link"
         @click.stop
       >
@@ -25,7 +25,7 @@
       <span class="text-medium-emphasis">
         回复
         <router-link
-          :to="`/user/${replyToPost.author?.id}`"
+          :to="`/${replyToPost.author?.username || replyToPost.author?.id}`"
           class="post-reply-link"
           @click.stop
         >
@@ -52,16 +52,20 @@
       <div class="post-content-col">
         <!-- 作者信息行 -->
         <div class="post-header">
-          <div class="post-author-info" @click.stop="goUser">
+          <router-link
+            :to="`/${authorUsername}`"
+            class="post-author-link"
+            @click.stop
+          >
             <span class="post-display-name">{{ authorDisplayName }}</span>
             <span class="post-username">@{{ authorUsername }}</span>
-          </div>
+          </router-link>
           <span class="post-separator">·</span>
           <time class="post-time" :datetime="createdAt" :title="fullDateTime">
             {{ timeAgo }}
           </time>
           <v-spacer />
-          <v-menu v-if="!isDeleted" location="bottom end">
+          <v-menu v-if="!isDeleted" location="bottom end" @update:model-value="onMenuOpen">
             <template #activator="{ props: menuProps }">
               <v-btn
                 v-bind="menuProps"
@@ -75,16 +79,41 @@
               </v-btn>
             </template>
             <v-list density="compact" class="post-menu-list">
+              <!-- 关注/取关 (非自己的帖子) -->
+              <v-list-item
+                v-if="!isSelf && followStatus !== null && !isBlocked"
+                :disabled="followLoading"
+                @click="toggleFollow"
+              >
+                <template #prepend>
+                  <v-icon size="18">{{ isFollowing ? 'mdi-account-minus-outline' : 'mdi-account-plus-outline' }}</v-icon>
+                </template>
+                <v-list-item-title>{{ isFollowing ? `取消关注 @${authorUsername}` : `关注 @${authorUsername}` }}</v-list-item-title>
+              </v-list-item>
+              <!-- 拉黑/解除拉黑 (非自己的帖子) -->
+              <v-list-item
+                v-if="!isSelf && followStatus !== null"
+                :disabled="followLoading"
+                :class="{ 'text-error': !isBlocked }"
+                @click="toggleBlock"
+              >
+                <template #prepend>
+                  <v-icon size="18">{{ isBlocked ? 'mdi-account-check-outline' : 'mdi-block-helper' }}</v-icon>
+                </template>
+                <v-list-item-title>{{ isBlocked ? `解除拉黑 @${authorUsername}` : `拉黑 @${authorUsername}` }}</v-list-item-title>
+              </v-list-item>
+              <!-- 删除 -->
               <v-list-item
                 v-if="canDelete"
                 class="text-error"
-                @click="confirmDelete = true"
+                @click="handleDeleteClick"
               >
                 <template #prepend>
                   <v-icon size="18">mdi-delete-outline</v-icon>
                 </template>
                 <v-list-item-title>删除</v-list-item-title>
               </v-list-item>
+              <!-- 复制链接 -->
               <v-list-item @click="copyLink">
                 <template #prepend>
                   <v-icon size="18">mdi-link-variant</v-icon>
@@ -299,35 +328,6 @@
     </v-card>
   </v-dialog>
 
-  <!-- 删除确认对话框 -->
-  <v-dialog v-model="confirmDelete" max-width="320">
-    <v-card class="post-confirm-dialog">
-      <v-card-title class="text-h6">删除推文？</v-card-title>
-      <v-card-text class="text-body-2 text-medium-emphasis">
-        此操作无法撤消。该推文将从你的个人资料、任何关注你的用户的时间线以及搜索结果中删除。
-      </v-card-text>
-      <v-card-actions class="flex-column pa-4 pt-0">
-        <v-btn
-          block
-          color="error"
-          variant="flat"
-          :loading="deleting"
-          class="mb-2"
-          @click="doDelete"
-        >
-          删除
-        </v-btn>
-        <v-btn
-          block
-          variant="outlined"
-          @click="confirmDelete = false"
-        >
-          取消
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-
   <!-- 媒体查看器 -->
   <v-dialog v-model="mediaViewerOpen" fullscreen>
     <div class="media-viewer" @click="mediaViewerOpen = false">
@@ -371,6 +371,8 @@ import { localuser } from '@/services/localAccount';
 import { getS3staticurl } from '@/services/projectService';
 import PostsService from '@/services/postsService';
 import { showSnackbar } from '@/composables/useNotifications';
+import { useDeleteConfirm } from '@/composables/useDeleteConfirm';
+import axios from '@/axios/axios';
 import PostComposer from './PostComposer.vue';
 import PostEmbed from './PostEmbed.vue';
 import QuotedPost from './QuotedPost.vue';
@@ -391,11 +393,13 @@ const router = useRouter();
 // Dialog states
 const replyDialog = ref(false);
 const quoteDialog = ref(false);
-const confirmDelete = ref(false);
-const deleting = ref(false);
 const actionLoading = ref(false);
+
 const mediaViewerOpen = ref(false);
 const mediaViewerIndex = ref(0);
+
+// Delete confirmation
+const { showDeleteConfirm } = useDeleteConfirm();
 
 const replyComposerRef = ref(null);
 const quoteComposerRef = ref(null);
@@ -562,6 +566,75 @@ const canDelete = computed(() => {
   return Number(currentUserId.value) === Number(authorId.value);
 });
 
+const isSelf = computed(() => {
+  if (!currentUserId.value) return true; // 未登录时不显示关注/拉黑
+  return Number(currentUserId.value) === Number(authorId.value);
+});
+
+// Follow / Block state
+const followStatus = ref(null); // null=未加载, 'following', 'not_following', 'blocked'
+const followLoading = ref(false);
+
+const isFollowing = computed(() => followStatus.value === 'following');
+const isBlocked = computed(() => followStatus.value === 'blocked');
+
+const checkRelationship = async () => {
+  if (isSelf.value || !authorId.value || !isLogin.value) return;
+  try {
+    const res = await axios.get(`/follows/relationships/${authorId.value}`);
+    const data = res.data?.data || res.data;
+    if (data?.isBlocking) {
+      followStatus.value = 'blocked';
+    } else if (data?.isFollowing) {
+      followStatus.value = 'following';
+    } else {
+      followStatus.value = 'not_following';
+    }
+  } catch {
+    followStatus.value = 'not_following';
+  }
+};
+
+const toggleFollow = async () => {
+  if (!requireLogin('关注')) return;
+  followLoading.value = true;
+  try {
+    if (isFollowing.value) {
+      await axios.delete(`/follows/${authorId.value}`);
+      followStatus.value = 'not_following';
+      showSnackbar(`已取消关注 @${authorUsername.value}`, 'success');
+    } else {
+      await axios.post(`/follows/${authorId.value}`);
+      followStatus.value = 'following';
+      showSnackbar(`已关注 @${authorUsername.value}`, 'success');
+    }
+  } catch (e) {
+    showSnackbar(e?.response?.data?.message || e?.message || '操作失败', 'error');
+  } finally {
+    followLoading.value = false;
+  }
+};
+
+const toggleBlock = async () => {
+  if (!requireLogin('拉黑')) return;
+  followLoading.value = true;
+  try {
+    if (isBlocked.value) {
+      await axios.delete(`/follows/block/${authorId.value}`);
+      followStatus.value = 'not_following';
+      showSnackbar(`已解除拉黑 @${authorUsername.value}`, 'success');
+    } else {
+      await axios.post(`/follows/block/${authorId.value}`);
+      followStatus.value = 'blocked';
+      showSnackbar(`已拉黑 @${authorUsername.value}`, 'success');
+    }
+  } catch (e) {
+    showSnackbar(e?.response?.data?.message || e?.message || '操作失败', 'error');
+  } finally {
+    followLoading.value = false;
+  }
+};
+
 // Utility
 const formatCount = (count) => {
   if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
@@ -576,8 +649,8 @@ const openDetail = () => {
 };
 
 const goUser = () => {
-  if (!authorId.value) return;
-  router.push(`/app/posts/user/${authorId.value}`);
+  if (!authorUsername.value || authorUsername.value === 'unknown') return;
+  router.push(`/${authorUsername.value}`);
 };
 
 const goToQuotedPost = () => {
@@ -716,6 +789,28 @@ const copyLink = async () => {
   }
 };
 
+const handleDeleteClick = () => {
+  showDeleteConfirm(
+    async () => {
+      await PostsService.remove(postId.value);
+      showSnackbar('推文已删除', 'success');
+      emit('deleted', postId.value);
+    },
+    {
+      title: '删除推文？',
+      message: '此操作无法撤消。该推文将从你的个人资料、任何关注你的用户的时间线以及搜索结果中删除。',
+      confirmText: '删除',
+      cancelText: '取消'
+    }
+  );
+};
+
+const onMenuOpen = (isOpen) => {
+  if (isOpen && followStatus.value === null && !isSelf.value) {
+    checkRelationship();
+  }
+};
+
 const sharePost = async () => {
   const url = `${window.location.origin}/app/posts/${postId.value}`;
   if (navigator.share) {
@@ -824,12 +919,14 @@ const openMediaViewer = (index) => {
   margin-bottom: 4px;
 }
 
-.post-author-info {
+.post-author-link {
   display: flex;
   align-items: center;
   gap: 4px;
   cursor: pointer;
   min-width: 0;
+  text-decoration: none;
+  color: inherit;
 }
 
 .post-display-name {
@@ -841,7 +938,7 @@ const openMediaViewer = (index) => {
   text-overflow: ellipsis;
 }
 
-.post-author-info:hover .post-display-name {
+.post-author-link:hover .post-display-name {
   text-decoration: underline;
 }
 
