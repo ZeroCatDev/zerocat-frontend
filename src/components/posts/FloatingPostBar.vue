@@ -290,8 +290,6 @@ import { floatingPostBarExpanded } from '@/composables/useFloatingPostBar';
 import PostEmbed from './PostEmbed.vue';
 import axios from '@/axios/axios';
 
-const STORAGE_KEY = 'floating_post_draft';
-
 const route = useRoute();
 const router = useRouter();
 
@@ -428,34 +426,23 @@ const countColor = computed(() => {
   return 'primary';
 });
 
-// LocalStorage cache
-const saveDraft = () => {
-  const draft = {
-    content: content.value,
-    embedPreview: embedPreview.value,
-    uploadedAssets: uploadedAssets.value,
-    autoEmbeddedContextKey: autoEmbeddedContextKey.value
-  };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
-};
+// Auto embed context
+const autoEmbedContext = async () => {
+  if (!detectedContext.value || !contextKey.value) return;
 
-const loadDraft = () => {
+  // Don't auto-embed if there's already an embed from different context
+  if (embedPreview.value && autoEmbeddedContextKey.value !== contextKey.value) {
+    return;
+  }
+
+  contextLoading.value = true;
   try {
-    const draft = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    if (draft.content) content.value = draft.content;
-    if (draft.embedPreview) embedPreview.value = draft.embedPreview;
-    if (draft.uploadedAssets) uploadedAssets.value = draft.uploadedAssets;
-    if (draft.autoEmbeddedContextKey) autoEmbeddedContextKey.value = draft.autoEmbeddedContextKey;
-  } catch {
-    // Ignore
+    await embedContextInternal();
+    autoEmbeddedContextKey.value = contextKey.value;
+  } finally {
+    contextLoading.value = false;
   }
 };
-
-const clearDraft = () => {
-  localStorage.removeItem(STORAGE_KEY);
-};
-
-// Parse route to detect context
 const parseRouteContext = () => {
   const path = route.path;
   const segments = path.split('/').filter(Boolean);
@@ -515,25 +502,6 @@ const parseRouteContext = () => {
   detectedContext.value = null;
 };
 
-// Auto embed context
-const autoEmbedContext = async () => {
-  if (!detectedContext.value || !contextKey.value) return;
-
-  // Don't auto-embed if there's already an embed from different context
-  if (embedPreview.value && autoEmbeddedContextKey.value !== contextKey.value) {
-    return;
-  }
-
-  contextLoading.value = true;
-  try {
-    await embedContextInternal();
-    autoEmbeddedContextKey.value = contextKey.value;
-    saveDraft();
-  } finally {
-    contextLoading.value = false;
-  }
-};
-
 // Toggle context embed (for button in menu)
 const toggleContextEmbed = async () => {
   if (isCurrentContextEmbedded.value) {
@@ -543,7 +511,6 @@ const toggleContextEmbed = async () => {
     try {
       await embedContextInternal();
       autoEmbeddedContextKey.value = contextKey.value;
-      saveDraft();
     } finally {
       contextLoading.value = false;
     }
@@ -604,7 +571,6 @@ const embedCurrentUrl = () => {
   };
   autoEmbeddedContextKey.value = null;
   embedMenuOpen.value = false;
-  saveDraft();
 };
 
 // Expand/collapse
@@ -617,7 +583,6 @@ const expand = () => {
 };
 
 const collapse = () => {
-  saveDraft();
   isExpanded.value = false;
 };
 
@@ -647,14 +612,11 @@ const updateCount = () => {
   }, 300);
 };
 
-// Watch content and save draft
+// Watch content
 watch(content, () => {
   updateCount();
   nextTick(autoResize);
-  saveDraft();
 });
-
-watch(uploadedAssets, saveDraft, { deep: true });
 
 // File upload
 const normalizeUploadResult = (res) => {
@@ -734,7 +696,6 @@ const addEmbed = () => {
   embedPreview.value = embed;
   autoEmbeddedContextKey.value = null;
   embedMenuOpen.value = false;
-  saveDraft();
 
   embedId.value = '';
   embedBranch.value = '';
@@ -744,7 +705,6 @@ const addEmbed = () => {
 const removeEmbed = () => {
   embedPreview.value = null;
   autoEmbeddedContextKey.value = null;
-  saveDraft();
 };
 
 // Submit
@@ -755,7 +715,6 @@ const reset = () => {
   countInfo.value = null;
   autoEmbeddedContextKey.value = null;
   isExpanded.value = false;
-  clearDraft();
 };
 
 const submitPost = async () => {
@@ -814,7 +773,6 @@ const handleKeydown = (e) => {
 
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown);
-  loadDraft();
   // Auto embed on mount
   if (detectedContext.value && !embedPreview.value) {
     autoEmbedContext();
@@ -823,7 +781,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown);
-  saveDraft();
 });
 </script>
 

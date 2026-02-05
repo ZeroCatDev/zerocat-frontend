@@ -558,14 +558,12 @@ export default {
     getUserSubNavItems(userId) {
       return [
         { title: "主页", link: `/${userId}`, name: "home" },
-        { title: "评论", link: `/${userId}/?tab=comment`, name: "comment" },
-        { title: "关注", link: `/${userId}/?tab=following`, name: "following" },
-        {
-          title: "关注者",
-          link: `/${userId}/?tab=followers`,
-          name: "followers",
-        },
+        { title: "项目", link: `/${userId}/?tab=projects`, name: "projects" },
+        { title: "列表", link: `/${userId}/?tab=lists`, name: "lists" },
+        { title: "关注者", link: `/${userId}/?tab=followers`, name: "followers" },
+        { title: "关注的人", link: `/${userId}/?tab=following`, name: "following" },
         { title: "时间线", link: `/${userId}/?tab=timeline`, name: "timeline" },
+        { title: "评论", link: `/${userId}/?tab=comment`, name: "comment" },
       ];
     },
     getProjectSubNavItems(projectname, authorname) {

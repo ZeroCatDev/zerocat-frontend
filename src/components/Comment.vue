@@ -1,4 +1,10 @@
-<template>
+<template><v-card rounded="lg"  color="error" variant="tonal">
+              <v-card-title class="py-3">
+               “评论”正在被弃用！
+              </v-card-title>
+
+              <v-card-text>我们正在启用全新的方式组织社区内的文字内容，因此，单纯的评论区将被弃用，并可能被删除，您可以通过帖子中 @[用户名] 、引用某个作品或某位用户来发起讨论，只需点击页面下方发布动态按钮即可。</v-card-text>
+            </v-card><br/>
   <v-card
     v-for="comment in commentList"
     :key="comment.id"
