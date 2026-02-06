@@ -1,10 +1,27 @@
 <template>
   <aside class="home-right-sidebar">
     <!-- Search Box -->
-    <div class="search-box" @click="goToSearch">
-      <v-icon class="search-icon">mdi-magnify</v-icon>
-      <span class="search-placeholder">搜索</span>
-    </div>
+    <v-form class="search-box" @submit.prevent="goToSearch">
+      <v-text-field
+        v-model="searchText"
+        class="search-input"
+        density="compact"
+        hide-details
+        placeholder="搜索帖子"
+        prepend-inner-icon="mdi-magnify"
+        variant="plain"
+        @keyup.enter="goToSearch"
+      />
+      <v-btn
+        class="search-submit"
+        color="primary"
+        icon="mdi-magnify"
+        size="small"
+        variant="text"
+        aria-label="搜索帖子"
+        @click="goToSearch"
+      />
+    </v-form>
 
     <!-- About ZeroCat Card -->
     <div class="sidebar-card about-card">
@@ -66,15 +83,25 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
+const searchText = ref('');
 
 const currentYear = computed(() => new Date().getFullYear());
 
 const goToSearch = () => {
-  router.push('/app/search');
+  const keyword = searchText.value.trim();
+  router.push({
+    path: '/app/search',
+    query: {
+      keyword,
+      scope: 'posts',
+      page: '1',
+      perPage: '20'
+    }
+  });
 };
 </script>
 
@@ -94,11 +121,10 @@ const goToSearch = () => {
 .search-box {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  gap: 8px;
+  padding: 6px 10px;
   background: rgba(var(--v-theme-on-surface), 0.05);
   border-radius: 9999px;
-  cursor: pointer;
   transition: background-color 0.2s;
 }
 
@@ -106,13 +132,24 @@ const goToSearch = () => {
   background: rgba(var(--v-theme-on-surface), 0.08);
 }
 
-.search-icon {
-  color: rgba(var(--v-theme-on-surface), 0.6);
+.search-input {
+  flex: 1;
 }
 
-.search-placeholder {
-  color: rgba(var(--v-theme-on-surface), 0.6);
-  font-size: 15px;
+.search-input :deep(.v-input__control) {
+  min-height: 36px;
+}
+
+.search-input :deep(.v-field__input) {
+  min-height: 36px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.search-submit {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
 }
 
 /* Sidebar Card */
