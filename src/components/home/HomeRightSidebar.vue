@@ -8,11 +8,11 @@
 
     <!-- About ZeroCat Card -->
     <div class="sidebar-card about-card">
-      <h2 class="card-title">关于 ZeroCat</h2>
+      <h2 class="card-title">ZeroCat 零猫</h2>
       <p class="card-description">
-        ZeroCat 是新一代开源编程社区，致力于为青少年提供优质的编程学习和作品分享平台。
+        新一代，开源，编程社区。
       </p>
-      <router-link to="/about" class="card-link">
+      <router-link to="/app/about" class="card-link">
         了解更多
         <v-icon size="16">mdi-arrow-right</v-icon>
       </router-link>
@@ -30,13 +30,11 @@
           <v-icon size="18">mdi-github</v-icon>
           <span>GitHub</span>
         </a>
-        <a href="https://t.me/zerocatdev" target="_blank" class="quick-link">
-          <v-icon size="18">mdi-send</v-icon>
-          <span>Telegram</span>
+        <a href="https://qm.qq.com/q/E3eF6xtoHe" target="_blank" class="quick-link"> <v-icon size="18">mdi-mail</v-icon>
+          <span>QQ 群</span>
         </a>
-        <a href="https://discord.gg/YmW2JWnbdy" target="_blank" class="quick-link">
-          <v-icon size="18">mdi-discord</v-icon>
-          <span>Discord</span>
+         <a href="https://houlang.cloud" target="_blank" class="quick-link"> <v-icon size="18">mdi-earth</v-icon>
+          <span>厚浪云</span>
         </a>
       </div>
     </div>
@@ -47,7 +45,7 @@
         <router-link to="/app/legal/terms" class="footer-link">服务条款</router-link>
         <router-link to="/app/legal/privacy" class="footer-link">隐私政策</router-link>
         <router-link to="/app/legal/community-guidelines" class="footer-link">社区准则</router-link>
-        <router-link to="/about" class="footer-link">关于</router-link>
+        <router-link to="/app/about" class="footer-link">关于</router-link>
       </div>
       <div class="footer-links">
         <a href="https://t.me/zerocatdev" target="_blank" class="footer-link">Telegram</a>

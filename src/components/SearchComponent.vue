@@ -1,21 +1,18 @@
 <template>
   <div class="search-component">
     <v-form @submit.prevent="handleSearch">
-      <div class="d-flex align-center gap-2">
+      <div class="search-input-row">
         <v-text-field
           v-model="searchQuery"
           :loading="isLoading"
           class="search-input"
           clearable
           hide-details
-          label="键入以搜索"
+          label="搜索"
+          prepend-inner-icon="mdi-magnify"
           variant="outlined"
           @keyup.enter="handleSearch"
-        >
-          <template v-slot:prepend-inner>
-            <v-icon icon="mdi-magnify"></v-icon>
-          </template>
-        </v-text-field>
+        />
         <v-btn
           :loading="isLoading"
           class="search-button"
@@ -29,182 +26,286 @@
       </div>
     </v-form>
 
-    <!-- 搜索历史和热门搜索 -->
-    <v-expand-transition style="padding-top: 16px !important">
-      <v-card v-if="!searchQuery" class="suggestions-card" flat>
-        <v-card-text>
-          <div v-if="searchHistory.length > 0">
-            <div class="text-subtitle-2">搜索历史</div>
-            <v-chip-group>
-              <v-chip
-                v-for="(term, index) in searchHistory"
-                :key="index"
-                class="history-chip"
-                size="small"
-                @click="handleHistoryClick(term)"
-              >
-                {{ term }}
-              </v-chip>
-            </v-chip-group>
+    <v-card v-if="!searchQuery.trim()" class="suggestions-card mt-3" flat>
+      <v-card-text>
+        <div v-if="searchHistory.length">
+          <div class="text-subtitle-2 mb-2">搜索历史</div>
+          <div class="d-flex flex-wrap ga-2">
+            <v-chip
+              v-for="(term, index) in searchHistory"
+              :key="`${term}-${index}`"
+              size="small"
+              @click="handleHistoryClick(term)"
+            >
+              {{ term }}
+            </v-chip>
           </div>
-          <v-divider v-if="searchHistory.length > 0" class="my-3"></v-divider>
-          <div>
-            <div class="text-subtitle-2">热门搜索</div>
-            <v-chip-group>
-              <v-chip
-                v-for="(term, index) in hotSearches"
-                :key="index"
-                class="hot-chip"
-                size="small"
-                @click="handleHistoryClick(term)"
-              >
-                {{ term }}
-              </v-chip>
-            </v-chip-group>
-          </div>
-        </v-card-text>
-      </v-card>
-    </v-expand-transition>
-
-    <!-- 搜索结果 - 仅在页面模式显示 -->
-    <template v-if="mode === 'page'">
-      <v-fade-transition>
-        <div v-if="hasSearched" class="search-results mt-4">
-          <!-- 加载进度条 -->
-          <v-progress-linear
-            v-if="isLoading"
-            class="mt-4"
-            color="primary"
-            indeterminate
-          ></v-progress-linear>
-
-          <!-- 搜索结果展示 -->
-          <v-fade-transition group>
-            <template v-if="!isLoading">
-              <v-row v-if="searchResults.length > 0">
-                <v-col
-                  v-for="item in searchResults"
-                  :key="item.id"
-                  cols="12"
-                  lg="3"
-                  md="4"
-                  sm="6"
-                  xl="2"
-                  xs="12"
-                  xxl="2"
-                >
-                  <v-hover v-slot="{ isHovering, props }">
-                    <v-card
-                      :elevation="isHovering ? 8 : 2"
-                      :to="urlMap[item.id]"
-                      class="result-card"
-                      rounded="lg"
-                      style="aspect-ratio: 4/3"
-                      v-bind="props"
-                    >
-                      <v-img
-                        :src="getS3staticurl(item.thumbnail)"
-                        class="align-end"
-                        cover
-                        error-src="../assets/43-lazyload.png"
-                        gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                        height="100%"
-                        lazy-src="../assets/43-lazyload.png"
-                      >
-                        <template v-slot:placeholder>
-                          <v-progress-linear
-                            color="primary"
-                            indeterminate
-                          ></v-progress-linear>
-                        </template>
-                        <v-card-item>
-                          <v-chip
-                            class="type-chip"
-                            color="primary"
-                            size="small"
-                            variant="tonal"
-                          >
-                            {{ item.type }}
-                          </v-chip>
-                          <v-chip
-                            v-if="item.license !== 'no'"
-                            class="license-chip"
-                            color="primary"
-                            size="small"
-                            variant="tonal"
-                          >
-                            {{ item.license }}
-                          </v-chip>
-                          <v-card-title
-                            class="text-white"
-                            v-html="item._formatted.title"
-                          ></v-card-title>
-                          <v-card-subtitle
-                            class="text-white"
-                            v-html="item._formatted.description"
-                          ></v-card-subtitle>
-                        </v-card-item>
-                      </v-img>
-                    </v-card>
-                  </v-hover>
-                </v-col>
-              </v-row>
-              <v-row v-else class="mt-4" justify="center">
-                <v-col class="text-center" cols="12">
-                  <v-alert class="no-results-alert" type="info" variant="tonal">
-                    <template v-slot:prepend>
-                      <v-icon icon="mdi-information"></v-icon>
-                    </template>
-                    未找到相关结果，请尝试其他关键词
-                  </v-alert>
-                </v-col>
-              </v-row>
-
-              <!-- 分页 -->
-              <v-row v-if="searchResults.length > 0" class="mt-4">
-                <v-col>
-                  <div class="text-center">
-                    <v-pagination
-                      v-model="currentPage"
-                      :length="totalPages"
-                      :total-visible="7"
-                      rounded="circle"
-                      @update:model-value="handlePageChange"
-                    ></v-pagination>
-                  </div>
-                </v-col>
-              </v-row>
-            </template>
-          </v-fade-transition>
         </div>
-      </v-fade-transition>
+      </v-card-text>
+    </v-card>
+
+    <template v-if="mode === 'page' && hasSearched">
+      <div class="mt-4">
+        <v-tabs
+          v-model="activeScope"
+          color="primary"
+          density="comfortable"
+          @update:model-value="handleScopeChange"
+        >
+          <v-tab v-for="scopeItem in scopeOptions" :key="scopeItem.value" :value="scopeItem.value">
+            {{ scopeItem.label }}
+
+          </v-tab>
+        </v-tabs>
+
+        <v-card class="mt-3" variant="tonal">
+          <v-card-text>
+            <v-row dense>
+              <v-col cols="12" md="3">
+                <v-select
+                  v-model="filters.perPage"
+                  :items="[8, 16, 32, 64, 100]"
+                  hide-details
+                  label="每页"
+                  variant="outlined"
+                />
+              </v-col>
+
+              <template v-if="activeScope === 'projects'">
+                <v-col cols="12" md="3">
+                  <v-select
+                    v-model="filters.orderBy"
+                    :items="projectOrderOptions"
+                    clearable
+                    hide-details
+                    item-title="label"
+                    item-value="value"
+                    label="排序"
+                    variant="outlined"
+                  />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <v-select
+                    v-model="filters.state"
+                    :items="projectStateOptions"
+                    clearable
+                    hide-details
+                    item-title="label"
+                    item-value="value"
+                    label="状态"
+                    variant="outlined"
+                  />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <v-text-field v-model="filters.type" clearable hide-details label="项目类型" variant="outlined" />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-text-field v-model="userIdInput" clearable hide-details label="用户ID(逗号分隔)" variant="outlined" />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-text-field v-model="tagsInput" clearable hide-details label="标签(逗号分隔)" variant="outlined" />
+                </v-col>
+              </template>
+
+              <template v-else-if="activeScope === 'users'">
+                <v-col cols="12" md="4">
+                  <v-text-field v-model="filters.userStatus" clearable hide-details label="用户状态" variant="outlined" />
+                </v-col>
+              </template>
+
+              <template v-else-if="activeScope === 'posts'">
+                <v-col cols="12" md="4">
+                  <v-text-field v-model="filters.postType" clearable hide-details label="帖子类型" variant="outlined" />
+                </v-col>
+                <v-col cols="12" md="4">
+                  <v-text-field v-model="userIdInput" clearable hide-details label="用户ID(逗号分隔)" variant="outlined" />
+                </v-col>
+              </template>
+
+              <template v-else-if="activeScope === 'lists'">
+                <v-col cols="12" md="4">
+                  <v-select
+                    v-model="filters.state"
+                    :items="projectStateOptions"
+                    clearable
+                    hide-details
+                    item-title="label"
+                    item-value="value"
+                    label="状态"
+                    variant="outlined"
+                  />
+                </v-col>
+                <v-col cols="12" md="4">
+                  <v-text-field v-model="userIdInput" clearable hide-details label="用户ID(逗号分隔)" variant="outlined" />
+                </v-col>
+              </template>
+
+              <template v-else-if="activeScope === 'project_files'">
+                <v-col cols="12" md="6">
+                  <v-text-field v-model="userIdInput" clearable hide-details label="用户ID(逗号分隔)" variant="outlined" />
+                </v-col>
+              </template>
+            </v-row>
+
+            <div class="mt-3 d-flex justify-end ga-2">
+              <v-btn variant="text" @click="resetFilters">重置筛选</v-btn>
+              <v-btn color="primary" @click="applyFilters">应用筛选</v-btn>
+            </div>
+          </v-card-text>
+        </v-card>
+
+        <v-progress-linear v-if="isLoading" class="mt-4" color="primary" indeterminate />
+
+        <div v-if="!isLoading" class="mt-4">
+          <template v-if="activeScope === 'projects'">
+            <v-row v-if="results.projects.length">
+              <v-col
+                v-for="project in results.projects"
+                :key="`project-${project.id}`"
+                cols="12"
+                sm="6"
+                md="4"
+                lg="3"
+              >
+                <ProjectCard :project="project" :author="project.author" :show-author="true" />
+              </v-col>
+            </v-row>
+            <v-alert v-else type="info" variant="tonal">未找到项目结果</v-alert>
+          </template>
+
+          <template v-else-if="activeScope === 'posts'">
+            <PostList
+              :items="results.posts"
+              :includes="{ posts: {} }"
+              :loading="false"
+              :loading-more="false"
+              :has-more="false"
+              empty-title="暂无帖子"
+              empty-text="未找到匹配帖子"
+              :infinite-scroll="false"
+              @deleted="onPostDeleted"
+            />
+          </template>
+
+          <template v-else-if="activeScope === 'users'">
+            <v-row v-if="results.users.length">
+              <v-col
+                v-for="user in results.users"
+                :key="`user-${user.id || user.username}`"
+                cols="12"
+                sm="6"
+                md="4"
+              >
+                <v-card class="user-result-card" :to="`/${user.username || user.name}`" variant="outlined">
+                  <v-card-item>
+                    <template #prepend>
+                      <v-avatar size="56">
+                        <v-img :src="getUserAvatar(user.avatar)" :alt="user.display_name || user.username" />
+                      </v-avatar>
+                    </template>
+                    <v-card-title>{{ user.display_name || user.username || `用户 #${user.id}` }}</v-card-title>
+                    <v-card-subtitle>@{{ user.username || user.name || user.id }}</v-card-subtitle>
+                  </v-card-item>
+                  <v-card-text>
+                    <div class="text-body-2 text-medium-emphasis mb-3">{{ user.bio || user.description || '这个用户还没有简介。' }}</div>
+                    <div class="d-flex ga-4 text-caption">
+                      <span>关注 {{ user.following_count || 0 }}</span>
+                      <span>粉丝 {{ user.followers_count || 0 }}</span>
+                    </div>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+            <v-alert v-else type="info" variant="tonal">未找到用户结果</v-alert>
+          </template>
+
+          <template v-else-if="activeScope === 'lists'">
+            <v-list v-if="results.lists.length" lines="two">
+              <v-list-item
+                v-for="list in results.lists"
+                :key="`list-${list.id}`"
+                :to="`/app/projectlist/${list.id}`"
+              >
+                <v-list-item-title>{{ list.title || list.name || `列表 #${list.id}` }}</v-list-item-title>
+                <v-list-item-subtitle>{{ list.description || '暂无描述' }}</v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+            <v-alert v-else type="info" variant="tonal">未找到列表结果</v-alert>
+          </template>
+
+          <template v-else-if="activeScope === 'project_files'">
+            <v-list v-if="results.projectFiles.length" lines="two">
+              <v-list-item
+                v-for="file in results.projectFiles"
+                :key="`file-${file.id || file.sha256 || file.path}`"
+                :href="file.url || file.downloadUrl"
+                :target="file.url || file.downloadUrl ? '_blank' : undefined"
+              >
+                <v-list-item-title>{{ file.filename || file.path || file.name || '项目文件' }}</v-list-item-title>
+                <v-list-item-subtitle>{{ file.projectTitle || file.projectName || file.sha256 || '' }}</v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+            <v-alert v-else type="info" variant="tonal">未找到项目文件结果</v-alert>
+          </template>
+
+          <template v-else-if="activeScope === 'tags'">
+            <div v-if="results.tags.length" class="d-flex flex-wrap ga-2">
+              <v-chip
+                v-for="tag in results.tags"
+                :key="`tag-${tag.name}`"
+                color="primary"
+                variant="tonal"
+                @click="searchByTag(tag.name)"
+              >
+                #{{ tag.name }} ({{ tag.count || 0 }})
+              </v-chip>
+            </div>
+            <v-alert v-else type="info" variant="tonal">未找到标签结果</v-alert>
+          </template>
+
+          <div v-if="totalPages > 1" class="mt-4 d-flex justify-center">
+            <v-pagination
+              v-model="currentPage"
+              :length="totalPages"
+              :total-visible="7"
+              rounded="circle"
+              @update:model-value="handlePageChange"
+            />
+          </div>
+        </div>
+      </div>
     </template>
   </div>
 
-  <!-- 错误提示 -->
   <v-snackbar v-model="showError" :timeout="3000" color="error">
     {{ errorMessage }}
-    <template v-slot:actions>
-      <v-btn color="white" variant="text" @click="showError = false">
-        关闭
-      </v-btn>
+    <template #actions>
+      <v-btn color="white" variant="text" @click="showError = false">关闭</v-btn>
     </template>
   </v-snackbar>
 </template>
 
 <script>
-import {getS3staticurl} from '@/services/projectService';
-import {
-  loadSearchHistory,
-  addToSearchHistory,
-  performSearch,
-  generateUrlMap,
-  updateUrlMap
-} from '@/services/searchService';
+import { localuser } from '@/services/localAccount';
+import ProjectCard from '@/components/project/ProjectCard.vue';
+import PostList from '@/components/posts/PostList.vue';
+import { SEARCH_SCOPES, addToSearchHistory, loadSearchHistory, normalizeSearchQuery, performSearch } from '@/services/searchService';
+
+const SCOPE_LABELS = {
+  projects: '项目',
+  users: '用户',
+  posts: '帖子',
+  project_files: '文件',
+  lists: '列表',
+  tags: '标签'
+};
 
 export default {
   name: 'SearchComponent',
-
+  components: {
+    ProjectCard,
+    PostList
+  },
   props: {
     mode: {
       type: String,
@@ -212,283 +313,273 @@ export default {
       validator: (value) => ['page', 'dialog'].includes(value)
     }
   },
-
   emits: ['search-submitted'],
-
   data() {
     return {
       searchQuery: '',
-      searchResults: [],
-      searchHistory: [],
+      activeScope: 'projects',
+      currentPage: 1,
       isLoading: false,
+      hasSearched: false,
       showError: false,
       errorMessage: '',
-      hasSearched: false,
-      currentPage: 1,
-      totalHits: 0,
-      totalPages: 0,
-      urlMap: {},
-      getS3staticurl: getS3staticurl,
-      hotSearches: ['Scratch', '游戏', '动画', '音乐', '艺术', '编程'],
+      totalCount: 0,
+      searchHistory: [],
+      scopeTotals: {
+        projects: 0,
+        users: 0,
+        posts: 0,
+        project_files: 0,
+        lists: 0,
+        tags: 0
+      },
+      filters: {
+        perPage: 16,
+        orderBy: '',
+        state: '',
+        type: '',
+        postType: '',
+        userStatus: ''
+      },
+      userIdInput: '',
+      tagsInput: '',
+      results: {
+        projects: [],
+        users: [],
+        posts: [],
+        projectFiles: [],
+        lists: [],
+        tags: []
+      }
     };
   },
-
+  computed: {
+    scopeOptions() {
+      return SEARCH_SCOPES.map((scope) => ({ value: scope, label: SCOPE_LABELS[scope] }));
+    },
+    totalPages() {
+      const perPage = Number(this.filters.perPage || 10);
+      return Math.max(1, Math.ceil((this.totalCount || 0) / perPage));
+    },
+    projectOrderOptions() {
+      return [
+        { label: '观看量升序', value: 'view_up' },
+        { label: '观看量降序', value: 'view_down' },
+        { label: '时间升序', value: 'time_up' },
+        { label: '时间降序', value: 'time_down' },
+        { label: 'ID 升序', value: 'id_up' },
+        { label: 'ID 降序', value: 'id_down' },
+        { label: '收藏升序', value: 'star_up' },
+        { label: '收藏降序', value: 'star_down' }
+      ];
+    },
+    projectStateOptions() {
+      return [
+        { label: '公开', value: 'public' },
+        { label: '私有', value: 'private' },
+        { label: '草稿', value: 'draft' }
+      ];
+    }
+  },
   watch: {
-    '$route.query.q': {
+    '$route.query': {
       immediate: true,
-      handler(newQuery) {
-        if (this.mode === 'page' && newQuery !== undefined) {
-          this.searchQuery = newQuery || '';
-          if (newQuery) {
-            this.performSearch();
-          } else {
-            this.searchResults = [];
-            this.totalHits = 0;
-            this.hasSearched = false;
-          }
+      handler(query) {
+        if (this.mode !== 'page') return;
+        const normalized = normalizeSearchQuery(query || {});
+        this.applyQueryState(normalized);
+        const hasKeywordParam = Object.prototype.hasOwnProperty.call(query || {}, 'keyword')
+          || Object.prototype.hasOwnProperty.call(query || {}, 'q');
+        if (normalized.keyword || hasKeywordParam) {
+          this.performSearch();
+        } else {
+          this.hasSearched = false;
         }
       }
     }
   },
-
-  async created() {
+  created() {
     this.searchHistory = loadSearchHistory();
   },
-
   methods: {
-    handleError(error) {
-      console.error('Search error:', error);
-      this.showError = true;
-      this.errorMessage = error.message || '发生未知错误';
+    parseCommaList(input) {
+      return String(input || '')
+        .split(',')
+        .map((v) => v.trim())
+        .filter(Boolean);
     },
-
+    applyQueryState(normalized) {
+      this.searchQuery = normalized.keyword || '';
+      this.activeScope = normalized.scope || 'projects';
+      this.currentPage = Number(normalized.page || 1);
+      this.filters.perPage = Number(normalized.perPage || 10);
+      this.filters.orderBy = normalized.orderBy || '';
+      this.filters.state = normalized.state || '';
+      this.filters.type = normalized.type || '';
+      this.filters.postType = normalized.postType || '';
+      this.filters.userStatus = normalized.userStatus || '';
+      this.userIdInput = Array.isArray(normalized.userId) ? normalized.userId.join(',') : '';
+      this.tagsInput = Array.isArray(normalized.tags) ? normalized.tags.join(',') : '';
+    },
+    buildPayload() {
+      return {
+        keyword: this.searchQuery.trim(),
+        scope: this.activeScope,
+        page: this.currentPage,
+        perPage: this.filters.perPage,
+        orderBy: this.filters.orderBy,
+        state: this.filters.state,
+        type: this.filters.type,
+        postType: this.filters.postType,
+        userStatus: this.filters.userStatus,
+        userId: this.parseCommaList(this.userIdInput),
+        tags: this.parseCommaList(this.tagsInput)
+      };
+    },
+    buildRouteQuery(payload) {
+      const query = {
+        keyword: payload.keyword,
+        scope: payload.scope,
+        page: String(payload.page),
+        perPage: String(payload.perPage)
+      };
+      if (payload.orderBy) query.orderBy = payload.orderBy;
+      if (payload.state) query.state = payload.state;
+      if (payload.type) query.type = payload.type;
+      if (payload.postType) query.postType = payload.postType;
+      if (payload.userStatus) query.userStatus = payload.userStatus;
+      if (payload.userId.length) query.userId = payload.userId;
+      if (payload.tags.length) query.tags = payload.tags;
+      return query;
+    },
     async performSearch() {
+      const payload = this.buildPayload();
+
+      this.isLoading = true;
+      this.hasSearched = true;
       try {
-        this.isLoading = true;
-        this.hasSearched = true;
-
-        const data = await performSearch(this.searchQuery, this.currentPage);
-        this.searchResults = data.hits || [];
-        this.totalHits = data.estimatedTotalHits || 0;
-        this.totalPages = Math.ceil(this.totalHits / 20);
-
-        if (this.searchResults.length > 0) {
-          this.urlMap = generateUrlMap(this.searchResults);
-          this.urlMap = await updateUrlMap(this.searchResults, this.urlMap);
-        }
+        const data = await performSearch(payload);
+        this.totalCount = Number(data.totalCount || 0);
+        this.results.projects = data.projects || [];
+        this.results.users = data.users || [];
+        this.results.posts = data.posts || [];
+        this.results.projectFiles = data.projectFiles || [];
+        this.results.lists = data.lists || [];
+        this.results.tags = data.tags || [];
+        this.scopeTotals = {
+          projects: Number(data.totals?.projects || 0),
+          users: Number(data.totals?.users || 0),
+          posts: Number(data.totals?.posts || 0),
+          project_files: Number(data.totals?.projectFiles || 0),
+          lists: Number(data.totals?.lists || 0),
+          tags: Number(data.totals?.tags || 0)
+        };
       } catch (error) {
-        this.handleError(error);
-        this.searchResults = [];
-        this.totalHits = 0;
+        this.errorMessage = error?.message || '搜索失败';
+        this.showError = true;
       } finally {
         this.isLoading = false;
       }
     },
-
     async handleSearch() {
-      const trimmedQuery = this.searchQuery.trim();
-      if (!trimmedQuery) return;
+      const keyword = this.searchQuery.trim();
+      this.currentPage = 1;
+      if (keyword) {
+        this.searchHistory = addToSearchHistory(keyword, this.searchHistory);
+      }
+      const payload = this.buildPayload();
+      payload.page = 1;
 
       if (this.mode === 'dialog') {
         this.$emit('search-submitted');
-        this.$router.push({
-          path: '/app/search',
-          query: {q: trimmedQuery}
-        });
+        await this.$router.push({ path: '/app/search', query: this.buildRouteQuery(payload) });
         return;
       }
 
-      if (this.$route.query.q !== trimmedQuery) {
-        this.$router.replace({
-          query: {...this.$route.query, q: trimmedQuery}
-        });
-      }
-
-      this.searchHistory = addToSearchHistory(trimmedQuery, this.searchHistory);
+      await this.$router.replace({ path: this.$route.path, query: this.buildRouteQuery(payload) });
     },
-
+    async handleScopeChange(scope) {
+      this.activeScope = scope;
+      this.currentPage = 1;
+      if (this.mode !== 'page' || (!this.searchQuery.trim() && !this.hasSearched)) return;
+      const payload = this.buildPayload();
+      payload.scope = scope;
+      payload.page = 1;
+      await this.$router.replace({ path: this.$route.path, query: this.buildRouteQuery(payload) });
+    },
     async handlePageChange(page) {
-      if (!page || page < 1) return;
-      try {
-        this.currentPage = page;
-        await this.performSearch();
-      } catch (error) {
-        this.handleError(error);
-      }
+      this.currentPage = Number(page || 1);
+      if (this.mode !== 'page' || (!this.searchQuery.trim() && !this.hasSearched)) return;
+      const payload = this.buildPayload();
+      payload.page = this.currentPage;
+      await this.$router.replace({ path: this.$route.path, query: this.buildRouteQuery(payload) });
     },
-
+    async applyFilters() {
+      this.currentPage = 1;
+      if (this.mode !== 'page' || (!this.searchQuery.trim() && !this.hasSearched)) return;
+      const payload = this.buildPayload();
+      payload.page = 1;
+      await this.$router.replace({ path: this.$route.path, query: this.buildRouteQuery(payload) });
+    },
+    async resetFilters() {
+      this.filters.orderBy = '';
+      this.filters.state = '';
+      this.filters.type = '';
+      this.filters.postType = '';
+      this.filters.userStatus = '';
+      this.filters.perPage = 16;
+      this.userIdInput = '';
+      this.tagsInput = '';
+      await this.applyFilters();
+    },
     handleHistoryClick(term) {
-      if (!term) return;
       this.searchQuery = term;
       this.handleSearch();
+    },
+    searchByTag(tagName) {
+      this.tagsInput = tagName;
+      if (this.activeScope !== 'projects') {
+        this.activeScope = 'projects';
+      }
+      this.applyFilters();
+    },
+    getUserAvatar(avatar) {
+      if (!avatar) return '/default-avatar.png';
+      return localuser.getUserAvatar(avatar);
+    },
+    onPostDeleted(postId) {
+      this.results.posts = this.results.posts.filter((post) => (post?.id ?? post?.postId) !== postId);
     }
   }
 };
 </script>
 
-<style>
-.highlight {
-  background-color: rgba(var(--v-theme-primary), 0.8);
-  padding: 0 2px;
-  border-radius: 2px;
-  font-weight: bold;
-  color: white;
-}
-</style>
-
 <style scoped>
-.v-card-item {
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.7));
-}
-
 .search-component {
-
   display: flex;
   flex-direction: column;
 }
 
-.search-box-container {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  padding: 16px;
-  border-radius: 8px 8px 0 0;
-  transition: box-shadow 0.3s ease;
-}
-
-.search-box-container:not(:only-child) {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.search-input {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.search-input:focus-within {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.suggestions-card {
-  animation: slideDown 0.3s ease;
-}
-
-.history-chip,
-.hot-chip {
-  transition: all 0.3s ease;
-}
-
-.history-chip:hover,
-.hot-chip:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.result-card {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.result-card:hover {
-  transform: translateY(-4px);
-}
-
-.type-chip,
-.license-chip {
-  transition: all 0.3s ease;
-  opacity: 0.9;
-}
-
-.result-card:hover .type-chip,
-.result-card:hover .license-chip {
-  opacity: 1;
-  transform: scale(1.05);
-}
-
-.search-results {
-  padding-top: 0 !important;
-  animation: fadeIn 0.3s ease;
-}
-
-.welcome-alert {
-  animation: fadeIn 0.3s ease;
-  background: rgba(var(--v-theme-primary), 0.05);
-}
-
-.no-results-alert {
-  animation: slideUp 0.3s ease;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.search-button {
-  transition: all 0.3s ease;
-}
-
-.search-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.gap-2 {
+.search-input-row {
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
 
-.loading-card {
-  background: linear-gradient(
-    110deg,
-    var(--v-theme-surface) 8%,
-    var(--v-theme-surface-variant) 18%,
-    var(--v-theme-surface) 33%
-  );
-  background-size: 200% 100%;
-  animation: shine 1.5s linear infinite;
+.search-input {
+  flex: 1;
+}
+
+.search-button {
+  flex-shrink: 0;
+}
+
+.suggestions-card {
   border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  border-radius: 12px;
 }
 
-.loading-image {
-  opacity: 0.7;
-  background: linear-gradient(
-    110deg,
-    var(--v-theme-surface-variant) 8%,
-    var(--v-theme-surface) 18%,
-    var(--v-theme-surface-variant) 33%
-  );
-  background-size: 200% 100%;
-  animation: shine 2s linear infinite;
-}
-
-@keyframes shine {
-  to {
-    background-position-x: -200%;
-  }
+.user-result-card {
+  height: 100%;
 }
 </style>

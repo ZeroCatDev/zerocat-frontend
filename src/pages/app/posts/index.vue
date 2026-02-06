@@ -1,9 +1,36 @@
 <template>
-  <div class="posts-page">
+  <div class="posts-layout">
+    <div class="posts-container">
+      <UnifiedSidebar
+        mode="twitter"
+        class="posts-left-sidebar"
+      />
+      <main class="posts-main">
+        <div class="posts-page">
     <!-- 页面头部 -->
     <header class="posts-header">
       <div class="header-content">
         <h1 class="header-title">首页</h1>
+        <div class="posts-search-inline">
+          <v-text-field
+            v-model="postSearchQuery"
+            density="compact"
+            variant="outlined"
+            hide-details
+            clearable
+            prepend-inner-icon="mdi-magnify"
+            label="搜索帖子"
+            @keyup.enter="goSearchPosts"
+          />
+          <v-btn
+            color="primary"
+            variant="tonal"
+            size="small"
+            @click="goSearchPosts"
+          >
+            搜索
+          </v-btn>
+        </div>
       </div>
       <div class="header-tabs">
         <button
@@ -73,16 +100,23 @@
       @created="addToList"
       @load-more="loadMore"
     />
+        </div>
+      </main>
+      <HomeRightSidebar class="posts-right-sidebar" />
+    </div>
   </div>
 </template>
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { localuser } from '@/services/localAccount';
 import PostsService from '@/services/postsService';
 import { showSnackbar } from '@/composables/useNotifications';
 import PostComposer from '@/components/posts/PostComposer.vue';
 import PostList from '@/components/posts/PostList.vue';
+import UnifiedSidebar from '@/components/sidebar/UnifiedSidebar.vue';
+import HomeRightSidebar from '@/components/home/HomeRightSidebar.vue';
 
 // State
 const posts = ref([]);
@@ -92,6 +126,9 @@ const loadingMore = ref(false);
 const cursor = ref(null);
 const hasMore = ref(true);
 const feedType = ref('for-you');
+const postSearchQuery = ref('');
+
+const router = useRouter();
 
 const isLogin = computed(() => localuser.isLogin.value);
 
@@ -135,6 +172,19 @@ const loadFeed = async (isInitial = false) => {
 const loadMore = () => {
   if (!hasMore.value || loadingMore.value || loading.value) return;
   loadFeed(false);
+};
+
+const goSearchPosts = () => {
+  const keyword = postSearchQuery.value.trim();
+  router.push({
+    path: '/app/search',
+    query: {
+      keyword,
+      scope: 'posts',
+      page: '1',
+      perPage: '20'
+    }
+  });
 };
 
 // Submit post
@@ -181,11 +231,74 @@ onMounted(() => {
 
 <style scoped>
 .posts-page {
-  max-width: 600px;
-  margin: 0 auto;
+  width: 100%;
   min-height: 100vh;
   border-left: 1px solid rgba(var(--v-theme-on-surface), 0.08);
   border-right: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.posts-layout {
+  min-height: 100vh;
+}
+
+.posts-container {
+  display: flex;
+  justify-content: center;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.posts-left-sidebar {
+  width: 275px;
+  flex-shrink: 0;
+}
+
+.posts-main {
+  width: 100%;
+  max-width: 600px;
+  flex-shrink: 0;
+}
+
+.posts-right-sidebar {
+  width: 350px;
+  flex-shrink: 0;
+}
+
+.posts-search-inline {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+/* Large screens (≥1280px) */
+@media (min-width: 1280px) {
+  .posts-left-sidebar { width: 275px; }
+  .posts-main { max-width: 600px; }
+  .posts-right-sidebar { width: 350px; }
+}
+
+/* Medium screens (1024-1279px) */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .posts-left-sidebar { width: 88px; }
+  .posts-main { max-width: 600px; }
+  .posts-right-sidebar { display: none; }
+}
+
+/* Tablet (768-1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .posts-container { padding: 0; }
+  .posts-left-sidebar { display: none; }
+  .posts-main { max-width: 100%; }
+  .posts-right-sidebar { display: none; }
+}
+
+/* Mobile (<768px) */
+@media (max-width: 767px) {
+  .posts-container { padding: 0; }
+  .posts-left-sidebar { display: none; }
+  .posts-main { max-width: 100%; }
+  .posts-right-sidebar { display: none; }
 }
 
 /* Header */

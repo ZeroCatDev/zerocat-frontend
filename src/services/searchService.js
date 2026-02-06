@@ -1,26 +1,143 @@
-import {get} from './serverConfig';
-import axios from 'axios';
-import {getProjectInfo} from '@/services/projectService';
+import axios from '@/axios/axios';
 
 const SEARCH_HISTORY_KEY = 'search_history';
 const MAX_HISTORY_ITEMS = 10;
-const ITEMS_PER_PAGE = 20;
+const DEFAULT_PER_PAGE = 10;
+const MAX_PER_PAGE = 50;
 
-export const getSearchConfig = async () => ({
-  enabled: get('search.enabled'),
-  baseUrl: get('search.meilisearch.url'),
-  apiKey: get('search.meilisearch.api_key'),
-  indexName: get('search.meilisearch.index_name'),
-});
+export const SEARCH_SCOPES = [
+  'projects',
+  'users',
+  'posts',
+  'project_files',
+  'lists',
+  'tags'
+];
 
-export const getSearchParams = (query, page) => ({
-  q: query.trim(),
-  offset: (page - 1) * ITEMS_PER_PAGE,
-  limit: ITEMS_PER_PAGE,
-  attributesToHighlight: ['title', 'description'],
-  highlightPreTag: '<mark class="highlight">',
-  highlightPostTag: '</mark>',
-});
+const toArray = (value) => {
+  if (value == null || value === '') return [];
+  if (Array.isArray(value)) {
+    return value
+      .flatMap((item) => String(item).split(','))
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+  return String(value)
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+};
+
+const sanitizePage = (page) => {
+  const parsed = Number.parseInt(page, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+};
+
+const sanitizePerPage = (perPage) => {
+  const parsed = Number.parseInt(perPage, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_PER_PAGE;
+  return Math.min(parsed, MAX_PER_PAGE);
+};
+
+const normalizeScope = (value) => {
+  if (!value) return 'projects';
+  const scope = String(value).trim();
+  if (scope === 'list') return 'lists';
+  if (scope === 'tag') return 'tags';
+  if (scope === 'all') return 'projects';
+  return SEARCH_SCOPES.includes(scope) ? scope : 'projects';
+};
+
+const normalizeResponse = (payload = {}, fallbackScope = 'projects', fallbackPage = 1, fallbackPerPage = DEFAULT_PER_PAGE) => {
+  const scope = normalizeScope(payload.scope ?? fallbackScope);
+  const totals = payload.totals || {};
+  const projects = Array.isArray(payload.projects) ? payload.projects : [];
+  const users = Array.isArray(payload.users) ? payload.users : [];
+  const posts = Array.isArray(payload.posts) ? payload.posts : [];
+  const projectFiles = Array.isArray(payload.projectFiles)
+    ? payload.projectFiles
+    : (Array.isArray(payload.project_files) ? payload.project_files : []);
+  const lists = Array.isArray(payload.lists) ? payload.lists : [];
+  const tags = Array.isArray(payload.tags) ? payload.tags : [];
+
+  const computedTotalCount = Number(payload.totalCount ?? payload.total_count);
+  const totalCount = Number.isFinite(computedTotalCount)
+    ? computedTotalCount
+    : (totals?.[scope] ?? 0);
+
+  const page = sanitizePage(payload.page ?? fallbackPage);
+  const perPage = sanitizePerPage(payload.limit ?? payload.perPage ?? fallbackPerPage);
+
+  return {
+    scope,
+    query: String(payload.query ?? ''),
+    page,
+    perPage,
+    projects,
+    users,
+    posts,
+    projectFiles,
+    lists,
+    tags,
+    totals: {
+      projects: Number(totals.projects ?? 0),
+      users: Number(totals.users ?? 0),
+      posts: Number(totals.posts ?? 0),
+      projectFiles: Number(totals.projectFiles ?? totals.project_files ?? 0),
+      lists: Number(totals.lists ?? 0),
+      tags: Number(totals.tags ?? 0)
+    },
+    totalCount,
+    fileSearchStrategy: payload.fileSearchStrategy ?? payload.file_search_strategy ?? 'disabled'
+  };
+};
+
+export const normalizeSearchQuery = (rawQuery = {}) => {
+  const keyword = String(rawQuery.q ?? rawQuery.keyword ?? rawQuery.search_source ?? '').trim();
+  const scope = normalizeScope(rawQuery.scope ?? rawQuery.search_scope);
+  const page = sanitizePage(rawQuery.page ?? rawQuery.curr);
+  const perPage = sanitizePerPage(rawQuery.perPage ?? rawQuery.limit);
+
+  const userId = toArray(rawQuery.userId ?? rawQuery.search_userid).map((v) => {
+    const asNumber = Number(v);
+    return Number.isFinite(asNumber) ? asNumber : v;
+  });
+  const tags = toArray(rawQuery.tags ?? rawQuery.search_tag);
+
+  return {
+    keyword,
+    scope,
+    userId,
+    tags,
+    type: rawQuery.type ?? rawQuery.search_type ?? '',
+    orderBy: rawQuery.orderBy ?? rawQuery.search_orderby ?? '',
+    state: rawQuery.state ?? rawQuery.search_state ?? '',
+    postType: rawQuery.postType ?? rawQuery.search_post_type ?? '',
+    userStatus: rawQuery.userStatus ?? rawQuery.search_user_status ?? '',
+    page,
+    perPage
+  };
+};
+
+export const buildSearchParams = (query = {}) => {
+  const normalized = normalizeSearchQuery(query);
+  const params = {
+    keyword: normalized.keyword,
+    scope: normalized.scope,
+    page: normalized.page,
+    perPage: normalized.perPage
+  };
+
+  if (normalized.userId.length) params.userId = normalized.userId.join(',');
+  if (normalized.tags.length) params.tags = normalized.tags.join(',');
+  if (normalized.type) params.type = normalized.type;
+  if (normalized.orderBy) params.orderBy = normalized.orderBy;
+  if (normalized.state) params.state = normalized.state;
+  if (normalized.postType) params.postType = normalized.postType;
+  if (normalized.userStatus) params.userStatus = normalized.userStatus;
+
+  return params;
+};
 
 export const loadSearchHistory = () => {
   try {
@@ -51,75 +168,53 @@ export const addToSearchHistory = (term, currentHistory = []) => {
   }
 };
 
-export const performSearch = async (query, page) => {
-  const {baseUrl, apiKey, indexName} = await getSearchConfig();
-  const searchParams = getSearchParams(query, page);
-
-  const response = await axios({
-
-    url: `${baseUrl}/indexes/${indexName}/search`,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    data: searchParams,
-  });
-
-  if (response.status !== 200) {
-    throw new Error('搜索请求失败');
-  }
-
-  return response.data;
+const getErrorMessage = (error) => {
+  return error?.response?.data?.message || error?.message || '搜索失败';
 };
 
-export const generateUrlMap = (searchResults) => {
-  const urlMap = {};
-  if (!searchResults) return urlMap;
-
-  searchResults.forEach((result) => {
-    if (result && result.id) {
-      urlMap[result.id] = `/app/link/project/?id=${result.id}`;
-    }
-  });
-  return urlMap;
-};
-
-export const updateUrlMap = async (searchResults, currentUrlMap = {}) => {
+export const performSearch = async (query) => {
+  const params = buildSearchParams(query);
   try {
-    if (!searchResults || !Array.isArray(searchResults) || !searchResults.length) {
-      return currentUrlMap;
+    const response = await axios.get('/searchapi', { params });
+    const data = response?.data ?? {};
+
+    // 兼容旧接口返回结构
+    if (params.scope === 'projects' && Array.isArray(data.projects) && typeof data.totalCount !== 'undefined' && !data.scope) {
+      return normalizeResponse(
+        {
+          scope: 'projects',
+          query: params.keyword,
+          page: params.page,
+          limit: params.perPage,
+          projects: data.projects,
+          users: [],
+          posts: [],
+          projectFiles: [],
+          lists: [],
+          tags: [],
+          totals: { projects: Number(data.totalCount || 0) },
+          totalCount: Number(data.totalCount || 0),
+          fileSearchStrategy: 'disabled'
+        },
+        params.scope,
+        params.page,
+        params.perPage
+      );
     }
 
-    const projectIds = searchResults
-      .filter(result => result && result.id)
-      .map(result => result.id);
-
-    if (!projectIds.length) {
-      return currentUrlMap;
-    }
-
-    const projectInfos = await getProjectInfo(projectIds);
-    const newUrlMap = {...currentUrlMap};
-
-    if (!projectInfos || !Array.isArray(projectInfos)) {
-      console.warn('No project infos returned from API');
-      return newUrlMap;
-    }
-
-    projectInfos.forEach((info) => {
-      if (info && info.id && info.author?.username && info.name) {
-        newUrlMap[info.id] = `/${info.author.username}/${info.name}`;
-      } else {
-        console.warn(`Invalid project info for ID ${info?.id}:`, info);
-        // 保持默认的链接格式作为后备
-        newUrlMap[info?.id] = `/app/link/project/?id=${info?.id}`;
-      }
-    });
-
-    return newUrlMap;
+    return normalizeResponse(data, params.scope, params.page, params.perPage);
   } catch (error) {
-    console.error('Error updating URLs:', error);
-    return currentUrlMap;
+    throw new Error(getErrorMessage(error));
   }
+};
+
+export const getScopeItems = (response) => {
+  const scope = response?.scope || 'all';
+  if (scope === 'projects') return response.projects || [];
+  if (scope === 'users') return response.users || [];
+  if (scope === 'posts') return response.posts || [];
+  if (scope === 'project_files') return response.projectFiles || [];
+  if (scope === 'lists') return response.lists || [];
+  if (scope === 'tags') return response.tags || [];
+  return [];
 };

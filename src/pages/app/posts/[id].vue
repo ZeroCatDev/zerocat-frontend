@@ -1,5 +1,12 @@
 <template>
-  <div class="thread-page">
+  <div class="posts-layout">
+    <div class="posts-container">
+      <UnifiedSidebar
+        mode="twitter"
+        class="posts-left-sidebar"
+      />
+      <main class="posts-main">
+        <div class="thread-page">
     <!-- 页面头部 -->
     <header class="thread-header">
       <v-btn
@@ -242,6 +249,10 @@
         </v-carousel>
       </div>
     </v-dialog>
+        </div>
+      </main>
+      <HomeRightSidebar class="posts-right-sidebar" />
+    </div>
   </div>
 </template>
 
@@ -258,6 +269,8 @@ import PostCard from '@/components/posts/PostCard.vue';
 import PostList from '@/components/posts/PostList.vue';
 import PostEmbed from '@/components/posts/PostEmbed.vue';
 import QuotedPost from '@/components/posts/QuotedPost.vue';
+import UnifiedSidebar from '@/components/sidebar/UnifiedSidebar.vue';
+import HomeRightSidebar from '@/components/home/HomeRightSidebar.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -668,11 +681,68 @@ onMounted(loadThread);
 
 <style scoped>
 .thread-page {
-  max-width: 600px;
-  margin: 0 auto;
+  width: 100%;
   min-height: 100vh;
   border-left: 1px solid rgba(var(--v-theme-on-surface), 0.08);
   border-right: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.posts-layout {
+  min-height: 100vh;
+}
+
+.posts-container {
+  display: flex;
+  justify-content: center;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.posts-left-sidebar {
+  width: 275px;
+  flex-shrink: 0;
+}
+
+.posts-main {
+  width: 100%;
+  max-width: 600px;
+  flex-shrink: 0;
+}
+
+.posts-right-sidebar {
+  width: 350px;
+  flex-shrink: 0;
+}
+
+/* Large screens (≥1280px) */
+@media (min-width: 1280px) {
+  .posts-left-sidebar { width: 275px; }
+  .posts-main { max-width: 600px; }
+  .posts-right-sidebar { width: 350px; }
+}
+
+/* Medium screens (1024-1279px) */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .posts-left-sidebar { width: 88px; }
+  .posts-main { max-width: 600px; }
+  .posts-right-sidebar { display: none; }
+}
+
+/* Tablet (768-1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .posts-container { padding: 0; }
+  .posts-left-sidebar { display: none; }
+  .posts-main { max-width: 100%; }
+  .posts-right-sidebar { display: none; }
+}
+
+/* Mobile (<768px) */
+@media (max-width: 767px) {
+  .posts-container { padding: 0; }
+  .posts-left-sidebar { display: none; }
+  .posts-main { max-width: 100%; }
+  .posts-right-sidebar { display: none; }
 }
 
 /* Header */

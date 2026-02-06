@@ -232,7 +232,7 @@ import { useRoute, useRouter } from "vue-router";
 import NotificationsCard from "@/components/NotificationsCard.vue";
 import SearchDialog from "@/components/SearchDialog.vue";
 import LoginDialog from "@/components/account/LoginDialog.vue";
-import { get } from "@/services/serverConfig";
+import { get, fetchConfig } from "@/services/serverConfig";
 import { requiresAuth, getMatchedRoute } from "@/services/authRoutes";
 
 export default {

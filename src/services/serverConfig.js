@@ -65,13 +65,11 @@ export function fetchConfig() {
 
 // 智能获取配置
 export function get(key) {
-  let data;
-
-  // 如果需要刷新，先获取新数据
+  // 始终返回本地缓存，避免在刷新窗口内返回 Promise 导致取值为 undefined
+  const data = getStoredData();
   if (needsRefresh()) {
-    data = fetchConfig();
-  } else {
-    data = getStoredData();
+    // 触发后台刷新，不阻塞当前读取
+    fetchConfig().catch(() => {});
   }
 
   // 如果指定了key，返回对应的值

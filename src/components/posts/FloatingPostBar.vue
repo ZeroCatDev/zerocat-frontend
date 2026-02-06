@@ -3,7 +3,7 @@
     <!-- 背景遮罩 -->
     <Transition name="fade">
       <div
-        v-if="isExpanded"
+        v-if="showBar && isExpanded"
         class="floating-overlay"
         @click="collapse"
       />
@@ -11,6 +11,7 @@
 
     <!-- 悬浮发帖栏 -->
     <div
+      v-if="showBar"
       class="floating-post-bar"
       :class="{
         'floating-post-bar--expanded': isExpanded,
@@ -336,6 +337,7 @@ const embedIdLabel = computed(() => {
 
 // Auth
 const isLogin = computed(() => localuser.isLogin.value);
+const showBar = computed(() => isLogin.value && !shouldHide.value);
 
 const avatarUrl = computed(() => {
   try {
@@ -743,8 +745,8 @@ const submitPost = async () => {
 
 // Hide on certain pages
 const checkShouldHide = () => {
-  const hidePaths = ['/app/account/login', '/app/account/register', '/app/posts'];
-  shouldHide.value = hidePaths.some(p => route.path.startsWith(p));
+  const hidePrefixes = ['/app/account/login', '/app/account/register', '/app/posts'];
+  shouldHide.value = route.path === '/' || hidePrefixes.some(p => route.path.startsWith(p));
 };
 
 // Watch route changes
@@ -758,6 +760,10 @@ watch(() => route.path, () => {
     }
   });
 }, { immediate: true });
+
+watch(showBar, (visible) => {
+  if (!visible && isExpanded.value) collapse();
+});
 
 // Keyboard shortcut
 const handleKeydown = (e) => {
