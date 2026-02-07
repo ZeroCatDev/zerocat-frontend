@@ -85,6 +85,39 @@
           </v-card-item>
         </v-card>
       </v-col>
+      <v-col cols="12" md="6">
+        <v-card
+          class="h-100"
+          elevation="1"
+          hover
+          to="/app/docs/cloud-variables"
+        >
+          <v-card-item>
+            <template v-slot:prepend>
+              <v-icon
+                class="me-4"
+                color="primary"
+                icon="mdi-cloud-outline"
+                size="large"
+              ></v-icon>
+            </template>
+            <v-card-title>匿名云变量</v-card-title>
+            <v-card-subtitle class="mt-2">
+              查看如何开启并使用匿名云变量接口，包含互动示例。
+            </v-card-subtitle>
+            <v-card-text class="pt-4">
+              <v-chip color="primary" size="small" variant="flat"
+              >API 示例
+              </v-chip
+              >
+              <v-chip class="ms-2" color="primary" size="small" variant="flat"
+              >云变量
+              </v-chip
+              >
+            </v-card-text>
+          </v-card-item>
+        </v-card>
+      </v-col>
     </v-row>
 
     <!-- 开发者支持卡片 -->

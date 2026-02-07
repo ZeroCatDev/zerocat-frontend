@@ -1,6 +1,5 @@
 <template>
-  <v-container
-  >
+  <v-container>
     <v-row>
       <v-col cols="12"><h1>常规</h1></v-col>
       <v-col cols="7">
@@ -19,8 +18,7 @@
               @click="renameProject"
             ></v-btn>
           </template>
-        </v-text-field
-        >
+        </v-text-field>
       </v-col>
       <v-col cols="12">
         <v-divider></v-divider>
@@ -52,7 +50,7 @@
       </v-col>
 
       <v-col cols="12" sm="6">
-        <LicenseSelector v-model="project.license"/>
+        <LicenseSelector v-model="project.license" />
       </v-col>
 
       <v-col cols="12">
@@ -90,8 +88,7 @@
             variant="tonal"
             @click="saveProject"
           ></v-btn>
-        </v-card-actions
-        >
+        </v-card-actions>
       </v-col>
       <v-col cols="12"><h1>图片</h1></v-col>
       <v-col cols="12">
@@ -112,9 +109,39 @@
           @click="uploadThumbnail"
         ></v-btn>
       </v-col>
+      <v-col cols="12"><h1>云变量</h1></v-col>
+      <v-col cols="12">
+        <v-card>
+          <v-card-text>
+            <div
+              class="d-flex align-center justify-space-between flex-wrap ga-2"
+            >
+              <div>
+                <div class="text-subtitle-1">匿名读取</div>
+                <div class="text-body-2 text-medium-emphasis">
+                  允许未登录用户存取云变量数据。
+                </div>
+              </div>
+              <v-switch
+                v-model="cloudConfig.anonymouswrite"
+                :disabled="cloudConfigLoading"
+                inset
+                color="primary"
+                @update:model-value="updateCloudConfig"
+              />
+            </div>
+          </v-card-text>
+        </v-card>
+        <v-card
+          v-if="cloudConfig.anonymouswrite"
+          :to="'/app/docs/cloud-variables?projectid=' + project.id"
+          append-icon="mdi-arrow-right"
+          title="查看如何使用"
+        ></v-card>
+      </v-col>
+
       <v-col cols="12"><h1>危险</h1></v-col>
-      <v-col cols="12"
-      >
+      <v-col cols="12">
         <v-card>
           <v-list>
             <v-list-item subtitle="删除此项目后无法恢复。" title="删除此项目">
@@ -125,8 +152,7 @@
                   variant="tonal"
                   @click="confirmDelete = true"
                 ></v-btn>
-              </template
-              >
+              </template>
             </v-list-item>
             <v-list-item
               subtitle="选择项目的可见性，公开或私密。"
@@ -139,12 +165,10 @@
                   variant="tonal"
                   @click="changeVisibility = true"
                 ></v-btn>
-              </template
-              >
+              </template>
             </v-list-item>
           </v-list>
-        </v-card
-        >
+        </v-card>
       </v-col>
     </v-row>
     <v-expansion-panels>
@@ -160,10 +184,10 @@
       <v-card>
         <v-card-title class="headline">删除 {{ project.title }}</v-card-title>
         <v-card-text
-        >你确定要删除这个项目吗？此操作无法撤销。<br/>这将永久删除
+          >你确定要删除这个项目吗？此操作无法撤销。<br />这将永久删除
           {{ project.title }}
-          项目、推送、Star、评论、和其他所有数据，移除Fork对此项目的关联（但不会删除Fork）。<br/>要确认，请在下面的框中输入提示的小字以确认您的操作。
-          <br/><br/>
+          项目、推送、Star、评论、和其他所有数据，移除Fork对此项目的关联（但不会删除Fork）。<br />要确认，请在下面的框中输入提示的小字以确认您的操作。
+          <br /><br />
           <v-text-field
             v-model="confirmDeleteText"
             :label="`${localuser.user.username}/${project.name}`"
@@ -180,40 +204,41 @@
               confirmDelete = false;
               confirmDeleteText = '';
             "
-          >取消
-          </v-btn
-          >
+            >取消
+          </v-btn>
           <v-btn
             :disabled="
-              confirmDeleteText !==
-              `${localuser.user.username}/${project.name}`
+              confirmDeleteText !== `${localuser.user.username}/${project.name}`
             "
             color="error"
             text
             @click="deleteProject"
-          >删除
-          </v-btn
-          >
+            >删除
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
     <v-dialog v-model="changeVisibility" max-width="500px">
       <v-card>
-        <v-card-title class="headline">{{ project.state==='public'?'私密':'公开' }} {{ project.title }}</v-card-title>
+        <v-card-title class="headline"
+          >{{ project.state === "public" ? "私密" : "公开" }}
+          {{ project.title }}</v-card-title
+        >
         <v-card-text>
           <v-if v-if="project.state === 'public'">
-            将此仓库设为私有将删除不再有权访问此仓库的用户的 star。如果您决定在将来公开此存储库，则无法恢复这些 star
-            ，这将影响项目的排名。<br/>
+            将此仓库设为私有将删除不再有权访问此仓库的用户的
+            star。如果您决定在将来公开此存储库，则无法恢复这些 star
+            ，这将影响项目的排名。<br />
             此项目的Fork将保持公开，且不再与此项目有任何关联。
           </v-if>
           <v-if v-if="project.state === 'private'">
-            该项目将对可以访问ZeroCat的每个人都可见<br/>
-            任何人都可以复制或下载您的仓库。<br/>
+            该项目将对可以访问ZeroCat的每个人都可见<br />
+            任何人都可以复制或下载您的仓库。<br />
             您的操作历史记录和日志将对所有人可见。
           </v-if>
-          <br/><br/>
+          <br /><br />
           要确认，请在下面的框中输入提示的小字以确认您的操作。
-          <br/><br/>
+          <br /><br />
           <v-text-field
             v-model="changeVisibilityText"
             :label="`${localuser.user.username}/${project.name}`"
@@ -224,9 +249,8 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="primary" text @click="changeVisibility = false"
-          >取消
-          </v-btn
-          >
+            >取消
+          </v-btn>
           <v-btn
             :disabled="
               changeVisibilityText !==
@@ -235,9 +259,8 @@
             color="error"
             text
             @click="changeProjectVisibility"
-          >{{ project.state==='public'?'设置为私密':'设置为公开' }}
-          </v-btn
-          >
+            >{{ project.state === "public" ? "设置为私密" : "设置为公开" }}
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -246,24 +269,24 @@
 
 <script>
 import request from "../../../axios/axios";
-import {localuser} from "@/services/localAccount";
-import {useHead} from "@unhead/vue";
-import {getProjectInfoByNamespace} from "@/services/projectService";
+import { localuser } from "@/services/localAccount";
+import { useHead } from "@unhead/vue";
+import { getProjectInfoByNamespace } from "@/services/projectService";
 import LicenseSelector from "@/components/LicenseSelector.vue";
 import LanguageSelector from "@/components/LanguageSelector.vue";
-import { useSudoManager } from '@/composables/useSudoManager';
+import { useSudoManager } from "@/composables/useSudoManager";
 
 export default {
   components: {
     LicenseSelector,
-    LanguageSelector
+    LanguageSelector,
   },
   data() {
     return {
       localuser,
       states: [
-        {state: "私密", abbr: "private"},
-        {state: "公开", abbr: "public"},
+        { state: "私密", abbr: "private" },
+        { state: "公开", abbr: "public" },
       ],
       projectID: this.$route.params.id,
       project: {},
@@ -272,6 +295,10 @@ export default {
         items: ["动画", "故事", "音乐", "硬核", "艺术", "水"],
         chips: [],
       },
+      cloudConfig: {
+        anonymouswrite: false,
+      },
+      cloudConfigLoading: false,
       changeVisibility: false,
       changeVisibilityText: "",
       confirmDelete: false,
@@ -284,13 +311,14 @@ export default {
       this.$router.push("/app/account/login");
     }
     await this.fetchProject();
+    await this.fetchCloudConfig();
   },
   setup() {
-    useHead({title: "项目设置"});
+    useHead({ title: "项目设置" });
     const sudoManager = useSudoManager();
     return {
-      sudoManager
-    }
+      sudoManager,
+    };
   },
   methods: {
     removeTag(item) {
@@ -298,7 +326,7 @@ export default {
     },
     async fetchProject() {
       try {
-        const {username, projectname} = this.$route.params;
+        const { username, projectname } = this.$route.params;
         this.project = await getProjectInfoByNamespace(username, projectname);
         this.projectID = this.project.id;
         this.newProjectName = this.project.name;
@@ -313,18 +341,75 @@ export default {
         });
       }
     },
+    async fetchCloudConfig() {
+      if (!this.projectID) return;
+      this.cloudConfigLoading = true;
+      try {
+        const res = await request.get(
+          `/project/id/${this.projectID}/cloudconfig`,
+        );
+        const payload = res?.data ?? {};
+        const value = payload?.data?.value;
+        if (typeof value === "boolean") {
+          this.cloudConfig.anonymouswrite = value;
+        } else if (typeof payload?.data?.raw_value === "string") {
+          this.cloudConfig.anonymouswrite = payload.data.raw_value === "true";
+        }
+      } catch (error) {
+        console.error(error);
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: "加载云变量配置失败",
+          life: 3000,
+        });
+      } finally {
+        this.cloudConfigLoading = false;
+      }
+    },
+    async updateCloudConfig(value) {
+      if (!this.projectID) return;
+      this.cloudConfigLoading = true;
+      try {
+        const response = (
+          await request.put(`/project/id/${this.projectID}/cloudconfig`, {
+            anonymouswrite: !!value,
+          })
+        ).data;
+        if (response?.status && response.status !== "success") {
+          throw new Error(response?.message || "更新失败");
+        }
+        this.$toast.add({
+          severity: "success",
+          summary: "成功",
+          detail: "云变量配置已更新",
+          life: 3000,
+        });
+      } catch (error) {
+        console.error(error);
+        this.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: "更新云变量配置失败",
+          life: 3000,
+        });
+        await this.fetchCloudConfig();
+      } finally {
+        this.cloudConfigLoading = false;
+      }
+    },
     async deleteProject() {
       try {
         const sudoToken = await this.sudoManager.requireSudo({
-          title: '删除项目',
+          title: "删除项目",
           subtitle: `您正在尝试删除项目 ${this.project.name}。此操作不可逆，请输入密码以确认。`,
-          persistent: true
+          persistent: true,
         });
 
         await request.delete(`/project/${this.projectID}`, {
           headers: {
-            'X-Sudo-Token': sudoToken
-          }
+            "X-Sudo-Token": sudoToken,
+          },
         });
         this.$toast.add({
           severity: "info",
@@ -335,7 +420,7 @@ export default {
         this.$router.push("/app/explore");
       } catch (error) {
         console.error(error);
-        if (error.type !== 'cancel') {
+        if (error.type !== "cancel") {
           this.$toast.add({
             severity: "error",
             summary: "错误",
@@ -359,7 +444,7 @@ export default {
               type: this.project.type,
               tags: this.project.tags,
               license: this.project.license,
-            }
+            },
           )
         ).data;
         this.$toast.add({
@@ -405,19 +490,23 @@ export default {
       try {
         // 请求sudo认证
         const sudoToken = await this.sudoManager.requireSudo({
-          title: '更改项目可见性',
+          title: "更改项目可见性",
           subtitle: `您正在将项目"${this.project.name}"的可见性从${this.project.state === "public" ? "公开" : "私密"}更改为${this.project.state === "public" ? "私密" : "公开"}。此操作需要验证您的身份。`,
-          persistent: true
+          persistent: true,
         });
 
         const response = (
-          await request.put(`/project/changevisibility/${this.projectID}`, {
-            newState: this.project.state === "public" ? "private" : "public",
-          }, {
-            headers: {
-              'X-Sudo-Token': sudoToken
-            }
-          })
+          await request.put(
+            `/project/changevisibility/${this.projectID}`,
+            {
+              newState: this.project.state === "public" ? "private" : "public",
+            },
+            {
+              headers: {
+                "X-Sudo-Token": sudoToken,
+              },
+            },
+          )
         ).data;
         this.$toast.add({
           severity: response.status,
@@ -425,9 +514,11 @@ export default {
           detail: response.message,
           life: 3000,
         });
-        this.$router.push(`/explore/${localuser.user.value.username}/${this.project.name}`);
+        this.$router.push(
+          `/explore/${localuser.user.value.username}/${this.project.name}`,
+        );
       } catch (error) {
-        if (error.type !== 'cancelled') {
+        if (error.type !== "cancelled") {
           console.error(error);
           this.$toast.add({
             severity: "error",
@@ -449,18 +540,17 @@ export default {
     },
     async uploadThumbnail() {
       const formData = new FormData();
-      formData.append("file", this.$refs.fileInput.$el.querySelector('input').files[0]);
+      formData.append(
+        "file",
+        this.$refs.fileInput.$el.querySelector("input").files[0],
+      );
       try {
-        await request.post(
-          `/scratch/thumbnail/${this.projectID}`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${localuser.token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+        await request.post(`/scratch/thumbnail/${this.projectID}`, formData, {
+          headers: {
+            Authorization: `Bearer ${localuser.token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
         this.$toast.add({
           severity: "success",
           summary: "成功",
@@ -476,6 +566,13 @@ export default {
           life: 3000,
         });
       }
+    },
+  },
+  computed: {
+    isAuthor() {
+      return (
+        Number(this.project?.authorid) === Number(localuser.user.value?.id)
+      );
     },
   },
 };

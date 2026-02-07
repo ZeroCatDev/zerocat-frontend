@@ -11,26 +11,7 @@
     <header class="posts-header">
       <div class="header-content">
         <h1 class="header-title">首页</h1>
-        <div class="posts-search-inline">
-          <v-text-field
-            v-model="postSearchQuery"
-            density="compact"
-            variant="outlined"
-            hide-details
-            clearable
-            prepend-inner-icon="mdi-magnify"
-            label="搜索帖子"
-            @keyup.enter="goSearchPosts"
-          />
-          <v-btn
-            color="primary"
-            variant="tonal"
-            size="small"
-            @click="goSearchPosts"
-          >
-            搜索
-          </v-btn>
-        </div>
+
       </div>
       <div class="header-tabs">
         <button

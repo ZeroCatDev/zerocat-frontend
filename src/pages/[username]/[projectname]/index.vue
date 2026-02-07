@@ -47,6 +47,14 @@
             :projectname="$route.params.projectname"
             :username="$route.params.username"
           />
+          <div class="mt-4">
+            <CloudVariablesInfoCard
+              v-if="project.id"
+              :project-id="project.id"
+              :projectname="$route.params.projectname"
+              :username="$route.params.username"
+            />
+          </div>
         </v-col>
         <v-col cols="12" lg="8" md="8" sm="12" xl="8" xs="12" xxl="8">
           <Comment :url="'project-' + project.id" name="项目"></Comment>
@@ -73,6 +81,7 @@ import License from "@/components/license/License.vue";
 import ProjectBranchNav from "@/components/project/ProjectBranchNav.vue";
 import ProjectPlayer from "@/components/project/ProjectPlayer.vue";
 import ProjectInfoCard from "@/components/project/ProjectInfoCard.vue";
+import CloudVariablesInfoCard from "@/components/project/CloudVariablesInfoCard.vue";
 import "github-markdown-css";
 import PageAnalytics from "@/components/analytics/PageAnalytics.vue";
 
@@ -84,6 +93,7 @@ export default {
     ProjectBranchNav,
     ProjectPlayer,
     ProjectInfoCard,
+    CloudVariablesInfoCard,
     PageAnalytics,
   },
   data() {
