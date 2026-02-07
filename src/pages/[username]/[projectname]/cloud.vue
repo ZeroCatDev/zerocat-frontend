@@ -263,6 +263,9 @@ export default {
       return item?.actor?.username || null;
     },
     getActorDisplay(item) {
+      if (item?.actor?.display_name && item?.actor?.username) {
+        return `${item.actor.display_name}（${item.actor.username}）`;
+      }
       if (item?.actor?.display_name) return item.actor.display_name;
       if (item?.actor?.username) return item.actor.username;
       if (item?.actor_name) return item.actor_name;
