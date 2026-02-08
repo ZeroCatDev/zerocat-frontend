@@ -74,7 +74,17 @@
         <template #activator="{ props, isActive }">
           <template v-if="localuser.isLogin.value">
             <v-btn icon v-bind="props">
-              <v-avatar :image="localuser.getUserAvatar()"></v-avatar>
+              <v-badge
+                v-if="unreadCount > 0"
+                :content="unreadCount"
+                color="error"
+                location="top end"
+                offset-x="2"
+                offset-y="2"
+              >
+                <v-avatar :image="localuser.getUserAvatar()"></v-avatar>
+              </v-badge>
+              <v-avatar v-else :image="localuser.getUserAvatar()"></v-avatar>
             </v-btn>
           </template>
           <template v-else>
@@ -234,6 +244,7 @@ import SearchDialog from "@/components/SearchDialog.vue";
 import LoginDialog from "@/components/account/LoginDialog.vue";
 import { get, fetchConfig } from "@/services/serverConfig";
 import { requiresAuth, getMatchedRoute } from "@/services/authRoutes";
+import { getUnreadNotificationCount } from "@/services/notificationService";
 
 export default {
   components: {
@@ -281,7 +292,7 @@ export default {
     // 监听登录状态变化
     watch(
       () => localuser.isLogin.value,
-      (isLogin) => {
+      async (isLogin) => {
         if (isLogin) {
           // 用户刚登录，检查URL中是否有redirect参数
           const urlParams = new URLSearchParams(window.location.search);
@@ -289,9 +300,12 @@ export default {
           if (redirectPath) {
             router.push(decodeURIComponent(redirectPath));
           }
+          // 获取未读通知数量
+          await fetchUnreadCount();
         } else {
           // 用户登出，检查当前页面是否需要认证
           checkAuth(route.path);
+          unreadCount.value = 0;
         }
       }
     );
@@ -301,16 +315,24 @@ export default {
       unreadCount.value = count;
     };
 
+    // 直接从 API 获取未读通知数量
+    const fetchUnreadCount = async () => {
+      if (!localuser.isLogin.value) return;
+      try {
+        const data = await getUnreadNotificationCount();
+        unreadCount.value = data.count || 0;
+      } catch (error) {
+        console.error("Failed to fetch unread count:", error);
+      }
+    };
+
     onMounted(async () => {
       // 初始认证检查
       checkAuth(route.path);
 
-      // 如果用户已登录，等待组件实例化后检查未读通知
+      // 如果用户已登录，获取未读通知数量
       if (localuser.isLogin.value) {
-        await nextTick();
-        if (notificationsCard.value) {
-          notificationsCard.value.checkUnreadNotifications();
-        }
+        await fetchUnreadCount();
       }
     });
 
@@ -318,6 +340,7 @@ export default {
       notificationsCard,
       unreadCount,
       updateUnreadCount,
+      fetchUnreadCount,
       localuser,
       s3BucketUrl: "",
       checkAuth,

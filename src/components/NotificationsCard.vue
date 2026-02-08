@@ -32,6 +32,8 @@
           ref="contentRef"
           :autoFetch="autoFetch"
           :maxHeight="'420px'"
+          :maxItems="6"
+          :autoLoadMore="false"
           @update:unread-count="updateUnreadCount"
         />
         <template #fallback>
@@ -50,6 +52,7 @@
             :autoFetch="autoFetch"
             :maxHeight="'auto'"
             :show-pagination="showPagination"
+            :useWindowScroll="true"
             @update:unread-count="updateUnreadCount"
           />
           <template #fallback>

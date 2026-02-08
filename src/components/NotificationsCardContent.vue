@@ -471,7 +471,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import {
   getNotifications,
@@ -502,6 +502,14 @@ export default {
       type: Object,
       required: false,
       default: () => ({}),
+    },
+    maxItems: {
+      type: Number,
+      default: 0, // 0 表示不限制
+    },
+    useWindowScroll: {
+      type: Boolean,
+      default: false, // 是否使用窗口滚动来触发加载更多
     },
   },
   emits: ["update:unread-count"],
@@ -550,10 +558,27 @@ export default {
       error.value = null;
 
       try {
-        const data = await getNotifications();
-        notifications.value = data.notifications || [];
-        loadMoreUrl.value = data.load_more_notifications || null;
-        hasMoreNotifications.value = !!loadMoreUrl.value;
+        // 如果设置了 maxItems，使用它作为 limit
+        const limit = props.maxItems > 0 ? props.maxItems : 20;
+        const data = await getNotifications({ limit });
+        let notificationsList = data.notifications || [];
+
+        // 如果设置了 maxItems，截取前 N 条
+        if (props.maxItems > 0 && notificationsList.length > props.maxItems) {
+          notificationsList = notificationsList.slice(0, props.maxItems);
+        }
+
+        notifications.value = notificationsList;
+
+        // 如果设置了 maxItems 限制，不显示加载更多
+        if (props.maxItems > 0) {
+          loadMoreUrl.value = null;
+          hasMoreNotifications.value = false;
+        } else {
+          loadMoreUrl.value = data.load_more_notifications || null;
+          hasMoreNotifications.value = !!loadMoreUrl.value;
+        }
+
         updateUnreadCount();
 
         // 处理通知模板
@@ -884,7 +909,8 @@ export default {
       if (
         !props.autoLoadMore ||
         !hasMoreNotifications.value ||
-        loadingMore.value
+        loadingMore.value ||
+        props.maxItems > 0 // 如果设置了 maxItems，不自动加载更多
       )
         return;
 
@@ -893,6 +919,27 @@ export default {
       const scrollBottom = scrollHeight - scrollTop - clientHeight;
 
       if (scrollBottom < 50) {
+        await loadMoreNotifications();
+      }
+    };
+
+    // 处理窗口滚动加载（用于页面模式）
+    const handleWindowScroll = async () => {
+      if (
+        !props.useWindowScroll ||
+        !props.autoLoadMore ||
+        !hasMoreNotifications.value ||
+        loadingMore.value ||
+        props.maxItems > 0
+      )
+        return;
+
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = window.innerHeight;
+      const scrollBottom = scrollHeight - scrollTop - clientHeight;
+
+      if (scrollBottom < 100) {
         await loadMoreNotifications();
       }
     };
@@ -1208,8 +1255,26 @@ export default {
     if (props.autoFetch) {
       onMounted(() => {
         fetchNotifications();
+        // 如果使用窗口滚动，添加事件监听
+        if (props.useWindowScroll) {
+          window.addEventListener('scroll', handleWindowScroll);
+        }
+      });
+    } else {
+      onMounted(() => {
+        // 如果使用窗口滚动，添加事件监听
+        if (props.useWindowScroll) {
+          window.addEventListener('scroll', handleWindowScroll);
+        }
       });
     }
+
+    // 清理窗口滚动事件监听器
+    onUnmounted(() => {
+      if (props.useWindowScroll) {
+        window.removeEventListener('scroll', handleWindowScroll);
+      }
+    });
 
     return {
       notifications,
@@ -1225,6 +1290,7 @@ export default {
       fetchNotifications,
       loadMoreNotifications,
       handleScroll,
+      handleWindowScroll,
       markAsRead,
       markAllAsRead,
       updateUnreadCount,
