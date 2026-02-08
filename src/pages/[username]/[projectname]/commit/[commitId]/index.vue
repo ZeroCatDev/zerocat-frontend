@@ -38,6 +38,7 @@
             返回最新提交
           </v-btn
           >
+
         </div>
 
         <ProjectPlayer
@@ -56,7 +57,16 @@
           <v-card-text>{{
             commitInfo ? commitInfo.commit.commit_description : "加载中..."
             }}
-          </v-card-text>
+          </v-card-text><v-card-actions>  <v-btn
+            class="text-none ml-2"
+            prepend-icon="mdi-share-variant"
+            rounded="lg"
+            variant="tonal"
+            color="primary"
+            @click="handleShareCommit"
+          >
+            分享此提交
+          </v-btn></v-card-actions>
         </v-card>
         <br/>
       </v-col>
@@ -66,6 +76,7 @@
           :project="project"
           :projectname="$route.params.projectname"
           :username="$route.params.username"
+          :commit="$route.params.commitId"
         />
       </v-col>
     </v-row>
@@ -82,6 +93,7 @@ import {
   initProject,
   getCommitInfo,
 } from "@/services/projectService";
+import { openFloatingPostBar } from "@/composables/useFloatingPostBar";
 import ProjectPlayer from "@/components/project/ProjectPlayer.vue";
 import ProjectInfoCard from "@/components/project/ProjectInfoCard.vue";
 
@@ -148,6 +160,14 @@ export default {
       }
       this.pageTitle = `${this.project.title} at ${this.commitInfo.commit_message}`;
       this.author = this.project.author;
+    },
+    handleShareCommit() {
+      const commitId = this.$route.params.commitId;
+      openFloatingPostBar({
+        text: ` @${this.author.username} 的项目 ${this.project.title || ''} (提交：${commitId.slice(0, 7)})`,
+        embed: { type: 'project', id: this.project.id, commit: commitId },
+        placeholder: `分享关于 ${this.project.title} 的内容...`
+      });
     },
   },
   watch: {

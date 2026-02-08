@@ -26,12 +26,20 @@
           :project="project"
           :projectname="$route.params.projectname"
           :username="$route.params.username"
-        />
+          :branch="$route.params.branch"
+        /> <br/> <v-btn
+            class="text-none"
+            prepend-icon="mdi-share-variant"
+            rounded="lg"
+            variant="tonal"
+            color="primary"
+
+            @click="handleShareBranch"
+          >
+            分享此分支
+          </v-btn>
       </v-col>
-      <v-col cols="12" lg="8" md="8" sm="12" xl="8" xs="12" xxl="8">
-        <Comment :name="` ${project.title} 的分支：${$route.params.branch} `"
-                 :url="'project-' + project.id+'#'+$route.params.branch"></Comment>
-      </v-col>
+
     </v-row>
   </v-container>
 </template>
@@ -47,12 +55,15 @@ import {
   getBranchs,
   getBranchHistoryByCommit,
 } from "@/services/projectService";
+import { openFloatingPostBar } from "@/composables/useFloatingPostBar";
+import Comment from "@/components/Comment.vue";
 import ProjectBranchNav from "@/components/project/ProjectBranchNav.vue";
 import ProjectPlayer from "@/components/project/ProjectPlayer.vue";
 import ProjectInfoCard from "@/components/project/ProjectInfoCard.vue";
 
 export default {
   components: {
+    Comment,
     ProjectBranchNav,
     ProjectPlayer,
     ProjectInfoCard,
@@ -136,6 +147,14 @@ export default {
         this.currentCommitId
       );
       this.projectbranchhistory = res;
+    },
+    handleShareBranch() {
+      const branch = this.$route.params.branch;
+      openFloatingPostBar({
+        text: `分享分支 ${branch}`,
+        embed: { type: 'project', id: this.project.id, branch },
+        placeholder: `分享关于 ${this.project.title} 的内容...`
+      });
     },
   },
   watch: {

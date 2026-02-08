@@ -17,6 +17,14 @@
               </v-chip>
               <v-spacer></v-spacer>
               <v-btn
+                color="primary"
+                icon="mdi-share-variant"
+                size="small"
+                variant="text"
+                @click="handleShareList"
+                class="mr-1"
+              ></v-btn>
+              <v-btn
                 v-if="isOwner"
                 color="primary"
                 icon="mdi-pencil"
@@ -88,6 +96,7 @@
 import request from "../../axios/axios";
 import EditProjectListConfig from "./EditProjectListConfig.vue";
 import {localuser} from "../../services/localAccount";
+import { openFloatingPostBar } from "@/composables/useFloatingPostBar";
 import ProjectCard from "../project/ProjectCard.vue";
 import {ref, onMounted} from "vue";
 
@@ -167,6 +176,14 @@ export default {
 
     openEditDialog() {
       this.editDialog = true;
+    },
+
+    handleShareList() {
+      openFloatingPostBar({
+        text: `@${this.listInfo.author?.username} 的列表「${this.listInfo.title || ''}」`,
+        embed: { type: 'list', id: this.listId },
+        placeholder: `分享关于这个列表的内容...`
+      });
     },
 
     formatDate(dateString) {

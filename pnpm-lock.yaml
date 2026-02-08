@@ -101,6 +101,9 @@ importers:
       roboto-fontface:
         specifier: '*'
         version: 0.10.0
+      twitter-text:
+        specifier: ^3.1.0
+        version: 3.1.0
       typewriter-effect:
         specifier: ^2.22.0
         version: 2.22.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1964,11 +1967,12 @@ packages:
     resolution: {integrity: sha512-7Vv6asjS4gMOuILabD3l739tsaxFQmC+a7pLZm02zyvs8p977bL3zEgq3yDk5rn9B0PbYgIv++jmHcuUab4RhA==}
     engines: {node: '>=18'}
 
-  core-js-compat@3.44.0:
-    resolution: {integrity: sha512-JepmAj2zfl6ogy34qfWtcE7nHKAJnKsQFRn++scjVS2bZFllwptzw61BZcZFYBPpUznLfAvh0LGhxKppk04ClA==}
-
   core-js-compat@3.48.0:
     resolution: {integrity: sha512-OM4cAF3D6VtH/WkLtWvyNC56EZVXsZdU3iqaMG2B4WvYrlqU831pc4UtG5yp0sE9z8Y02wVN7PjW5Zf9Gt0f1Q==}
+
+  core-js@2.6.12:
+    resolution: {integrity: sha512-Kb2wC0fvsWfQrgk8HU5lW6U/Lcs8+9aaYcy4ZFc6DDlo4nZ7n70dEgE5rtR0oG6ufKDUnrwfWL1mXR5ljDatrQ==}
+    deprecated: core-js@<3.23.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Some versions have web compatibility issues. Please, upgrade your dependencies to the actual version of core-js.
 
   core-js@3.48.0:
     resolution: {integrity: sha512-zpEHTy1fjTMZCKLHUZoVeylt9XrzaIN2rbPXEt0k+q7JE5CkCZdo6bNq55bn24a69CH7ErAVLKijxJja4fw+UQ==}
@@ -2724,7 +2728,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   global-agent@3.0.0:
     resolution: {integrity: sha512-PT6XReJ+D07JvGoxQMkT6qji/jVNfX/h364XHZOWeRzy64sSFr+xJ5OX7LI3b4MPQzdL4H8Y8M0xzPpsVMwA8Q==}
@@ -3590,6 +3594,9 @@ packages:
     resolution: {integrity: sha512-uxFIHU0YlHYhDQtV4R9J6a52SLx28BCjT+4ieh7IGbgwVJWO+km431c4yRlREUAsAmt/uMjQUyQHNEPf0M39CA==}
     engines: {node: '>=6'}
 
+  punycode@1.4.1:
+    resolution: {integrity: sha512-jmYNElW7yvO7TV33CjSmvSiE2yco3bV2czu/OzDKdMNVZQWfxCblURLhf+47syQRBntjfLdd/H0egrzIG+oaFQ==}
+
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
@@ -4186,6 +4193,12 @@ packages:
 
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
+
+  twemoji-parser@11.0.2:
+    resolution: {integrity: sha512-5kO2XCcpAql6zjdLwRwJjYvAZyDy3+Uj7v1ipBzLthQmDL7Ce19bEqHr3ImSNeoSW2OA8u02XmARbXHaNO8GhA==}
+
+  twitter-text@3.1.0:
+    resolution: {integrity: sha512-nulfUi3FN6z0LUjYipJid+eiwXvOLb8Ass7Jy/6zsXmZK3URte043m8fL3FyDzrK+WLpyqhHuR/TcARTN/iuGQ==}
 
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
@@ -4833,7 +4846,7 @@ snapshots:
       '@babel/core': 7.28.0
       '@babel/helper-compilation-targets': 7.27.2
       '@babel/helper-plugin-utils': 7.28.6
-      debug: 4.4.1
+      debug: 4.4.3
       lodash.debounce: 4.0.8
       resolve: 1.22.10
     transitivePeerDependencies:
@@ -5421,7 +5434,7 @@ snapshots:
       babel-plugin-polyfill-corejs2: 0.4.14(@babel/core@7.28.0)
       babel-plugin-polyfill-corejs3: 0.13.0(@babel/core@7.28.0)
       babel-plugin-polyfill-regenerator: 0.6.5(@babel/core@7.28.0)
-      core-js-compat: 3.44.0
+      core-js-compat: 3.48.0
       semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
@@ -5873,7 +5886,7 @@ snapshots:
 
   '@rollup/pluginutils@5.1.4(rollup@2.79.2)':
     dependencies:
-      '@types/estree': 1.0.6
+      '@types/estree': 1.0.8
       estree-walker: 2.0.2
       picomatch: 4.0.3
     optionalDependencies:
@@ -6504,7 +6517,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.28.0
       '@babel/helper-define-polyfill-provider': 0.6.5(@babel/core@7.28.0)
-      core-js-compat: 3.44.0
+      core-js-compat: 3.48.0
     transitivePeerDependencies:
       - supports-color
 
@@ -6699,13 +6712,11 @@ snapshots:
     dependencies:
       is-what: 5.5.0
 
-  core-js-compat@3.44.0:
-    dependencies:
-      browserslist: 4.25.1
-
   core-js-compat@3.48.0:
     dependencies:
       browserslist: 4.28.1
+
+  core-js@2.6.12: {}
 
   core-js@3.48.0: {}
 
@@ -8501,6 +8512,8 @@ snapshots:
 
   punycode.js@2.3.1: {}
 
+  punycode@1.4.1: {}
+
   punycode@2.3.1: {}
 
   qrcode@1.5.4:
@@ -9151,7 +9164,7 @@ snapshots:
   terser@5.43.1:
     dependencies:
       '@jridgewell/source-map': 0.3.10
-      acorn: 8.14.0
+      acorn: 8.15.0
       commander: 2.20.3
       source-map-support: 0.5.21
 
@@ -9186,6 +9199,15 @@ snapshots:
   tslib@2.3.0: {}
 
   tslib@2.8.1: {}
+
+  twemoji-parser@11.0.2: {}
+
+  twitter-text@3.1.0:
+    dependencies:
+      '@babel/runtime': 7.28.2
+      core-js: 2.6.12
+      punycode: 1.4.1
+      twemoji-parser: 11.0.2
 
   type-check@0.4.0:
     dependencies:

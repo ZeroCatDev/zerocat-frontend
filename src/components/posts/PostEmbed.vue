@@ -391,8 +391,21 @@ const loadEmbedData = async () => {
         }
         break;
       case 'list':
-        // TODO: Implement list fetching
-        listData.value = { id: props.embed.id };
+        try {
+          const res = await axios.get(`/projectlist/lists/listid/${props.embed.id}`);
+          if (res.data?.status === 'success' && res.data?.data) {
+            listData.value = {
+              id: props.embed.id,
+              name: res.data.data.title,
+              description: res.data.data.description,
+              itemCount: res.data.data.projects?.length || 0
+            };
+          } else {
+            listData.value = { id: props.embed.id };
+          }
+        } catch {
+          listData.value = { id: props.embed.id };
+        }
         break;
       case 'user':
         // Fetch user data from API
@@ -437,7 +450,7 @@ const handleClick = () => {
       }
       break;
     case 'list':
-      router.push(`/app/list/${props.embed.id}`);
+      router.push(`/app/projectlist/${props.embed.id}`);
       break;
     case 'user':
       if (userData.value?.username || props.embed.username) {

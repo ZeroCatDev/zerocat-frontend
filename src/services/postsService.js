@@ -1,4 +1,5 @@
 import axios from '@/axios/axios';
+import { getLocalCountInfo } from '@/utils/postCount';
 
 const getErrorMessage = (error, fallback = '请求失败') => {
   return (
@@ -355,12 +356,7 @@ export const PostsService = {
    * 计算字数
    */
   async count(content) {
-    try {
-      const response = await axios.post('/posts/count', { content });
-      return response.data;
-    } catch (error) {
-      throw new Error(getErrorMessage(error, '字数统计失败'));
-    }
+    return getLocalCountInfo(content);
   },
 
   // ==================== 帖子级接口 ====================

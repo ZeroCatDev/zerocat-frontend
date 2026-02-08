@@ -58,6 +58,17 @@
           stats.forks
         }}</v-btn>
       </v-btn-group>
+      <v-btn
+        variant="tonal"
+
+        rounded="lg"
+
+        class="text-none"
+        prepend-icon="mdi-share-variant"
+        @click="handleShare"
+      >
+        分享
+      </v-btn>
     </div>
     <div class="px-4 d-flex ga-2 mb-2">
       <v-btn
@@ -92,6 +103,7 @@ import ProjectStar from "@/components/project/ProjectStar.vue";
 import ProjectAuthorCard from "@/components/project/ProjectAuthorCard.vue";
 import openEditor from "@/stores/openEdit";
 import { getProjectStats } from "@/services/projectService";
+import { openFloatingPostBar } from "@/composables/useFloatingPostBar";
 import { ref, onMounted } from "vue";
 import { localuser } from "@/services/localAccount";
 export default {
@@ -117,6 +129,14 @@ export default {
     projectname: {
       type: String,
       required: true,
+    },
+    branch: {
+      type: String,
+      default: null,
+    },
+    commit: {
+      type: String,
+      default: null,
     },
   },
   data() {
@@ -153,6 +173,24 @@ export default {
           visitors: 0,
         };
       }
+    },
+    handleShare() {
+      const embed = { type: 'project', id: this.project.id };
+      let text = `@${this.author.username} 的项目 ${this.project.title || ''}`;
+
+      if (this.commit) {
+        embed.commit = this.commit;
+        text = `@${this.author.username} 的项目 ${this.project.title || ''} (提交：${this.commit.slice(0, 7)})`;
+      } else if (this.branch && this.branch !== 'main') {
+        embed.branch = this.branch;
+        text = `@${this.author.username} 的项目 ${this.project.title || ''} (分支：${this.branch})`;
+      }
+
+      openFloatingPostBar({
+        text,
+        embed,
+        placeholder: `分享关于 ${this.project.title} 的内容...`
+      });
     },
   },
 };

@@ -124,7 +124,33 @@
               </div>
               <v-switch
                 v-model="cloudConfig.anonymouswrite"
-                :disabled="cloudConfigLoading"
+                :disabled="cloudConfigLoading || !isAuthor"
+                inset
+                color="primary"
+                @update:model-value="updateCloudConfig"
+              />
+            </div>
+          </v-card-text>
+        </v-card>        <v-card
+          v-if="cloudConfig.anonymouswrite"
+          :to="'/app/docs/cloud-variables?projectid=' + project.id"
+          append-icon="mdi-arrow-right"
+          title="查看如何使用"
+        ></v-card>
+        <v-card class="mt-4">
+          <v-card-text>
+            <div
+              class="d-flex align-center justify-space-between flex-wrap ga-2"
+            >
+              <div>
+                <div class="text-subtitle-1">历史记录</div>
+                <div class="text-body-2 text-medium-emphasis">
+                  关闭后无法读取历史记录，且不再写入历史记录。
+                </div>
+              </div>
+              <v-switch
+                v-model="cloudConfig.historyenabled"
+                :disabled="cloudConfigLoading || !isAuthor"
                 inset
                 color="primary"
                 @update:model-value="updateCloudConfig"
@@ -132,12 +158,8 @@
             </div>
           </v-card-text>
         </v-card>
-        <v-card
-          v-if="cloudConfig.anonymouswrite"
-          :to="'/app/docs/cloud-variables?projectid=' + project.id"
-          append-icon="mdi-arrow-right"
-          title="查看如何使用"
-        ></v-card>
+
+
       </v-col>
 
       <v-col cols="12"><h1>危险</h1></v-col>
@@ -297,6 +319,7 @@ export default {
       },
       cloudConfig: {
         anonymouswrite: false,
+        historyenabled: true,
       },
       cloudConfigLoading: false,
       changeVisibility: false,
@@ -341,6 +364,30 @@ export default {
         });
       }
     },
+    normalizeConfigValue(value) {
+      if (typeof value === "boolean") return value;
+      if (typeof value === "string") return value === "true";
+      if (typeof value === "number") return value !== 0;
+      return null;
+    },
+    applyCloudConfigItem(key, value) {
+      if (!key) return;
+      const normalizedKey = String(key).toLowerCase();
+      const normalizedValue = this.normalizeConfigValue(value);
+      if (normalizedValue === null) return;
+      if (
+        normalizedKey === "anonymouswrite" ||
+        normalizedKey === "scratch.clouddata.anonymouswrite"
+      ) {
+        this.cloudConfig.anonymouswrite = normalizedValue;
+      }
+      if (
+        normalizedKey === "historyenabled" ||
+        normalizedKey === "scratch.clouddata.history.enabled"
+      ) {
+        this.cloudConfig.historyenabled = normalizedValue;
+      }
+    },
     async fetchCloudConfig() {
       if (!this.projectID) return;
       this.cloudConfigLoading = true;
@@ -349,11 +396,30 @@ export default {
           `/project/id/${this.projectID}/cloudconfig`,
         );
         const payload = res?.data ?? {};
-        const value = payload?.data?.value;
-        if (typeof value === "boolean") {
-          this.cloudConfig.anonymouswrite = value;
-        } else if (typeof payload?.data?.raw_value === "string") {
-          this.cloudConfig.anonymouswrite = payload.data.raw_value === "true";
+        const data = payload?.data;
+        if (Array.isArray(data)) {
+          data.forEach((item) => {
+            const key =
+              item?.key ??
+              item?.name ??
+              item?.config ??
+              item?.config_key ??
+              item?.path;
+            const value =
+              item?.value ?? item?.raw_value ?? item?.rawValue ?? item?.data;
+            this.applyCloudConfigItem(key, value);
+          });
+        } else if (data && typeof data === "object") {
+          const key =
+            data?.key ?? data?.name ?? data?.config ?? data?.config_key;
+          const value = data?.value ?? data?.raw_value ?? data?.rawValue;
+          if (key) {
+            this.applyCloudConfigItem(key, value);
+          } else {
+            Object.entries(data).forEach(([entryKey, entryValue]) => {
+              this.applyCloudConfigItem(entryKey, entryValue);
+            });
+          }
         }
       } catch (error) {
         console.error(error);
@@ -367,13 +433,14 @@ export default {
         this.cloudConfigLoading = false;
       }
     },
-    async updateCloudConfig(value) {
+    async updateCloudConfig() {
       if (!this.projectID) return;
       this.cloudConfigLoading = true;
       try {
         const response = (
           await request.put(`/project/id/${this.projectID}/cloudconfig`, {
-            anonymouswrite: !!value,
+            anonymouswrite: !!this.cloudConfig.anonymouswrite,
+            historyenabled: !!this.cloudConfig.historyenabled,
           })
         ).data;
         if (response?.status && response.status !== "success") {
