@@ -7,6 +7,34 @@ const TOKEN_KEY = "token";
 const REFRESH_TOKEN_KEY = "refreshToken";
 const TOKEN_EXPIRES_AT_KEY = "tokenExpiresAt";
 const REFRESH_TOKEN_EXPIRES_AT_KEY = "refreshTokenExpiresAt";
+
+const shouldForceLogoutByCode = (code) => {
+  return (
+    code === "ZC_ERROR_INVALID_REFRESH_TOKEN" ||
+    code === "ZC_ERROR_REFRESH_TOKEN_EXPIRED"
+  );
+};
+
+const setStorageValue = (key, value) => {
+  if (value === undefined || value === null || value === "") {
+    localStorage.removeItem(key);
+    return;
+  }
+  localStorage.setItem(key, String(value));
+};
+
+const parseDateTime = (value) => {
+  if (value === undefined || value === null || value === "") return null;
+
+  const raw = String(value).trim();
+  const isNumericTs = /^\d+$/.test(raw);
+  const numericValue = Number(raw);
+  const date = isNumericTs && Number.isFinite(numericValue)
+    ? new Date(numericValue < 1e12 ? numericValue * 1000 : numericValue)
+    : new Date(value);
+
+  return Number.isNaN(date.getTime()) ? null : date;
+};
 // 令牌过期前多少秒开始刷新（默认5分钟前）
 const TOKEN_REFRESH_THRESHOLD = 5 * 60;
 // 是否启用自动刷新（默认启用）
@@ -112,11 +140,11 @@ const loadUser = async (force) => {
 
   // Check if token is expired
   const now = new Date();
-  const expiresAt = new Date(localStorage.getItem(TOKEN_EXPIRES_AT_KEY));
+  const expiresAt = parseDateTime(localStorage.getItem(TOKEN_EXPIRES_AT_KEY));
 
   if (expiresAt && expiresAt <= now) {
     // Token expired, check refresh token validity first
-    const refreshTokenExpiresAt = new Date(localStorage.getItem(REFRESH_TOKEN_EXPIRES_AT_KEY));
+    const refreshTokenExpiresAt = parseDateTime(localStorage.getItem(REFRESH_TOKEN_EXPIRES_AT_KEY));
     if (!refreshTokenExpiresAt || refreshTokenExpiresAt <= now) {
       // Refresh token is also expired, logout
       logout();
@@ -201,31 +229,45 @@ const refreshAccessToken = async () => {
     });
 
     const data = response.data;
-    if (data.status !== "success") {
+    if (data.status !== "success" || !data.token) {
       // Only logout if the error indicates refresh token is invalid
-      if (data.code === "ZC_ERROR_INVALID_REFRESH_TOKEN" ||
-        data.code === "ZC_ERROR_REFRESH_TOKEN_EXPIRED") {
+      if (shouldForceLogoutByCode(data.code)) {
         logout(false);
       }
       return false;
     }
 
-    // Update only token and expires_at (refresh token no longer updated)
-    localStorage.setItem(TOKEN_KEY, data.token);
-    localStorage.setItem(TOKEN_EXPIRES_AT_KEY, data.expires_at);
+    // 更新access token
+    setStorageValue(TOKEN_KEY, data.token);
     token.value = data.token;
-    tokenExpiresAt.value = data.expires_at;
+    if (data.expires_at) {
+      setStorageValue(TOKEN_EXPIRES_AT_KEY, data.expires_at);
+      tokenExpiresAt.value = data.expires_at;
+    }
+
+    // 兼容后端刷新令牌轮换
+    if (data.refresh_token) {
+      setStorageValue(REFRESH_TOKEN_KEY, data.refresh_token);
+      refreshToken.value = data.refresh_token;
+    }
+    if (data.refresh_expires_at) {
+      setStorageValue(REFRESH_TOKEN_EXPIRES_AT_KEY, data.refresh_expires_at);
+      refreshTokenExpiresAt.value = data.refresh_expires_at;
+    }
 
     return true;
   } catch (error) {
     console.error("Token refresh failed:", error);
+
+    // 刷新接口直接返回401时，也需要识别无效刷新令牌并退出
+    if (shouldForceLogoutByCode(error?.response?.data?.code)) {
+      logout(false);
+    }
+
     // Don't logout on network errors or other temporary issues
     return false;
   } finally {
-    // 延迟重置刷新状态，确保 watch 已经完成
-    setTimeout(() => {
-      TokenRefreshManager.setRefreshing(false);
-    }, 100);
+    TokenRefreshManager.setRefreshing(false);
   }
 };
 
@@ -241,6 +283,10 @@ const checkAndRefreshToken = async () => {
 
   // 检查访问令牌是否快过期
   const expirationTime = getTokenExpirationTime();
+  if (expirationTime < 0) {
+    // 过期时间未知时不主动登出，交由服务端401兜底
+    return true;
+  }
 
   // 如果令牌已过期或即将过期
   if (expirationTime <= TOKEN_REFRESH_THRESHOLD) {
@@ -266,6 +312,10 @@ const checkAndRefreshToken = async () => {
  */
 const calculateRefreshDelay = () => {
   const expirationTime = getTokenExpirationTime();
+  if (expirationTime < 0) {
+    // 过期时间未知时，保守地每5分钟检查一次
+    return 5 * 60 * 1000;
+  }
 
   if (expirationTime <= 0) {
     return 0; // 已过期，立即处理
@@ -306,6 +356,14 @@ const startTokenRefreshTimer = () => {
 
   // 获取当前令牌的剩余有效期
   const expirationTime = getTokenExpirationTime();
+  if (expirationTime < 0) {
+    // 无法解析过期时间，使用保守轮询，避免误登出
+    TokenRefreshManager.set(() => {
+      startTokenRefreshTimer();
+    }, 5 * 60 * 1000);
+    return;
+  }
+
   if (expirationTime <= 0) {
     // 已经过期，立即尝试刷新一次
     checkAndRefreshToken();
@@ -357,15 +415,15 @@ const stopTokenRefreshTimer = () => {
  * @returns {Promise<void>}
  */
 const setUser = async (data) => {
-  localStorage.setItem(TOKEN_KEY, data.token);
-  localStorage.setItem(REFRESH_TOKEN_KEY, data.refresh_token);
-  localStorage.setItem(TOKEN_EXPIRES_AT_KEY, data.expires_at);
-  localStorage.setItem(REFRESH_TOKEN_EXPIRES_AT_KEY, data.refresh_expires_at);
+  setStorageValue(TOKEN_KEY, data.token);
+  setStorageValue(REFRESH_TOKEN_KEY, data.refresh_token);
+  setStorageValue(TOKEN_EXPIRES_AT_KEY, data.expires_at);
+  setStorageValue(REFRESH_TOKEN_EXPIRES_AT_KEY, data.refresh_expires_at);
 
-  token.value = data.token;
-  refreshToken.value = data.refresh_token;
-  tokenExpiresAt.value = data.expires_at;
-  refreshTokenExpiresAt.value = data.refresh_expires_at;
+  token.value = data.token || null;
+  refreshToken.value = data.refresh_token || null;
+  tokenExpiresAt.value = data.expires_at || null;
+  refreshTokenExpiresAt.value = data.refresh_expires_at || null;
 
   await loadUser(true);
 
@@ -392,6 +450,26 @@ const getRefreshToken = () => {
 };
 
 /**
+ * Update access token and expiration time
+ * @param {string} newToken New access token
+ * @param {string|number|Date} expiresAt Access token expiration time
+ * @returns {boolean} Whether update was successful
+ */
+const updateToken = (newToken, expiresAt) => {
+  if (!newToken) return false;
+
+  setStorageValue(TOKEN_KEY, newToken);
+  token.value = newToken;
+
+  if (expiresAt !== undefined && expiresAt !== null && expiresAt !== "") {
+    setStorageValue(TOKEN_EXPIRES_AT_KEY, expiresAt);
+    tokenExpiresAt.value = String(expiresAt);
+  }
+
+  return true;
+};
+
+/**
  * Check if the current token is valid and not expired
  * @returns {boolean} Whether the token is valid
  */
@@ -399,15 +477,11 @@ const isTokenValid = () => {
   const currentToken = localStorage.getItem(TOKEN_KEY);
   if (!currentToken) return false;
 
-  const expiresAt = new Date(localStorage.getItem(TOKEN_EXPIRES_AT_KEY));
+  const expiresAt = parseDateTime(localStorage.getItem(TOKEN_EXPIRES_AT_KEY));
   const now = new Date();
 
-  // If token is expired but refresh token is valid, try to refresh
-  if (expiresAt && expiresAt <= now) {
-    return false;
-  }
-
-  return expiresAt && expiresAt > now;
+  if (!expiresAt) return true;
+  return expiresAt > now;
 };
 
 /**
@@ -418,10 +492,11 @@ const isRefreshTokenValid = () => {
   const currentRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
   if (!currentRefreshToken) return false;
 
-  const refreshExpiresAt = new Date(localStorage.getItem(REFRESH_TOKEN_EXPIRES_AT_KEY));
+  const refreshExpiresAt = parseDateTime(localStorage.getItem(REFRESH_TOKEN_EXPIRES_AT_KEY));
   const now = new Date();
 
-  return refreshExpiresAt && refreshExpiresAt > now;
+  if (!refreshExpiresAt) return true;
+  return refreshExpiresAt > now;
 };
 
 /**
@@ -446,15 +521,16 @@ const isAuthenticationNeeded = () => {
 
 /**
  * Get time left until token expiration in seconds
- * @returns {number} Seconds until expiration, 0 if expired
+ * @returns {number} Seconds until expiration, 0 if expired, -1 if unknown
  */
 const getTokenExpirationTime = () => {
-  const expiresAt = new Date(localStorage.getItem(TOKEN_EXPIRES_AT_KEY));
-  if (!expiresAt) return 0;
+  const expiresAt = parseDateTime(localStorage.getItem(TOKEN_EXPIRES_AT_KEY));
+  if (!expiresAt) return -1;
 
   const now = new Date();
   const diffMs = expiresAt - now;
 
+  if (!Number.isFinite(diffMs)) return -1;
   return Math.max(0, Math.floor(diffMs / 1000));
 };
 
@@ -702,7 +778,7 @@ const initializeTokenRefresh = async () => {
   if (getToken()) {
     // 检查访问令牌是否过期或即将过期
     const tokenExpirationTime = getTokenExpirationTime();
-    const shouldRefresh = tokenExpirationTime <= TOKEN_REFRESH_THRESHOLD;
+    const shouldRefresh = tokenExpirationTime >= 0 && tokenExpirationTime <= TOKEN_REFRESH_THRESHOLD;
 
     if (shouldRefresh) {
       // 检查刷新令牌是否有效
@@ -757,6 +833,7 @@ export const localuser = {
   setUser,
   logout,
   getToken,
+  updateToken,
   getUserAvatar,
   getRefreshToken,
   refreshAccessToken,
