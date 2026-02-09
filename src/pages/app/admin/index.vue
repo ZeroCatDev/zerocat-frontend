@@ -15,7 +15,20 @@
         <v-card-subtitle class="mt-2"> 系统管理</v-card-subtitle>
       </v-card-item>
     </v-card>
-
+<v-card class="mb-6" elevation="2" @click="openAdminQueues">
+      <v-card-item>
+        <template v-slot:prepend>
+          <v-icon
+            class="me-4"
+            color="primary"
+            icon="mdi-code-braces"
+            size="large"
+          ></v-icon>
+        </template>
+        <v-card-title class="text-h5">Bullmq</v-card-title>
+        <v-card-subtitle class="mt-2"> 面板</v-card-subtitle>
+      </v-card-item>
+    </v-card>
     <v-row>
       <!-- OAuth 应用卡片 -->
       <v-col v-for="item in config" :key="item.path" cols="6" md="6">
@@ -36,6 +49,8 @@
 </template>
 
 <script>
+import { get, fetchConfig } from "@/services/serverConfig";
+
 export default {
   name: "AdminIndex",
   data() {
@@ -50,5 +65,12 @@ export default {
       ],
     };
   },
-};
+  methods: {
+    openAdminQueues() {
+      const token = localStorage.getItem("token")
+      const backendUrl = get("urls.backend");
+      window.open(`${backendUrl}/admin/queues/auth?token=${token}`);
+    }
+}
+}
 </script>

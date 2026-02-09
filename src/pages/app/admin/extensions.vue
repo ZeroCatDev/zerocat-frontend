@@ -80,6 +80,14 @@
               </v-btn>
               <v-btn
                 class="ml-2"
+                color="info"
+                @click="openAutoApproveDialog"
+              >
+                <v-icon left>mdi-account-check</v-icon>
+                自动过审用户
+              </v-btn>
+              <v-btn
+                class="ml-2"
                 color="success"
                 @click="createExtension"
               >
@@ -229,6 +237,71 @@
         :extension="selectedExtension"
         @save="saveExtension"
       />
+
+      <!-- 自动过审用户对话框 -->
+      <v-dialog
+        v-model="autoApproveDialog"
+        max-width="640px"
+        transition="dialog-bottom-transition"
+      >
+        <v-card>
+          <v-card-item>
+            <v-card-title class="headline">管理自动过审用户</v-card-title>
+            <v-card-subtitle>
+              输入用户名，支持换行或逗号分隔
+            </v-card-subtitle>
+            <template v-slot:append>
+              <v-btn icon @click="autoApproveDialog = false">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </template>
+          </v-card-item>
+          <v-divider></v-divider>
+          <v-progress-linear
+            v-if="autoApproveLoading"
+            indeterminate
+            color="primary"
+          />
+          <v-card-text class="pt-4">
+            <v-textarea
+              v-model="autoApproveInput"
+              auto-grow
+              clearable
+              label="自动过审用户名单"
+              outlined
+              rows="4"
+            ></v-textarea>
+            <div class="mt-3">
+              <div class="text-caption mb-2">预览</div>
+              <div v-if="autoApprovePreview.length">
+                <v-chip
+                  v-for="name in autoApprovePreview"
+                  :key="name"
+                  class="mr-1 mb-1"
+                  color="primary"
+                  label
+                  small
+                >
+                  {{ name }}
+                </v-chip>
+              </div>
+              <div v-else class="caption grey--text">暂无用户名</div>
+            </div>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn text @click="autoApproveDialog = false">取消</v-btn>
+            <v-btn
+              :loading="autoApproveSaving"
+              color="primary"
+              text
+              @click="saveAutoApproveUsers"
+            >
+              保存
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
 
       <!-- 扩展详情对话框 -->
       <v-dialog
@@ -487,6 +560,11 @@ export default {
       viewDialog: false,
       rejectDialog: false,
       deleteDialog: false,
+      autoApproveDialog: false,
+      autoApproveLoading: false,
+      autoApproveSaving: false,
+      autoApproveUsers: [],
+      autoApproveInput: "",
       selectedExtension: null,
       rejectReason: "",
       rejecting: false,
@@ -499,7 +577,62 @@ export default {
       }
     }
   },
+  computed: {
+    autoApprovePreview() {
+      return this.normalizeAutoApproveInput();
+    }
+  },
   methods: {
+    normalizeAutoApproveInput() {
+      return this.autoApproveInput
+        .split(/[\n,]+/)
+        .map((name) => name.trim())
+        .filter(Boolean);
+    },
+
+    async openAutoApproveDialog() {
+      this.autoApproveDialog = true;
+      await this.loadAutoApproveUsers();
+    },
+
+    async loadAutoApproveUsers() {
+      this.autoApproveLoading = true;
+      try {
+        const { data } = await axios.get("/admin/extensions/auto-approve-users");
+        const usernames = Array.isArray(data?.data) ? data.data : [];
+        this.autoApproveUsers = usernames;
+        this.autoApproveInput = usernames.join("\n");
+      } catch (error) {
+        this.showError("加载自动过审用户失败");
+        console.error("Error loading auto-approve users:", error);
+      } finally {
+        this.autoApproveLoading = false;
+      }
+    },
+
+    async saveAutoApproveUsers() {
+      this.autoApproveSaving = true;
+      try {
+        const usernames = this.normalizeAutoApproveInput();
+        const { data } = await axios.put("/admin/extensions/auto-approve-users", {
+          usernames
+        });
+        const nextUsernames = Array.isArray(data?.data) ? data.data : usernames;
+        this.autoApproveUsers = nextUsernames;
+        this.autoApproveInput = nextUsernames.join("\n");
+        this.showSuccess(data?.message || "自动过审用户已更新");
+        this.autoApproveDialog = false;
+      } catch (error) {
+        const message =
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "更新自动过审用户失败";
+        this.showError(message);
+        console.error("Error saving auto-approve users:", error);
+      } finally {
+        this.autoApproveSaving = false;
+      }
+    },
     async loadExtensions() {
       this.loading = true;
       try {
