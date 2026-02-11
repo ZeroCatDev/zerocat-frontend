@@ -179,6 +179,13 @@ export function useSidebarContent() {
       to: '/app/admin/extensions',
       requireLogin: true
     },
+    {
+      name: 'admin-oauth-applications',
+      label: 'OAuth应用',
+      icon: 'mdi-shield-key',
+      to: '/app/admin/oauth/applications',
+      requireLogin: true
+    },
   ]);
 
   // Twitter模式的简化导航项
