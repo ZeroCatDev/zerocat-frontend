@@ -75,8 +75,11 @@ export const AuthService = {
   },
 
   // Password reset
-  sendPasswordResetCode: async (email) => {
-    const response = await axios.post('/account/retrievePassword', {email});
+  sendPasswordResetCode: async (email, captcha = null) => {
+    const data = {email};
+    if (captcha) data.captcha = captcha;
+
+    const response = await axios.post('/account/retrievePassword', data);
     return response.data;
   },
 

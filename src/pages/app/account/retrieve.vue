@@ -56,6 +56,10 @@
           </v-col>
 
           <v-col cols="12">
+            <Recaptcha ref="recaptcha" recaptchaId="retrieve-recaptcha-div" />
+          </v-col>
+
+          <v-col cols="12">
             <v-btn
               :loading="loading"
               :text="step === 1 ? '获取验证码' : '重设密码'"
@@ -104,14 +108,16 @@ import {useRouter} from "vue-router";
 import {localuser} from "@/services/localAccount";
 import AuthService from "@/services/authService";
 import LoadingDialog from "@/components/LoadingDialog.vue";
+import Recaptcha from "@/components/Recaptcha.vue";
 import AuthCard from "@/components/AuthCard.vue";
 import {useHead} from "@unhead/vue";
 
 export default {
-  components: {LoadingDialog, AuthCard},
+  components: {LoadingDialog, Recaptcha, AuthCard},
 
   setup() {
     const router = useRouter();
+    const recaptcha = ref(null);
 
     // State variables
     const email = ref("");
@@ -165,11 +171,17 @@ export default {
         return;
       }
 
+      const captcha = recaptcha.value?.getResponse() || null;
+      if (!captcha) {
+        showErrorToast("请完成人机验证");
+        return;
+      }
+
       loading.value = true;
       loadingText.value = "正在发送验证码...";
 
       try {
-        const response = await AuthService.sendPasswordResetCode(email.value);
+        const response = await AuthService.sendPasswordResetCode(email.value, captcha);
 
         if (response.status === "success") {
           showSuccessToast("验证码已发送到您的邮箱");
@@ -256,6 +268,7 @@ export default {
       verificationCode,
       password,
       confirmPassword,
+      recaptcha,
       step,
       loading,
       countdown,
