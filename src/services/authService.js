@@ -74,21 +74,21 @@ export const AuthService = {
     return response.data;
   },
 
-  // Password reset
+  // Password reset - send code
   sendPasswordResetCode: async (email, captcha = null) => {
     const data = {email};
     if (captcha) data.captcha = captcha;
 
-    const response = await axios.post('/account/retrievePassword', data);
+    const response = await axios.post('/account/send-code', data);
     return response.data;
   },
 
-  // Reset password with code
-  resetPasswordWithCode: async (email, verificationCode, newPassword) => {
+  // Password reset - submit new password with code
+  resetPasswordWithCode: async (codeId, code, newPassword) => {
     const response = await axios.post('/account/reset-password', {
-      email,
-      verificationCode,
-      newPassword
+      code_id: codeId,
+      code,
+      new_password: newPassword
     });
     return response.data;
   },

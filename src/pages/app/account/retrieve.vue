@@ -14,7 +14,6 @@
             ></v-text-field>
           </v-col>
 
-          <!-- 验证码输入 -->
           <v-col v-if="step >= 2" cols="12">
             <v-text-field
               v-model="verificationCode"
@@ -33,7 +32,6 @@
             </v-btn>
           </v-col>
 
-          <!-- 密码输入 -->
           <v-col v-if="step >= 2" cols="12">
             <v-text-field
               v-model="password"
@@ -98,12 +96,12 @@
         </v-row>
       </v-form>
     </AuthCard>
-    <LoadingDialog :show="loading" :text="loadingText"/>
+    <LoadingDialog :show="loading" :text="loadingText" />
   </div>
 </template>
 
 <script>
-import {ref, computed} from "vue";
+import {computed, ref} from "vue";
 import {useRouter} from "vue-router";
 import {localuser} from "@/services/localAccount";
 import AuthService from "@/services/authService";
@@ -119,11 +117,11 @@ export default {
     const router = useRouter();
     const recaptcha = ref(null);
 
-    // State variables
     const email = ref("");
     const verificationCode = ref("");
     const password = ref("");
     const confirmPassword = ref("");
+    const codeId = ref("");
     const step = ref(1);
     const loading = ref(false);
     const countdown = ref(0);
@@ -131,7 +129,6 @@ export default {
     const showConfirmPassword = ref(false);
     const loadingText = ref("处理中...");
 
-    // Validation rules
     const rules = {
       required: (value) => !!value || "此字段为必填项",
       length: (value) => value?.length === 6 || "验证码必须是6位数字",
@@ -145,7 +142,9 @@ export default {
     const passwordRules = [
       (v) => !!v || "必须填写密码",
       (v) => v.length >= 8 || "密码至少需要8个字符",
-      (v) => /[A-Za-z]/.test(v) && /[0-9]/.test(v) || "密码必须包含字母和数字",
+      (v) => (
+        (/[A-Za-z]/.test(v) && /[0-9]/.test(v)) || "密码必须包含字母和数字"
+      ),
     ];
 
     const confirmPasswordRules = computed(() => [
@@ -153,15 +152,49 @@ export default {
       (v) => v === password.value || "两次输入的密码不一致",
     ]);
 
-    // Check if user is already logged in
     if (localuser.isLogin.value === true) {
       router.push("/app/dashboard");
     }
 
-    // Set page title
     useHead({
       title: "重设密码",
     });
+
+    const showSuccessToast = (message) => {
+      if (window?.$toast?.add) {
+        window.$toast.add({
+          severity: "success",
+          summary: "成功",
+          detail: message,
+          life: 3000,
+        });
+      } else {
+        console.log(message);
+      }
+    };
+
+    const showErrorToast = (message) => {
+      if (window?.$toast?.add) {
+        window.$toast.add({
+          severity: "error",
+          summary: "错误",
+          detail: message,
+          life: 3000,
+        });
+      } else {
+        console.error(message);
+      }
+    };
+
+    const startCountdown = () => {
+      countdown.value = 60;
+      const timer = setInterval(() => {
+        countdown.value--;
+        if (countdown.value <= 0) {
+          clearInterval(timer);
+        }
+      }, 1000);
+    };
 
     const sendVerificationCode = async () => {
       if (countdown.value > 0) return;
@@ -182,22 +215,32 @@ export default {
 
       try {
         const response = await AuthService.sendPasswordResetCode(email.value, captcha);
+        const nextCodeId = response?.data?.code_id || response?.code_id || "";
 
-        if (response.status === "success") {
-          showSuccessToast("验证码已发送到您的邮箱");
-          step.value = 2; // Move to next step
+        if (response?.status === "success" && nextCodeId) {
+          codeId.value = nextCodeId;
+          step.value = 2;
+          showSuccessToast(response.message || "验证码已发送到您的邮箱");
           startCountdown();
+        } else if (response?.status === "success" && !nextCodeId) {
+          showErrorToast("验证码发送成功，但未获取到 code_id");
         } else {
-          showErrorToast(response.message || "发送验证码失败");
+          showErrorToast(response?.message || "发送验证码失败");
         }
       } catch (error) {
-        showErrorToast(error.response?.data?.message || "发送验证码失败");
+        showErrorToast(error.response?.data?.message || error.message || "发送验证码失败");
       } finally {
         loading.value = false;
+        recaptcha.value?.resetCaptcha?.();
       }
     };
 
     const resetPassword = async () => {
+      if (!codeId.value) {
+        showErrorToast("缺少 code_id，请重新获取验证码");
+        return;
+      }
+
       if (!verificationCode.value || verificationCode.value.length !== 6) {
         showErrorToast("请输入6位验证码");
         return;
@@ -213,54 +256,24 @@ export default {
 
       try {
         const response = await AuthService.resetPasswordWithCode(
-          email.value,
+          codeId.value,
           verificationCode.value,
           password.value
         );
 
-        if (response.status === "success") {
-          showSuccessToast("密码重置成功，请使用新密码登录");
+        if (response?.status === "success") {
+          showSuccessToast(response.message || "密码重置成功，请使用新密码登录");
           setTimeout(() => {
             router.push("/app/account/login");
-          }, 2000);
+          }, 1200);
         } else {
-          showErrorToast(response.message || "重置密码失败");
+          showErrorToast(response?.message || "重置密码失败");
         }
       } catch (error) {
-        showErrorToast(error.response?.data?.message || "重置密码失败");
+        showErrorToast(error.response?.data?.message || error.message || "重置密码失败");
       } finally {
         loading.value = false;
       }
-    };
-
-    const startCountdown = () => {
-      countdown.value = 60;
-      const timer = setInterval(() => {
-        countdown.value--;
-        if (countdown.value <= 0) {
-          clearInterval(timer);
-        }
-      }, 1000);
-    };
-
-    const showSuccessToast = (message) => {
-      // Using PrimeVue toast
-      this?.$toast?.add({
-        severity: "success",
-        summary: "成功",
-        detail: message,
-        life: 3000,
-      });
-    };
-
-    const showErrorToast = (message) => {
-      // Using PrimeVue toast
-      this?.$toast?.add({
-        severity: "error",
-        summary: "错误",
-        detail: message,
-        life: 3000,
-      });
     };
 
     return {

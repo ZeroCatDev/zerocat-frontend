@@ -52,7 +52,7 @@ export function uploadUserAvatar(queryParams, formData) {
 
 export function retrievePassword(data) {
   return request({
-    url: "/account/retrievePassword",
+    url: "/account/send-code",
     method: "post",
     data,
   });
@@ -91,7 +91,7 @@ export function loginUser(data) {
 
 export function resetPassword(data) {
   return request({
-    url: "/account/torepw",
+    url: "/account/reset-password",
     method: "post",
     data,
   });
