@@ -35,8 +35,10 @@ const sanitizePage = (page) => {
 
 const sanitizePerPage = (perPage) => {
   const parsed = Number.parseInt(perPage, 10);
-  if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_PER_PAGE;
-  return Math.min(parsed, MAX_PER_PAGE);
+  if (!Number.isFinite(parsed)) return DEFAULT_PER_PAGE;
+  if (parsed < 1) return 1;
+  if (parsed > MAX_PER_PAGE) return MAX_PER_PAGE;
+  return parsed;
 };
 
 const normalizeScope = (value) => {
@@ -93,16 +95,16 @@ const normalizeResponse = (payload = {}, fallbackScope = 'projects', fallbackPag
 };
 
 export const normalizeSearchQuery = (rawQuery = {}) => {
-  const keyword = String(rawQuery.q ?? rawQuery.keyword ?? rawQuery.search_source ?? '').trim();
+  const keyword = String(rawQuery.keyword ?? rawQuery.q ?? rawQuery.search_source ?? '').trim();
   const scope = normalizeScope(rawQuery.scope ?? rawQuery.search_scope);
   const page = sanitizePage(rawQuery.page ?? rawQuery.curr);
-  const perPage = sanitizePerPage(rawQuery.perPage ?? rawQuery.limit);
+  const perPage = sanitizePerPage(rawQuery.perPage ?? rawQuery.pageSize ?? rawQuery.limit);
 
-  const userId = toArray(rawQuery.userId ?? rawQuery.search_userid).map((v) => {
-    const asNumber = Number(v);
-    return Number.isFinite(asNumber) ? asNumber : v;
-  });
-  const tags = toArray(rawQuery.tags ?? rawQuery.search_tag);
+  const userId = toArray(rawQuery.userId ?? rawQuery.userid ?? rawQuery.authorid ?? rawQuery.search_userid)
+    .map((v) => String(v).trim())
+    .filter((v) => /^\d+$/.test(v))
+    .map((v) => Number(v));
+  const tags = toArray(rawQuery.tags ?? rawQuery.tag ?? rawQuery.search_tag);
 
   return {
     keyword,
@@ -110,7 +112,7 @@ export const normalizeSearchQuery = (rawQuery = {}) => {
     userId,
     tags,
     type: rawQuery.type ?? rawQuery.search_type ?? '',
-    orderBy: rawQuery.orderBy ?? rawQuery.search_orderby ?? '',
+    orderBy: rawQuery.orderBy ?? rawQuery.orderby ?? rawQuery.sort ?? rawQuery.search_orderby ?? '',
     state: rawQuery.state ?? rawQuery.search_state ?? '',
     postType: rawQuery.postType ?? rawQuery.search_post_type ?? '',
     userStatus: rawQuery.userStatus ?? rawQuery.search_user_status ?? '',
