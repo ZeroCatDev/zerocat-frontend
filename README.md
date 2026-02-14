@@ -35,4 +35,3 @@ ZeroCat 社区项目采用 [GNU Affero General Public License v3.0](LICENSE) 开
 
 Copyright © 2020–2026 Sunwuyuan.<br/>
 All rights reserved.
-
