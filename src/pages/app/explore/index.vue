@@ -226,8 +226,8 @@ export default {
       orderitems: [
         { name: "热门程度", type: "view_down", icon: "mdi-fire" },
         { name: "更新时间", type: "time_down", icon: "mdi-clock-outline" },
-        { name: "小编推荐", type: "star_down", icon: "mdi-star-outline" },
-        { name: "观看量升序", type: "view_up", icon: "mdi-arrow-up-bold-circle-outline" }
+        { name: "星标最多", type: "star_down", icon: "mdi-star-outline" },
+        { name: "观看最多", type: "view_down", icon: "mdi-arrow-up-bold-circle-outline" }
       ],
       typeOptions: [{ label: "全部类型", value: "all", icon: "mdi-shape-outline" }],
       projects: [],
