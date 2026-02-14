@@ -1,233 +1,212 @@
 <template>
-  <div>
-    <v-container>
-      <!-- Overview Cards -->
-      <v-row>
-        <v-col cols="12" md="2.4" sm="6">
-          <v-card>
-            <v-card-text>
-              <div class="text-subtitle-2 mb-1">浏览量</div>
-              <div class="text-h5">{{ analytics?.overview?.pageviews?.value || 0 }}</div>
-              <v-chip
-                :color="getGrowthColor(analytics?.overview?.pageviews?.value, analytics?.overview?.pageviews?.prev)"
-                class="mt-2"
-                size="small"
-              >
-                {{ calculateGrowth(analytics?.overview?.pageviews?.value, analytics?.overview?.pageviews?.prev) }}%
-              </v-chip>
-            </v-card-text>
-          </v-card>
-        </v-col>
+  <v-container>
+    <!-- Header -->
+    <div class="analytics-header">
+      <div>
+        <h1 class="analytics-title">数据分析</h1>
+        <p class="analytics-subtitle">{{ project.title || '加载中...' }}</p>
+      </div>
+      <v-select
+        v-model="timeRange"
+        :items="timeRanges"
+        density="compact"
+        hide-details
+        variant="outlined"
+        rounded="lg"
+        style="max-width: 200px"
+      />
+    </div>
 
-        <v-col cols="12" md="2.4" sm="6">
-          <v-card>
-            <v-card-text>
-              <div class="text-subtitle-2 mb-1">访客数</div>
-              <div class="text-h5">{{ analytics?.overview?.visitors?.value || 0 }}</div>
-              <v-chip
-                :color="getGrowthColor(analytics?.overview?.visitors?.value, analytics?.overview?.visitors?.prev)"
-                class="mt-2"
-                size="small"
-              >
-                {{ calculateGrowth(analytics?.overview?.visitors?.value, analytics?.overview?.visitors?.prev) }}%
-              </v-chip>
-            </v-card-text>
-          </v-card>
-        </v-col>
+    <!-- Overview Cards -->
+    <div class="overview-grid">
+      <div class="overview-card" v-for="item in overviewItems" :key="item.label">
+        <div class="overview-card__inner">
+          <div class="overview-card__icon">
+            <v-icon :icon="item.icon" size="22" />
+          </div>
+          <div class="overview-card__content">
+            <span class="overview-card__label">{{ item.label }}</span>
+            <span class="overview-card__value">{{ item.value }}</span>
+          </div>
+          <v-chip
+            :color="item.growthColor"
+            size="small"
+            variant="tonal"
+            class="overview-card__growth"
+          >
+            <v-icon
+              :icon="item.growth >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'"
+              size="14"
+              start
+            />
+            {{ item.growth }}%
+          </v-chip>
+        </div>
+      </div>
+    </div>
 
-        <v-col cols="12" md="2.4" sm="6">
-          <v-card>
-            <v-card-text>
-              <div class="text-subtitle-2 mb-1">访问次数</div>
-              <div class="text-h5">{{ analytics?.overview?.visits?.value || 0 }}</div>
-              <v-chip
-                :color="getGrowthColor(analytics?.overview?.visits?.value, analytics?.overview?.visits?.prev)"
-                class="mt-2"
-                size="small"
-              >
-                {{ calculateGrowth(analytics?.overview?.visits?.value, analytics?.overview?.visits?.prev) }}%
-              </v-chip>
-            </v-card-text>
-          </v-card>
-        </v-col>
+    <!-- Chart -->
+    <v-card border rounded="xl" class="mt-6">
+      <v-card-text class="pa-6">
+        <div class="text-h6 mb-4">访问趋势</div>
+        <v-chart
+          v-if="analytics?.timeseries?.pageviews?.length > 0"
+          :option="chartOption"
+          autoresize
+          class="chart"
+        />
+        <div v-else class="d-flex justify-center align-center chart">
+          <v-progress-circular color="primary" indeterminate />
+        </div>
+      </v-card-text>
+    </v-card>
 
-        <v-col cols="12" md="2.4" sm="6">
-          <v-card>
-            <v-card-text>
-              <div class="text-subtitle-2 mb-1">跳出率</div>
-              <div class="text-h5">{{ calculateBounceRate(analytics?.overview?.bounces?.value,
-                analytics?.overview?.visits?.value) }}%
-              </div>
-              <v-chip
-                :color="getGrowthColor(analytics?.overview?.bounces?.value, analytics?.overview?.bounces?.prev, true)"
-                class="mt-2"
-                size="small"
-              >
-                {{ calculateGrowth(analytics?.overview?.bounces?.value, analytics?.overview?.bounces?.prev) }}%
-              </v-chip>
-            </v-card-text>
-          </v-card>
-        </v-col>
+    <!-- Statistics Tables - Row 1 -->
+    <div class="tables-grid mt-6">
+      <v-card border rounded="xl">
+        <v-card-text class="pa-5">
+          <div class="table-header">
+            <v-icon icon="mdi-link-variant" size="20" class="table-header__icon" />
+            <span class="text-subtitle-1 font-weight-medium">来源域名</span>
+          </div>
+          <v-table density="compact" class="mt-3">
+            <thead>
+              <tr>
+                <th>域名</th>
+                <th class="text-right">访问次数</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in analytics?.referrers || []" :key="index">
+                <td>{{ item?.x || '直接访问' }}</td>
+                <td class="text-right">
+                  <span class="font-weight-medium">{{ item?.y || 0 }}</span>
+                </td>
+              </tr>
+              <tr v-if="!analytics?.referrers?.length">
+                <td class="text-center text-medium-emphasis" colspan="2">暂无数据</td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card-text>
+      </v-card>
 
+      <v-card border rounded="xl">
+        <v-card-text class="pa-5">
+          <div class="table-header">
+            <v-icon icon="mdi-web" size="20" class="table-header__icon" />
+            <span class="text-subtitle-1 font-weight-medium">浏览器</span>
+          </div>
+          <v-table density="compact" class="mt-3">
+            <thead>
+              <tr>
+                <th>浏览器</th>
+                <th class="text-right">使用次数</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in analytics?.browsers || []" :key="index">
+                <td>{{ formatBrowserName(item?.x) || '未知' }}</td>
+                <td class="text-right">
+                  <span class="font-weight-medium">{{ item?.y || 0 }}</span>
+                </td>
+              </tr>
+              <tr v-if="!analytics?.browsers?.length">
+                <td class="text-center text-medium-emphasis" colspan="2">暂无数据</td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card-text>
+      </v-card>
 
-      </v-row>
+      <v-card border rounded="xl">
+        <v-card-text class="pa-5">
+          <div class="table-header">
+            <v-icon icon="mdi-monitor" size="20" class="table-header__icon" />
+            <span class="text-subtitle-1 font-weight-medium">操作系统</span>
+          </div>
+          <v-table density="compact" class="mt-3">
+            <thead>
+              <tr>
+                <th>系统</th>
+                <th class="text-right">使用次数</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in analytics?.os || []" :key="index">
+                <td>{{ item?.x || '未知' }}</td>
+                <td class="text-right">
+                  <span class="font-weight-medium">{{ item?.y || 0 }}</span>
+                </td>
+              </tr>
+              <tr v-if="!analytics?.os?.length">
+                <td class="text-center text-medium-emphasis" colspan="2">暂无数据</td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card-text>
+      </v-card>
+    </div>
 
-      <!-- Chart -->
-      <v-row class="mt-4">
-        <v-col cols="12">
-          <v-card>
-            <v-card-text>
-              <div class="d-flex justify-space-between align-center mb-4">
-                <div class="text-h6">访问趋势</div>
-                <v-select
-                  v-model="timeRange"
-                  :items="timeRanges"
-                  class="w-25"
-                  density="compact"
-                  hide-details
-                ></v-select>
-              </div>
-              <v-chart v-if="analytics?.timeseries?.pageviews?.length > 0" :option="chartOption" autoresize
-                       class="chart"/>
-              <div v-else class="d-flex justify-center align-center chart">
-                <v-progress-circular color="primary" indeterminate></v-progress-circular>
-              </div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
+    <!-- Statistics Tables - Row 2 -->
+    <div class="tables-grid tables-grid--half mt-6">
+      <v-card border rounded="xl">
+        <v-card-text class="pa-5">
+          <div class="table-header">
+            <v-icon icon="mdi-cellphone-link" size="20" class="table-header__icon" />
+            <span class="text-subtitle-1 font-weight-medium">设备类型</span>
+          </div>
+          <v-table density="compact" class="mt-3">
+            <thead>
+              <tr>
+                <th>类型</th>
+                <th class="text-right">使用次数</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in analytics?.devices || []" :key="index">
+                <td>{{ formatDeviceType(item?.x) || '未知' }}</td>
+                <td class="text-right">
+                  <span class="font-weight-medium">{{ item?.y || 0 }}</span>
+                </td>
+              </tr>
+              <tr v-if="!analytics?.devices?.length">
+                <td class="text-center text-medium-emphasis" colspan="2">暂无数据</td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card-text>
+      </v-card>
 
-      <!-- Statistics Tables -->
-      <v-row class="mt-4">
-        <v-col cols="12" md="4">
-          <v-card>
-            <v-card-text>
-              <div class="text-h6 mb-4">来源域名</div>
-              <v-table density="compact">
-                <thead>
-                <tr>
-                  <th>域名</th>
-                  <th class="text-right">访问次数</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="(item, index) in analytics?.referrers || []" :key="index">
-                  <td>{{ item?.x || '未知' }}</td>
-                  <td class="text-right">{{ item?.y || 0 }}</td>
-                </tr>
-                <tr v-if="!analytics?.referrers?.length">
-                  <td class="text-center" colspan="2">暂无数据</td>
-                </tr>
-                </tbody>
-              </v-table>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" md="4">
-          <v-card>
-            <v-card-text>
-              <div class="text-h6 mb-4">浏览器</div>
-              <v-table density="compact">
-                <thead>
-                <tr>
-                  <th>浏览器</th>
-                  <th class="text-right">使用次数</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="(item, index) in analytics?.browsers || []" :key="index">
-                  <td>{{ formatBrowserName(item?.x) || '未知' }}</td>
-                  <td class="text-right">{{ item?.y || 0 }}</td>
-                </tr>
-                <tr v-if="!analytics?.browsers?.length">
-                  <td class="text-center" colspan="2">暂无数据</td>
-                </tr>
-                </tbody>
-              </v-table>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" md="4">
-          <v-card>
-            <v-card-text>
-              <div class="text-h6 mb-4">操作系统</div>
-              <v-table density="compact">
-                <thead>
-                <tr>
-                  <th>系统</th>
-                  <th class="text-right">使用次数</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="(item, index) in analytics?.os || []" :key="index">
-                  <td>{{ item?.x || '未知' }}</td>
-                  <td class="text-right">{{ item?.y || 0 }}</td>
-                </tr>
-                <tr v-if="!analytics?.os?.length">
-                  <td class="text-center" colspan="2">暂无数据</td>
-                </tr>
-                </tbody>
-              </v-table>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <v-row class="mt-4">
-        <v-col cols="12" md="6">
-          <v-card>
-            <v-card-text>
-              <div class="text-h6 mb-4">设备类型</div>
-              <v-table density="compact">
-                <thead>
-                <tr>
-                  <th>类型</th>
-                  <th class="text-right">使用次数</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="(item, index) in analytics?.devices || []" :key="index">
-                  <td>{{ formatDeviceType(item?.x) || '未知' }}</td>
-                  <td class="text-right">{{ item?.y || 0 }}</td>
-                </tr>
-                <tr v-if="!analytics?.devices?.length">
-                  <td class="text-center" colspan="2">暂无数据</td>
-                </tr>
-                </tbody>
-              </v-table>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" md="6">
-          <v-card>
-            <v-card-text>
-              <div class="text-h6 mb-4">国家/地区</div>
-              <v-table density="compact">
-                <thead>
-                <tr>
-                  <th>国家/地区</th>
-                  <th class="text-right">访问次数</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr v-for="(item, index) in analytics?.countries || []" :key="index">
-                  <td>{{ formatCountryName(item?.x) || '未知' }}</td>
-                  <td class="text-right">{{ item?.y || 0 }}</td>
-                </tr>
-                <tr v-if="!analytics?.countries?.length">
-                  <td class="text-center" colspan="2">暂无数据</td>
-                </tr>
-                </tbody>
-              </v-table>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
-  </div>
+      <v-card border rounded="xl">
+        <v-card-text class="pa-5">
+          <div class="table-header">
+            <v-icon icon="mdi-earth" size="20" class="table-header__icon" />
+            <span class="text-subtitle-1 font-weight-medium">国家/地区</span>
+          </div>
+          <v-table density="compact" class="mt-3">
+            <thead>
+              <tr>
+                <th>国家/地区</th>
+                <th class="text-right">访问次数</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in analytics?.countries || []" :key="index">
+                <td>{{ formatCountryName(item?.x) || '未知' }}</td>
+                <td class="text-right">
+                  <span class="font-weight-medium">{{ item?.y || 0 }}</span>
+                </td>
+              </tr>
+              <tr v-if="!analytics?.countries?.length">
+                <td class="text-center text-medium-emphasis" colspan="2">暂无数据</td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card-text>
+      </v-card>
+    </div>
+  </v-container>
 </template>
 
 <script>
@@ -242,7 +221,6 @@ import {
 } from 'echarts/components';
 import VChart from 'vue-echarts';
 import {getProjectAnalytics, getProjectInfoByNamespace} from '@/services/projectService';
-import axios from '@/axios/axios';
 
 use([
   CanvasRenderer,
@@ -290,6 +268,39 @@ export default {
     };
   },
   computed: {
+    overviewItems() {
+      const o = this.analytics?.overview;
+      return [
+        {
+          label: '浏览量',
+          value: o?.pageviews?.value || 0,
+          icon: 'mdi-eye-outline',
+          growth: this.calculateGrowth(o?.pageviews?.value, o?.pageviews?.prev),
+          growthColor: this.getGrowthColor(o?.pageviews?.value, o?.pageviews?.prev),
+        },
+        {
+          label: '访客数',
+          value: o?.visitors?.value || 0,
+          icon: 'mdi-account-outline',
+          growth: this.calculateGrowth(o?.visitors?.value, o?.visitors?.prev),
+          growthColor: this.getGrowthColor(o?.visitors?.value, o?.visitors?.prev),
+        },
+        {
+          label: '访问次数',
+          value: o?.visits?.value || 0,
+          icon: 'mdi-cursor-default-click-outline',
+          growth: this.calculateGrowth(o?.visits?.value, o?.visits?.prev),
+          growthColor: this.getGrowthColor(o?.visits?.value, o?.visits?.prev),
+        },
+        {
+          label: '跳出率',
+          value: this.calculateBounceRate(o?.bounces?.value, o?.visits?.value) + '%',
+          icon: 'mdi-exit-run',
+          growth: this.calculateGrowth(o?.bounces?.value, o?.bounces?.prev),
+          growthColor: this.getGrowthColor(o?.bounces?.value, o?.bounces?.prev, true),
+        },
+      ];
+    },
     chartOption() {
       return {
         tooltip: {
@@ -301,7 +312,6 @@ export default {
             const date = new Date(params[0].axisValue);
             const formattedDate = this.formatDate(date);
             let result = `${formattedDate}<br/>`;
-            // 反转参数数组以保持与图表显示顺序一致
             params.reverse().forEach(param => {
               result += `${param.seriesName}: ${param.value}<br/>`;
             });
@@ -340,21 +350,23 @@ export default {
             type: 'bar',
             data: this.analytics.timeseries.sessions.map(item => item.y),
             itemStyle: {
-              color: 'rgb(25, 118, 210)'  // 深蓝色
+              color: 'rgb(25, 118, 210)',
+              borderRadius: [4, 4, 0, 0],
             },
-            barGap: '-100%',  // 让两个柱子重叠
-            barWidth: '60%',  // 控制柱子宽度
-            z: 1  // 确保在下层显示
+            barGap: '-100%',
+            barWidth: '60%',
+            z: 1
           },
           {
             name: '浏览量',
             type: 'bar',
             data: this.analytics.timeseries.pageviews.map(item => item.y),
             itemStyle: {
-              color: 'rgba(25, 118, 210, 0.3)'  // 更浅的蓝色，更透明
+              color: 'rgba(25, 118, 210, 0.3)',
+              borderRadius: [4, 4, 0, 0],
             },
-            barWidth: '60%',  // 控制柱子宽度
-            z: 2  // 确保在上层显示
+            barWidth: '60%',
+            z: 2
           }
         ]
       };
@@ -387,7 +399,6 @@ export default {
           startDate.setHours(startDate.getHours() - 24);
       }
 
-      // 格式化日期为 ISO 字符串
       return {
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString()
@@ -398,7 +409,6 @@ export default {
         const username = this.$route.params.username;
         const projectname = this.$route.params.projectname;
 
-        // 获取项目信息
         const projectInfo = await getProjectInfoByNamespace(username, projectname);
         if (!projectInfo || projectInfo.id === 0) {
           use404Helper.show404();
@@ -406,7 +416,6 @@ export default {
         }
 
         this.project = projectInfo;
-        // 获取项目ID后加载分析数据
         await this.fetchAnalytics();
       } catch (error) {
         console.error('Failed to initialize project:', error);
@@ -440,12 +449,6 @@ export default {
     calculateBounceRate(bounces, visits) {
       if (!visits) return 0;
       return Math.round((bounces / visits) * 100);
-    },
-    formatDuration(seconds) {
-      if (!seconds || isNaN(seconds)) return '0m 0s';
-      const minutes = Math.floor(seconds / 60);
-      const remainingSeconds = Math.round(seconds % 60);
-      return `${minutes}m ${remainingSeconds}s`;
     },
     formatBrowserName(name) {
       const names = {
@@ -492,7 +495,114 @@ export default {
 </script>
 
 <style scoped>
+.analytics-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.analytics-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+.analytics-subtitle {
+  font-size: 0.95rem;
+  opacity: 0.55;
+  margin: 4px 0 0 0;
+}
+
+/* Overview Cards */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+@media (max-width: 959px) {
+  .overview-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 599px) {
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.overview-card__inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 16px;
+  transition: border-color 0.15s;
+}
+.overview-card__inner:hover {
+  border-color: rgba(var(--v-theme-primary), 0.4);
+}
+.overview-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(var(--v-theme-primary), 0.08);
+  color: rgb(var(--v-theme-primary));
+  flex-shrink: 0;
+}
+.overview-card__content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.overview-card__label {
+  font-size: 0.85rem;
+  opacity: 0.55;
+  line-height: 1.3;
+}
+.overview-card__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.overview-card__growth {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Chart */
 .chart {
   height: 400px;
+}
+
+/* Tables */
+.tables-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.tables-grid--half {
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (max-width: 959px) {
+  .tables-grid,
+  .tables-grid--half {
+    grid-template-columns: 1fr;
+  }
+}
+.table-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.table-header__icon {
+  opacity: 0.6;
 }
 </style>
