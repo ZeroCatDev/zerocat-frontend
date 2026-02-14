@@ -7,7 +7,6 @@ import Vue from "@vitejs/plugin-vue";
 import VueRouter from "unplugin-vue-router/vite";
 import Vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
-import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { VitePWA } from 'vite-plugin-pwa';
 import * as sass from "sass";
 import vueDevTools from 'vite-plugin-vue-devtools'
@@ -67,14 +66,6 @@ export default defineConfig({
       vueTemplate: true,
     }),
     PrimeVueResolver(),
-    viteStaticCopy({
-      targets: [
-        {
-          src: 'node_modules/monaco-editor/min/vs',
-          dest: 'monaco-editor/min'
-        }
-      ]
-    }),
             vueDevTools(),
 
     VitePWA({

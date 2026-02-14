@@ -4,6 +4,8 @@
 
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
+import 'monaco-editor/esm/nls.messages.zh-cn.js';
+import * as monaco from 'monaco-editor';
 
 const emit = defineEmits(["update:modelValue", "change", "monaco-ready"]);
 const model = defineModel({ default: '' });
@@ -25,10 +27,6 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  locale: {
-    type: String,
-    default: "zh-cn"
-  },
   projectType: {
     type: String,
     default: ""
@@ -38,7 +36,6 @@ const props = defineProps({
 const editorContainer = ref(null);
 const isDestroyed = ref(false);
 let editor = null;
-let monaco = null;
 let resizeObserver = null;
 let disposables = [];
 
@@ -136,9 +133,6 @@ const disposeAll = () => {
     resizeObserver = null;
   }
 
-  // 清理monaco实例
-  monaco = null;
-
   // 清理DOM
   if (editorContainer.value) {
     editorContainer.value.innerHTML = '';
@@ -147,7 +141,7 @@ const disposeAll = () => {
 
 // 创建编辑器实例
 const createEditor = () => {
-  if (!editorContainer.value || !monaco) return;
+  if (!editorContainer.value) return;
 
   // 如果有项目类型，尝试设置对应的语言
   let initialLanguage = props.language;
@@ -243,27 +237,6 @@ const createEditor = () => {
   }
 };
 
-// 初始化 Monaco Editor
-const initMonaco = () => {
-  // 配置 require
-  window.require.config({
-    paths: {
-      vs: "/monaco-editor/min/vs",
-    },
-    "vs/nls": {
-      availableLanguages: {
-        "*": props.locale,
-      },
-    },
-  });
-
-  // 加载 Monaco 和额外的语言特性
-  window.require(["vs/editor/editor.main"], function (monacoInstance) {
-    monaco = monacoInstance;
-    createEditor();
-  });
-};
-
 // 监听属性变化
 watch(() => model.value, (newValue) => {
   if (editor && !isDestroyed.value && newValue !== editor.getValue()) {
@@ -292,26 +265,6 @@ watch(() => props.readonly, (newValue) => {
   }
 });
 
-watch(() => props.locale, (newLocale) => {
-  // 本地化变更需要重新加载编辑器
-  disposeAll();
-
-  // 重新配置本地化
-  window.require.config({
-    "vs/nls": {
-      availableLanguages: {
-        "*": newLocale,
-      },
-    },
-  });
-
-  // 重新加载编辑器
-  window.require(["vs/editor/editor.main"], function (monacoInstance) {
-    monaco = monacoInstance;
-    createEditor();
-  });
-});
-
 watch(() => props.projectType, (newType) => {
   if (editor && monaco && newType) {
     const projectLang = newType.split('-')[0].toLowerCase();
@@ -328,17 +281,7 @@ watch(() => props.projectType, (newType) => {
 
 // 组件挂载时创建编辑器
 onMounted(() => {
-  // 检查是否已加载 loader.js
-  if (!window.require) {
-    // 如果没有加载，创建script标签加载
-    const loaderScript = document.createElement("script");
-    loaderScript.src = "/monaco-editor/min/vs/loader.js";
-    loaderScript.onload = initMonaco;
-    document.head.appendChild(loaderScript);
-  } else {
-    // 如果已加载，直接初始化
-    initMonaco();
-  }
+  createEditor();
 
   // 添加窗口大小变化监听
   const handleResize = () => {

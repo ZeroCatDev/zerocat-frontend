@@ -164,7 +164,6 @@
             v-model="activeTabContent"
             :language="editorOptions.language"
             :options="editorOptions"
-            locale="zh-cn"
             :project-type="project?.type"
             @change="handleEditorChange"
             @update:modelValue="handleEditorChange"
@@ -191,7 +190,6 @@
             :language="editorOptions.language"
             :options="viewEditorOptions"
             :readonly="true"
-            locale="zh-cn"
             :project-type="project?.type"
             @monaco-ready="handleViewEditorReady"
           />
