@@ -1,52 +1,82 @@
 <template>
-  <v-card border hover>
-    <v-card-item>
-      <v-card-title>{{ project.title }}</v-card-title>
-      <v-card-subtitle>{{ project.description }}</v-card-subtitle>
-    </v-card-item>
-    <div class="px-4 d-flex ga-2 mb-2">
-      <v-chip pill>
-        <v-avatar start>
-          <v-img :src="localuser.getUserAvatar(author.avatar)"></v-img>
+  <div class="project-info">
+    <!-- Title (top, multi-line) -->
+    <h1 class="project-info__title">{{ project.title }}</h1>
+
+    <!-- Description -->
+    <p v-if="false" class="project-info__desc">{{ project.description }}</p>
+
+    <!-- Author rounded card -->
+    <div v-if="author.username" class="project-info__author-card">
+      <router-link :to="'/' + author.username" class="project-info__author-link">
+        <v-avatar size="42">
+          <v-img :src="localuser.getUserAvatar(author.avatar)" :alt="author.display_name" />
         </v-avatar>
-        {{ author.display_name }}
-      </v-chip>
-    </div>
-    <div class="px-4 d-flex ga-2 mb-2">
-      <v-chip pill prepend-icon="mdi-chart-line"
-        >{{ stats.pageviews }}浏览</v-chip
+        <div class="project-info__author-text">
+          <span class="project-info__author-name">{{ author.display_name }}</span>
+          <span v-if="author.bio" class="project-info__author-bio">{{ author.bio }}</span>
+        </div>
+      </router-link>
+      <div
+        v-if="variant === 'full' && localuser.id && author.id && localuser.id !== author.id"
+        class="project-info__author-follow"
       >
-      <v-chip pill prepend-icon="mdi-account-multiple"
-        >{{ stats.visitors }}访客</v-chip
-      >
-      <v-chip pill prepend-icon="mdi-clock">
-        <TimeAgo :date="project.time" />
-      </v-chip>
-    </div>
-    <div class="px-4 d-flex ga-2 mb-2">
-      <v-chip v-if="project.state == 'public'" pill prepend-icon="mdi-xml"
-        >开源作品
-      </v-chip>
-      <v-chip
-        v-if="project.state == 'private'"
-        color="red"
-        pill
-        prepend-icon="mdi-xml"
-        variant="outlined"
-        >私密作品
-      </v-chip>
-      <v-chip pill prepend-icon="mdi-application">{{ project.type }}</v-chip>
-    </div>
-    <div class="px-4 d-flex ga-2 mb-2">
-      <div v-for="tag in project.tags">
-        <v-chip :to="`/app/projects/tag/${tag.name}`">{{ tag.name }}</v-chip>
+        <UserRelationControls
+          :display-name="author.display_name"
+          :user-id="author.id"
+          :username="author.username"
+        />
       </div>
     </div>
-    <div class="px-4 d-flex ga-2 mb-2">
-      <ProjectStar :projectId="project.id" :starcount="project.star_count" />
+
+    <!-- Stats -->
+    <div class="project-info__stats">
+      <span class="project-info__stat">
+        <v-icon size="18" icon="mdi-eye-outline" />
+        {{ stats.pageviews }} 浏览
+      </span>
+      <span class="project-info__stat">
+        <v-icon size="18" icon="mdi-account-outline" />
+        {{ stats.visitors }} 访客
+      </span>
+      <span class="project-info__stat">
+        <v-icon size="18" icon="mdi-clock-outline" />
+        <TimeAgo :date="project.time" />
+      </span>
     </div>
-    <div class="px-4 d-flex ga-2 mb-2">
-      <v-btn-group border density="compact" rounded="lg" size="x-small">
+
+    <!-- State & Type -->
+    <div class="project-info__meta">
+      <span v-if="project.state === 'public'" class="project-info__badge">
+        <v-icon size="16" icon="mdi-earth" />
+        开源作品
+      </span>
+      <span v-if="project.state === 'private'" class="project-info__badge project-info__badge--private">
+        <v-icon size="16" icon="mdi-lock-outline" />
+        私密作品
+      </span>
+      <span class="project-info__badge">
+        <v-icon size="16" icon="mdi-application" />
+        {{ project.type }}
+      </span>
+    </div>
+
+    <!-- Tags (full only) -->
+    <div v-if="variant === 'full' && project.tags && project.tags.length" class="project-info__tags">
+      <router-link
+        v-for="tag in project.tags"
+        :key="tag.name"
+        :to="`/app/projects/tag/${tag.name}`"
+        class="project-info__tag"
+      >
+        {{ tag.name }}
+      </router-link>
+    </div>
+
+    <!-- Actions -->
+    <div class="project-info__actions">
+      <ProjectStar :projectId="project.id" :starcount="project.star_count" />
+      <v-btn-group v-if="variant === 'full'" border density="compact" rounded="lg">
         <v-btn
           :to="`/${username}/${projectname}/fork`"
           class="text-none"
@@ -60,9 +90,7 @@
       </v-btn-group>
       <v-btn
         variant="tonal"
-
         rounded="lg"
-
         class="text-none"
         prepend-icon="mdi-share-variant"
         @click="handleShare"
@@ -70,48 +98,46 @@
         分享
       </v-btn>
     </div>
-    <div class="px-4 d-flex ga-2 mb-2">
+
+    <!-- Editor buttons (full only) -->
+    <div v-if="variant === 'full'" class="project-info__actions">
       <v-btn
-        variant="text"
-        v-if="project.type == 'scratch'"
-        @click="openEditor(project.id, project.type)"
-        border
-        hover
-        append-icon="mdi-open-in-new"
+        v-if="project.type === 'scratch'"
+        variant="tonal"
+        rounded="lg"
         class="text-none"
-        >Scratch编辑器
+        append-icon="mdi-open-in-new"
+        @click="openEditor(project.id, project.type)"
+      >
+        Scratch 编辑器
       </v-btn>
       <v-btn
         :to="`/${username}/${projectname}/edit`"
-        variant="text"
-        border
-        hover
+        variant="tonal"
+        rounded="lg"
         class="text-none"
-        >编辑
+        prepend-icon="mdi-pencil-outline"
+      >
+        编辑
       </v-btn>
     </div>
-    <div class="px-4">
-      <ProjectAuthorCard :author="author" />
-    </div>
-    <br />
-  </v-card>
+  </div>
 </template>
 
 <script>
 import TimeAgo from "@/components/TimeAgo.vue";
 import ProjectStar from "@/components/project/ProjectStar.vue";
-import ProjectAuthorCard from "@/components/project/ProjectAuthorCard.vue";
+import UserRelationControls from "@/components/user/UserRelationControls.vue";
 import openEditor from "@/stores/openEdit";
 import { getProjectStats } from "@/services/projectService";
 import { openFloatingPostBar } from "@/composables/useFloatingPostBar";
-import { ref, onMounted } from "vue";
 import { localuser } from "@/services/localAccount";
 export default {
   name: "ProjectInfoCard",
   components: {
     TimeAgo,
     ProjectStar,
-    ProjectAuthorCard,
+    UserRelationControls,
   },
   props: {
     project: {
@@ -137,6 +163,11 @@ export default {
     commit: {
       type: String,
       default: null,
+    },
+    variant: {
+      type: String,
+      default: "full",
+      validator: (value) => ["full", "commit", "branch"].includes(value),
     },
   },
   data() {
@@ -195,3 +226,141 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.project-info {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Title */
+.project-info__title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+  margin: 0;
+  word-break: break-word;
+}
+
+/* Description */
+.project-info__desc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  opacity: 0.65;
+  margin: -6px 0 0 0;
+}
+
+/* Author rounded card */
+.project-info__author-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(var(--v-theme-on-surface), 0.04);
+  transition: background 0.15s;
+}
+.project-info__author-card:hover {
+  background: rgba(var(--v-theme-on-surface), 0.07);
+}
+.project-info__author-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+  flex: 1;
+}
+.project-info__author-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.project-info__author-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.project-info__author-bio {
+  font-size: 0.85rem;
+  opacity: 0.5;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.project-info__author-follow {
+  flex-shrink: 0;
+}
+
+/* Stats */
+.project-info__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.project-info__stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.9rem;
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
+}
+
+/* State & Type badges */
+.project-info__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.project-info__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(var(--v-theme-on-surface), 0.06);
+}
+.project-info__badge--private {
+  color: rgb(var(--v-theme-error));
+  background: rgba(var(--v-theme-error), 0.08);
+}
+
+/* Tags */
+.project-info__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.project-info__tag {
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: rgba(var(--v-theme-primary), 0.08);
+  color: rgb(var(--v-theme-primary));
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.project-info__tag:hover {
+  background: rgba(var(--v-theme-primary), 0.16);
+}
+
+/* Actions */
+.project-info__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+</style>

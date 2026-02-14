@@ -17,7 +17,7 @@
         <v-btn
           :disabled="!hasUnread"
           variant="text"
-          @click="contentRef?.markAllAsRead"
+          @click="contentRef?.markAllAsRead()"
         >
           标记全部已读
         </v-btn>
@@ -46,28 +46,29 @@
 
     <!-- 仅通知内容 (menuMode=false) -->
     <template v-else>
-        <Suspense>
-          <NotificationsCardContent
-            ref="contentRef"
-            :autoFetch="autoFetch"
-            :maxHeight="'auto'"
-            :show-pagination="showPagination"
-            :useWindowScroll="true"
-            @update:unread-count="updateUnreadCount"
-          />
-          <template #fallback>
-            <div class="d-flex justify-center align-center py-4">
-              <v-progress-circular indeterminate></v-progress-circular>
-            </div>
-          </template>
-        </Suspense>
-
+      <Suspense>
+        <NotificationsCardContent
+          ref="contentRef"
+          :autoFetch="autoFetch"
+          :maxHeight="'auto'"
+          :show-pagination="showPagination"
+          :useWindowScroll="true"
+          @update:unread-count="updateUnreadCount"
+        />
+        <template #fallback>
+          <div class="d-flex justify-center align-center py-4">
+            <v-progress-circular indeterminate></v-progress-circular>
+          </div>
+        </template>
+      </Suspense>
     </template>
   </v-card>
 </template>
 
 <script>
-import {ref} from "vue";
+import { computed, ref } from "vue";
+import { storeToRefs } from "pinia";
+import { useNotificationStore } from "@/stores/notification";
 import NotificationsCardContent from "./NotificationsCardContent.vue";
 
 export default {
@@ -98,21 +99,17 @@ export default {
     },
   },
   setup() {
-    const activeTab = ref("notifications");
     const contentRef = ref(null);
-    const unreadCount = ref(0);
-    const hasUnread = ref(false);
+    const notificationStore = useNotificationStore();
+    const { unreadCount } = storeToRefs(notificationStore);
+    const hasUnread = computed(() => unreadCount.value > 0);
 
     const updateUnreadCount = (count) => {
-      unreadCount.value = count;
-      hasUnread.value = count > 0;
+      notificationStore.setUnreadCount(count);
     };
 
-    const checkUnreadNotifications = () => {
-      if (contentRef.value) {
-        return contentRef.value.checkUnreadNotifications();
-      }
-      return 0;
+    const checkUnreadNotifications = async () => {
+      return notificationStore.fetchUnreadCount();
     };
 
     const fetchNotifications = () => {
@@ -122,7 +119,6 @@ export default {
     };
 
     return {
-      activeTab,
       contentRef,
       unreadCount,
       hasUnread,

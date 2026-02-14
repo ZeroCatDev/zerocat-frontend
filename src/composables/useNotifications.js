@@ -1,9 +1,6 @@
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import pushNotificationService from '@/services/pushNotificationService.js';
-import {
-  markAllNotificationsAsRead,
-  getUnreadNotificationCount
-} from '@/services/notificationService.js';
+import { useNotificationStore } from '@/stores/notification';
 
 // 创建全局snackbar状态
 export const globalSnackbar = reactive({
@@ -23,8 +20,10 @@ export const showSnackbar = (text, color = 'success', timeout = 3000) => {
 
 // 通知管理工具
 export const useNotifications = () => {
+  const notificationStore = useNotificationStore();
+
   // 状态管理
-  const unreadCount = ref(0);
+  const unreadCount = computed(() => notificationStore.unreadCount);
   const pushLoading = ref(false);
   const pushStatus = reactive({
     supported: false,
@@ -55,8 +54,7 @@ export const useNotifications = () => {
   // 加载未读数量
   const loadUnreadCount = async () => {
     try {
-      const result = await getUnreadNotificationCount();
-      unreadCount.value = result.count || 0;
+      await notificationStore.fetchUnreadCount();
     } catch (error) {
       console.error('加载未读数量失败:', error);
     }
@@ -87,8 +85,7 @@ export const useNotifications = () => {
   // 标记所有为已读
   const markAllAsRead = async () => {
     try {
-      await markAllNotificationsAsRead();
-      await loadUnreadCount();
+      await notificationStore.markAllAsRead();
       showSnackbar('所有通知已标记为已读', 'success');
     } catch (error) {
       console.error('标记已读失败:', error);
@@ -98,7 +95,7 @@ export const useNotifications = () => {
 
   // 更新未读数量
   const updateUnreadCount = (count) => {
-    unreadCount.value = count;
+    notificationStore.setUnreadCount(count);
   };
 
   return {

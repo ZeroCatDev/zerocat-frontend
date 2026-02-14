@@ -476,13 +476,11 @@ import { useRouter } from "vue-router";
 import {
   getNotifications,
   markNotificationAsRead,
-  markAllNotificationsAsRead,
-  deleteNotifications,
 } from "@/services/notificationService";
 import { getProjectInfo, getProjectListById } from "@/services/projectService";
 import { get } from "@/services/serverConfig";
 import { localuser } from "@/services/localAccount";
-import { showSnackbar } from "@/composables/useNotifications.js";
+import { useNotificationStore } from "@/stores/notification";
 export default {
   name: "NotificationsCardContent",
   props: {
@@ -515,11 +513,12 @@ export default {
   emits: ["update:unread-count"],
   async setup(props, { emit }) {
     const router = useRouter();
+    const notificationStore = useNotificationStore();
     const notifications = ref([]);
     const loading = ref(false);
     const loadingMore = ref(false);
     const error = ref(null);
-    const unreadCount = ref(0);
+    const unreadCount = computed(() => notificationStore.unreadCount);
     const hasMoreNotifications = ref(false);
     const loadMoreUrl = ref(null);
     const notificationsContainer = ref(null);
@@ -579,7 +578,7 @@ export default {
           hasMoreNotifications.value = !!loadMoreUrl.value;
         }
 
-        updateUnreadCount();
+        await updateUnreadCount();
 
         // 处理通知模板
         await prepareTemplateData(notifications.value);
@@ -951,7 +950,7 @@ export default {
         const notification = notifications.value.find((n) => n.id === id);
         if (notification) {
           notification.read = true;
-          updateUnreadCount();
+          await updateUnreadCount("decrement");
         }
       } catch (err) {
         console.error("Error marking notification as read:", err);
@@ -961,19 +960,25 @@ export default {
     // 标记所有通知为已读
     const markAllAsRead = async () => {
       try {
-        await markAllNotificationsAsRead();
+        await notificationStore.markAllAsRead();
         notifications.value.forEach((notification) => {
           notification.read = true;
         });
-        updateUnreadCount();
+        await updateUnreadCount("reset");
       } catch (err) {
         console.error("Error marking all notifications as read:", err);
       }
     };
 
     // 更新未读计数
-    const updateUnreadCount = () => {
-      unreadCount.value = notifications.value.filter((n) => !n.read).length;
+    const updateUnreadCount = async (mode = "fetch") => {
+      if (mode === "decrement") {
+        notificationStore.decrementUnreadCount();
+      } else if (mode === "reset") {
+        notificationStore.setUnreadCount(0);
+      } else {
+        await notificationStore.fetchUnreadCount();
+      }
       emit("update:unread-count", unreadCount.value);
     };
 
@@ -1364,3 +1369,10 @@ code {
   font-size: 12px;
 }
 </style>
+
+
+
+
+
+
+

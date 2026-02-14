@@ -238,13 +238,14 @@
 import { localuser } from "@/services/localAccount";
 import { useTheme } from "vuetify";
 import { ref, onMounted, watch, nextTick, computed } from "vue";
+import { storeToRefs } from "pinia";
 import { useRoute, useRouter } from "vue-router";
 import NotificationsCard from "@/components/NotificationsCard.vue";
 import SearchDialog from "@/components/SearchDialog.vue";
 import LoginDialog from "@/components/account/LoginDialog.vue";
 import { get, fetchConfig } from "@/services/serverConfig";
 import { requiresAuth, getMatchedRoute } from "@/services/authRoutes";
-import { getUnreadNotificationCount } from "@/services/notificationService";
+import { useNotificationStore } from "@/stores/notification";
 
 export default {
   components: {
@@ -263,7 +264,8 @@ export default {
     const route = useRoute();
     const router = useRouter();
     const notificationsCard = ref(null);
-    const unreadCount = ref(0);
+    const notificationStore = useNotificationStore();
+    const { unreadCount } = storeToRefs(notificationStore);
 
     // 认证检查函数
     const checkAuth = (currentPath) => {
@@ -305,25 +307,19 @@ export default {
         } else {
           // 用户登出，检查当前页面是否需要认证
           checkAuth(route.path);
-          unreadCount.value = 0;
+          notificationStore.resetUnreadCount();
         }
       }
     );
 
     // 更新未读通知计数
     const updateUnreadCount = (count) => {
-      unreadCount.value = count;
+      notificationStore.setUnreadCount(count);
     };
 
-    // 直接从 API 获取未读通知数量
+    // 从 Pinia store 同步未读通知数量
     const fetchUnreadCount = async () => {
-      if (!localuser.isLogin.value) return;
-      try {
-        const data = await getUnreadNotificationCount();
-        unreadCount.value = data.count || 0;
-      } catch (error) {
-        console.error("Failed to fetch unread count:", error);
-      }
+      await notificationStore.fetchUnreadCount();
     };
 
     onMounted(async () => {
@@ -786,3 +782,6 @@ export default {
   font-size: 13px;
 }
 </style>
+
+
+

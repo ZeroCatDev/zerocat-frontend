@@ -1,66 +1,63 @@
 <template>
   <div>
     <PageAnalytics :target-id="project.id" target-type="project"/>
-    <v-container>
-      <v-row>
-        <v-col cols="12" lg="8" md="8" sm="12" xl="8" xs="12" xxl="8">
-          <ProjectBranchNav
-            :branch-history="projectbranchhistory"
-            :branches="projectbranchs"
-            :current-branch="player.branch"
-            :current-commit-id="player.commit.id"
-            :projectname="$route.params.projectname"
-            :username="$route.params.username"
-          />
+    <ProjectPageLayout>
+      <template #main>
+        <ProjectBranchNav
+          :branch-history="projectbranchhistory"
+          :branches="projectbranchs"
+          :current-branch="player.branch"
+          :current-commit-id="player.commit.id"
+          :projectname="$route.params.projectname"
+          :username="$route.params.username"
+        />
 
-          <ProjectPlayer
-            :branch="player.branch"
-            :commit-id="player.commit.id"
+        <ProjectPlayer
+          :branch="player.branch"
+          :commit-id="player.commit.id"
+          :project-id="project.id"
+          :showplayer="showplayer"
+          :type="project.type"
+        />
+        <v-card class="mt-4">
+          <v-tabs v-model="tab" bg-color="primary">
+            <v-tab value="readme">README</v-tab>
+            <v-tab value="license">LICENSE</v-tab>
+          </v-tabs>
+
+          <v-card-text class="markdown-body">
+            <v-tabs-window v-model="tab">
+              <v-tabs-window-item value="readme">
+                <Markdown>{{ project.description }}</Markdown>
+              </v-tabs-window-item>
+
+              <v-tabs-window-item value="license">
+                <License :licenseKey="project.license || 'none'"/>
+              </v-tabs-window-item>
+            </v-tabs-window>
+          </v-card-text>
+        </v-card>
+      </template>
+      <template #sidebar>
+        <ProjectInfoCard
+          :author="author"
+          :project="project"
+          :projectname="$route.params.projectname"
+          :username="$route.params.username"
+        />
+        <div class="mt-4">
+          <CloudVariablesInfoCard
+            v-if="project.id"
             :project-id="project.id"
-            :showplayer="showplayer"
-            :type="project.type"
-          />
-          <br/>
-          <v-card>
-            <v-tabs v-model="tab" bg-color="primary">
-              <v-tab value="readme">README</v-tab>
-              <v-tab value="license">LICENSE</v-tab>
-            </v-tabs>
-
-            <v-card-text class="markdown-body">
-              <v-tabs-window v-model="tab">
-                <v-tabs-window-item value="readme">
-                  <Markdown>{{ project.description }}</Markdown>
-                </v-tabs-window-item>
-
-                <v-tabs-window-item value="license">
-                  <License :licenseKey="project.license || 'none'"/>
-                </v-tabs-window-item>
-              </v-tabs-window>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="12" lg="4" md="4" sm="12" xl="4" xs="12" xxl="8">
-          <ProjectInfoCard
-            :author="author"
-            :project="project"
             :projectname="$route.params.projectname"
             :username="$route.params.username"
           />
-          <div class="mt-4">
-            <CloudVariablesInfoCard
-              v-if="project.id"
-              :project-id="project.id"
-              :projectname="$route.params.projectname"
-              :username="$route.params.username"
-            />
-          </div>
-        </v-col>
-        <v-col cols="12" lg="8" md="8" sm="12" xl="8" xs="12" xxl="8">
+        </div>
+        <div class="mt-4">
           <Comment :url="'project-' + project.id" name="项目"></Comment>
-        </v-col>
-      </v-row>
-    </v-container>
+        </div>
+      </template>
+    </ProjectPageLayout>
   </div>
 </template>
 
@@ -81,6 +78,7 @@ import License from "@/components/license/License.vue";
 import ProjectBranchNav from "@/components/project/ProjectBranchNav.vue";
 import ProjectPlayer from "@/components/project/ProjectPlayer.vue";
 import ProjectInfoCard from "@/components/project/ProjectInfoCard.vue";
+import ProjectPageLayout from "@/components/project/ProjectPageLayout.vue";
 import CloudVariablesInfoCard from "@/components/project/CloudVariablesInfoCard.vue";
 import "github-markdown-css";
 import PageAnalytics from "@/components/analytics/PageAnalytics.vue";
@@ -93,6 +91,7 @@ export default {
     ProjectBranchNav,
     ProjectPlayer,
     ProjectInfoCard,
+    ProjectPageLayout,
     CloudVariablesInfoCard,
     PageAnalytics,
   },

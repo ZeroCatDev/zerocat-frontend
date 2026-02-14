@@ -1,47 +1,44 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col cols="12" lg="8" md="8" sm="12" xl="8" xs="12" xxl="8">
-        <ProjectBranchNav
-          :branch-history="projectbranchhistory"
-          :branches="projectbranchs"
-          :current-branch="$route.params.branch"
-          :current-commit-id="currentCommitId"
-          :projectname="$route.params.projectname"
-          :username="$route.params.username"
-        />
+  <ProjectPageLayout>
+    <template #main>
+      <ProjectBranchNav
+        :branch-history="projectbranchhistory"
+        :branches="projectbranchs"
+        :current-branch="$route.params.branch"
+        :current-commit-id="currentCommitId"
+        :projectname="$route.params.projectname"
+        :username="$route.params.username"
+      />
 
-        <ProjectPlayer
-          :branch="$route.params.branch"
-          :commit-id="currentCommitId"
-          :project-id="project.id"
-          :showplayer="showplayer"
-          :type="project.type"
-        />
-        <br/>
-      </v-col>
-      <v-col cols="12" lg="4" md="4" sm="12" xl="4" xs="12" xxl="8">
-        <ProjectInfoCard
-          :author="author"
-          :project="project"
-          :projectname="$route.params.projectname"
-          :username="$route.params.username"
-          :branch="$route.params.branch"
-        /> <br/> <v-btn
-            class="text-none"
-            prepend-icon="mdi-share-variant"
-            rounded="lg"
-            variant="tonal"
-            color="primary"
-
-            @click="handleShareBranch"
-          >
-            分享此分支
-          </v-btn>
-      </v-col>
-
-    </v-row>
-  </v-container>
+      <ProjectPlayer
+        :branch="$route.params.branch"
+        :commit-id="currentCommitId"
+        :project-id="project.id"
+        :showplayer="showplayer"
+        :type="project.type"
+      />
+    </template>
+    <template #sidebar>
+      <ProjectInfoCard
+        :author="author"
+        :project="project"
+        :projectname="$route.params.projectname"
+        :username="$route.params.username"
+        :branch="$route.params.branch"
+        variant="branch"
+      />
+      <v-btn
+        class="text-none mt-4"
+        prepend-icon="mdi-share-variant"
+        rounded="lg"
+        variant="tonal"
+        color="primary"
+        @click="handleShareBranch"
+      >
+        分享此分支
+      </v-btn>
+    </template>
+  </ProjectPageLayout>
 </template>
 
 <script>
@@ -56,17 +53,17 @@ import {
   getBranchHistoryByCommit,
 } from "@/services/projectService";
 import { openFloatingPostBar } from "@/composables/useFloatingPostBar";
-import Comment from "@/components/Comment.vue";
 import ProjectBranchNav from "@/components/project/ProjectBranchNav.vue";
 import ProjectPlayer from "@/components/project/ProjectPlayer.vue";
 import ProjectInfoCard from "@/components/project/ProjectInfoCard.vue";
+import ProjectPageLayout from "@/components/project/ProjectPageLayout.vue";
 
 export default {
   components: {
-    Comment,
     ProjectBranchNav,
     ProjectPlayer,
     ProjectInfoCard,
+    ProjectPageLayout,
   },
   data() {
     return {
