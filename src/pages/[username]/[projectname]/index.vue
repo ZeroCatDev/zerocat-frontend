@@ -54,6 +54,15 @@
           />
         </div>
         <div class="mt-4">
+          <RelatedPostsPanel
+            v-if="project.id"
+            type="project"
+            :id="project.id"
+            :hide-current-context-base="true"
+            :project-route-base="projectRouteBase"
+          />
+        </div>
+        <div class="mt-4">
           <Comment :url="'project-' + project.id" name="项目"></Comment>
         </div>
       </template>
@@ -64,7 +73,8 @@
 <script>
 import {use404Helper} from '@/composables/use404';
 import {localuser} from "@/services/localAccount";
-import Comment from "@/components/Comment.vue";
+import Comment from '@/components/Comment.vue';
+import RelatedPostsPanel from '@/components/posts/RelatedPostsPanel.vue';
 import {useHead} from "@unhead/vue";
 import {ref} from "vue";
 import {
@@ -86,6 +96,7 @@ import PageAnalytics from "@/components/analytics/PageAnalytics.vue";
 export default {
   components: {
     Comment,
+    RelatedPostsPanel,
     Markdown,
     License,
     ProjectBranchNav,
@@ -113,6 +124,14 @@ export default {
       },
       initProject,
     };
+  },
+  computed: {
+    projectRouteBase() {
+      const username = this.$route.params.username;
+      const projectname = this.$route.params.projectname;
+      if (!username || !projectname) return '';
+      return `/${username}/${projectname}`;
+    }
   },
   setup() {
     const pageTitle = ref("项目");
@@ -181,3 +200,5 @@ export default {
   },
 };
 </script>
+
+

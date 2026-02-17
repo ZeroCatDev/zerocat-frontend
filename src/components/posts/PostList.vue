@@ -25,6 +25,10 @@
           :show-thread-line="showThreadLine(index)"
           :hide-reply-indicator="threadMode"
           :retweet-author="getRetweetAuthor(post)"
+          :embed-mode="embedMode"
+          :context-project-route-base="contextProjectRouteBase"
+          :context-embed-data="contextEmbedData"
+          :hide-current-context-base="hideCurrentContextBase"
           @deleted="onDeleted"
           @created="onCreated"
           @updated="onUpdated"
@@ -50,11 +54,11 @@
         </v-btn>
       </div>
 
-      <!-- 没有更多 -->
+      <!-- 没有更多
       <div v-else-if="showEndMessage" class="post-list-end">
         <v-icon size="20" class="mr-2">mdi-check-circle-outline</v-icon>
         已加载全部内容
-      </div>
+      </div> -->
     </template>
   </div>
 </template>
@@ -73,7 +77,11 @@ const props = defineProps({
   emptyText: { type: String, default: '这里还没有任何帖子' },
   showEndMessage: { type: Boolean, default: true },
   threadMode: { type: Boolean, default: false },
-  infiniteScroll: { type: Boolean, default: true }
+  infiniteScroll: { type: Boolean, default: true },
+  embedMode: { type: String, default: 'full' },
+  contextProjectRouteBase: { type: String, default: '' },
+  contextEmbedData: { type: Object, default: () => ({}) },
+  hideCurrentContextBase: { type: Boolean, default: false }
 });
 
 const emit = defineEmits(['deleted', 'created', 'updated', 'load-more']);
@@ -278,3 +286,4 @@ onUnmounted(() => {
   transition: transform 0.3s ease;
 }
 </style>
+

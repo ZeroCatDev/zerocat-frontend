@@ -4,7 +4,7 @@
     :class="{
       'post-card--deleted': isDeleted,
       'post-card--retweet': isRetweet,
-      'post-card--highlight': highlight
+      'post-card--highlight': highlight,
     }"
   >
     <!-- 转推提示 -->
@@ -29,7 +29,7 @@
           class="post-reply-link"
           @click.stop
         >
-          @{{ replyToPost.author?.username || '用户' }}
+          @{{ replyToPost.author?.username || "用户" }}
         </router-link>
       </span>
     </div>
@@ -37,11 +37,7 @@
     <div v-ripple class="post-main" @click="openDetail">
       <!-- 头像 -->
       <div class="post-avatar-col">
-        <v-avatar
-          size="48"
-          class="post-avatar"
-          @click.stop="goUser"
-        >
+        <v-avatar size="48" class="post-avatar" @click.stop="goUser">
           <v-img :src="authorAvatar" :alt="authorUsername" />
         </v-avatar>
         <!-- 线程连接线 -->
@@ -65,7 +61,11 @@
             {{ timeAgo }}
           </time>
           <v-spacer />
-          <v-menu v-if="!isDeleted" location="bottom end" @update:model-value="onMenuOpen">
+          <v-menu
+            v-if="!isDeleted"
+            location="bottom end"
+            @update:model-value="onMenuOpen"
+          >
             <template #activator="{ props: menuProps }">
               <v-btn
                 v-bind="menuProps"
@@ -86,9 +86,17 @@
                 @click="toggleFollow"
               >
                 <template #prepend>
-                  <v-icon size="18">{{ isFollowing ? 'mdi-account-minus-outline' : 'mdi-account-plus-outline' }}</v-icon>
+                  <v-icon size="18">{{
+                    isFollowing
+                      ? "mdi-account-minus-outline"
+                      : "mdi-account-plus-outline"
+                  }}</v-icon>
                 </template>
-                <v-list-item-title>{{ isFollowing ? `取消关注 @${authorUsername}` : `关注 @${authorUsername}` }}</v-list-item-title>
+                <v-list-item-title>{{
+                  isFollowing
+                    ? `取消关注 @${authorUsername}`
+                    : `关注 @${authorUsername}`
+                }}</v-list-item-title>
               </v-list-item>
               <!-- 拉黑/解除拉黑 (非自己的帖子) -->
               <v-list-item
@@ -98,9 +106,15 @@
                 @click="toggleBlock"
               >
                 <template #prepend>
-                  <v-icon size="18">{{ isBlocked ? 'mdi-account-check-outline' : 'mdi-block-helper' }}</v-icon>
+                  <v-icon size="18">{{
+                    isBlocked ? "mdi-account-check-outline" : "mdi-block-helper"
+                  }}</v-icon>
                 </template>
-                <v-list-item-title>{{ isBlocked ? `解除拉黑 @${authorUsername}` : `拉黑 @${authorUsername}` }}</v-list-item-title>
+                <v-list-item-title>{{
+                  isBlocked
+                    ? `解除拉黑 @${authorUsername}`
+                    : `拉黑 @${authorUsername}`
+                }}</v-list-item-title>
               </v-list-item>
               <!-- 删除 -->
               <v-list-item
@@ -139,7 +153,11 @@
           />
 
           <!-- 媒体展示 -->
-          <div v-if="mediaItems.length" class="post-media" :class="mediaGridClass">
+          <div
+            v-if="mediaItems.length"
+            class="post-media"
+            :class="mediaGridClass"
+          >
             <div
               v-for="(media, idx) in mediaItems.slice(0, 4)"
               :key="media.id || idx"
@@ -159,7 +177,10 @@
                   </div>
                 </template>
               </v-img>
-              <div v-if="idx === 3 && mediaItems.length > 4" class="post-media-more">
+              <div
+                v-if="idx === 3 && mediaItems.length > 4"
+                class="post-media-more"
+              >
                 +{{ mediaItems.length - 4 }}
               </div>
             </div>
@@ -167,11 +188,59 @@
 
           <!-- 嵌入内容 -->
           <PostEmbed
-            v-if="embedData"
+            v-if="embedData && embedMode !== 'compact'"
             :embed="embedData"
             class="mt-3"
             @click.stop
           />
+
+          <div
+            v-else-if="showCompactEmbedNote"
+            class="post-embed-note"
+            @click.stop
+          >
+            <component
+              :is="compactEmbedPrimaryLinkIsExternal ? 'a' : 'router-link'"
+              v-if="showCompactEmbedPrimary && compactEmbedPrimaryLink"
+              :href="
+                compactEmbedPrimaryLinkIsExternal
+                  ? compactEmbedPrimaryLink
+                  : undefined
+              "
+              :to="
+                compactEmbedPrimaryLinkIsExternal
+                  ? undefined
+                  : compactEmbedPrimaryLink
+              "
+              :target="compactEmbedPrimaryLinkIsExternal ? '_blank' : undefined"
+              :rel="
+                compactEmbedPrimaryLinkIsExternal
+                  ? 'noopener noreferrer'
+                  : undefined
+              "
+              class="post-embed-note-link"
+              @click.stop
+            >
+              {{ compactEmbedPrimaryText }}
+            </component>
+            <span
+              v-else-if="showCompactEmbedPrimary"
+              class="post-embed-note-link"
+              >{{ compactEmbedPrimaryText }}</span
+            >
+
+            <template v-for="marker in compactEmbedMarkers" :key="marker.key">
+              <router-link
+                v-if="marker.link"
+                :to="marker.link"
+                class="post-embed-note-link"
+                @click.stop
+              >
+                {{ marker.text }}
+              </router-link>
+              <span v-else class="post-embed-note-link">{{ marker.text }}</span>
+            </template>
+          </div>
 
           <!-- 引用的帖子 -->
           <QuotedPost
@@ -227,7 +296,7 @@
             @click.stop="toggleLike"
           >
             <v-icon size="18">
-              {{ isLiked ? 'mdi-heart' : 'mdi-heart-outline' }}
+              {{ isLiked ? "mdi-heart" : "mdi-heart-outline" }}
             </v-icon>
             <span v-if="stats.likes > 0" class="post-action-count">
               {{ formatCount(stats.likes) }}
@@ -242,7 +311,7 @@
             @click.stop="toggleBookmark"
           >
             <v-icon size="18">
-              {{ isBookmarked ? 'mdi-bookmark' : 'mdi-bookmark-outline' }}
+              {{ isBookmarked ? "mdi-bookmark" : "mdi-bookmark-outline" }}
             </v-icon>
           </button>
 
@@ -317,11 +386,7 @@
           :auto-focus="true"
         >
           <template #append>
-            <QuotedPost
-              :post="post"
-              compact
-              class="mt-3"
-            />
+            <QuotedPost :post="post" compact class="mt-3" />
           </template>
         </PostComposer>
       </v-card-text>
@@ -365,17 +430,22 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { localuser } from '@/services/localAccount';
-import { getS3staticurl } from '@/services/projectService';
-import PostsService from '@/services/postsService';
-import { showSnackbar } from '@/composables/useNotifications';
-import { useDeleteConfirm } from '@/composables/useDeleteConfirm';
-import axios from '@/axios/axios';
-import PostComposer from './PostComposer.vue';
-import PostEmbed from './PostEmbed.vue';
-import QuotedPost from './QuotedPost.vue';
+import { computed, ref, watch } from "vue";
+import { useRouter } from "vue-router";
+import { localuser } from "@/services/localAccount";
+import { getS3staticurl } from "@/services/projectService";
+import PostsService from "@/services/postsService";
+import { showSnackbar } from "@/composables/useNotifications";
+import { useDeleteConfirm } from "@/composables/useDeleteConfirm";
+import axios from "@/axios/axios";
+import PostComposer from "./PostComposer.vue";
+import PostEmbed from "./PostEmbed.vue";
+import QuotedPost from "./QuotedPost.vue";
+import {
+  getEmbedSpecialMarkers,
+  isSameEmbedTarget,
+  normalizeEmbedObject,
+} from "@/utils/embedContext";
 
 const props = defineProps({
   post: { type: Object, required: true },
@@ -383,10 +453,14 @@ const props = defineProps({
   highlight: { type: Boolean, default: false },
   showThreadLine: { type: Boolean, default: false },
   hideReplyIndicator: { type: Boolean, default: false },
-  retweetAuthor: { type: Object, default: null }
+  retweetAuthor: { type: Object, default: null },
+  embedMode: { type: String, default: "full" },
+  contextProjectRouteBase: { type: String, default: "" },
+  contextEmbedData: { type: Object, default: () => ({}) },
+  hideCurrentContextBase: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['deleted', 'created', 'updated']);
+const emit = defineEmits(["deleted", "created", "updated"]);
 
 const router = useRouter();
 
@@ -410,30 +484,41 @@ const currentUserId = computed(() => localuser.user.value?.id);
 
 // Post data
 const postId = computed(() => props.post?.id ?? props.post?.postId);
-const postType = computed(() => props.post?.type || 'normal');
+const postType = computed(() => props.post?.type || "normal");
 const isDeleted = computed(() => props.post?.is_deleted === true);
-const isRetweet = computed(() => postType.value === 'retweet');
+const isRetweet = computed(() => postType.value === "retweet");
 
 // Author data
 const author = computed(() => props.post?.author || props.post?.user || {});
-const authorId = computed(() => author.value?.id ?? props.post?.userId ?? props.post?.authorId);
-const authorUsername = computed(() => author.value?.username ?? props.post?.username ?? 'unknown');
-const authorDisplayName = computed(() =>
-  author.value?.display_name ?? author.value?.displayName ?? authorUsername.value
+const authorId = computed(
+  () => author.value?.id ?? props.post?.userId ?? props.post?.authorId,
+);
+const authorUsername = computed(
+  () => author.value?.username ?? props.post?.username ?? "unknown",
+);
+const authorDisplayName = computed(
+  () =>
+    author.value?.display_name ??
+    author.value?.displayName ??
+    authorUsername.value,
 );
 const authorAvatar = computed(() => {
   const avatar = author.value?.avatar;
-  if (!avatar) return '/default-avatar.png';
+  if (!avatar) return "/default-avatar.png";
   return localuser.getUserAvatar(avatar);
 });
 
 // Time
-const createdAt = computed(() =>
-  props.post?.created_at ?? props.post?.createdAt ?? props.post?.time ?? props.post?.created
+const createdAt = computed(
+  () =>
+    props.post?.created_at ??
+    props.post?.createdAt ??
+    props.post?.time ??
+    props.post?.created,
 );
 
 const timeAgo = computed(() => {
-  if (!createdAt.value) return '';
+  if (!createdAt.value) return "";
   const date = new Date(createdAt.value);
   const now = new Date();
   const diff = now - date;
@@ -442,55 +527,55 @@ const timeAgo = computed(() => {
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
 
-  if (seconds < 60) return '刚刚';
+  if (seconds < 60) return "刚刚";
   if (minutes < 60) return `${minutes}分钟`;
   if (hours < 24) return `${hours}小时`;
   if (days < 7) return `${days}天`;
 
-  return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+  return date.toLocaleDateString("zh-CN", { month: "short", day: "numeric" });
 });
 
 const fullDateTime = computed(() => {
-  if (!createdAt.value) return '';
-  return new Date(createdAt.value).toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+  if (!createdAt.value) return "";
+  return new Date(createdAt.value).toLocaleString("zh-CN", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 });
 
 // Content
 const displayContent = computed(() => {
   if (isDeleted.value) return null;
-  return props.post?.content ?? '';
+  return props.post?.content ?? "";
 });
 
 const formattedContent = computed(() => {
-  if (!displayContent.value) return '';
+  if (!displayContent.value) return "";
   let text = displayContent.value;
 
   // 转义HTML
   text = text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 
   // @提及
   text = text.replace(
     /@(\w+)/g,
-    '<a href="/user/$1" class="post-mention" onclick="event.stopPropagation()">@$1</a>'
+    '<a href="/user/$1" class="post-mention" onclick="event.stopPropagation()">@$1</a>',
   );
 
   // URL链接
   text = text.replace(
     /(https?:\/\/[^\s]+)/g,
-    '<a href="$1" class="post-link" target="_blank" rel="noopener" onclick="event.stopPropagation()">$1</a>'
+    '<a href="$1" class="post-link" target="_blank" rel="noopener" onclick="event.stopPropagation()">$1</a>',
   );
 
   // 换行
-  text = text.replace(/\n/g, '<br>');
+  text = text.replace(/\n/g, "<br>");
 
   return text;
 });
@@ -502,25 +587,38 @@ const stats = computed(() => {
     replies: s.replies || 0,
     retweets: s.retweets || 0,
     likes: s.likes || 0,
-    bookmarks: s.bookmarks || 0
+    bookmarks: s.bookmarks || 0,
   };
 });
 
 // Viewer context
 const viewerContext = computed(() => props.post?.viewer_context || {});
-const isLiked = computed(() =>
-  viewerContext.value.liked ?? props.post?.liked ?? props.post?.isLiked ?? false
+const isLiked = computed(
+  () =>
+    viewerContext.value.liked ??
+    props.post?.liked ??
+    props.post?.isLiked ??
+    false,
 );
-const isRetweeted = computed(() =>
-  viewerContext.value.retweeted ?? props.post?.retweeted ?? props.post?.isRetweeted ?? false
+const isRetweeted = computed(
+  () =>
+    viewerContext.value.retweeted ??
+    props.post?.retweeted ??
+    props.post?.isRetweeted ??
+    false,
 );
-const isBookmarked = computed(() =>
-  viewerContext.value.bookmarked ?? props.post?.bookmarked ?? props.post?.isBookmarked ?? false
+const isBookmarked = computed(
+  () =>
+    viewerContext.value.bookmarked ??
+    props.post?.bookmarked ??
+    props.post?.isBookmarked ??
+    false,
 );
 
 // Media
 const mediaItems = computed(() => {
-  const media = props.post?.media || props.post?.mediaAssets || props.post?.assets || [];
+  const media =
+    props.post?.media || props.post?.mediaAssets || props.post?.assets || [];
   return Array.isArray(media) ? media : [];
 });
 
@@ -533,17 +631,141 @@ const getMediaUrl = (media) => {
   if (media.url) return media.url;
   if (media.md5) {
     // 使用 md5 和 extension 构建正确的 URL
-    const ext = media.extension || 'webp';
+    const ext = media.extension || "webp";
     return `${getS3staticurl(media.md5)}.${ext}`;
   }
-  return media.src || media.href || '';
+  return media.src || media.href || "";
 };
 
 // Embed
 const embedData = computed(() => props.post?.embed || null);
 
+const compactEmbedPrimaryLinkIsExternal = computed(
+  () => embedData.value?.type === "url",
+);
+
+const compactEmbedPrimaryText = computed(() => {
+  if (!embedData.value) return "查看内容";
+  if (embedData.value.type === "project") return `项目 #${embedData.value.id}`;
+  if (embedData.value.type === "list") return `列表 #${embedData.value.id}`;
+  if (embedData.value.type === "user") {
+    return embedData.value.username
+      ? `@${embedData.value.username}`
+      : `用户 #${embedData.value.id}`;
+  }
+  if (embedData.value.type === "url") {
+    try {
+      return new URL(embedData.value.url || "").hostname.replace(/^www\./, "");
+    } catch {
+      return "打开链接";
+    }
+  }
+  return `${embedData.value.type || "内容"} #${embedData.value.id ?? ""}`.trim();
+});
+
+const compactEmbedPrimaryLink = computed(() => {
+  if (!embedData.value) return "";
+  switch (embedData.value.type) {
+    case "project":
+      if (props.contextProjectRouteBase) return props.contextProjectRouteBase;
+      return embedData.value.id ? `/app/project/${embedData.value.id}` : "";
+    case "list":
+      return embedData.value.id ? `/app/projectlist/${embedData.value.id}` : "";
+    case "user":
+      if (embedData.value.username) return `/${embedData.value.username}`;
+      return embedData.value.id ? `/app/posts/user/${embedData.value.id}` : "";
+    case "url":
+      return embedData.value.url || "";
+    default:
+      return "";
+  }
+});
+
+const normalizedEmbedData = computed(() =>
+  normalizeEmbedObject(embedData.value),
+);
+const normalizedContextEmbedData = computed(() =>
+  normalizeEmbedObject(props.contextEmbedData),
+);
+const compactEmbedMeta = computed(() =>
+  getEmbedSpecialMarkers(normalizedEmbedData.value),
+);
+
+const hideCurrentContextPrimary = computed(() => {
+  if (!props.hideCurrentContextBase) return false;
+  if (normalizedEmbedData.value.type !== "project") return false;
+  return isSameEmbedTarget(
+    normalizedEmbedData.value,
+    normalizedContextEmbedData.value,
+  );
+});
+
+const showCompactEmbedPrimary = computed(
+  () => !hideCurrentContextPrimary.value,
+);
+
+const compactEmbedBranch = computed(() => compactEmbedMeta.value.branch);
+
+const compactEmbedCommit = computed(() => compactEmbedMeta.value.commit);
+
+const compactEmbedExtraMarkers = computed(() =>
+  compactEmbedMeta.value.extras.map((marker) => ({
+    key: marker.key,
+    text: `标记 ${marker.key}: ${marker.value}`,
+  })),
+);
+
+const compactEmbedBranchLink = computed(() => {
+  if (!compactEmbedBranch.value || !props.contextProjectRouteBase) return "";
+  return `${props.contextProjectRouteBase}/tree/${encodeURIComponent(compactEmbedBranch.value)}`;
+});
+
+const compactEmbedCommitLink = computed(() => {
+  if (!compactEmbedCommit.value || !props.contextProjectRouteBase) return "";
+  const rawCommit = String(embedData.value?.commit || compactEmbedCommit.value);
+  return `${props.contextProjectRouteBase}/commit/${encodeURIComponent(rawCommit)}`;
+});
+
+const compactEmbedMarkers = computed(() => {
+  const markers = [];
+
+  if (compactEmbedBranch.value) {
+    markers.push({
+      key: `branch:${compactEmbedBranch.value}`,
+      text: `分支 ${compactEmbedBranch.value}`,
+      link: compactEmbedBranchLink.value,
+    });
+  }
+
+  if (compactEmbedCommit.value) {
+    markers.push({
+      key: `commit:${compactEmbedCommit.value}`,
+      text: `版本 ${compactEmbedCommit.value}`,
+      link: compactEmbedCommitLink.value,
+    });
+  }
+
+  for (const marker of compactEmbedExtraMarkers.value) {
+    markers.push({
+      key: `extra:${marker.key}`,
+      text: marker.text,
+      link: "",
+    });
+  }
+
+  return markers;
+});
+
+const showCompactEmbedNote = computed(() => {
+  if (!embedData.value || props.embedMode !== "compact") return false;
+  if (showCompactEmbedPrimary.value) return true;
+  return compactEmbedMarkers.value.length > 0;
+});
+
 // Quoted post
-const quotedPostId = computed(() => props.post?.quote_of_id || props.post?.quoteOfId);
+const quotedPostId = computed(
+  () => props.post?.quote_of_id || props.post?.quoteOfId,
+);
 const quotedPost = computed(() => {
   if (!quotedPostId.value) return null;
   // 处理ID可能是数字或字符串的情况
@@ -552,7 +774,9 @@ const quotedPost = computed(() => {
 });
 
 // Reply to post
-const replyToId = computed(() => props.post?.reply_to_id || props.post?.replyToId);
+const replyToId = computed(
+  () => props.post?.reply_to_id || props.post?.replyToId,
+);
 const replyToPost = computed(() => {
   if (!replyToId.value) return null;
   // 处理ID可能是数字或字符串的情况
@@ -575,8 +799,8 @@ const isSelf = computed(() => {
 const followStatus = ref(null); // null=未加载, 'following', 'not_following', 'blocked'
 const followLoading = ref(false);
 
-const isFollowing = computed(() => followStatus.value === 'following');
-const isBlocked = computed(() => followStatus.value === 'blocked');
+const isFollowing = computed(() => followStatus.value === "following");
+const isBlocked = computed(() => followStatus.value === "blocked");
 
 const checkRelationship = async () => {
   if (isSelf.value || !authorId.value || !isLogin.value) return;
@@ -584,52 +808,58 @@ const checkRelationship = async () => {
     const res = await axios.get(`/follows/relationships/${authorId.value}`);
     const data = res.data?.data || res.data;
     if (data?.isBlocking) {
-      followStatus.value = 'blocked';
+      followStatus.value = "blocked";
     } else if (data?.isFollowing) {
-      followStatus.value = 'following';
+      followStatus.value = "following";
     } else {
-      followStatus.value = 'not_following';
+      followStatus.value = "not_following";
     }
   } catch {
-    followStatus.value = 'not_following';
+    followStatus.value = "not_following";
   }
 };
 
 const toggleFollow = async () => {
-  if (!requireLogin('关注')) return;
+  if (!requireLogin("关注")) return;
   followLoading.value = true;
   try {
     if (isFollowing.value) {
       await axios.delete(`/follows/${authorId.value}`);
-      followStatus.value = 'not_following';
-      showSnackbar(`已取消关注 @${authorUsername.value}`, 'success');
+      followStatus.value = "not_following";
+      showSnackbar(`已取消关注 @${authorUsername.value}`, "success");
     } else {
       await axios.post(`/follows/${authorId.value}`);
-      followStatus.value = 'following';
-      showSnackbar(`已关注 @${authorUsername.value}`, 'success');
+      followStatus.value = "following";
+      showSnackbar(`已关注 @${authorUsername.value}`, "success");
     }
   } catch (e) {
-    showSnackbar(e?.response?.data?.message || e?.message || '操作失败', 'error');
+    showSnackbar(
+      e?.response?.data?.message || e?.message || "操作失败",
+      "error",
+    );
   } finally {
     followLoading.value = false;
   }
 };
 
 const toggleBlock = async () => {
-  if (!requireLogin('拉黑')) return;
+  if (!requireLogin("拉黑")) return;
   followLoading.value = true;
   try {
     if (isBlocked.value) {
       await axios.delete(`/follows/block/${authorId.value}`);
-      followStatus.value = 'not_following';
-      showSnackbar(`已解除拉黑 @${authorUsername.value}`, 'success');
+      followStatus.value = "not_following";
+      showSnackbar(`已解除拉黑 @${authorUsername.value}`, "success");
     } else {
       await axios.post(`/follows/block/${authorId.value}`);
-      followStatus.value = 'blocked';
-      showSnackbar(`已拉黑 @${authorUsername.value}`, 'success');
+      followStatus.value = "blocked";
+      showSnackbar(`已拉黑 @${authorUsername.value}`, "success");
     }
   } catch (e) {
-    showSnackbar(e?.response?.data?.message || e?.message || '操作失败', 'error');
+    showSnackbar(
+      e?.response?.data?.message || e?.message || "操作失败",
+      "error",
+    );
   } finally {
     followLoading.value = false;
   }
@@ -649,7 +879,7 @@ const openDetail = () => {
 };
 
 const goUser = () => {
-  if (!authorUsername.value || authorUsername.value === 'unknown') return;
+  if (!authorUsername.value || authorUsername.value === "unknown") return;
   router.push(`/${authorUsername.value}`);
 };
 
@@ -661,76 +891,82 @@ const goToQuotedPost = () => {
 // Actions
 const requireLogin = (action) => {
   if (!isLogin.value) {
-    showSnackbar(`请先登录后再${action}`, 'warning');
+    showSnackbar(`请先登录后再${action}`, "warning");
     return false;
   }
   return true;
 };
 
 const toggleLike = async () => {
-  if (!requireLogin('点赞')) return;
+  if (!requireLogin("点赞")) return;
   actionLoading.value = true;
   try {
     if (isLiked.value) {
       await PostsService.unlike(postId.value);
       if (props.post.viewer_context) props.post.viewer_context.liked = false;
       else props.post.liked = false;
-      if (props.post.stats) props.post.stats.likes = Math.max(0, stats.value.likes - 1);
+      if (props.post.stats)
+        props.post.stats.likes = Math.max(0, stats.value.likes - 1);
     } else {
       await PostsService.like(postId.value);
       if (props.post.viewer_context) props.post.viewer_context.liked = true;
       else props.post.liked = true;
       if (props.post.stats) props.post.stats.likes = stats.value.likes + 1;
     }
-    emit('updated', props.post);
+    emit("updated", props.post);
   } catch (e) {
-    showSnackbar(e?.message || '操作失败', 'error');
+    showSnackbar(e?.message || "操作失败", "error");
   } finally {
     actionLoading.value = false;
   }
 };
 
 const toggleRetweet = async () => {
-  if (!requireLogin('转推')) return;
+  if (!requireLogin("转推")) return;
   actionLoading.value = true;
   try {
     if (isRetweeted.value) {
       await PostsService.unretweet(postId.value);
-      if (props.post.viewer_context) props.post.viewer_context.retweeted = false;
+      if (props.post.viewer_context)
+        props.post.viewer_context.retweeted = false;
       else props.post.retweeted = false;
-      if (props.post.stats) props.post.stats.retweets = Math.max(0, stats.value.retweets - 1);
+      if (props.post.stats)
+        props.post.stats.retweets = Math.max(0, stats.value.retweets - 1);
     } else {
       await PostsService.retweet(postId.value);
       if (props.post.viewer_context) props.post.viewer_context.retweeted = true;
       else props.post.retweeted = true;
-      if (props.post.stats) props.post.stats.retweets = stats.value.retweets + 1;
+      if (props.post.stats)
+        props.post.stats.retweets = stats.value.retweets + 1;
     }
-    emit('updated', props.post);
+    emit("updated", props.post);
   } catch (e) {
-    showSnackbar(e?.message || '操作失败', 'error');
+    showSnackbar(e?.message || "操作失败", "error");
   } finally {
     actionLoading.value = false;
   }
 };
 
 const toggleBookmark = async () => {
-  if (!requireLogin('收藏')) return;
+  if (!requireLogin("收藏")) return;
   actionLoading.value = true;
   try {
     if (isBookmarked.value) {
       await PostsService.unbookmark(postId.value);
-      if (props.post.viewer_context) props.post.viewer_context.bookmarked = false;
+      if (props.post.viewer_context)
+        props.post.viewer_context.bookmarked = false;
       else props.post.bookmarked = false;
-      showSnackbar('已取消收藏', 'success');
+      showSnackbar("已取消收藏", "success");
     } else {
       await PostsService.bookmark(postId.value);
-      if (props.post.viewer_context) props.post.viewer_context.bookmarked = true;
+      if (props.post.viewer_context)
+        props.post.viewer_context.bookmarked = true;
       else props.post.bookmarked = true;
-      showSnackbar('已添加到书签', 'success');
+      showSnackbar("已添加到书签", "success");
     }
-    emit('updated', props.post);
+    emit("updated", props.post);
   } catch (e) {
-    showSnackbar(e?.message || '操作失败', 'error');
+    showSnackbar(e?.message || "操作失败", "error");
   } finally {
     actionLoading.value = false;
   }
@@ -738,30 +974,38 @@ const toggleBookmark = async () => {
 
 // Dialogs
 const openReplyDialog = () => {
-  if (!requireLogin('回复')) return;
+  if (!requireLogin("回复")) return;
   replyDialog.value = true;
 };
 
 const openQuoteDialog = () => {
-  if (!requireLogin('引用')) return;
+  if (!requireLogin("引用")) return;
   quoteDialog.value = true;
 };
 
 const submitReply = async ({ content, mediaIds, embed }) => {
-  const res = await PostsService.reply(postId.value, { content, mediaIds, embed });
+  const res = await PostsService.reply(postId.value, {
+    content,
+    mediaIds,
+    embed,
+  });
   replyDialog.value = false;
-  showSnackbar('回复已发布', 'success');
+  showSnackbar("回复已发布", "success");
   if (props.post.stats) props.post.stats.replies++;
   // 传递完整响应（包含post和includes）
-  emit('created', res);
+  emit("created", res);
 };
 
 const submitQuote = async ({ content, mediaIds, embed }) => {
-  const res = await PostsService.quote(postId.value, { content, mediaIds, embed });
+  const res = await PostsService.quote(postId.value, {
+    content,
+    mediaIds,
+    embed,
+  });
   quoteDialog.value = false;
-  showSnackbar('引用已发布', 'success');
+  showSnackbar("引用已发布", "success");
   // 传递完整响应（包含post和includes）
-  emit('created', res);
+  emit("created", res);
 };
 
 const doDelete = async () => {
@@ -769,10 +1013,10 @@ const doDelete = async () => {
   try {
     await PostsService.remove(postId.value);
     confirmDelete.value = false;
-    showSnackbar('推文已删除', 'success');
-    emit('deleted', postId.value);
+    showSnackbar("推文已删除", "success");
+    emit("deleted", postId.value);
   } catch (e) {
-    showSnackbar(e?.message || '删除失败', 'error');
+    showSnackbar(e?.message || "删除失败", "error");
   } finally {
     deleting.value = false;
   }
@@ -783,9 +1027,9 @@ const copyLink = async () => {
   const url = `${window.location.origin}/app/posts/${postId.value}`;
   try {
     await navigator.clipboard.writeText(url);
-    showSnackbar('链接已复制', 'success');
+    showSnackbar("链接已复制", "success");
   } catch {
-    showSnackbar('复制失败', 'error');
+    showSnackbar("复制失败", "error");
   }
 };
 
@@ -793,15 +1037,16 @@ const handleDeleteClick = () => {
   showDeleteConfirm(
     async () => {
       await PostsService.remove(postId.value);
-      showSnackbar('推文已删除', 'success');
-      emit('deleted', postId.value);
+      showSnackbar("推文已删除", "success");
+      emit("deleted", postId.value);
     },
     {
-      title: '删除推文？',
-      message: '此操作无法撤消。该推文将从你的个人资料、任何关注你的用户的时间线以及搜索结果中删除。',
-      confirmText: '删除',
-      cancelText: '取消'
-    }
+      title: "删除推文？",
+      message:
+        "此操作无法撤消。该推文将从你的个人资料、任何关注你的用户的时间线以及搜索结果中删除。",
+      confirmText: "删除",
+      cancelText: "取消",
+    },
   );
 };
 
@@ -818,7 +1063,7 @@ const sharePost = async () => {
       await navigator.share({
         title: `${authorDisplayName.value}的推文`,
         text: displayContent.value?.slice(0, 100),
-        url
+        url,
       });
     } catch {
       // User cancelled
@@ -1017,6 +1262,33 @@ const openMediaViewer = (index) => {
 
 .post-text :deep(.post-link:hover) {
   text-decoration: underline;
+}
+
+.post-embed-note {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: rgba(var(--v-theme-on-surface), 0.62);
+}
+
+.post-embed-note-label {
+  color: rgba(var(--v-theme-on-surface), 0.5);
+}
+
+.post-embed-note-link {
+  color: rgb(var(--v-theme-primary));
+  text-decoration: none;
+}
+
+.post-embed-note-link:hover {
+  text-decoration: underline;
+}
+
+.post-embed-note-separator {
+  color: rgba(var(--v-theme-on-surface), 0.45);
 }
 
 /* Media Grid */

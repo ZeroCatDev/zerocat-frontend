@@ -54,6 +54,15 @@
         </v-col>
       </v-row>
 
+      <v-row>
+        <v-col cols="12">
+          <RelatedPostsPanel
+            type="list"
+            :id="listId"
+          />
+        </v-col>
+      </v-row>
+
       <v-row v-if="!hasProjects">
         <v-col class="text-center" cols="12">
           <v-alert type="info" variant="tonal">
@@ -97,7 +106,8 @@ import request from "../../axios/axios";
 import EditProjectListConfig from "./EditProjectListConfig.vue";
 import {localuser} from "../../services/localAccount";
 import { openFloatingPostBar } from "@/composables/useFloatingPostBar";
-import ProjectCard from "../project/ProjectCard.vue";
+import ProjectCard from '../project/ProjectCard.vue';
+import RelatedPostsPanel from '../posts/RelatedPostsPanel.vue';
 import {ref, onMounted} from "vue";
 
 
@@ -110,7 +120,8 @@ export default {
   },
   components: {
     EditProjectListConfig,
-    ProjectCard
+    ProjectCard,
+    RelatedPostsPanel
   },
   setup() {
 
@@ -204,3 +215,5 @@ export default {
   word-break: break-word;
 }
 </style>
+
+

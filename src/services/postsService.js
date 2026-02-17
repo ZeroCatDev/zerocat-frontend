@@ -353,6 +353,134 @@ export const PostsService = {
   },
 
   /**
+   * 获取嵌入关联帖子
+   * @param {Object} options
+   * @param {Object|string} options.embedData - 新接口 embeddata（对象或 JSON 字符串）
+   * @param {Object} options.query - 兼容旧调用，最终会合并进 embeddata
+   * @param {string} options.type - 兼容旧调用，可作为 embeddata.type
+   * @param {string|number} options.id - 兼容旧调用，可作为 embeddata.id
+   * @param {string} options.branch - 兼容旧调用，可作为 embeddata.branch
+   * @param {string} options.commit - 兼容旧调用，可作为 embeddata.commit
+   * @param {Object} options.embed - 可传 { type, id } 作为 type/id 的后备来源
+   * @param {string|number} options.cursor - 分页游标
+   * @param {number} options.limit - 每页数量，最大100
+   * @param {boolean} options.includeReplies - 是否包含回复帖
+   */
+  async getRelatedPosts({
+    type,
+    id,
+    branch,
+    commit,
+    query,
+    embedData,
+    embed,
+    cursor,
+    limit = 20,
+    includeReplies = false
+  } = {}) {
+    try {
+      const parsedLimit = Number(limit);
+      const safeLimit = Number.isFinite(parsedLimit)
+        ? Math.min(Math.max(parsedLimit, 1), 100)
+        : 20;
+
+      const params = {
+        limit: safeLimit,
+        include_replies: String(Boolean(includeReplies))
+      };
+
+      if (cursor !== undefined && cursor !== null && `${cursor}` !== '') {
+        params.cursor = cursor;
+      }
+
+      const isPlainObject = (value) => (
+        Object.prototype.toString.call(value) === '[object Object]'
+      );
+
+      const normalizeObject = (source) => {
+        if (!isPlainObject(source)) return {};
+        const result = {};
+        for (const [key, value] of Object.entries(source)) {
+          if (value !== undefined) {
+            result[key] = value;
+          }
+        }
+        return result;
+      };
+
+      const parseEmbedData = () => {
+        if (embedData === undefined || embedData === null) return {};
+
+        if (typeof embedData === 'string') {
+          const text = embedData.trim();
+          if (!text) {
+            throw new Error('embeddata 不能为空');
+          }
+
+          let parsed;
+          try {
+            parsed = JSON.parse(text);
+          } catch {
+            throw new Error('embeddata 必须是合法 JSON');
+          }
+
+          if (!isPlainObject(parsed)) {
+            throw new Error('embeddata 必须是对象');
+          }
+          return normalizeObject(parsed);
+        }
+
+        if (!isPlainObject(embedData)) {
+          throw new Error('embeddata 必须是对象');
+        }
+
+        return normalizeObject(embedData);
+      };
+
+      const embedQuery = {
+        ...normalizeObject(query),
+        ...parseEmbedData()
+      };
+
+      const fromEmbedType = embed?.type ?? embed?.['type'];
+      const fromEmbedId = embed?.id ?? embed?.['id'];
+      const fromEmbedBranch = embed?.branch ?? embed?.['branch'];
+      const fromEmbedCommit = embed?.commit ?? embed?.['commit'];
+
+      const finalType = type ?? embedQuery.type ?? fromEmbedType;
+      const finalId = id ?? embedQuery.id ?? fromEmbedId;
+      const finalBranch = branch ?? embedQuery.branch ?? fromEmbedBranch;
+      const finalCommit = commit ?? embedQuery.commit ?? fromEmbedCommit;
+
+      if (finalType !== undefined && finalType !== null && `${finalType}` !== '') {
+        embedQuery.type = finalType;
+      }
+      if (finalId !== undefined && finalId !== null && `${finalId}` !== '') {
+        embedQuery.id = finalId;
+      }
+      if (finalBranch !== undefined && finalBranch !== null && `${finalBranch}` !== '') {
+        embedQuery.branch = finalBranch;
+      }
+      if (finalCommit !== undefined && finalCommit !== null && `${finalCommit}` !== '') {
+        embedQuery.commit = finalCommit;
+      }
+
+      if (!Object.keys(embedQuery).length) {
+        throw new Error('embeddata 至少提供一个筛选条件');
+      }
+
+      params.embeddata = JSON.stringify(embedQuery);
+
+      const response = await axios.get('/posts/related', { params });
+      const payload = response.data?.status === 'success' && response.data?.data
+        ? response.data.data
+        : response.data;
+      return normalizeListResponse(payload);
+    } catch (error) {
+      throw new Error(getErrorMessage(error, '获取关联帖子失败'));
+    }
+  },
+  /**
    * 计算字数
    */
   async count(content) {
@@ -545,3 +673,4 @@ export const PostsService = {
 };
 
 export default PostsService;
+
