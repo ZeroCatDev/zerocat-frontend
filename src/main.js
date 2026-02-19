@@ -32,16 +32,18 @@ const app = createApp(App);
 // 初始化 Sentry
 Sentry.init({
   app,
-  dsn: "https://d34afb22fb34abcb4ef556512f2f2672@report.houlang.cloud/3",
+  dsn: import.meta.env.VITE_SENTRY_DSN || "https://d34afb22fb34abcb4ef556512f2f2672@report.houlang.cloud/3",
   // Setting this option to true will send default PII data to Sentry.
   // For example, automatic IP address collection on events
+  // Note: Ensure this complies with your privacy policy and data protection regulations (e.g., GDPR)
   sendDefaultPii: true,
   integrations: [
     Sentry.browserTracingIntegration({ router }),
     Sentry.replayIntegration()
   ],
   // Tracing
-  tracesSampleRate: 1.0, // Capture 100% of the transactions
+  // In production, consider using a lower sample rate (e.g., 0.1) to reduce costs
+  tracesSampleRate: import.meta.env.DEV ? 1.0 : 0.1,
   // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
   tracePropagationTargets: [
     "localhost",
