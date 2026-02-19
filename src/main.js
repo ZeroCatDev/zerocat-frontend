@@ -32,7 +32,7 @@ const app = createApp(App);
 // 初始化 Sentry
 Sentry.init({
   app,
-  dsn: import.meta.env.VITE_SENTRY_DSN || "https://d34afb22fb34abcb4ef556512f2f2672@report.houlang.cloud/3",
+  dsn: import.meta.env.VITE_SENTRY_DSN || "https://2250927423fac4b5e6633d4fdffdd1a3@report.houlang.cloud/5",
   // Setting this option to true will send default PII data to Sentry.
   // For example, automatic IP address collection on events
   // Note: Ensure this complies with your privacy policy and data protection regulations (e.g., GDPR)
