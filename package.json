@@ -15,6 +15,7 @@
     "@highlightjs/vue-plugin": "^2.1.0",
     "@mdi/font": "7.4.47",
     "@primevue/themes": "^4.5.4",
+    "@sentry/vue": "^10.39.0",
     "@unhead/vue": "^2.1.4",
     "@vueuse/core": "^14.2.1",
     "@vueuse/rxjs": "^14.2.1",
