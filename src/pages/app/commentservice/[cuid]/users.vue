@@ -66,7 +66,7 @@
       >
         <v-card-text class="d-flex align-center pa-4">
           <v-avatar size="42" class="mr-3" color="grey-lighten-3">
-            <v-icon size="24" color="grey">mdi-account</v-icon>
+            <v-img v-if="u.avatar" :src="s3BucketUrl + '/assets/' + u.avatar.slice(0, 2) + '/' + u.avatar.slice(2, 4) + '/' + u.avatar + '.webp'" />
           </v-avatar>
           <div class="flex-grow-1" style="min-width: 0">
             <div class="d-flex align-center flex-wrap ga-2">
@@ -164,7 +164,7 @@ import { ref, reactive, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "@unhead/vue";
 import { getSpaceUsers, updateSpaceUser } from "@/services/commentService";
-
+import { get } from "@/services/serverConfig";
 useHead({ title: "用户管理" });
 
 const route = useRoute();
@@ -182,7 +182,7 @@ const labelDialog = ref(false);
 const labelValue = ref("");
 const labelTarget = ref(null);
 const savingLabel = ref(false);
-
+const s3BucketUrl = get("s3.staticurl");
 const roleOptions = [
   { value: "moderator", label: "审核员", color: "warning", icon: "mdi-account-check" },
   { value: "guest", label: "普通用户", color: "info", icon: "mdi-account" },

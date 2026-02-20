@@ -133,6 +133,20 @@ export function useSidebarContent() {
       to: '/app/extensions',
       requireLogin: false
     },
+    {
+      name: "Waline 评论空间",
+      label: "Waline 评论空间",
+      icon: "mdi-comment-multiple-outline",
+      to: "/app/commentservice",
+      requireLogin: false,
+    },
+    {
+      name: 'translate',
+      label: '翻译',
+      icon: 'mdi-translate',
+      to: '/app/translate',
+      requireLogin: false
+    }
   ]);
 
   // 管理员导航项

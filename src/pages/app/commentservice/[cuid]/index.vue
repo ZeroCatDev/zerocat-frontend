@@ -100,7 +100,7 @@
                 <td>
                   <div class="d-flex align-center ga-2">
                     <v-avatar size="24">
-                      <v-img v-if="space.owner.avatar" :src="space.owner.avatar" />
+                      <v-img v-if="space.owner.avatar" :src="s3BucketUrl +'/assets/' + space.owner.avatar.slice(0, 2) + '/' + space.owner.avatar.slice(2, 4) + '/' + space.owner.avatar + '.webp'" />
                       <v-icon v-else size="24">mdi-account-circle</v-icon>
                     </v-avatar>
                     <router-link
@@ -128,7 +128,7 @@
       <!-- Moderators -->
       <v-card v-if="space.moderators && space.moderators.length" variant="flat" border>
         <v-card-text class="pa-5">
-          <div class="text-subtitle-1 font-weight-bold mb-4">管理团队</div>
+          <div class="text-subtitle-1 font-weight-bold mb-4">管理</div>
           <v-list density="compact" class="pa-0" bg-color="transparent">
             <v-list-item
               v-for="mod in space.moderators"
@@ -138,7 +138,7 @@
             >
               <template #prepend>
                 <v-avatar size="36" class="mr-3">
-                  <v-img v-if="mod.avatar" :src="mod.avatar" />
+                  <v-img v-if="mod.avatar" :src="s3BucketUrl +'/assets/' + mod.avatar.slice(0, 2) + '/' + mod.avatar.slice(2, 4) + '/' + mod.avatar + '.webp'" />
                   <v-icon v-else size="36">mdi-account-circle</v-icon>
                 </v-avatar>
               </template>
@@ -150,7 +150,7 @@
               </v-list-item-subtitle>
               <template #append>
                 <v-chip
-                  :color="mod.role === 'administrator' ? 'primary' : 'info'"
+                  :color="mod.role === 'administrator' ? 'primary' : 'warning'"
                   size="x-small"
                   variant="flat"
                 >
@@ -171,7 +171,7 @@ import { ref, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "@unhead/vue";
 import { getSpace, getSpaceStats } from "@/services/commentService";
-
+import { get } from "@/services/serverConfig";
 const route = useRoute();
 const cuid = route.params.cuid;
 
@@ -182,6 +182,7 @@ const stats = ref({ commentCount: 0, userCount: 0, waitingCount: 0, spamCount: 0
 const loading = ref(true);
 
 const isOwner = computed(() => !!space.value?.status);
+const s3BucketUrl = get("s3.staticurl");
 
 const statCards = computed(() => [
   { label: "评论总数", value: stats.value.commentCount, color: "primary" },
