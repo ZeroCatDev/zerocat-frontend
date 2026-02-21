@@ -87,3 +87,86 @@ export function walineLogin(spaceCuid) {
     .post("/commentservice/ui/login", { spaceCuid })
     .then((r) => r.data);
 }
+
+// ===== Data Import/Export =====
+
+export function exportSpaceData(cuid) {
+  return request
+    .post(`/commentservice/spaces/${cuid}/data/export`)
+    .then((r) => r.data);
+}
+
+export function importSpaceData(cuid, data) {
+  return request
+    .post(`/commentservice/spaces/${cuid}/data/import`, data)
+    .then((r) => r.data);
+}
+
+export function getDataTasks(cuid) {
+  return request
+    .get(`/commentservice/spaces/${cuid}/data/tasks`)
+    .then((r) => r.data);
+}
+
+export function getDataTask(cuid, taskId) {
+  return request
+    .get(`/commentservice/spaces/${cuid}/data/tasks/${taskId}`)
+    .then((r) => r.data);
+}
+
+export function downloadDataTask(cuid, taskId) {
+  return request.get(
+    `/commentservice/spaces/${cuid}/data/tasks/${taskId}/download`,
+    { responseType: "blob" },
+  );
+}
+
+// ===== Admin =====
+
+export function getAdminSensitiveWords() {
+  return request
+    .get("/commentservice/admin/sensitive-words")
+    .then((r) => r.data);
+}
+
+export function updateAdminSensitiveWords(data) {
+  return request
+    .put("/commentservice/admin/sensitive-words", data)
+    .then((r) => r.data);
+}
+
+export function getAdminBanDuration() {
+  return request
+    .get("/commentservice/admin/sensitive-ban-duration")
+    .then((r) => r.data);
+}
+
+export function updateAdminBanDuration(data) {
+  return request
+    .put("/commentservice/admin/sensitive-ban-duration", data)
+    .then((r) => r.data);
+}
+
+export function getAdminSpaces(params = {}) {
+  return request
+    .get("/commentservice/admin/spaces", { params })
+    .then((r) => r.data);
+}
+
+export function getAdminSpace(spaceId) {
+  return request
+    .get(`/commentservice/admin/spaces/${spaceId}`)
+    .then((r) => r.data);
+}
+
+export function updateAdminSpaceStatus(spaceId, data) {
+  return request
+    .put(`/commentservice/admin/spaces/${spaceId}/status`, data)
+    .then((r) => r.data);
+}
+
+export function getAdminViolations(params = {}) {
+  return request
+    .get("/commentservice/admin/violations", { params })
+    .then((r) => r.data);
+}

@@ -494,7 +494,7 @@ import Typewriter from "@/components/Typewriter.vue";
 import PageAnalytics from "@/components/analytics/PageAnalytics.vue";
 
 import { ref, onMounted } from "vue";
-import { useHead } from "@unhead/vue";
+import { useSeo } from "@/composables/useSeo";
 
 export default {
   name: "AboutPage",
@@ -505,15 +505,9 @@ export default {
   },
 
   setup() {
-    useHead({
-      title: "关于 ZeroCat - 新一代开源编程社区",
-      meta: [
-        {
-          name: "description",
-          content:
-            "国内少有的完整开源且内容完善的编程社区，提供完整的在线编程解决方案",
-        },
-      ],
+    useSeo({
+      title: "关于 ZeroCat",
+      description: "国内少有的完整开源且内容完善的编程社区，提供完整的在线编程解决方案。",
     });
   },
 

@@ -200,6 +200,13 @@ export function useSidebarContent() {
       to: '/app/admin/oauth/applications',
       requireLogin: true
     },
+    {
+      name: 'admin-commentservice',
+      label: '评论服务',
+      icon: 'mdi-comment-text-multiple-outline',
+      to: '/app/admin/commentservice',
+      requireLogin: true
+    },
   ]);
 
   // Twitter模式的简化导航项

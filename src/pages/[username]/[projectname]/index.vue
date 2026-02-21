@@ -75,7 +75,7 @@ import {use404Helper} from '@/composables/use404';
 import {localuser} from "@/services/localAccount";
 import Comment from '@/components/Comment.vue';
 import RelatedPostsPanel from '@/components/posts/RelatedPostsPanel.vue';
-import {useHead} from "@unhead/vue";
+import {useSeo} from "@/composables/useSeo";
 import {ref} from "vue";
 import {
   getProjectInfoByNamespace,
@@ -135,11 +135,14 @@ export default {
   },
   setup() {
     const pageTitle = ref("项目");
-    useHead({
+    const pageDescription = ref("");
+    useSeo({
       title: pageTitle,
+      description: pageDescription,
     });
     return {
       pageTitle,
+      pageDescription,
     };
   },
   async mounted() {
@@ -180,6 +183,7 @@ export default {
       }
       this.loadBranchHistory();
       this.pageTitle = this.project.title;
+      this.pageDescription = this.project.description || `${this.project.title} - ZeroCat 社区项目`;
       this.author = this.project.author;
     },
     async loadBranchHistory() {

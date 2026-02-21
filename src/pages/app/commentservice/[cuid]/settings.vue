@@ -57,7 +57,7 @@
             flat
             density="comfortable"
             :items="[
-              { title: '活跃', value: 'active' },
+              { title: '启用', value: 'active' },
               { title: '停用', value: 'inactive' },
             ]"
           />
@@ -80,6 +80,7 @@
           <v-tab value="captcha" class="text-none">验证码</v-tab>
           <v-tab value="notification" class="text-none">通知渠道</v-tab>
           <v-tab value="markdown" class="text-none">Markdown</v-tab>
+          <v-tab value="data" class="text-none">数据管理</v-tab>
         </v-tabs>
 
         <v-divider />
@@ -1236,12 +1237,19 @@
               />
             </v-card-text>
           </v-tabs-window-item>
+
+          <!-- ── 数据管理 ── -->
+          <v-tabs-window-item value="data">
+            <v-card-text class="pa-5">
+              <DataManagement :cuid="cuid" @notify="onDataNotify" />
+            </v-card-text>
+          </v-tabs-window-item>
         </v-tabs-window>
 
         <v-divider />
 
         <v-alert
-          v-if="configErrors.length"
+          v-if="configErrors.length && configTab !== 'data'"
           type="warning"
           variant="tonal"
           density="compact"
@@ -1255,7 +1263,7 @@
           </ul>
         </v-alert>
 
-        <v-card-actions class="px-5 py-3">
+        <v-card-actions v-if="configTab !== 'data'" class="px-5 py-3">
           <v-spacer />
           <v-btn color="primary" :loading="savingConfig" @click="saveConfig" class="text-none">
             保存配置
@@ -1327,7 +1335,8 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useHead } from "@unhead/vue";
+import { useSeo } from "@/composables/useSeo";
+import DataManagement from "@/components/commentservice/DataManagement.vue";
 import {
   getSpace,
   updateSpace,
@@ -1336,24 +1345,32 @@ import {
   deleteSpace,
 } from "@/services/commentService";
 
-useHead({ title: "空间配置" });
-
 const route = useRoute();
 const router = useRouter();
 const cuid = route.params.cuid;
 
 const loading = ref(true);
 const savingInfo = ref(false);
+
+const info = ref({ name: "", domain: "", status: "active" });
+
+const seoTitle = computed(() =>
+  info.value.name ? `${info.value.name} - 空间配置` : "空间配置"
+);
+const seoDesc = computed(() =>
+  info.value.name
+    ? `${info.value.name} 的空间配置，管理基本信息、评论策略及安全设置。`
+    : "Waline 评论空间配置页"
+);
+useSeo({ title: seoTitle, description: seoDesc });
 const savingConfig = ref(false);
 const snackbar = ref(false);
 const snackbarText = ref("");
 const snackbarColor = ref("success");
 const confirmDelete = ref(false);
 const deleting = ref(false);
-const configTab = ref("basic");
+const configTab = ref(route.query.tab || "basic");
 const configErrors = ref([]);
-
-const info = ref({ name: "", domain: "", status: "active" });
 
 const config = reactive({
   // 基础设置
@@ -1555,6 +1572,10 @@ function showMsg(text, color = "success") {
   snackbar.value = true;
 }
 
+function onDataNotify({ text, color }) {
+  showMsg(text, color);
+}
+
 async function saveInfo() {
   savingInfo.value = true;
   try {
@@ -1593,7 +1614,7 @@ async function doDelete() {
   deleting.value = true;
   try {
     await deleteSpace(cuid);
-    router.replace("/app/commentservice");
+    router.replace("/app/commentservice/space");
   } catch (e) {
     showMsg("删除失败", "error");
   } finally {

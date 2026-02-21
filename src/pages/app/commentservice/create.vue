@@ -3,7 +3,7 @@
     <v-btn
       variant="text"
       prepend-icon="mdi-arrow-left"
-      to="/app/commentservice"
+      to="/app/commentservice/space"
       class="mb-4 text-none"
     >
       返回空间列表
@@ -48,7 +48,7 @@
       </v-card-text>
       <v-card-actions class="px-4 pb-4 pt-2">
         <v-spacer />
-        <v-btn variant="text" to="/app/commentservice" class="text-none">
+        <v-btn variant="text" to="/app/commentservice/space" class="text-none">
           取消
         </v-btn>
         <v-btn
@@ -67,10 +67,13 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { useHead } from "@unhead/vue";
+import { useSeo } from "@/composables/useSeo";
 import { createSpace } from "@/services/commentService";
 
-useHead({ title: "创建评论空间" });
+useSeo({
+  title: "创建评论空间",
+  description: "创建一个新的 Waline 评论空间，获取独立的评论后端地址，几分钟内接入你的网站。",
+});
 
 const router = useRouter();
 const formRef = ref(null);

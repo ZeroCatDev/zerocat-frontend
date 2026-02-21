@@ -63,6 +63,7 @@ export default {
         {name: "扩展管理", path: "/app/admin/extensions"},
         {name: "OAuth应用", path: "/app/admin/oauth/applications"},
         {name: "通知管理", path: "/app/admin/notifications"},
+        {name: "评论服务", path: "/app/admin/commentservice"},
       ],
     };
   },

@@ -113,7 +113,7 @@
 
 <script>
 import Comment from "../../components/Comment.vue";
-import { useHead } from "@unhead/vue";
+import { useSeo } from "@/composables/useSeo";
 import { ref } from "vue";
 import { getUserByUsername } from "../../stores/user.js";
 import request from "../../axios/axios.js";
@@ -167,11 +167,14 @@ export default {
   },
   setup() {
     const pageTitle = ref("用户主页");
-    useHead({
+    const pageDescription = ref("");
+    useSeo({
       title: pageTitle,
+      description: pageDescription,
     });
     return {
       pageTitle,
+      pageDescription,
     };
   },
   async created() {
@@ -183,6 +186,7 @@ export default {
     async fetchUser() {
       this.user = await getUserByUsername(this.username);
       this.pageTitle = "" + this.user.display_name;
+      this.pageDescription = `${this.user.display_name} 的 ZeroCat 个人主页`;
       this.url = `/searchapi?search_userid=${this.user.id}&search_orderby=view_up&search_state=public`;
     },
     async getProjectList() {

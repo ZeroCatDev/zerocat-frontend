@@ -99,7 +99,7 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue';
-import { useHead } from '@unhead/vue';
+import { useSeo } from '@/composables/useSeo';
 import { localuser } from '@/services/localAccount';
 import PostsService from '@/services/postsService';
 import { showSnackbar } from '@/composables/useNotifications';
@@ -110,14 +110,9 @@ import HomeRightSidebar from '@/components/home/HomeRightSidebar.vue';
 import PageAnalytics from '@/components/analytics/PageAnalytics.vue';
 
 // Head meta
-useHead({
+useSeo({
   title: 'ZeroCat - 新一代开源编程社区',
-  meta: [
-    {
-      name: 'description',
-      content: '国内少有的完整开源且内容完善的编程社区，提供完整的在线编程解决方案',
-    },
-  ],
+  description: '国内少有的完整开源且内容完善的编程社区，提供完整的在线编程解决方案。',
 });
 
 // Refs

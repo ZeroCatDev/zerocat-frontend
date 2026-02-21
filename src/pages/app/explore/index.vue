@@ -178,7 +178,7 @@
 </template>
 
 <script>
-import { useHead } from "@unhead/vue";
+import { useSeo } from "@/composables/useSeo";
 import showProjects from "@/components/project/showProjects.vue";
 import languages from "@/constants/programming_languages.js";
 import specialTypes from "@/constants/special_languages.js";
@@ -206,7 +206,10 @@ const TYPE_PRESET_KEYS = [
 export default {
   components: { showProjects },
   setup() {
-    useHead({ title: "探索项目" });
+    useSeo({
+      title: "探索项目",
+      description: "浏览 ZeroCat 社区的编程作品，发现精彩的 Scratch、Python 等编程项目。",
+    });
   },
   data() {
     return {

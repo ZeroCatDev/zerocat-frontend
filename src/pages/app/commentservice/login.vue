@@ -50,11 +50,14 @@ meta:
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useHead } from "@unhead/vue";
+import { useSeo } from "@/composables/useSeo";
 import { localuser } from "@/services/localAccount";
 import { walineLogin } from "@/services/commentService";
 
-useHead({ title: "评论登录" });
+useSeo({
+  title: "评论登录",
+  description: "通过 ZeroCat 账号登录评论系统。",
+});
 
 const route = useRoute();
 const router = useRouter();

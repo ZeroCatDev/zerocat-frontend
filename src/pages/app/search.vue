@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import {useHead} from "@unhead/vue";
+import {useSeo} from "@/composables/useSeo";
 import SearchComponent from '../../components/SearchComponent.vue';
 
 export default {
@@ -14,8 +14,9 @@ export default {
   },
 
   setup() {
-    useHead({
-      title: "搜索 - ZeroCat",
+    useSeo({
+      title: "搜索",
+      description: "搜索 ZeroCat 社区的项目、用户和内容。",
     });
   }
 };

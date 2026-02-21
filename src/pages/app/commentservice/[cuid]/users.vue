@@ -162,10 +162,13 @@
 <script setup>
 import { ref, reactive, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import { useHead } from "@unhead/vue";
+import { useSeo } from "@/composables/useSeo";
 import { getSpaceUsers, updateSpaceUser } from "@/services/commentService";
 import { get } from "@/services/serverConfig";
-useHead({ title: "用户管理" });
+useSeo({
+  title: "用户管理",
+  description: "管理评论空间的用户角色和权限，包括审核员、普通用户和封禁操作。",
+});
 
 const route = useRoute();
 const cuid = route.params.cuid;

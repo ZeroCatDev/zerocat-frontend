@@ -3,7 +3,7 @@
     <v-btn
       variant="text"
       prepend-icon="mdi-arrow-left"
-      to="/app/commentservice"
+      to="/app/commentservice/space"
       class="mb-4 text-none"
     >
       返回空间列表
@@ -36,7 +36,7 @@
           <v-icon start size="12">
             {{ space.status === 'active' ? 'mdi-circle' : 'mdi-circle-outline' }}
           </v-icon>
-          {{ space.status === 'active' ? '活跃' : '已停用' }}
+          {{ space.status === 'active' ? '启用' : '已停用' }}
         </v-chip>
       </div>
 
@@ -169,17 +169,25 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import { useHead } from "@unhead/vue";
+import { useSeo } from "@/composables/useSeo";
 import { getSpace, getSpaceStats } from "@/services/commentService";
 import { get } from "@/services/serverConfig";
 const route = useRoute();
 const cuid = route.params.cuid;
 
-useHead({ title: "空间详情" });
-
 const space = ref(null);
 const stats = ref({ commentCount: 0, userCount: 0, waitingCount: 0, spamCount: 0 });
 const loading = ref(true);
+
+const seoTitle = computed(() =>
+  space.value ? `${space.value.name} - 空间详情` : "空间详情"
+);
+const seoDesc = computed(() =>
+  space.value
+    ? `${space.value.name} 的 Waline 评论空间详情，包含评论统计、用户管理和空间配置。`
+    : "Waline 评论空间详情页"
+);
+useSeo({ title: seoTitle, description: seoDesc });
 
 const isOwner = computed(() => !!space.value?.status);
 const s3BucketUrl = get("s3.staticurl");

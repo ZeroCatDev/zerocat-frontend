@@ -3,7 +3,7 @@
     <v-btn
       variant="text"
       prepend-icon="mdi-arrow-left"
-      to="/app/commentservice"
+      to="/app/commentservice/space"
       class="mb-4 text-none"
     >
       返回空间列表
@@ -114,10 +114,13 @@
 
 <script setup>
 import { ref, watch, onMounted } from "vue";
-import { useHead } from "@unhead/vue";
+import { useSeo } from "@/composables/useSeo";
 import { getMyComments } from "@/services/commentService";
 
-useHead({ title: "我的评论" });
+useSeo({
+  title: "我的评论",
+  description: "查看你在所有评论空间中发表的评论，包含评论状态和来源信息。",
+});
 
 const comments = ref([]);
 const loading = ref(true);

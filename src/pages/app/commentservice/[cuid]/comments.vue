@@ -146,7 +146,6 @@
                 <v-btn
                   v-if="comment.status !== 'approved'"
                   variant="tonal"
-                  density="compact"
                   size="small"
                   color="success"
                   class="text-none"
@@ -157,7 +156,6 @@
                 <v-btn
                   v-if="comment.status !== 'waiting'"
                   variant="tonal"
-                  density="compact"
                   size="small"
                   color="warning"
                   class="text-none"
@@ -168,7 +166,6 @@
                 <v-btn
                   v-if="comment.status !== 'spam'"
                   variant="tonal"
-                  density="compact"
                   size="small"
                   color="orange-darken-3"
                   class="text-none"
@@ -178,7 +175,6 @@
                 </v-btn>
                 <v-btn
                   variant="tonal"
-                  density="compact"
                   size="small"
                   color="error"
                   class="text-none"
@@ -231,9 +227,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, onMounted } from "vue";
+import { ref, reactive, watch, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import { useHead } from "@unhead/vue";
+import { useSeo } from "@/composables/useSeo";
 import {
   getSpace,
   getSpaceComments,
@@ -241,10 +237,19 @@ import {
   deleteComment,
 } from "@/services/commentService";
 
-useHead({ title: "评论管理" });
-
 const route = useRoute();
 const cuid = route.params.cuid;
+
+const spaceName = ref("");
+const seoTitle = computed(() =>
+  spaceName.value ? `${spaceName.value} - 评论管理` : "评论管理"
+);
+const seoDesc = computed(() =>
+  spaceName.value
+    ? `${spaceName.value} 的评论管理面板，审核、搜索和管理评论。`
+    : "Waline 评论空间的评论管理面板"
+);
+useSeo({ title: seoTitle, description: seoDesc });
 
 const spaceDomain = ref("");
 const comments = ref([]);
@@ -351,6 +356,7 @@ onMounted(async () => {
   try {
     const spaceRes = await getSpace(cuid);
     spaceDomain.value = spaceRes.data?.domain || "";
+    spaceName.value = spaceRes.data?.name || "";
   } catch (e) {
     console.error("Failed to load space:", e);
   }
@@ -376,11 +382,7 @@ onMounted(async () => {
   transition: opacity 0.15s ease;
 }
 
-.comment-row:hover .comment-status-chip {
-  opacity: 0;
-  height: 0;
-  overflow: hidden;
-}
+
 
 .comment-actions {
   display: flex;

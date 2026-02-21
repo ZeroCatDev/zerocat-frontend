@@ -71,16 +71,20 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
-import { useHead } from "@unhead/vue";
+import { useSeo } from "@/composables/useSeo";
+import { get } from "@/services/serverConfig";
 
-useHead({ title: "接入指南" });
+useSeo({
+  title: "接入指南",
+  description: "获取 Waline 评论服务的 serverURL，将评论系统嵌入你的网站。",
+});
 
 const route = useRoute();
 const cuid = route.params.cuid;
 const copied = ref(false);
 
 const serverURL = computed(() => {
-  const origin = window.location.origin;
+  const origin = get("urls.backend");
   return `${origin}/comment/${cuid}`;
 });
 
