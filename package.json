@@ -38,7 +38,6 @@
     "markdown-it": "^14.1.1",
     "markdown-it-emoji": "^3.0.0",
     "monaco-editor": "^0.55.1",
-    "papaparse": "^5.5.3",
     "prettydiff": "^101.2.6",
     "primevue": "^4.5.4",
     "qrcode": "^1.5.4",

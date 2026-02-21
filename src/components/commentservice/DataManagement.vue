@@ -144,13 +144,13 @@
 
         <v-file-input
           v-model="importFile"
-          label="选择 CSV 文件"
+          label="选择 JSON 文件"
           variant="solo-filled"
           flat
           density="comfortable"
-          accept=".csv"
+          accept=".json"
           prepend-icon=""
-          prepend-inner-icon="mdi-file-code-outline"
+          prepend-inner-icon="mdi-code-json"
           class="mb-3"
           @update:model-value="onFileChange"
         />
@@ -237,7 +237,6 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
-import Papa from "papaparse";
 import {
   exportSpaceData,
   importSpaceData,
@@ -336,7 +335,7 @@ async function doDownload(taskId) {
   try {
     const response = await downloadDataTask(props.cuid, taskId);
     const disposition = response.headers?.["content-disposition"] || "";
-    let filename = `export-${props.cuid}.csv`;
+    let filename = `export-${props.cuid}.json`;
     const match = disposition.match(/filename\*?=(?:UTF-8''|"?)([^";]+)/i);
     if (match) {
       filename = decodeURIComponent(match[1].replace(/"/g, ""));
@@ -387,31 +386,20 @@ function onFileChange(files) {
       importError.value = "文件内容为空";
       return;
     }
-    const rows = parseCsv(text);
-    if (!rows) return;
-    importParsedData.value = rows;
-    importPreview.value = { count: rows.length };
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      importError.value = "JSON 解析错误：文件格式不正确";
+      return;
+    }
+    importParsedData.value = parsed;
+    importPreview.value = { count: Array.isArray(parsed) ? parsed.length : 1 };
   };
   reader.onerror = () => {
     importError.value = "文件读取失败";
   };
   reader.readAsText(file);
-}
-
-function parseCsv(text) {
-  const result = Papa.parse(text, {
-    header: true,
-    skipEmptyLines: true,
-  });
-  if (result.errors.length) {
-    importError.value = `CSV 解析错误: ${result.errors[0].message}`;
-    return null;
-  }
-  if (!result.data.length) {
-    importError.value = "CSV 文件至少需要包含表头和一行数据";
-    return null;
-  }
-  return result.data;
 }
 
 async function doImport() {
