@@ -58,12 +58,14 @@ import {ref, computed, onMounted, onBeforeUnmount} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useHead} from "@unhead/vue";
 import {localuser} from "@/services/localAccount";
+import {useAuthStore} from "@/stores/auth";
 import AuthService from "@/services/authService";
 
 export default {
   setup() {
     const route = useRoute();
     const router = useRouter();
+    const authStore = useAuthStore();
 
     // State variables
     const loading = ref(true);
@@ -93,7 +95,7 @@ export default {
 
     onMounted(async () => {
       if (localuser.isLogin.value === true) {
-        router.push("/app/dashboard");
+        router.push(authStore.consumeAuthRedirectUrl());
         return;
       }
 
@@ -124,7 +126,7 @@ export default {
 
           // Redirect after delay
           redirectTimer.value = setTimeout(() => {
-            const redirectUrl = response.callback?.redirect || "/app/dashboard";
+            const redirectUrl = response.callback?.redirect || authStore.consumeAuthRedirectUrl();
             router.push(redirectUrl);
           }, 5000);
         } else {

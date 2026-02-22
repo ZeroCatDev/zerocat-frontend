@@ -183,7 +183,7 @@
               rounded="xl"
               size="large"
               text="登录"
-              to="/app/account/login"
+              :to="loginLink"
               variant="text"
             ></v-btn>
             <v-btn
@@ -193,7 +193,7 @@
               rounded="xl"
               size="large"
               text="找回密码"
-              to="/app/account/retrieve"
+              :to="retrieveLink"
               variant="text"
             ></v-btn>
           </v-col>
@@ -209,9 +209,10 @@
 </template>
 
 <script>
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { ref, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { localuser } from "@/services/localAccount";
+import { useAuthStore } from "@/stores/auth";
 import AuthService from "@/services/authService";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
@@ -224,8 +225,18 @@ export default {
   components: { LoadingDialog, Recaptcha, AuthCard, OAuthButtons },
 
   setup() {
+    const route = useRoute();
     const router = useRouter();
+    const authStore = useAuthStore();
     const registerForm = ref(null);
+
+    // Capture redirect from query or sessionStorage
+    const redirectFromQuery = route.query.redirect
+      ? decodeURIComponent(route.query.redirect)
+      : null;
+    if (redirectFromQuery) {
+      authStore.setAuthRedirectUrl(redirectFromQuery);
+    }
 
     // State variables
     const email = ref("");
@@ -271,7 +282,7 @@ export default {
 
     // Check if user is already logged in
     if (localuser.isLogin.value === true) {
-      router.push("/app/dashboard");
+      router.push(authStore.consumeAuthRedirectUrl());
     }
 
     // Set page title
@@ -338,7 +349,7 @@ export default {
             if (response.needPassword) {
               router.push("/app/account/register/setup-password");
             } else {
-              router.push("/app/dashboard");
+              router.push(authStore.consumeAuthRedirectUrl());
             }
           }
         } else {
@@ -400,6 +411,14 @@ export default {
       }
     };
 
+    // Redirect-preserving links
+    const redirectQuery = computed(() => {
+      const url = authStore.authRedirectUrl;
+      return url ? `?redirect=${encodeURIComponent(url)}` : '';
+    });
+    const loginLink = computed(() => `/app/account/login${redirectQuery.value}`);
+    const retrieveLink = computed(() => `/app/account/retrieve${redirectQuery.value}`);
+
     return {
       email,
       username,
@@ -418,6 +437,8 @@ export default {
       showSuccessToast,
       showErrorToast,
       providers,
+      loginLink,
+      retrieveLink,
     };
   },
 };

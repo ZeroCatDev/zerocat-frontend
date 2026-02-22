@@ -88,10 +88,10 @@
             </v-btn>
           </template>
           <template v-else>
-            <LoginDialog
-              @login-success="handleLoginSuccess"
-              @login-error="handleLoginError"
-            />
+            <v-btn
+              rounded="xl"
+              @click="authStore.showLoginDialog()"
+            >登录</v-btn>
             <v-btn
               color="primary"
               rounded="xl"
@@ -242,16 +242,14 @@ import { storeToRefs } from "pinia";
 import { useRoute, useRouter } from "vue-router";
 import NotificationsCard from "@/components/NotificationsCard.vue";
 import SearchDialog from "@/components/SearchDialog.vue";
-import LoginDialog from "@/components/account/LoginDialog.vue";
 import { get, fetchConfig } from "@/services/serverConfig";
-import { requiresAuth, getMatchedRoute } from "@/services/authRoutes";
 import { useNotificationStore } from "@/stores/notification";
+import { useAuthStore } from "@/stores/auth";
 
 export default {
   components: {
     NotificationsCard,
     SearchDialog,
-    LoginDialog,
   },
   props: {},
   emits: ['toggle-drawer', 'tab-switched', 'tab-added', 'tab-removing', 'tab-removed'],
@@ -265,48 +263,17 @@ export default {
     const router = useRouter();
     const notificationsCard = ref(null);
     const notificationStore = useNotificationStore();
+    const authStore = useAuthStore();
     const { unreadCount } = storeToRefs(notificationStore);
-
-    // 认证检查函数
-    const checkAuth = (currentPath) => {
-      if (requiresAuth(currentPath) && !localuser.isLogin.value) {
-        const matchedRoute = getMatchedRoute(currentPath);
-        console.log(`路由 ${currentPath} 需要登录认证，匹配规则:`, matchedRoute?.description);
-
-        // 跳转到登录页面，并保存当前路径用于登录后返回
-        const loginPath = '/app/account/login';
-        const returnUrl = encodeURIComponent(currentPath);
-        router.push(`${loginPath}?redirect=${returnUrl}`);
-        return false;
-      }
-      return true;
-    };
-
-    // 监听路由变化
-    watch(
-      () => route.path,
-      (newPath) => {
-        checkAuth(newPath);
-      },
-      { immediate: true }
-    );
 
     // 监听登录状态变化
     watch(
       () => localuser.isLogin.value,
       async (isLogin) => {
         if (isLogin) {
-          // 用户刚登录，检查URL中是否有redirect参数
-          const urlParams = new URLSearchParams(window.location.search);
-          const redirectPath = urlParams.get('redirect');
-          if (redirectPath) {
-            router.push(decodeURIComponent(redirectPath));
-          }
           // 获取未读通知数量
           await fetchUnreadCount();
         } else {
-          // 用户登出，检查当前页面是否需要认证
-          checkAuth(route.path);
           notificationStore.resetUnreadCount();
         }
       }
@@ -323,9 +290,6 @@ export default {
     };
 
     onMounted(async () => {
-      // 初始认证检查
-      checkAuth(route.path);
-
       // 如果用户已登录，获取未读通知数量
       if (localuser.isLogin.value) {
         await fetchUnreadCount();
@@ -338,8 +302,8 @@ export default {
       updateUnreadCount,
       fetchUnreadCount,
       localuser,
+      authStore,
       s3BucketUrl: "",
-      checkAuth,
     };
   },
   data() {
@@ -609,15 +573,6 @@ export default {
           : []),
       ];
     },
-    handleLoginSuccess(response) {
-      // 刷新用户信息
-      localuser.loadUser(true);
-    },
-
-    handleLoginError(error) {
-      console.error("Login error:", error);
-    },
-
     // 编辑器标签页管理方法
     enableEditorTabs() {
       this.showEditorTabs = true;

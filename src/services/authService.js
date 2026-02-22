@@ -118,13 +118,8 @@ export const AuthService = {
 
   // Refresh token
   refreshToken: async () => {
-    const refreshToken = localuser.getRefreshToken();
-    if (!refreshToken) return {status: 'error', message: 'No refresh token available'};
-
     try {
-      const response = await axios.post('/account/refresh-token', {
-        refresh_token: refreshToken
-      });
+      const response = await axios.post('/account/refresh-token');
 
       if (response.data.status === 'success') {
         localuser.updateToken(response.data.token, response.data.expires_at);
@@ -194,7 +189,6 @@ export const AuthService = {
 async function storeAuthData(data) {
   await localuser.setUser({
     token: data.token,
-    refresh_token: data.refresh_token,
     expires_at: data.expires_at,
     refresh_expires_at: data.refresh_expires_at
   });

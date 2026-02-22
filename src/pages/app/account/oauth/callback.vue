@@ -54,10 +54,12 @@
 import {ref, onMounted} from 'vue';
 import {useRouter} from 'vue-router';
 import {localuser} from '@/services/localAccount';
+import {useAuthStore} from '@/stores/auth';
 import axios from '@/axios/axios';
 import AuthCard from '@/components/AuthCard.vue';
 
 const router = useRouter();
+const authStore = useAuthStore();
 
 const loading = ref(true);
 const authSuccess = ref(false);
@@ -88,7 +90,7 @@ onMounted(async () => {
 
       // 延迟跳转以显示成功状态
       setTimeout(() => {
-        router.push('/app/dashboard');
+        router.push(authStore.consumeAuthRedirectUrl());
       }, 2000);
     } else {
       throw new Error(data.message || '令牌验证失败');

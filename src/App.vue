@@ -19,6 +19,9 @@
   <!-- 全局删除确认对话框 -->
   <DeleteConfirmDialog />
 
+  <!-- 全局登录对话框 -->
+  <LoginDialog />
+
   <!-- 底部悬浮发帖栏 -->
   <FloatingPostBar />
 </template>
@@ -46,6 +49,9 @@ const NotificationAccountChecker = defineAsyncComponent(() =>
 );
 const DeleteConfirmDialog = defineAsyncComponent(() =>
   import('@/components/shared/DeleteConfirmDialog.vue')
+);
+const LoginDialog = defineAsyncComponent(() =>
+  import('@/components/account/LoginDialog.vue')
 );
 const FloatingPostBar = defineAsyncComponent(() =>
   import('@/components/posts/FloatingPostBar.vue')

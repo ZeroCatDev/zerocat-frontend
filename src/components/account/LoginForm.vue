@@ -83,7 +83,7 @@
           rounded="xl"
           size="large"
           text="注册"
-          to="/app/account/register"
+          :to="registerLink"
           variant="text"
           @click="handleClose"
         ></v-btn>
@@ -94,7 +94,7 @@
           rounded="xl"
           size="large"
           text="找回密码"
-          to="/app/account/retrieve"
+          :to="retrieveLink"
           variant="text"
           @click="handleClose"
         ></v-btn>
@@ -135,6 +135,7 @@ import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
 import OAuthButtons from "@/components/account/OAuthButtons.vue";
 import TotpDialog from "@/components/TotpDialog.vue";
+import { useAuthStore } from "@/stores/auth";
 
 export default {
   name: "LoginForm",
@@ -408,6 +409,19 @@ export default {
       this.$nextTick(() => {
         if (this.$refs.recaptcha) this.$refs.recaptcha.resetCaptcha();
       });
+    },
+  },
+  computed: {
+    redirectQuery() {
+      const authStore = useAuthStore();
+      const url = authStore.authRedirectUrl;
+      return url ? `?redirect=${encodeURIComponent(url)}` : '';
+    },
+    registerLink() {
+      return `/app/account/register${this.redirectQuery}`;
+    },
+    retrieveLink() {
+      return `/app/account/retrieve${this.redirectQuery}`;
     },
   },
 };

@@ -54,9 +54,7 @@
             </tr>
             <tr>
               <td class="font-weight-bold">Refresh Token</td>
-              <td class="text-truncate" style="max-width: 300px;">
-                {{ refreshToken || '无' }}
-              </td>
+              <td>(HttpOnly Cookie, 不可读取)</td>
             </tr>
             <tr>
               <td class="font-weight-bold">Refresh Token有效性</td>
@@ -403,7 +401,6 @@ export default {
       // Token状态
       isLogin: false,
       token: null,
-      refreshToken: null,
       isTokenValid: false,
       isRefreshTokenValid: false,
       tokenExpiration: 0,
@@ -466,7 +463,6 @@ export default {
     refreshTokenState() {
       this.isLogin = localuser.isLogin;
       this.token = localuser.getToken();
-      this.refreshToken = localuser.getRefreshToken();
       this.isTokenValid = localuser.isTokenValid();
       this.isRefreshTokenValid = localuser.isRefreshTokenValid();
       this.tokenExpiration = localuser.getTokenExpirationTime();

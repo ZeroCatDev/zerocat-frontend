@@ -37,10 +37,9 @@ const PasskeyService = {
 
   async finishLogin(assertion) {
     const { data } = await axios.post('/account/passkey/finish-login', assertion);
-    if (data?.status === 'success' && data.token && data.refresh_token) {
+    if (data?.status === 'success' && data.token) {
       await localuser.setUser({
         token: data.token,
-        refresh_token: data.refresh_token,
         expires_at: data.expires_at,
         refresh_expires_at: data.refresh_expires_at,
       });

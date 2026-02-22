@@ -1,7 +1,9 @@
 <template>
-  <v-dialog v-model="dialog" width="400">
+  <v-dialog v-model="dialogVisible" width="400">
     <template v-slot:activator="{ props }">
-      <v-btn rounded="xl" v-bind="props">登录</v-btn>
+      <slot name="activator" :props="props">
+        <v-btn rounded="xl" v-bind="props">登录</v-btn>
+      </slot>
     </template>
 
     <v-card rounded="xl">
@@ -13,7 +15,7 @@
           size="small"
           to="/app/account/login"
           variant="text"
-          @click="dialog = false"
+          @click="dialogVisible = false"
         ></v-btn>
 
         <h5 class="text-h5 font-weight-semibold mb-1">欢迎来到ZeroCat！ 👋🏻</h5>
@@ -22,7 +24,7 @@
         <LoginForm
           :showLinks="true"
           :showOAuth="true"
-          @close="dialog = false"
+          @close="dialogVisible = false"
           @login-success="handleLoginSuccess"
           @login-error="handleLoginError"
         />
@@ -32,19 +34,40 @@
 </template>
 
 <script>
-import {ref} from "vue";
+import { computed } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
 import LoginForm from "./LoginForm.vue";
 
 export default {
   name: "LoginDialog",
-  components: {LoginForm},
+  components: { LoginForm },
+  emits: ["login-success", "login-error"],
 
-  setup(props, {emit}) {
-    const dialog = ref(false);
+  setup(props, { emit }) {
+    const authStore = useAuthStore();
+    const router = useRouter();
+
+    const dialogVisible = computed({
+      get: () => authStore.loginDialogVisible,
+      set: (val) => {
+        if (val) {
+          authStore.showLoginDialog();
+        } else {
+          authStore.hideLoginDialog();
+        }
+      },
+    });
 
     const handleLoginSuccess = (response) => {
-      dialog.value = false;
+      authStore.hideLoginDialog();
       emit("login-success", response);
+
+      // If there's a redirect URL, navigate to it
+      const redirectUrl = authStore.consumeAuthRedirectUrl();
+      if (redirectUrl && redirectUrl !== "/app/dashboard") {
+        router.push(redirectUrl);
+      }
     };
 
     const handleLoginError = (error) => {
@@ -52,7 +75,7 @@ export default {
     };
 
     return {
-      dialog,
+      dialogVisible,
       handleLoginSuccess,
       handleLoginError,
     };

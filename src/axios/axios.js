@@ -3,11 +3,11 @@ import axios from "axios";
 // 基本配置
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API, // 根据实际情况修改API地址
+  withCredentials: true, // 确保跨域请求携带 cookie（refresh_token 已迁移至 HttpOnly Cookie）
   //  timeout: 5000 // 设置超时时间，单位为ms
 });
 
 const TOKEN_KEY = "token";
-const REFRESH_TOKEN_KEY = "refreshToken";
 const TOKEN_EXPIRES_AT_KEY = "tokenExpiresAt";
 const REFRESH_TOKEN_EXPIRES_AT_KEY = "refreshTokenExpiresAt";
 const FORCE_LOGOUT_CODES = new Set([
@@ -21,7 +21,7 @@ const isRefreshEndpoint = (url) => {
   return !!url && url.includes("/account/refresh-token");
 };
 
-const shouldForceLogoutByCode = (code) => FORCE_LOGOUT_CODES.has(code) || code === "NO_REFRESH_TOKEN";
+const shouldForceLogoutByCode = (code) => FORCE_LOGOUT_CODES.has(code);
 
 const triggerForceLogout = () => {
   window.dispatchEvent(new CustomEvent("forceLogout"));
@@ -38,27 +38,16 @@ const saveRefreshedToken = (refreshData) => {
     localStorage.setItem(TOKEN_EXPIRES_AT_KEY, refreshData.expires_at);
   }
 
-  // 兼容后端刷新令牌轮换
-  if (refreshData.refresh_token) {
-    localStorage.setItem(REFRESH_TOKEN_KEY, refreshData.refresh_token);
-  }
   if (refreshData.refresh_expires_at) {
     localStorage.setItem(REFRESH_TOKEN_EXPIRES_AT_KEY, refreshData.refresh_expires_at);
   }
 };
 
 const refreshAccessToken = async () => {
-  const storedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
-
-  if (!storedRefreshToken) {
-    const noTokenError = new Error("No refresh token");
-    noTokenError.code = "NO_REFRESH_TOKEN";
-    throw noTokenError;
-  }
-
   const refreshResponse = await axios.post(
     `${import.meta.env.VITE_APP_BASE_API}/account/refresh-token`,
-    { refresh_token: storedRefreshToken }
+    {},
+    { withCredentials: true }
   );
 
   const refreshData = refreshResponse?.data || {};

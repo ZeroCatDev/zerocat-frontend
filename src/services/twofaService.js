@@ -30,10 +30,9 @@ const TwoFAService = {
 
   async loginTotp(challengeId, token) {
     const { data } = await axios.post('/account/2fa/login/totp', { challenge_id: challengeId, token });
-    if (data?.status === 'success' && data.token && data.refresh_token) {
+    if (data?.status === 'success' && data.token) {
       await localuser.setUser({
         token: data.token,
-        refresh_token: data.refresh_token,
         expires_at: data.expires_at,
         refresh_expires_at: data.refresh_expires_at,
       });

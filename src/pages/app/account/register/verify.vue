@@ -33,7 +33,7 @@
           <v-icon class="mb-2" color="success" icon="mdi-check-circle-outline" size="x-large"/>
           <div class="text-h6 mb-1">邮箱验证成功！</div>
           <div class="text-body-1 mb-4">您的账户已激活，现在可以使用所有功能。</div>
-          <v-btn color="primary" to="/app/dashboard" variant="flat">
+          <v-btn color="primary" :to="redirectTarget" variant="flat">
             开始使用
           </v-btn>
         </div>
@@ -77,6 +77,7 @@ import {useRoute, useRouter} from 'vue-router';
 import LoadingDialog from '@/components/LoadingDialog.vue';
 import AuthCard from '@/components/AuthCard.vue';
 import AuthService from '@/services/authService';
+import {useAuthStore} from '@/stores/auth';
 
 export default {
   components: {
@@ -87,7 +88,11 @@ export default {
   setup() {
     const route = useRoute();
     const router = useRouter();
+    const authStore = useAuthStore();
     const emailForm = ref(null);
+
+    // Pre-compute redirect target (consume clears the URL, so do it once)
+    const redirectTarget = ref(authStore.consumeAuthRedirectUrl());
 
     // State variables
     const email = ref('');
@@ -242,7 +247,8 @@ export default {
       emailRules,
       emailForm,
       resendVerificationEmail,
-      changeEmail
+      changeEmail,
+      redirectTarget
     };
   }
 }

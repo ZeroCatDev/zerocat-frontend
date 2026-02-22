@@ -79,7 +79,7 @@
               rounded="xl"
               size="large"
               text="登录"
-              to="/app/account/login"
+              :to="loginLink"
               variant="text"
             ></v-btn>
             <v-btn
@@ -89,7 +89,7 @@
               rounded="xl"
               size="large"
               text="注册"
-              to="/app/account/register"
+              :to="registerLink"
               variant="text"
             ></v-btn>
           </v-col>
@@ -102,8 +102,9 @@
 
 <script>
 import {computed, ref} from "vue";
-import {useRouter} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {localuser} from "@/services/localAccount";
+import {useAuthStore} from "@/stores/auth";
 import AuthService from "@/services/authService";
 import LoadingDialog from "@/components/LoadingDialog.vue";
 import Recaptcha from "@/components/Recaptcha.vue";
@@ -114,8 +115,18 @@ export default {
   components: {LoadingDialog, Recaptcha, AuthCard},
 
   setup() {
+    const route = useRoute();
     const router = useRouter();
+    const authStore = useAuthStore();
     const recaptcha = ref(null);
+
+    // Capture redirect from query or sessionStorage
+    const redirectFromQuery = route.query.redirect
+      ? decodeURIComponent(route.query.redirect)
+      : null;
+    if (redirectFromQuery) {
+      authStore.setAuthRedirectUrl(redirectFromQuery);
+    }
 
     const email = ref("");
     const verificationCode = ref("");
@@ -153,7 +164,7 @@ export default {
     ]);
 
     if (localuser.isLogin.value === true) {
-      router.push("/app/dashboard");
+      router.push(authStore.consumeAuthRedirectUrl());
     }
 
     useHead({
@@ -264,7 +275,7 @@ export default {
         if (response?.status === "success") {
           showSuccessToast(response.message || "密码重置成功，请使用新密码登录");
           setTimeout(() => {
-            router.push("/app/account/login");
+            router.push(loginLink.value);
           }, 1200);
         } else {
           showErrorToast(response?.message || "重置密码失败");
@@ -275,6 +286,14 @@ export default {
         loading.value = false;
       }
     };
+
+    // Redirect-preserving links
+    const redirectQuery = computed(() => {
+      const url = authStore.authRedirectUrl;
+      return url ? `?redirect=${encodeURIComponent(url)}` : '';
+    });
+    const loginLink = computed(() => `/app/account/login${redirectQuery.value}`);
+    const registerLink = computed(() => `/app/account/register${redirectQuery.value}`);
 
     return {
       email,
@@ -294,6 +313,8 @@ export default {
       confirmPasswordRules,
       sendVerificationCode,
       resetPassword,
+      loginLink,
+      registerLink,
     };
   },
 };

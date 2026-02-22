@@ -99,13 +99,10 @@ export function resetPassword(data) {
 
 // New authentication API functions
 
-export function refreshToken(refreshToken) {
+export function refreshToken() {
   return request({
     url: "/account/refresh-token",
     method: "post",
-    data: {
-      refresh_token: refreshToken
-    },
   });
 }
 
