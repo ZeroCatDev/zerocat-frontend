@@ -88,10 +88,9 @@ onMounted(async () => {
       displayName.value = data.display_name || data.username;
       authSuccess.value = true;
 
-      // 延迟跳转以显示成功状态
-      setTimeout(() => {
+
         router.push(authStore.consumeAuthRedirectUrl());
-      }, 2000);
+
     } else {
       throw new Error(data.message || '令牌验证失败');
     }
