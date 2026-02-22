@@ -51,9 +51,19 @@ const vscodeTheme = {
   }
 }
 
+// 根据本地存储或系统偏好决定初始主题
+function getInitialTheme() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark' || saved === 'vscodeTheme') return 'dark';
+  if (saved === 'light') return 'light';
+  // 无存储时跟随系统
+  if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+  return 'light';
+}
+
 export default createVuetify({
   theme: {
-    defaultTheme: 'vscodeTheme',
+    defaultTheme: getInitialTheme(),
     themes: {
       vscodeTheme,
     },

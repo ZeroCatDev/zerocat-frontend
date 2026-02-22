@@ -27,38 +27,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
-import { useTheme } from "vuetify";
+import { ref } from "vue";
 import AppHeader from "@/components/AppHeader.vue";
 import UnifiedSidebar from "@/components/sidebar/UnifiedSidebar.vue";
 import Toast from "primevue/toast";
 import error404 from "@/components/error/404.vue";
 import { use404 } from "@/composables/use404";
 
-const theme = useTheme();
-
 // 抽屉状态 - 默认关闭，不缓存
 const drawer = ref(false);
 
-// 主题管理
-const initTheme = () => {
-  const savedTheme = localStorage.getItem("theme");
-  if (savedTheme) {
-    theme.global.name.value = savedTheme;
-  } else {
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    theme.global.name.value = prefersDark ? "dark" : "light";
-    localStorage.setItem("theme", theme.global.name.value);
-  }
-};
-
-watch(() => theme.global.name.value, (newTheme) => {
-  localStorage.setItem("theme", newTheme);
-});
-
-onMounted(() => {
-  initTheme();
-});
+// 主题管理 — 初始化由 vuetify.js 的 getInitialTheme 完成，此处无需重复
+// watch 仅用于响应用户手动切换（来自 AppHeader/Sidebar 的 toggleTheme）
 </script>
 
 <style>

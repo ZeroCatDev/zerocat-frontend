@@ -9,6 +9,16 @@
 //   $color-pack: false
 // );
 
+// 覆盖 @mdi/font 的 @font-face，添加 font-display: swap 确保文本始终可见
+@font-face {
+  font-family: "Material Design Icons";
+  src: url("@mdi/font/fonts/materialdesignicons-webfont.woff2?v=7.4.47") format("woff2"),
+       url("@mdi/font/fonts/materialdesignicons-webfont.woff?v=7.4.47") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 // Material Design 3 页面过渡动画
 .md3-enter-active,
 .md3-leave-active {

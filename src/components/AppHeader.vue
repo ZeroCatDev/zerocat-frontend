@@ -367,9 +367,13 @@ export default {
 
     this.updateSubNavItems(this.$route);
 
-    // Initialize theme
+    // Initialize theme — 无存储时跟随系统
     this.theme = useTheme();
-    this.isDarkTheme = savedTheme === "dark";
+    if (savedTheme) {
+      this.isDarkTheme = savedTheme === "dark";
+    } else {
+      this.isDarkTheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
     this.applyTheme();
   },
   watch: {

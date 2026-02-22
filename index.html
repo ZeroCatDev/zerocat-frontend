@@ -71,6 +71,9 @@
           background:#ffffff;
           z-index:99999;
         }
+        #app-shell.dark {
+          background:#121212;
+        }
         #app-shell .shell-logo {
           width:72px;height:72px;
           border-radius:16px;
@@ -82,22 +85,30 @@
           border-radius:2px;
           overflow:hidden;
         }
+        #app-shell.dark .shell-bar-track {
+          background:#333333;
+        }
         #app-shell .shell-bar-fill {
           width:40%;height:100%;
           background:#1976d2;
           border-radius:2px;
           animation:shell-slide 1.2s ease-in-out infinite;
         }
+        #app-shell.dark .shell-bar-fill {
+          background:#64b5f6;
+        }
         @keyframes shell-slide {
           0%{transform:translateX(-100%)}
           100%{transform:translateX(350%)}
         }
-        @media (prefers-color-scheme:dark) {
-          #app-shell{background:#121212}
-          #app-shell .shell-bar-track{background:#333333}
-          #app-shell .shell-bar-fill{background:#64b5f6}
-        }
       </style>
+      <script>
+        (function(){
+          var t = localStorage.getItem('theme');
+          var dark = t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme:dark)').matches);
+          if (dark) document.getElementById('app-shell').classList.add('dark');
+        })();
+      </script>
       <img class="shell-logo" src="/favicon.png" alt="ZeroCat" />
       <div class="shell-bar-track"><div class="shell-bar-fill"></div></div>
     </div>

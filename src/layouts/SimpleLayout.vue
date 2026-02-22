@@ -13,18 +13,7 @@
 
 <script setup>
 import Toast from "primevue/toast";
-import {onMounted} from 'vue';
-import {useTheme} from 'vuetify';
-
-const theme = useTheme();
-
-// 从本地存储中获取主题设置
-onMounted(() => {
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme) {
-    theme.global.name.value = savedTheme;
-  }
-});
+// 主题初始化由 vuetify.js 的 getInitialTheme 完成，无需在布局中重复
 </script>
 
 <style>
