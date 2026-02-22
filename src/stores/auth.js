@@ -1,6 +1,10 @@
 import { ref, watch } from "vue";
 import { defineStore } from "pinia";
-import axiosInstance from "@/axios/axios";
+import axiosInstance, {
+  requestTokenRefresh,
+  isTokenRefreshInFlight,
+  TOKEN_REFRESHED_EVENT_NAME,
+} from "@/axios/axios";
 import { get } from "@/services/serverConfig";
 import { pushNotificationService } from "@/services/pushNotificationService.js";
 
@@ -12,7 +16,7 @@ const REFRESH_TOKEN_EXPIRES_AT_KEY = "refreshTokenExpiresAt";
 const AUTH_REDIRECT_URL_KEY = "auth_redirect_url";
 
 // Token refresh threshold (seconds before expiry to start refreshing)
-const TOKEN_REFRESH_THRESHOLD = 5 * 60;
+const TOKEN_REFRESH_THRESHOLD = 5 * 60; // 5 minutes
 const AUTO_REFRESH_ENABLED = true;
 
 // --- Internal helpers (not exported) ---
@@ -46,10 +50,38 @@ const parseDateTime = (value) => {
   return Number.isNaN(date.getTime()) ? null : date;
 };
 
+// JWT exp 解析（不做签名校验，只用于本地调度）
+const base64UrlToJson = (base64Url) => {
+  const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = base64 + "===".slice((base64.length + 3) % 4);
+  const str = atob(padded);
+  // 处理 unicode
+  const jsonStr = decodeURIComponent(
+    Array.from(str)
+      .map((c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"))
+      .join("")
+  );
+  return JSON.parse(jsonStr);
+};
+
+const getJwtExpSeconds = (jwt) => {
+  if (!jwt || typeof jwt !== "string") return null;
+  const parts = jwt.split(".");
+  if (parts.length < 2) return null;
+  try {
+    const payload = base64UrlToJson(parts[1]);
+    const exp = payload?.exp;
+    if (!Number.isFinite(exp)) return null;
+    return exp; // seconds
+  } catch {
+    return null;
+  }
+};
+
 const DEFAULT_USER = {
   id: 0,
-  display_name: "\u672A\u767B\u5F55",
-  bio: "\u672A\u767B\u5F55\u7528\u6237",
+  display_name: "未登录",
+  bio: "未登录用户",
   avatar: "",
   regTime: "",
   sex: "0",
@@ -57,71 +89,59 @@ const DEFAULT_USER = {
 };
 
 /**
- * Singleton token refresh manager
+ * Singleton token refresh manager (timer only)
  */
 const TokenRefreshManager = {
   timer: null,
-  isRefreshing: false,
-  isRunning: false,
-  lastStartTime: 0,
-  minStartInterval: 1000,
-
-  canStart() {
-    const now = Date.now();
-    return !this.isRunning && now - this.lastStartTime >= this.minStartInterval;
-  },
 
   clear() {
-    if (this.timer) {
-      clearTimeout(this.timer);
-      this.timer = null;
-      this.isRunning = false;
-      window.tokenRefreshTimer = null;
-    }
+    if (this.timer) clearTimeout(this.timer);
+    this.timer = null;
+    window.tokenRefreshTimer = null;
   },
 
-  set(callback, delay) {
+  set(callback, delayMs) {
     this.clear();
-    this.timer = setTimeout(callback, delay);
-    this.isRunning = true;
-    this.lastStartTime = Date.now();
+    const d = Math.max(0, Number(delayMs) || 0);
+    this.timer = setTimeout(() => {
+      this.timer = null;
+      window.tokenRefreshTimer = null;
+      Promise.resolve(callback()).catch((error) => {
+        console.error("Token refresh timer callback failed:", error);
+      });
+    }, d);
     window.tokenRefreshTimer = this.timer;
-  },
-
-  setRefreshing(status) {
-    this.isRefreshing = status;
   },
 };
 
+// 防止重复绑定 window 事件（开发 HMR / 多实例）
+let _listenersInstalled = false;
+
 export const useAuthStore = defineStore("auth", () => {
   // --- S3 bucket URL ---
-  var s3BucketUrl = "";
-  s3BucketUrl = get("s3.staticurl");
+  const s3BucketUrl = get("s3.staticurl") || "";
 
   // --- Reactive state ---
   const token = ref(localStorage.getItem(TOKEN_KEY));
   const tokenExpiresAt = ref(localStorage.getItem(TOKEN_EXPIRES_AT_KEY));
-  const refreshTokenExpiresAt = ref(
-    localStorage.getItem(REFRESH_TOKEN_EXPIRES_AT_KEY)
-  );
+  const refreshTokenExpiresAt = ref(localStorage.getItem(REFRESH_TOKEN_EXPIRES_AT_KEY));
   const user = ref({ ...DEFAULT_USER });
   const isLogin = ref(false);
   const devices = ref([]);
   const activeTokens = ref([]);
   const currentTokenDetails = ref(null);
 
-  // --- New state for dialog & redirect ---
+  // --- Dialog & redirect ---
   const loginDialogVisible = ref(false);
-  const authRedirectUrl = ref(
-    sessionStorage.getItem(AUTH_REDIRECT_URL_KEY) || ""
-  );
+  const authRedirectUrl = ref(sessionStorage.getItem(AUTH_REDIRECT_URL_KEY) || "");
+
+  // --- Single-flight refresh lock (关键修复) ---
+  let refreshPromise = null;
 
   // --- Actions: Login dialog ---
 
   const showLoginDialog = (redirectUrl) => {
-    if (redirectUrl) {
-      setAuthRedirectUrl(redirectUrl);
-    }
+    if (redirectUrl) setAuthRedirectUrl(redirectUrl);
     loginDialogVisible.value = true;
   };
 
@@ -133,66 +153,73 @@ export const useAuthStore = defineStore("auth", () => {
 
   const setAuthRedirectUrl = (url) => {
     authRedirectUrl.value = url || "";
-    if (url) {
-      sessionStorage.setItem(AUTH_REDIRECT_URL_KEY, url);
-    } else {
-      sessionStorage.removeItem(AUTH_REDIRECT_URL_KEY);
-    }
+    if (url) sessionStorage.setItem(AUTH_REDIRECT_URL_KEY, url);
+    else sessionStorage.removeItem(AUTH_REDIRECT_URL_KEY);
   };
 
   const consumeAuthRedirectUrl = () => {
-    let url = authRedirectUrl.value || sessionStorage.getItem(AUTH_REDIRECT_URL_KEY) || "";
+    let url =
+      authRedirectUrl.value ||
+      sessionStorage.getItem(AUTH_REDIRECT_URL_KEY) ||
+      "";
 
     // Security: only allow relative paths starting with '/' but not '//'
     if (!url || !url.startsWith("/") || url.startsWith("//")) {
       url = "/app/dashboard";
     }
 
-    // Clear after consuming
     authRedirectUrl.value = "";
     sessionStorage.removeItem(AUTH_REDIRECT_URL_KEY);
-
     return url;
   };
 
-  // --- Actions: User loading ---
+  // --- Token helpers ---
 
-  const loadUser = async (force) => {
-    if (localStorage.getItem(TOKEN_KEY) === null) {
-      isLogin.value = false;
-      user.value = { ...DEFAULT_USER };
-      return;
-    }
+  const getToken = () => localStorage.getItem(TOKEN_KEY);
 
-    const now = new Date();
-    const expiresAt = parseDateTime(localStorage.getItem(TOKEN_EXPIRES_AT_KEY));
-
-    if (expiresAt && expiresAt <= now) {
-      const rtExpiresAt = parseDateTime(
-        localStorage.getItem(REFRESH_TOKEN_EXPIRES_AT_KEY)
-      );
-      if (!rtExpiresAt || rtExpiresAt <= now) {
-        logout();
-        return;
-      }
-
-      const refreshSuccessful = await refreshAccessToken();
-      if (!refreshSuccessful) {
-        return;
-      }
-    }
-
-    if (force === true) {
-      await fetchUserInfo();
-    } else {
-      if (localStorage.getItem(USER_INFO_KEY) !== null) {
-        isLogin.value = true;
-        user.value = JSON.parse(localStorage.getItem(USER_INFO_KEY));
-      } else {
-        await fetchUserInfo();
-      }
-    }
+  const syncTokenStateFromStorage = () => {
+    token.value = localStorage.getItem(TOKEN_KEY);
+    tokenExpiresAt.value = localStorage.getItem(TOKEN_EXPIRES_AT_KEY);
+    refreshTokenExpiresAt.value = localStorage.getItem(REFRESH_TOKEN_EXPIRES_AT_KEY);
   };
+
+  // 返回 access token 剩余秒数；优先 JWT exp，其次 storage 的 expiresAt；未知返回 -1
+  const getTokenExpirationTime = () => {
+    const t = getToken();
+    if (!t) return 0;
+
+    const expSec = getJwtExpSeconds(t);
+    if (Number.isFinite(expSec)) {
+      const nowSec = Math.floor(Date.now() / 1000);
+      return Math.max(0, expSec - nowSec);
+    }
+
+    // fallback：兼容旧逻辑
+    const expiresAt = parseDateTime(localStorage.getItem(TOKEN_EXPIRES_AT_KEY));
+    if (!expiresAt) return -1;
+    const diffMs = expiresAt.getTime() - Date.now();
+    if (!Number.isFinite(diffMs)) return -1;
+    return Math.max(0, Math.floor(diffMs / 1000));
+  };
+
+  const isTokenValid = () => {
+    const t = getToken();
+    if (!t) return false;
+
+    const exp = getTokenExpirationTime();
+    if (exp < 0) return true; // 不知道就认为有效，兜底靠 401 刷新
+    return exp > 0;
+  };
+
+  const isRefreshTokenValid = () => {
+    const refreshExpiresAt = parseDateTime(localStorage.getItem(REFRESH_TOKEN_EXPIRES_AT_KEY));
+    const now = new Date();
+    // 如果你用 HttpOnly-cookie refresh，这里可能拿不到到期时间 → 认为有效
+    if (!refreshExpiresAt) return true;
+    return refreshExpiresAt > now;
+  };
+
+  // --- Actions: User loading ---
 
   const fetchUserInfo = async () => {
     try {
@@ -220,31 +247,46 @@ export const useAuthStore = defineStore("auth", () => {
       isLogin.value = true;
     } catch (error) {
       console.error("fetchUserInfo failed:", error);
-      // 401 means token is invalid and refresh also failed — logout gracefully
       if (error?.response?.status === 401) {
-        logout(false);
+        await logout(false);
       }
     }
   };
 
-  const setUser = async (data) => {
-    setStorageValue(TOKEN_KEY, data.token);
-    setStorageValue(TOKEN_EXPIRES_AT_KEY, data.expires_at);
-    setStorageValue(REFRESH_TOKEN_EXPIRES_AT_KEY, data.refresh_expires_at);
+  const loadUser = async (force) => {
+    const t = getToken();
+    if (!t) {
+      isLogin.value = false;
+      user.value = { ...DEFAULT_USER };
+      return;
+    }
 
-    token.value = data.token || null;
-    tokenExpiresAt.value = data.expires_at || null;
-    refreshTokenExpiresAt.value = data.refresh_expires_at || null;
+    // 启动时如果 token 已过期，先尝试刷新一次（不会并发）
+    const exp = getTokenExpirationTime();
+    if (exp === 0) {
+      const ok = await refreshAccessToken();
+      if (!ok) return;
+    }
 
-    await loadUser(true);
-    startTokenRefreshTimer();
+    if (force === true) {
+      await fetchUserInfo();
+      return;
+    }
+
+    const cached = localStorage.getItem(USER_INFO_KEY);
+    if (cached) {
+      try {
+        isLogin.value = true;
+        user.value = JSON.parse(cached);
+      } catch {
+        await fetchUserInfo();
+      }
+    } else {
+      await fetchUserInfo();
+    }
   };
 
-  // --- Actions: Token access ---
-
-  const getToken = () => {
-    return localStorage.getItem(TOKEN_KEY);
-  };
+  // --- Actions: Set user/token after login ---
 
   const updateToken = (newToken, expiresAt) => {
     if (!newToken) return false;
@@ -252,7 +294,12 @@ export const useAuthStore = defineStore("auth", () => {
     setStorageValue(TOKEN_KEY, newToken);
     token.value = newToken;
 
-    if (expiresAt !== undefined && expiresAt !== null && expiresAt !== "") {
+    // 你说是 JWT 且含 exp：我们把 exp 写进 storage，方便你看，但调度仍以 JWT 为准
+    const expSec = getJwtExpSeconds(newToken);
+    if (Number.isFinite(expSec)) {
+      setStorageValue(TOKEN_EXPIRES_AT_KEY, expSec * 1000);
+      tokenExpiresAt.value = String(expSec * 1000);
+    } else if (expiresAt !== undefined && expiresAt !== null && expiresAt !== "") {
       setStorageValue(TOKEN_EXPIRES_AT_KEY, expiresAt);
       tokenExpiresAt.value = String(expiresAt);
     }
@@ -260,228 +307,177 @@ export const useAuthStore = defineStore("auth", () => {
     return true;
   };
 
-  // --- Actions: Token refresh ---
+  const setUser = async (data) => {
+    // data.token 必须存在
+    updateToken(data.token, data.expires_at);
 
-  const refreshAccessToken = async () => {
-    if (TokenRefreshManager.isRefreshing) {
-      console.log("\u4EE4\u724C\u5237\u65B0\u5DF2\u5728\u8FDB\u884C\u4E2D\uFF0C\u8DF3\u8FC7\u91CD\u590D\u8BF7\u6C42");
-      return false;
-    }
+    // refresh_expires_at 你目前存本地，保留
+    setStorageValue(REFRESH_TOKEN_EXPIRES_AT_KEY, data.refresh_expires_at);
+    refreshTokenExpiresAt.value = data.refresh_expires_at || null;
 
-    try {
-      TokenRefreshManager.setRefreshing(true);
-
-      const response = await axiosInstance({
-        url: "/account/refresh-token",
-        method: "post",
-      });
-
-      const data = response.data;
-      if (data.status !== "success" || !data.token) {
-        if (shouldForceLogoutByCode(data.code)) {
-          logout(false);
-        }
-        return false;
-      }
-
-      setStorageValue(TOKEN_KEY, data.token);
-      token.value = data.token;
-      if (data.expires_at) {
-        setStorageValue(TOKEN_EXPIRES_AT_KEY, data.expires_at);
-        tokenExpiresAt.value = data.expires_at;
-      }
-
-      if (data.refresh_expires_at) {
-        setStorageValue(REFRESH_TOKEN_EXPIRES_AT_KEY, data.refresh_expires_at);
-        refreshTokenExpiresAt.value = data.refresh_expires_at;
-      }
-
-      return true;
-    } catch (error) {
-      console.error("Token refresh failed:", error);
-
-      if (shouldForceLogoutByCode(error?.response?.data?.code)) {
-        logout(false);
-      }
-
-      return false;
-    } finally {
-      TokenRefreshManager.setRefreshing(false);
-    }
+    await loadUser(true);
+    startTokenRefreshTimer(); // 登录完成立刻排程
   };
 
+  // --- Actions: Token refresh (single-flight) ---
+
+  const refreshAccessToken = async () => {
+    // 无 token / refresh 无效时，直接失败
+    if (!getToken() && !isRefreshTokenValid()) return false;
+
+    // single-flight：如果已有刷新在进行，直接等待它
+    if (refreshPromise) return await refreshPromise;
+
+    refreshPromise = (async () => {
+      try {
+        // 这里如果 axios 层也有 inFlight，也没关系；store 层先锁住
+        if (isTokenRefreshInFlight()) {
+          // 仅提示，不额外发起
+          console.log("令牌刷新进行中（axios层），store层将等待刷新结果");
+        }
+
+        await requestTokenRefresh(); // 约定：内部会把新 token 写入 localStorage 或触发事件
+        syncTokenStateFromStorage();
+
+        // 刷新成功后，立刻重排程（不依赖 watch）
+        startTokenRefreshTimer();
+
+        return !!getToken();
+      } catch (error) {
+        console.error("Token refresh failed:", error);
+
+        if (shouldForceLogoutByCode(error?.response?.data?.code || error?.code)) {
+          await logout(false);
+        }
+        return false;
+      } finally {
+        refreshPromise = null;
+      }
+    })();
+
+    return await refreshPromise;
+  };
+
+  // --- Refresh decision ---
+
   const checkAndRefreshToken = async () => {
-    if (!isLogin.value) {
-      return false;
-    }
+    const t = getToken();
+    if (!t) return false;
 
     const expirationTime = getTokenExpirationTime();
     if (expirationTime < 0) {
+      // 不知道什么时候过期：不主动刷新，靠 401 或者低频检查
       return true;
     }
 
-    if (expirationTime <= TOKEN_REFRESH_THRESHOLD) {
-      if (!isRefreshTokenValid()) {
-        console.log("\u5237\u65B0\u4EE4\u724C\u5DF2\u8FC7\u671F\uFF0C\u6267\u884C\u767B\u51FA...");
-        logout(false);
-        return false;
-      }
+    if (expirationTime === 0) {
+      return await refreshAccessToken();
+    }
 
-      console.log(
-        `\u8BBF\u95EE\u4EE4\u724C\u5C06\u5728${expirationTime}\u79D2\u540E\u8FC7\u671F\uFF0C\u6B63\u5728\u5237\u65B0...`
-      );
+    if (expirationTime <= TOKEN_REFRESH_THRESHOLD) {
+      console.log(`访问令牌将在${expirationTime}秒后过期，正在刷新...`);
       return await refreshAccessToken();
     }
 
     return true;
   };
 
-  // --- Actions: Token refresh timer ---
+  // --- Timer scheduling (修复核心) ---
 
-  const calculateRefreshDelay = () => {
-    const expirationTime = getTokenExpirationTime();
-    if (expirationTime < 0) {
+  const calculateRefreshDelayMs = () => {
+    const exp = getTokenExpirationTime();
+    if (exp < 0) {
+      // 未知过期时间：低频检查，避免无意义刷新
       return 5 * 60 * 1000;
     }
 
-    if (expirationTime <= 0) {
-      return 0;
-    }
+    // 已过期：立即触发（0ms）
+    if (exp === 0) return 0;
 
-    const halfExpirationTime = Math.floor(expirationTime / 2);
-    const nextRefreshIn = Math.min(
-      expirationTime - TOKEN_REFRESH_THRESHOLD,
-      halfExpirationTime
-    );
+    // 还没进入阈值：安排在“进入阈值”那一刻触发
+    // delaySec = exp - threshold（到达阈值剩余秒数）
+    const delaySec = exp - TOKEN_REFRESH_THRESHOLD;
 
-    return Math.max(nextRefreshIn * 1000, 10000);
+    // 如果已经进入阈值：尽快刷新（0~1s）
+    if (delaySec <= 0) return 0;
+
+    // 给一个下限，避免太频繁 setTimeout；也给上限避免太久不检查
+    const delayMs = delaySec * 1000;
+    return Math.min(Math.max(delayMs, 1000), 10 * 60 * 1000); // 1s ~ 10min
   };
 
   const startTokenRefreshTimer = () => {
     if (!AUTO_REFRESH_ENABLED) {
-      console.log("\u4EE4\u724C\u81EA\u52A8\u5237\u65B0\u529F\u80FD\u5DF2\u7981\u7528");
+      console.log("令牌自动刷新功能已禁用");
       return;
     }
 
-    if (!TokenRefreshManager.canStart()) {
+    const t = getToken();
+    if (!t) {
+      stopTokenRefreshTimer();
+      return;
+    }
+
+    const exp = getTokenExpirationTime();
+    const delayMs = calculateRefreshDelayMs();
+
+    if (exp >= 0) {
       console.log(
-        "\u4EE4\u724C\u5237\u65B0\u5B9A\u65F6\u5668\u5DF2\u5728\u8FD0\u884C\u6216\u542F\u52A8\u95F4\u9694\u8FC7\u77ED\uFF0C\u8DF3\u8FC7\u91CD\u590D\u542F\u52A8"
+        `[单例] 令牌自动刷新计划: ${Math.floor(delayMs / 1000)}秒后检查 (令牌剩余${exp}秒)`
       );
-      return;
+    } else {
+      console.log(
+        `[单例] 令牌自动刷新计划: ${Math.floor(delayMs / 1000)}秒后检查 (无法解析exp，低频检查)`
+      );
     }
-
-    if (!isLogin.value) {
-      TokenRefreshManager.clear();
-      return;
-    }
-
-    const expirationTime = getTokenExpirationTime();
-    if (expirationTime < 0) {
-      TokenRefreshManager.set(() => {
-        startTokenRefreshTimer();
-      }, 5 * 60 * 1000);
-      return;
-    }
-
-    if (expirationTime <= 0) {
-      checkAndRefreshToken();
-      return;
-    }
-
-    const timeoutDuration = calculateRefreshDelay();
-
-    console.log(
-      `[\u5355\u4F8B] \u4EE4\u724C\u81EA\u52A8\u5237\u65B0\u8BA1\u5212: ${Math.floor(timeoutDuration / 1000)}\u79D2\u540E\u68C0\u67E5 (\u4EE4\u724C\u5269\u4F59${expirationTime}\u79D2)`
-    );
 
     TokenRefreshManager.set(async () => {
-      const refreshed = await checkAndRefreshToken();
-      if (refreshed) {
+      const ok = await checkAndRefreshToken();
+      if (ok) {
+        // 成功（或无需刷新）→ 继续排程
         startTokenRefreshTimer();
       } else {
-        console.log("\u4EE4\u724C\u5237\u65B0\u5931\u8D25\uFF0C\u5C06\u572810\u79D2\u540E\u91CD\u8BD5");
+        // 失败策略：10 秒后重试一次；再失败就按下一次排程（最多 30 秒）
+        console.log("令牌刷新失败，将在10秒后重试");
         TokenRefreshManager.set(async () => {
-          const retryRefreshed = await checkAndRefreshToken();
-          if (retryRefreshed) {
-            startTokenRefreshTimer();
-          } else {
-            const retryDelay = Math.min(calculateRefreshDelay(), 30000);
-            console.log(
-              `\u4EE4\u724C\u5237\u65B0\u91CD\u8BD5\u5931\u8D25\uFF0C\u5C06\u5728${Math.floor(retryDelay / 1000)}\u79D2\u540E\u518D\u6B21\u91CD\u8BD5`
-            );
-            TokenRefreshManager.set(() => {
-              startTokenRefreshTimer();
-            }, retryDelay);
+          const retryOk = await checkAndRefreshToken();
+          if (retryOk) startTokenRefreshTimer();
+          else {
+            const next = Math.min(calculateRefreshDelayMs(), 30_000);
+            console.log(`令牌刷新重试失败，将在${Math.floor(next / 1000)}秒后再次尝试排程`);
+            TokenRefreshManager.set(() => startTokenRefreshTimer(), next);
           }
-        }, 10000);
+        }, 10_000);
       }
-    }, timeoutDuration);
+    }, delayMs);
   };
 
   const stopTokenRefreshTimer = () => {
     TokenRefreshManager.clear();
   };
 
-  // --- Actions: Token status ---
-
-  const isTokenValid = () => {
-    const currentToken = localStorage.getItem(TOKEN_KEY);
-    if (!currentToken) return false;
-
-    const expiresAt = parseDateTime(localStorage.getItem(TOKEN_EXPIRES_AT_KEY));
-    const now = new Date();
-
-    if (!expiresAt) return true;
-    return expiresAt > now;
-  };
-
-  const isRefreshTokenValid = () => {
-    const refreshExpiresAt = parseDateTime(
-      localStorage.getItem(REFRESH_TOKEN_EXPIRES_AT_KEY)
-    );
-    const now = new Date();
-
-    if (!refreshExpiresAt) return false;
-    return refreshExpiresAt > now;
-  };
+  // --- Auth status utility ---
 
   const isAuthenticationNeeded = () => {
-    const tokenValid = isTokenValid();
-    if (tokenValid) return false;
+    if (isTokenValid()) return false;
 
-    const refreshValid = isRefreshTokenValid();
-    if (refreshValid) {
-      refreshAccessToken();
+    if (isRefreshTokenValid()) {
+      // 不要 block UI：异步尝试刷新
+      void refreshAccessToken();
       return false;
     }
 
     return true;
   };
 
-  const getTokenExpirationTime = () => {
-    const expiresAt = parseDateTime(
-      localStorage.getItem(TOKEN_EXPIRES_AT_KEY)
-    );
-    if (!expiresAt) return -1;
-
-    const now = new Date();
-    const diffMs = expiresAt - now;
-
-    if (!Number.isFinite(diffMs)) return -1;
-    return Math.max(0, Math.floor(diffMs / 1000));
-  };
-
-  // --- Actions: Logout ---
+  // --- Logout ---
 
   const logout = async (logoutFromServer = true) => {
     stopTokenRefreshTimer();
 
     if (logoutFromServer && isLogin.value) {
       try {
-        await axiosInstance({
-          url: "/account/logout",
-          method: "post",
-        });
+        await axiosInstance({ url: "/account/logout", method: "post" });
       } catch (error) {
         console.error("Error during server logout:", error);
       }
@@ -489,9 +485,9 @@ export const useAuthStore = defineStore("auth", () => {
 
     try {
       await pushNotificationService.unsubscribe();
-      console.log("\u63A8\u9001\u901A\u77E5\u5DF2\u5728\u9000\u51FA\u65F6\u6CE8\u9500");
+      console.log("推送通知已在退出时注销");
     } catch (error) {
-      console.warn("\u9000\u51FA\u65F6\u6CE8\u9500\u63A8\u9001\u901A\u77E5\u5931\u8D25:", error);
+      console.warn("退出时注销推送通知失败:", error);
     }
 
     localStorage.removeItem(TOKEN_KEY);
@@ -506,6 +502,10 @@ export const useAuthStore = defineStore("auth", () => {
     isLogin.value = false;
     devices.value = [];
     activeTokens.value = [];
+    currentTokenDetails.value = null;
+
+    // 清掉 redirect（可选）
+    // setAuthRedirectUrl("");
   };
 
   const logoutAllDevices = async () => {
@@ -526,7 +526,7 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
-  // --- Actions: Devices / Sessions ---
+  // --- Devices / Sessions ---
 
   const getDevices = async () => {
     try {
@@ -593,9 +593,7 @@ export const useAuthStore = defineStore("auth", () => {
       const response = await axiosInstance({
         url: "/account/revoke-token",
         method: "post",
-        data: {
-          token_id: tokenId,
-        },
+        data: { token_id: tokenId },
       });
 
       if (response.data.status === "success") {
@@ -609,7 +607,7 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
-  // --- Actions: Profile ---
+  // --- Profile ---
 
   const updateUserProfile = async (profileData) => {
     try {
@@ -648,68 +646,70 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
-  // --- Actions: Avatar ---
+  // --- Avatar ---
 
   const getUserAvatar = (avatar) => {
-    return `${s3BucketUrl}/assets/${avatar ? avatar.slice(0, 2) : user.value.avatar.slice(0, 2)}/${avatar ? avatar.slice(2, 4) : user.value.avatar.slice(2, 4)}/${avatar ? avatar : user.value.avatar}.webp`;
+    const a = avatar ?? user.value.avatar;
+    if (!a) return "";
+    return `${s3BucketUrl}/assets/${a.slice(0, 2)}/${a.slice(2, 4)}/${a}.webp`;
   };
 
   // --- Initialization ---
 
-  // Listen for force logout event
-  window.addEventListener("forceLogout", () => {
-    logout(false);
-  });
+  const installListenersOnce = () => {
+    if (_listenersInstalled) return;
+    _listenersInstalled = true;
+
+    window.addEventListener("forceLogout", () => {
+      void logout(false);
+    });
+
+    window.addEventListener(TOKEN_REFRESHED_EVENT_NAME, () => {
+      syncTokenStateFromStorage();
+      // 刷新事件到来后，确保排程续命（不依赖 token watch）
+      startTokenRefreshTimer();
+    });
+  };
+
+  async function initializeTokenRefresh() {
+    const t = getToken();
+    if (!t) return;
+
+    // 若已进入阈值（或已过期）就先 refresh 一次
+    const exp = getTokenExpirationTime();
+    const shouldRefresh = exp >= 0 && exp <= TOKEN_REFRESH_THRESHOLD;
+    if (shouldRefresh) {
+      console.log("初始化时发现令牌即将过期/已过期，正在刷新...");
+      const ok = await refreshAccessToken();
+      if (!ok && !isTokenValid()) return;
+    }
+
+    startTokenRefreshTimer();
+  }
+
+  installListenersOnce();
 
   // Load user on store creation
   loadUser().catch((err) => console.error("Initial loadUser failed:", err));
-  initializeTokenRefresh().catch((err) => console.error("Initial token refresh failed:", err));
+  initializeTokenRefresh().catch((err) =>
+    console.error("Initial token refresh failed:", err)
+  );
 
-  // Watch token changes
-  watch(token, (newToken) => {
-    loadUser().catch((err) => console.error("loadUser on token change failed:", err));
+  // Watch token AND tokenExpiresAt（修复：不依赖 token 字符串变化）
+  watch([token, tokenExpiresAt], () => {
+    // 有 token 就尽量启动 timer；没有就停
+    if (getToken() && AUTO_REFRESH_ENABLED) startTokenRefreshTimer();
+    else stopTokenRefreshTimer();
 
-    if (TokenRefreshManager.isRefreshing) {
-      console.log("[\u5355\u4F8B] \u4EE4\u724C\u5237\u65B0\u4E2D\uFF0C\u8DF3\u8FC7\u5B9A\u65F6\u5668\u542F\u52A8");
-      return;
-    }
-
-    if (newToken && AUTO_REFRESH_ENABLED) {
-      startTokenRefreshTimer();
-    } else {
-      stopTokenRefreshTimer();
-    }
+    // 同步用户
+    void loadUser().catch((err) =>
+      console.error("loadUser on token/expires change failed:", err)
+    );
   });
-
-  // --- Helper: initializeTokenRefresh ---
-
-  async function initializeTokenRefresh() {
-    if (getToken()) {
-      const tokenExpirationTime = getTokenExpirationTime();
-      const shouldRefresh =
-        tokenExpirationTime >= 0 &&
-        tokenExpirationTime <= TOKEN_REFRESH_THRESHOLD;
-
-      if (shouldRefresh) {
-        if (isRefreshTokenValid()) {
-          console.log("\u521D\u59CB\u5316\u65F6\u53D1\u73B0\u4EE4\u724C\u5373\u5C06\u8FC7\u671F\uFF0C\u6B63\u5728\u5237\u65B0...");
-          await refreshAccessToken();
-        } else {
-          console.log("\u5237\u65B0\u4EE4\u724C\u5DF2\u8FC7\u671F\uFF0C\u6267\u884C\u767B\u51FA...");
-          logout(false);
-          return;
-        }
-      }
-
-      if (AUTO_REFRESH_ENABLED) {
-        startTokenRefreshTimer();
-      }
-    }
-  }
 
   // --- Return public API ---
   return {
-    // State (refs — Pinia unwraps on store instance, use storeToRefs for raw refs)
+    // State
     token,
     tokenExpiresAt,
     refreshTokenExpiresAt,
@@ -744,7 +744,6 @@ export const useAuthStore = defineStore("auth", () => {
     startTokenRefreshTimer,
     stopTokenRefreshTimer,
     initializeTokenRefresh,
-    calculateRefreshDelay,
 
     // Token status
     isTokenValid,
