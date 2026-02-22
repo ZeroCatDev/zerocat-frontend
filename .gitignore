@@ -26,6 +26,9 @@ pnpm-debug.log*
 
 .dev-dist
 
+# Build analysis
+stats.html
+
 scratch-gui
 
 .claude

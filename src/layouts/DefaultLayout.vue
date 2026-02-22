@@ -15,10 +15,11 @@
     <v-main>
       <router-view v-slot="{ Component, route }">
         <transition mode="out-in" name="md3">
-          <component
-            :is="use404(route) ? error404 : Component"
-            :key="route.path"
-          />
+          <div :key="route.path">
+            <component
+              :is="use404(route) ? error404 : Component"
+            />
+          </div>
         </transition>
       </router-view>
     </v-main>

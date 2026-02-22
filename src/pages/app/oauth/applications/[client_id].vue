@@ -598,7 +598,6 @@
 
 <script>
 import axios from '@/axios/axios'
-import Compressor from 'compressorjs'
 import {ref, onMounted} from "vue";
 import {get} from "@/services/serverConfig";
 import { useSudoManager } from '@/composables/useSudoManager'
@@ -750,9 +749,10 @@ export default {
     },
 
     // 处理应用徽标文件选择
-    onLogoFileChange(event) {
+    async onLogoFileChange(event) {
       const file = event.target.files ? event.target.files[0] : null;
       if (file instanceof File && file.type.startsWith("image/")) {
+        const { default: Compressor } = await import("compressorjs");
         new Compressor(file, {
           quality: 0.8,
           maxWidth: 500,

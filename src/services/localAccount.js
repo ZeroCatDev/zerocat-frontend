@@ -1,6 +1,7 @@
 import {ref, watch} from "vue";
 import axiosInstance from "@/axios/axios";
 import { get } from "./serverConfig";
+import { pushNotificationService } from "./pushNotificationService.js";
 // Constants for storage keys
 const USER_INFO_KEY = "userInfo";
 const TOKEN_KEY = "token";
@@ -557,7 +558,6 @@ const logout = async (logoutFromServer = true) => {
 
   // 注销推送通知
   try {
-    const { pushNotificationService } = await import('./pushNotificationService.js');
     await pushNotificationService.unsubscribe();
     console.log('推送通知已在退出时注销');
   } catch (error) {

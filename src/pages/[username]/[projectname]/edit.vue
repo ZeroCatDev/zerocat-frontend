@@ -521,10 +521,16 @@
 
 <script>
 import axios from "@/axios/axios";
-import EditorMonacoComponent from "@/components/EditorMonacoComponent.vue";
-import DiffMonacoComponent from "@/components/DiffMonacoComponent.vue";
-import { toRaw, ref } from "vue";
+import { defineAsyncComponent, toRaw, ref } from "vue";
 import { localuser } from "@/services/localAccount";
+
+const EditorMonacoComponent = defineAsyncComponent(() =>
+  import("@/components/EditorMonacoComponent.vue")
+);
+const DiffMonacoComponent = defineAsyncComponent(() =>
+  import("@/components/DiffMonacoComponent.vue")
+);
+
 export default {
   name: "ProjectEditor",
   components: {

@@ -17,7 +17,13 @@ const router = createRouter({
 
 // Workaround for https://github.com/vitejs/vite/issues/11804
 router.onError((err, to) => {
-  if (err?.message?.includes?.('Failed to fetch dynamically imported module')) {
+  const isChunkError =
+    err?.message?.includes?.('Failed to fetch dynamically imported module') ||
+    err?.message?.includes?.('Failed to load') ||
+    err?.message?.includes?.('Loading chunk') ||
+    err?.message?.includes?.('Loading CSS chunk');
+
+  if (isChunkError) {
     if (!localStorage.getItem('vuetify:dynamic-reload')) {
       console.log('Reloading page to fix dynamic import error')
       localStorage.setItem('vuetify:dynamic-reload', 'true')

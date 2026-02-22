@@ -65,9 +65,12 @@
 </template>
 
 <script>
-import CodeRunTerminal from "@/components/admin/CodeRunTerminal.vue";
+import { defineAsyncComponent } from "vue";
 import programmingLanguages from "@/constants/programming_languages.js";
 
+const CodeRunTerminal = defineAsyncComponent(() =>
+  import("@/components/admin/CodeRunTerminal.vue")
+);
 
 export default {
   name: "CodeRunDebug",

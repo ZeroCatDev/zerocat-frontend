@@ -1,4 +1,4 @@
-import * as twitterText from 'twitter-text';
+import twitterText from 'twitter-text';
 
 export const getPostContentLimit = () => {
   const rawLimit = import.meta?.env?.VITE_POST_CONTENT_LIMIT;
@@ -17,4 +17,24 @@ export const getLocalCountInfo = (content) => {
     count: weightedLength,
     remaining: limit - weightedLength
   };
+};
+
+/**
+ * 发布前格式化内容：
+ * - 去除首尾空白
+ * - 合并连续空行为最多两个换行
+ * - 使用 parseTweet 做最终校验，超限则截断到有效范围
+ */
+export const formatPostContent = (content) => {
+  let text = content == null ? '' : String(content);
+
+  text = text.trim();
+  text = text.replace(/\n{3,}/g, '\n\n');
+
+  const info = twitterText.parseTweet(text);
+  if (!info.valid && info.validRangeEnd > 0) {
+    text = [...text].slice(0, info.validRangeEnd + 1).join('');
+  }
+
+  return text;
 };

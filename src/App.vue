@@ -24,21 +24,36 @@
 </template>
 
 <script setup>
-import {computed} from "vue";
+import {computed, defineAsyncComponent} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {useHead} from "@unhead/vue";
-import {use404Helper} from "@/composables/use404";
-import SudoManager from '@/components/auth/SudoManager.vue';
 
-// 导入布局
+// 同步加载：全局随时可能触发
+import GlobalSnackbar from "@/components/GlobalSnackbar.vue";
+
+// 异步加载：非首屏必需的组件
+const SudoManager = defineAsyncComponent(() =>
+  import('@/components/auth/SudoManager.vue')
+);
+const NotificationReminderSnackbar = defineAsyncComponent(() =>
+  import('@/components/shared/NotificationReminderSnackbar.vue')
+);
+const PWAPrompts = defineAsyncComponent(() =>
+  import('@/components/PWAPrompts.vue')
+);
+const NotificationAccountChecker = defineAsyncComponent(() =>
+  import('@/components/NotificationAccountChecker.vue')
+);
+const DeleteConfirmDialog = defineAsyncComponent(() =>
+  import('@/components/shared/DeleteConfirmDialog.vue')
+);
+const FloatingPostBar = defineAsyncComponent(() =>
+  import('@/components/posts/FloatingPostBar.vue')
+);
+
+// 布局组件必须同步加载，否则路由切换时没有容器渲染导致白屏
 import DefaultLayout from "@/layouts/DefaultLayout.vue";
 import SimpleLayout from "@/layouts/SimpleLayout.vue";
-import GlobalSnackbar from "@/components/GlobalSnackbar.vue";
-import NotificationReminderSnackbar from "@/components/shared/NotificationReminderSnackbar.vue";
-import PWAPrompts from "@/components/PWAPrompts.vue";
-import NotificationAccountChecker from "@/components/NotificationAccountChecker.vue";
-import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog.vue";
-import FloatingPostBar from "@/components/posts/FloatingPostBar.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -53,13 +68,6 @@ const layouts = {
 const currentLayout = computed(() => {
   const layoutName = route.meta.layout || "default";
   return layouts[layoutName] || DefaultLayout;
-});
-
-// 监听路由错误
-router.onError((error) => {
-  if (error.message.includes('Failed to load')) {
-    use404Helper.show404();
-  }
 });
 
 // SEO 和 Meta 标签配置

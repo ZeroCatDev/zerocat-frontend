@@ -1,5 +1,5 @@
 import axios from '@/axios/axios';
-import { getLocalCountInfo } from '@/utils/postCount';
+import { getLocalCountInfo, formatPostContent } from '@/utils/postCount';
 
 const getErrorMessage = (error, fallback = '请求失败') => {
   return (
@@ -132,7 +132,7 @@ export const PostsService = {
    */
   async createPost({ content, mediaIds, embed }) {
     try {
-      const payload = { content };
+      const payload = { content: formatPostContent(content) };
       if (Array.isArray(mediaIds) && mediaIds.length) {
         payload.mediaIds = mediaIds;
       }
@@ -151,7 +151,7 @@ export const PostsService = {
    */
   async reply(postId, { content, mediaIds, embed }) {
     try {
-      const payload = { content };
+      const payload = { content: formatPostContent(content) };
       if (Array.isArray(mediaIds) && mediaIds.length) {
         payload.mediaIds = mediaIds;
       }
@@ -170,7 +170,7 @@ export const PostsService = {
    */
   async quote(postId, { content, mediaIds, embed }) {
     try {
-      const payload = { content };
+      const payload = { content: formatPostContent(content) };
       if (Array.isArray(mediaIds) && mediaIds.length) {
         payload.mediaIds = mediaIds;
       }

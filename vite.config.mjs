@@ -10,6 +10,7 @@ import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 import { VitePWA } from 'vite-plugin-pwa';
 import * as sass from "sass";
 import vueDevTools from 'vite-plugin-vue-devtools'
+import { visualizer } from 'rollup-plugin-visualizer';
 
 // Utilities
 import { defineConfig } from "vite";
@@ -47,7 +48,15 @@ export default defineConfig({
         configFile: "src/styles/settings.scss",
       },
     }),
-    Components(),
+    Components({
+      // 排除需要 defineAsyncComponent 懒加载的重型组件，防止自动注入静态 import 覆盖动态导入
+      globs: [
+        'src/components/**/*.vue',
+        '!src/components/EditorMonacoComponent.vue',
+        '!src/components/DiffMonacoComponent.vue',
+        '!src/components/admin/CodeRunTerminal.vue',
+      ],
+    }),
     Fonts({
       google: {
         families: [
@@ -173,6 +182,14 @@ export default defineConfig({
         hook: "buildEnd",
       }
     ),*/
+
+    // 构建分析工具（仅 build 时生成报告）
+    visualizer({
+      filename: 'stats.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+    }),
   ],
   define: { "process.env": {} },
   resolve: {
@@ -180,6 +197,20 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
     extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-vuetify': ['vuetify'],
+          'vendor-primevue': ['primevue'],
+          'vendor-echarts': ['echarts', 'vue-echarts'],
+          'vendor-markdown': ['markdown-it', 'markdown-it-emoji', 'dompurify', 'highlight.js'],
+          'vendor-xterm': ['@xterm/xterm', '@xterm/addon-fit'],
+          'vendor-sentry': ['@sentry/vue'],
+        },
+      },
+    },
   },
   server: {
     port: 3000,

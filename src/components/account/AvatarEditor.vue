@@ -54,7 +54,6 @@
 </template>
 
 <script>
-import Compressor from "compressorjs";
 import {uploadUserAvatar} from "@/services/accountService";
 import { localuser } from "@/services/localAccount";
 export default {
@@ -78,9 +77,10 @@ export default {
     };
   },
   methods: {
-    onFileChange(event) {
+    async onFileChange(event) {
       const file = event.target.files ? event.target.files[0] : null;
       if (file instanceof File && file.type.startsWith("image/")) {
+        const { default: Compressor } = await import("compressorjs");
         new Compressor(file, {
           quality: 0.8,
           maxWidth: 500,

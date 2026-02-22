@@ -4,7 +4,9 @@
       "Bash(dir:*)",
       "Bash(grep:*)",
       "Bash(cd:*)",
-      "Bash(ls -la \"D:\\\\ZeroCat\\\\zerocat-frontend\\\\src\\\\composables\"\" 2>/dev/null || echo \"Directory not found \")"
+      "Bash(ls -la \"D:\\\\ZeroCat\\\\zerocat-frontend\\\\src\\\\composables\"\" 2>/dev/null || echo \"Directory not found \")",
+      "Bash(npm install:*)",
+      "Bash(node -e:*)"
     ]
   }
 }

@@ -44,6 +44,8 @@
   <!-- Preconnect for performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://api.zerocat.dev" />
+  <link rel="dns-prefetch" href="https://api.zerocat.dev" />
 
   <!-- Analytics -->
   <script type="text/javascript">
@@ -56,7 +58,50 @@
 </head>
 
 <body>
-  <div id="app"></div>
+  <div id="app">
+    <!-- 加载屏：Vue 挂载后自动替换 -->
+    <div id="app-shell">
+      <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        html,body,#app{height:100%;margin:0;padding:0}
+        #app-shell {
+          position:fixed;inset:0;
+          display:flex;flex-direction:column;
+          align-items:center;justify-content:center;
+          background:#ffffff;
+          z-index:99999;
+        }
+        #app-shell .shell-logo {
+          width:72px;height:72px;
+          border-radius:16px;
+          margin-bottom:32px;
+        }
+        #app-shell .shell-bar-track {
+          width:200px;height:4px;
+          background:#e0e0e0;
+          border-radius:2px;
+          overflow:hidden;
+        }
+        #app-shell .shell-bar-fill {
+          width:40%;height:100%;
+          background:#1976d2;
+          border-radius:2px;
+          animation:shell-slide 1.2s ease-in-out infinite;
+        }
+        @keyframes shell-slide {
+          0%{transform:translateX(-100%)}
+          100%{transform:translateX(350%)}
+        }
+        @media (prefers-color-scheme:dark) {
+          #app-shell{background:#121212}
+          #app-shell .shell-bar-track{background:#333333}
+          #app-shell .shell-bar-fill{background:#64b5f6}
+        }
+      </style>
+      <img class="shell-logo" src="/favicon.png" alt="ZeroCat" />
+      <div class="shell-bar-track"><div class="shell-bar-fill"></div></div>
+    </div>
+  </div>
   <script type="module" src="/src/main.js"></script>
 </body>
 
