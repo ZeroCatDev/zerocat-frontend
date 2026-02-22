@@ -76,6 +76,7 @@
                   rows="2"
                   @input="autoResize"
                   @keydown="onKeydown"
+                  @paste="onPaste"
                 />
                 <slot name="append" />
                 <ComposerPreviews
@@ -135,6 +136,7 @@
           @blur="onBlur"
           @input="autoResize"
           @keydown="onKeydown"
+          @paste="onPaste"
         />
 
         <slot name="append" />
@@ -409,6 +411,42 @@ const onDrop = async (e) => {
   }
 
   const filesToUpload = imageFiles.slice(0, remaining);
+
+  uploading.value = true;
+  try {
+    for (const file of filesToUpload) {
+      const res = await PostsService.uploadImage(file);
+      const asset = normalizeUploadResult(res);
+      if (asset) uploadedAssets.value.push(asset);
+    }
+  } catch (err) {
+    showSnackbar(err?.message || '上传失败', 'error');
+  } finally {
+    uploading.value = false;
+  }
+};
+
+// Paste image
+const onPaste = async (e) => {
+  const items = Array.from(e.clipboardData?.items || []);
+  const imageItems = items.filter((item) => item.type.startsWith('image/'));
+
+  if (!imageItems.length) return;
+
+  e.preventDefault();
+
+  const remaining = 4 - uploadedAssets.value.length;
+  if (remaining <= 0) {
+    showSnackbar('最多只能上传4张图片', 'warning');
+    return;
+  }
+
+  const filesToUpload = imageItems
+    .slice(0, remaining)
+    .map((item) => item.getAsFile())
+    .filter(Boolean);
+
+  if (!filesToUpload.length) return;
 
   uploading.value = true;
   try {
