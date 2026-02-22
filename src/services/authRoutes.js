@@ -72,6 +72,34 @@ export const authRequiredRoutes = [
     type: 'regex',
     pattern: /^\/[^\/]+\/[^\/]+\/(edit|settings|fork|push)$/,
     description: '项目编辑/设置/分支/推送'
+  },
+
+  // 精确匹配 - 评论服务创建页面
+  {
+    type: 'exact',
+    path: '/app/commentservice/create',
+    description: '创建评论服务'
+  },
+
+  // 精确匹配 - 评论服务空间页面
+  {
+    type: 'exact',
+    path: '/app/commentservice/space',
+    description: '评论服务空间'
+  },
+
+  // 动态路由匹配 - 评论服务设置页面
+  {
+    type: 'regex',
+    pattern: /^\/app\/commentservice\/[^\/]+\/settings$/,
+    description: '评论服务设置'
+  },
+
+  // 前缀匹配 - 我的评论
+  {
+    type: 'prefix',
+    path: '/app/commentservice/my',
+    description: '我的评论'
   }
 ];
 
