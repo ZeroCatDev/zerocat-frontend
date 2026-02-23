@@ -1,6 +1,13 @@
 <template>
   <div>
-    <AuthCard subtitle="登录你的账户">
+    <AuthCard :subtitle="subtitle">
+      <v-alert
+        v-if="reason === 'session_expired'"
+        type="warning"
+        variant="tonal"
+        class="mb-4"
+        text="您的登录状态已失效，请重新登录"
+      />
       <LoginForm @login-success="handleLoginSuccess" @login-error="handleLoginError"/>
     </AuthCard>
   </div>
@@ -22,6 +29,12 @@ export default {
     const router = useRouter();
     const authStore = useAuthStore();
 
+    const reason = route.query.reason || null;
+
+    const subtitle = reason === "session_expired"
+      ? "会话已过期，请重新登录"
+      : "登录你的账户";
+
     // Capture redirect from query or sessionStorage
     const redirectFromQuery = route.query.redirect
       ? decodeURIComponent(route.query.redirect)
@@ -30,8 +43,8 @@ export default {
       authStore.setAuthRedirectUrl(redirectFromQuery);
     }
 
-    // Check if user is already logged in
-    if (localuser.isLogin.value === true) {
+    // Check if user is already logged in (skip if session expired)
+    if (!reason && localuser.isLogin.value === true) {
       router.push(authStore.consumeAuthRedirectUrl());
     }
 
@@ -50,6 +63,8 @@ export default {
     };
 
     return {
+      reason,
+      subtitle,
       handleLoginSuccess,
       handleLoginError,
     };

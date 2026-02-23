@@ -323,11 +323,13 @@ export const PostsService = {
    * @param {string} options.cursor - 分页游标
    * @param {number} options.limit - 每页数量
    * @param {boolean} options.includeReplies - 是否包含回复
+   * @param {boolean} options.followingOnly - 是否仅显示已关注用户的帖子
    */
-  async getFeed({ cursor, limit = 20, includeReplies = false } = {}) {
+  async getFeed({ cursor, limit = 20, includeReplies = false, followingOnly = false } = {}) {
     try {
       const params = { limit, include_replies: String(includeReplies) };
       if (cursor) params.cursor = cursor;
+      if (followingOnly) params.following_only = 'true';
       const response = await axios.get('/posts/feed', { params });
       return normalizeListResponse(response.data);
     } catch (error) {

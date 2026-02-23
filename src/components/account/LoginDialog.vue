@@ -1,10 +1,6 @@
 <template>
   <v-dialog v-model="dialogVisible" width="400">
-    <template v-slot:activator="{ props }">
-      <slot name="activator" :props="props">
-        <v-btn rounded="xl" v-bind="props">登录</v-btn>
-      </slot>
-    </template>
+
 
     <v-card rounded="xl">
       <v-card-title></v-card-title>

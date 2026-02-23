@@ -152,7 +152,8 @@ const loadFeed = async (isInitial = false) => {
     const res = await PostsService.getFeed({
       cursor: isInitial ? undefined : cursor.value,
       limit: 20,
-      includeReplies: false
+      includeReplies: false,
+      followingOnly: feedType.value === 'following'
     });
 
     if (isInitial) {

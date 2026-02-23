@@ -12,39 +12,40 @@
   </v-container>
 </template>
 
-<script>
-import {localuser} from "@/services/localAccount";
-import {useHead} from "@unhead/vue";
+<script setup>
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+import { useNotificationStore } from "@/stores/notification";
+import { useHead } from "@unhead/vue";
 
-export default {
-  data() {
-    return {
-      titlemessage: "正在退出账户",
-      log: "",
-    };
-  },
-  setup() {
-    useHead({
-      title: "退出",
-    });
-  },
-  async created() {
-    this.log = "正在退出账户...";
+useHead({
+  title: "退出",
+});
 
-    try {
-      // 使用新的异步注销方法
-      await localuser.logout(true);
-      this.titlemessage = "已成功退出";
-      this.log = "您已安全退出账户。请关闭此标签页并刷新其他标签页。";
+const router = useRouter();
+const authStore = useAuthStore();
+const notificationStore = useNotificationStore();
+const titlemessage = ref("正在退出账户");
+const log = ref("");
 
-      // 3秒后跳转到登录页面
-      setTimeout(() => {
-        this.$router.push('/app/account/login');
-      }, 3000);
-    } catch (error) {
-      this.titlemessage = "退出时发生错误";
-      this.log = error.message || "未知错误，请稍后重试";
-    }
-  },
-};
+onMounted(async () => {
+  log.value = "正在退出账户...";
+
+  try {
+    await authStore.logout(true);
+  } catch {
+    // 即使出错也继续清理
+  }
+
+  // 清除其他 store 中的用户数据
+  notificationStore.resetUnreadCount();
+
+  titlemessage.value = "已成功退出";
+  log.value = "您已安全退出账户，正在返回首页...";
+
+  setTimeout(() => {
+    router.push("/");
+  }, 1000);
+});
 </script>

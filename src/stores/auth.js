@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import axiosInstance, {
   requestTokenRefresh,
   isTokenRefreshInFlight,
+  handleNeedLogout,
   TOKEN_REFRESHED_EVENT_NAME,
 } from "@/axios/axios";
 import { get } from "@/services/serverConfig";
@@ -20,13 +21,6 @@ const TOKEN_REFRESH_THRESHOLD = 5 * 60; // 5 minutes
 const AUTO_REFRESH_ENABLED = true;
 
 // --- Internal helpers (not exported) ---
-
-const shouldForceLogoutByCode = (code) => {
-  return (
-    code === "ZC_ERROR_INVALID_REFRESH_TOKEN" ||
-    code === "ZC_ERROR_REFRESH_TOKEN_EXPIRED"
-  );
-};
 
 const setStorageValue = (key, value) => {
   if (value === undefined || value === null || value === "") {
@@ -247,9 +241,6 @@ export const useAuthStore = defineStore("auth", () => {
       isLogin.value = true;
     } catch (error) {
       console.error("fetchUserInfo failed:", error);
-      if (error?.response?.status === 401) {
-        await logout(false);
-      }
     }
   };
 
@@ -346,8 +337,10 @@ export const useAuthStore = defineStore("auth", () => {
       } catch (error) {
         console.error("Token refresh failed:", error);
 
-        if (shouldForceLogoutByCode(error?.response?.data?.code || error?.code)) {
-          await logout(false);
+        const code = error?.response?.data?.code || error?.code;
+        if (code === "ZC_ERROR_NEED_LOGOUT") {
+          // refresh token 也失效了，走完整退出流程
+          handleNeedLogout();
         }
         return false;
       } finally {
@@ -475,26 +468,45 @@ export const useAuthStore = defineStore("auth", () => {
   const logout = async (logoutFromServer = true) => {
     stopTokenRefreshTimer();
 
-    if (logoutFromServer && isLogin.value) {
+    if (logoutFromServer && isLogin.value && token.value) {
       try {
-        await axiosInstance({ url: "/account/logout", method: "post" });
-      } catch (error) {
-        console.error("Error during server logout:", error);
+        // 用 fetch 绕过 axiosInstance 的拦截器，避免 401 触发 refresh 链
+        await fetch(
+          `${import.meta.env.VITE_APP_BASE_API}/account/logout`,
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              Authorization: `Bearer ${token.value}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      } catch {
+        // 无论成功与否，继续清除本地登录态
       }
     }
 
     try {
       await pushNotificationService.unsubscribe();
-      console.log("推送通知已在退出时注销");
-    } catch (error) {
-      console.warn("退出时注销推送通知失败:", error);
+    } catch {
+      // ignore
     }
 
+    // 清除 localStorage
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(TOKEN_EXPIRES_AT_KEY);
     localStorage.removeItem(REFRESH_TOKEN_EXPIRES_AT_KEY);
     localStorage.removeItem(USER_INFO_KEY);
+    // 清除 sudo token
+    localStorage.removeItem("sudo_token");
+    localStorage.removeItem("sudo_token_expires_at");
+    localStorage.removeItem("sudo_token_duration");
 
+    // 清除 sessionStorage
+    sessionStorage.removeItem(AUTH_REDIRECT_URL_KEY);
+
+    // 重置所有 auth store 状态
     token.value = null;
     tokenExpiresAt.value = null;
     refreshTokenExpiresAt.value = null;
@@ -503,9 +515,10 @@ export const useAuthStore = defineStore("auth", () => {
     devices.value = [];
     activeTokens.value = [];
     currentTokenDetails.value = null;
-
-    // 清掉 redirect（可选）
-    // setAuthRedirectUrl("");
+    loginDialogVisible.value = false;
+    authRedirectUrl.value = "";
+    refreshPromise = null;
+    return true;
   };
 
   const logoutAllDevices = async () => {
@@ -661,7 +674,20 @@ export const useAuthStore = defineStore("auth", () => {
     _listenersInstalled = true;
 
     window.addEventListener("forceLogout", () => {
-      void logout(false);
+      // 仅重置 store 内部的响应式状态
+      // localStorage 和页面跳转已由 axios 层处理
+      stopTokenRefreshTimer();
+      token.value = null;
+      tokenExpiresAt.value = null;
+      refreshTokenExpiresAt.value = null;
+      user.value = { ...DEFAULT_USER };
+      isLogin.value = false;
+      devices.value = [];
+      activeTokens.value = [];
+      currentTokenDetails.value = null;
+      loginDialogVisible.value = false;
+      authRedirectUrl.value = "";
+      refreshPromise = null;
     });
 
     window.addEventListener(TOKEN_REFRESHED_EVENT_NAME, () => {
