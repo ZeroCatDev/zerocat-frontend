@@ -565,7 +565,7 @@ const formattedContent = computed(() => {
   // @提及
   text = text.replace(
     /@(\w+)/g,
-    '<a href="/user/$1" class="post-mention" onclick="event.stopPropagation()">@$1</a>',
+    '<a href="/$1" class="post-mention" onclick="event.stopPropagation()">@$1</a>',
   );
 
   // URL链接

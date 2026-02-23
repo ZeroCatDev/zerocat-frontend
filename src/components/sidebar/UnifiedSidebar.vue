@@ -1,28 +1,33 @@
 <template>
-  <!-- Twitter Mode -->
-  <nav class="sidebar-twitter" :class="{ 'sidebar-twitter--vuetify': props.mode === 'vuetify' }">
+  <nav class="sidebar-twitter" :class="{ 'sidebar-twitter--vuetify': isVuetify }">
     <div class="sidebar-content">
-      <!-- Logo -->
-      <router-link to="/" class="sidebar-logo" @click="goHome">
+      <!-- Vuetify 模式顶部：用户信息 -->
+      <div v-if="isVuetify" class="drawer-header">
+        <v-btn
+          icon
+          variant="text"
+          size="small"
+          class="drawer-theme-btn"
+          @click="toggleTheme"
+        >
+          <v-icon :icon="isDark ? 'mdi-weather-sunny' : 'mdi-weather-night'" />
+        </v-btn>
+        <router-link v-if="isLogin && user" :to="`/${user.username}`" class="drawer-user-link">
+          <v-avatar size="40">
+            <v-img :src="userAvatar" alt="avatar" />
+          </v-avatar>
+          <div class="drawer-user-name">{{ user.display_name || user.username }}</div>
+          <div class="drawer-user-handle">@{{ user.username }}</div>
+        </router-link>
+      </div>
+
+      <!-- Logo (独立侧栏模式) -->
+      <router-link v-if="!isVuetify" to="/" class="sidebar-logo" @click="goHome">
         <div class="logo-icon">
-          <svg
-            fill="none"
-            height="32"
-            viewBox="0 0 200 200"
-            width="32"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+          <svg fill="none" height="32" viewBox="0 0 200 200" width="32" xmlns="http://www.w3.org/2000/svg">
             <circle cx="100" cy="100" fill="#FFFFFF" r="100"></circle>
-            <path
-              d="M38 162.867L100.5 100.367L100.5 162.867L38 162.867ZM163 100.367L100.5 100.367L100.5 162.867L163 100.367Z"
-              fill="#415F91"
-              fill-rule="evenodd"
-            ></path>
-            <path
-              d="M38 100.367L100.5 37.8672L100.5 100.367L38 100.367ZM163 37.8672L100.5 37.8672L100.5 100.367L163 37.8672Z"
-              fill="#8EACE3"
-              fill-rule="evenodd"
-            ></path>
+            <path d="M38 162.867L100.5 100.367L100.5 162.867L38 162.867ZM163 100.367L100.5 100.367L100.5 162.867L163 100.367Z" fill="#415F91" fill-rule="evenodd"></path>
+            <path d="M38 100.367L100.5 37.8672L100.5 100.367L38 100.367ZM163 37.8672L100.5 37.8672L100.5 100.367L163 37.8672Z" fill="#8EACE3" fill-rule="evenodd"></path>
           </svg>
         </div>
       </router-link>
@@ -30,7 +35,7 @@
       <!-- Navigation Items -->
       <div class="nav-items">
         <router-link
-          v-for="item in sidebarNavItems"
+          v-for="item in unifiedNavItems"
           :key="item.name"
           :to="item.to"
           class="nav-item"
@@ -45,9 +50,8 @@
       <v-btn
         v-if="isLogin"
         color="primary"
-        :size="isSmallScreen? 'large':'x-large'"
+        :size="isSmallScreen ? 'large' : 'x-large'"
         rounded="pill"
-
         class="mt-4"
         @click="handleOpenComposer"
       >
@@ -58,35 +62,34 @@
       <!-- Spacer -->
       <div class="sidebar-spacer" />
 
-      <!-- Theme Toggle -->
-      <button class="theme-toggle" @click="toggleTheme">
-        <v-icon :icon="isDark ? 'mdi-weather-sunny' : 'mdi-weather-night'" />
-        <span class="nav-label">{{ isDark ? '浅色模式' : '深色模式' }}</span>
-      </button>
+      <!-- 独立侧栏模式底部：主题切换 + 用户信息 -->
+      <template v-if="!isVuetify">
+        <button class="theme-toggle" @click="toggleTheme">
+          <v-icon :icon="isDark ? 'mdi-weather-sunny' : 'mdi-weather-night'" />
+          <span class="nav-label">{{ isDark ? '浅色模式' : '深色模式' }}</span>
+        </button>
 
-      <!-- User Profile (when logged in) -->
-      <router-link
-        v-if="isLogin && user"
-        :to="`/${user.username}`"
-        class="user-profile"
-      >
-        <v-avatar size="40" class="user-avatar">
-          <v-img :src="userAvatar" alt="avatar" />
-        </v-avatar>
-        <div class="user-info">
-          <div class="user-name">{{ user.display_name || user.username }}</div>
-          <div class="user-handle">@{{ user.username }}</div>
-        </div>
-        <v-icon class="user-menu-icon">mdi-dots-horizontal</v-icon>
-      </router-link>
+        <router-link
+          v-if="isLogin && user"
+          :to="`/${user.username}`"
+          class="user-profile"
+        >
+          <v-avatar size="40" class="user-avatar">
+            <v-img :src="userAvatar" alt="avatar" />
+          </v-avatar>
+          <div class="user-info">
+            <div class="user-name">{{ user.display_name || user.username }}</div>
+            <div class="user-handle">@{{ user.username }}</div>
+          </div>
+          <v-icon class="user-menu-icon">mdi-dots-horizontal</v-icon>
+        </router-link>
+      </template>
     </div>
   </nav>
-
 </template>
 
 <script setup>
 import { computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
 import { useDisplay } from 'vuetify';
 import { useSidebarContent } from '@/composables/useSidebarContent';
 import { openFloatingPostBar } from '@/composables/useFloatingPostBar';
@@ -94,59 +97,29 @@ import { openFloatingPostBar } from '@/composables/useFloatingPostBar';
 const props = defineProps({
   mode: {
     type: String,
-    default: 'vuetify',
+    default: 'twitter',
     validator: (v) => ['twitter', 'vuetify'].includes(v)
   }
 });
 
 const emit = defineEmits(['open-composer']);
 
-const route = useRoute();
 const display = useDisplay();
 
+const isVuetify = computed(() => props.mode === 'vuetify');
 const isSmallScreen = computed(() => (display.width?.value ?? window.innerWidth) < 1024);
-const isHomeOrPostsPage = computed(() => {
-  const path = route.path;
-  if (path === '/' || path === '/index.html') return true;
-  return path === '/app/posts' || path.startsWith('/app/posts/');
-});
 
 const {
   isLogin,
   user,
   userAvatar,
   isDark,
-  twitterNavItems,
-  navGroups,
+  unifiedNavItems,
   initConfig,
   toggleTheme,
   isRouteActive,
   goHome,
 } = useSidebarContent();
-
-const sidebarNavItems = computed(() => {
-  const twitterItems = twitterNavItems.value ?? [];
-  const vuetifyItems = (navGroups.value ?? []).flatMap((group) => group?.items ?? []);
-
-  if (props.mode !== 'vuetify') return twitterItems;
-
-  if (isSmallScreen.value && isHomeOrPostsPage.value) {
-    const existingTo = new Set(twitterItems.map((i) => i?.to).filter(Boolean));
-    const existingName = new Set(twitterItems.map((i) => i?.name).filter(Boolean));
-
-    const extraItems = vuetifyItems.filter((i) => {
-      const to = i?.to;
-      const name = i?.name;
-      if (to && existingTo.has(to)) return false;
-      if (name && existingName.has(name)) return false;
-      return true;
-    });
-
-    return [...twitterItems, ...extraItems];
-  }
-
-  return vuetifyItems;
-});
 
 const handleOpenComposer = () => {
   openFloatingPostBar();
@@ -159,7 +132,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* ===== Twitter Mode Styles ===== */
 .sidebar-twitter {
   position: sticky;
   top: 64px;
@@ -176,6 +148,39 @@ onMounted(() => {
   padding: 12px 0;
 }
 
+/* Vuetify drawer header */
+.drawer-header {
+  position: relative;
+  padding: 4px 12px 8px;
+}
+
+.drawer-theme-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+
+.drawer-user-link {
+  display: block;
+  text-decoration: none;
+  color: rgb(var(--v-theme-on-surface));
+  margin-bottom: 12px;
+}
+
+.drawer-user-name {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 8px;
+}
+
+.drawer-user-handle {
+  font-size: 15px;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+  line-height: 1.3;
+}
+
+/* Logo */
 .sidebar-logo {
   display: flex;
   align-items: center;
@@ -196,6 +201,7 @@ onMounted(() => {
   height: 32px;
 }
 
+/* Nav */
 .nav-items {
   display: flex;
   flex-direction: column;
@@ -264,7 +270,7 @@ onMounted(() => {
   flex: 1;
 }
 
-/* User Profile */
+/* User Profile (standalone mode bottom) */
 .user-profile {
   display: flex;
   align-items: center;
@@ -312,7 +318,7 @@ onMounted(() => {
   color: rgba(var(--v-theme-on-surface), 0.6);
 }
 
-/* Twitter Mode - Medium screens (icon only) */
+/* Medium screens - icon only for standalone */
 @media (max-width: 1279px) {
   .sidebar-twitter:not(.sidebar-twitter--vuetify) {
     padding: 0 4px;
@@ -358,7 +364,7 @@ onMounted(() => {
   }
 }
 
-/* Twitter Mode - Hide on small screens */
+/* Small screens - hide standalone */
 @media (max-width: 1023px) {
   .sidebar-twitter:not(.sidebar-twitter--vuetify) {
     display: none;
