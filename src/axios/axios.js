@@ -163,16 +163,12 @@ axiosInstance.interceptors.response.use(
 
     const errorCode = getErrorCode(error);
 
-    // ZC_ERROR_NEED_LOGOUT: 令牌已失效（过期/吊销/刷新失败等）
-    // 必须清除本地令牌，跳转登录页
-    if (errorCode === ZC_ERROR.NEED_LOGOUT) {
-      handleNeedLogout();
-      return Promise.reject(error);
-    }
+    // ZC_ERROR_NEED_LOGOUT 或 ZC_ERROR_NEED_LOGIN：
+    // 先尝试刷新令牌，刷新成功则重放请求；仅在刷新失败时才清除登录态并跳转
+    const needsAuth =
+      errorCode === ZC_ERROR.NEED_LOGOUT || errorCode === ZC_ERROR.NEED_LOGIN;
 
-    // ZC_ERROR_NEED_LOGIN: 未携带令牌
-    // 先尝试刷新令牌，刷新成功则重放请求；失败则清除登录态并跳转
-    if (errorCode === ZC_ERROR.NEED_LOGIN && !originalRequest._retryAfterRefresh) {
+    if (needsAuth && !originalRequest._retryAfterRefresh) {
       originalRequest._retryAfterRefresh = true;
 
       try {
@@ -181,15 +177,23 @@ axiosInstance.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return axiosInstance(originalRequest);
       } catch {
-        // 刷新失败，清除登录态并跳转
-        handleNeedLogin();
+        // 刷新令牌失败，清除登录态并跳转
+        if (errorCode === ZC_ERROR.NEED_LOGOUT) {
+          handleNeedLogout();
+        } else {
+          handleNeedLogin();
+        }
         return Promise.reject(error);
       }
     }
 
-    // 重试过仍然 NEED_LOGIN，直接跳转
-    if (errorCode === ZC_ERROR.NEED_LOGIN) {
-      handleNeedLogin();
+    // 重试过仍然需要认证，直接跳转
+    if (needsAuth) {
+      if (errorCode === ZC_ERROR.NEED_LOGOUT) {
+        handleNeedLogout();
+      } else {
+        handleNeedLogin();
+      }
       return Promise.reject(error);
     }
 
