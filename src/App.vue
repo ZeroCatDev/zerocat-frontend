@@ -24,6 +24,9 @@
 
   <!-- 底部悬浮发帖栏 -->
   <FloatingPostBar />
+
+  <!-- 全局发帖对话框 -->
+  <PostDialog />
 </template>
 
 <script setup>
@@ -55,6 +58,9 @@ const LoginDialog = defineAsyncComponent(() =>
 );
 const FloatingPostBar = defineAsyncComponent(() =>
   import('@/components/posts/FloatingPostBar.vue')
+);
+const PostDialog = defineAsyncComponent(() =>
+  import('@/components/posts/PostDialog.vue')
 );
 
 // 布局组件必须同步加载，否则路由切换时没有容器渲染导致白屏

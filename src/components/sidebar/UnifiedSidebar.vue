@@ -92,7 +92,7 @@
 import { computed, onMounted } from 'vue';
 import { useDisplay } from 'vuetify';
 import { useSidebarContent } from '@/composables/useSidebarContent';
-import { openFloatingPostBar } from '@/composables/useFloatingPostBar';
+import { openPostDialog } from '@/composables/usePostDialog';
 
 const props = defineProps({
   mode: {
@@ -122,7 +122,7 @@ const {
 } = useSidebarContent();
 
 const handleOpenComposer = () => {
-  openFloatingPostBar();
+  openPostDialog();
   emit('open-composer');
 };
 
