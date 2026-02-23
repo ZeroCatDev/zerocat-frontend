@@ -61,9 +61,14 @@ export default {
 
       // If there's a redirect URL, navigate to it
       const redirectUrl = authStore.consumeAuthRedirectUrl();
-      if (redirectUrl && redirectUrl !== "/app/dashboard") {
+      if (redirectUrl=="/app/account/logout") {
+        router.push("/");
+      } else if (redirectUrl) {
         router.push(redirectUrl);
+      } else {
+        router.push("/");
       }
+
     };
 
     const handleLoginError = (error) => {

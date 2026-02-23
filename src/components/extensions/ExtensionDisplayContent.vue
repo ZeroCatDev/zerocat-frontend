@@ -444,7 +444,7 @@ export default {
         );
         if (response.data.status === "success") {
           this.showMessage("删除扩展成功", "success");
-          this.$router.push("/app/dashboard");
+          this.$router.push("/app/extensions");
           this.showDeleteDialog = false;
         } else {
           this.showMessage(response.data.message || "删除扩展失败", "error");

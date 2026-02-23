@@ -103,7 +103,7 @@ export default {
 
     // Check if user is already logged in
     if (localuser.isLogin.value === true) {
-      router.push("/app/dashboard");
+      router.push("/");
     }
 
     // Set page title
