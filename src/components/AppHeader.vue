@@ -58,6 +58,10 @@
           <v-btn icon="mdi-plus" v-bind="props"></v-btn>
         </template>
         <v-list>
+                <v-list-item prepend-icon="mdi-pencil" @click="clickOpenPostDialog()">
+            <v-list-item-title>帖子</v-list-item-title>
+            <v-list-item-subtitle>what's happend?</v-list-item-subtitle>
+          </v-list-item>
           <v-list-item to="/app/new" prepend-icon="mdi-plus">
             <v-list-item-title>项目</v-list-item-title>
             <v-list-item-subtitle>创建新的项目</v-list-item-subtitle>
@@ -245,11 +249,13 @@ import SearchDialog from "@/components/SearchDialog.vue";
 import { get, fetchConfig } from "@/services/serverConfig";
 import { useNotificationStore } from "@/stores/notification";
 import { useAuthStore } from "@/stores/auth";
+import { openPostDialog } from '@/composables/usePostDialog';
 
 export default {
   components: {
     NotificationsCard,
     SearchDialog,
+
   },
   props: {},
   emits: ['toggle-drawer', 'tab-switched', 'tab-added', 'tab-removing', 'tab-removed'],
@@ -369,6 +375,10 @@ export default {
     },
   },
   methods: {
+    clickOpenPostDialog() {
+      openPostDialog();
+      this.$emit('open-composer');
+    },
     reloadinfos() {
       localuser.loadUser(true);
       if (this.notificationsCard) {
