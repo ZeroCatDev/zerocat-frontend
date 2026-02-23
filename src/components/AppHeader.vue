@@ -127,7 +127,7 @@
                 :append-avatar="localuser.getUserAvatar()"
                 :subtitle="localuser.user.value.username"
                 :title="localuser.user.value.display_name"
-                @click="localuser.loadUser(true)"
+                @click="reloadinfos()"
               ></v-card>
 
               <v-list>
@@ -369,6 +369,13 @@ export default {
     },
   },
   methods: {
+    reloadinfos() {
+      localuser.loadUser(true);
+      if (this.notificationsCard) {
+        this.notificationsCard.checkUnreadNotifications();
+      }
+      this.$router.push('/' + localuser.user.value.username);
+    },
     goHome() {
       if (this.$route.path === "/") {
         window.location.reload();

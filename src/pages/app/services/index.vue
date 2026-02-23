@@ -53,5 +53,11 @@ const items = [
     desc: 'Classworks KV 云变量服务器',
     href: 'https://kv.houlang.cloud',
   },
+  {
+    icon: 'mdi-account',
+    label: 'OAuth',
+    desc: 'ZeroCat OAuth',
+    to: '/app/oauth/applications',
+  }
 ];
 </script>
