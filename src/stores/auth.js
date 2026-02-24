@@ -16,7 +16,6 @@ const REFRESH_TOKEN_EXPIRES_AT_KEY = "refreshTokenExpiresAt";
 const AUTH_REDIRECT_URL_KEY = "auth_redirect_url";
 
 // Token refresh configuration
-const TOKEN_REFRESH_THRESHOLD = 5 * 60; // Refresh 5 minutes before expiry (seconds)
 const AUTO_REFRESH_ENABLED = true;
 const MAX_REFRESH_RETRIES = 2;
 const MAX_SCHEDULE_INTERVAL_MS = 30 * 60 * 1000; // Cap timer at 30 minutes
@@ -24,6 +23,12 @@ const UNKNOWN_EXP_CHECK_INTERVAL_MS = 5 * 60 * 1000; // Check every 5 min if exp
 const RETRY_BACKOFF_BASE_MS = 10_000; // 10 seconds base for retry backoff
 const RETRY_BACKOFF_CAP_MS = 30_000; // 30 seconds max retry delay
 const FALLBACK_RETRY_INTERVAL_MS = 60_000; // 60 seconds fallback after max retries
+
+// Adaptive threshold: refresh at 25% of token lifetime remaining,
+// clamped between 30s and 5min.  For a 5-min token → 75s before expiry.
+const MIN_REFRESH_THRESHOLD_SEC = 30;
+const MAX_REFRESH_THRESHOLD_SEC = 5 * 60;
+const REFRESH_THRESHOLD_RATIO = 0.25;
 
 // --- Internal helpers (not exported) ---
 
@@ -157,6 +162,43 @@ export const useAuthStore = defineStore("auth", () => {
   let refreshPromise = null;
   // Retry counter for proactive refresh cycle
   let _refreshRetryCount = 0;
+  // Flag to suppress event-listener rescheduling during proactive refresh
+  let _inProactiveRefresh = false;
+
+  /**
+   * Compute the effective refresh threshold based on the current token's
+   * actual lifetime (exp − iat).  Returns seconds before expiry at which
+   * we should trigger a proactive refresh.
+   *
+   *   5-min token (300s) → 25% = 75s threshold → refresh at 225s after issue
+   *   1-hour token       → 25% = 900s, capped at 300s (5 min)
+   *   Unknown lifetime   → falls back to MAX_REFRESH_THRESHOLD_SEC (5 min)
+   */
+  const getEffectiveThreshold = () => {
+    const t = getToken();
+    if (!t) return MAX_REFRESH_THRESHOLD_SEC;
+    try {
+      const parts = t.split(".");
+      if (parts.length < 2) return MAX_REFRESH_THRESHOLD_SEC;
+      const payload = base64UrlToJson(parts[1]);
+      const { exp, iat } = payload;
+      if (
+        Number.isFinite(exp) &&
+        Number.isFinite(iat) &&
+        exp > iat
+      ) {
+        const lifetime = exp - iat;
+        const threshold = Math.floor(lifetime * REFRESH_THRESHOLD_RATIO);
+        return Math.max(
+          MIN_REFRESH_THRESHOLD_SEC,
+          Math.min(threshold, MAX_REFRESH_THRESHOLD_SEC)
+        );
+      }
+    } catch {
+      // JWT parse failed — fall back
+    }
+    return MAX_REFRESH_THRESHOLD_SEC;
+  };
 
   // ============================
   // Login dialog
@@ -422,17 +464,21 @@ export const useAuthStore = defineStore("auth", () => {
     }
 
     const remainingSec = getTokenExpirationTime();
+    const threshold = getEffectiveThreshold();
     let delayMs;
 
     if (remainingSec < 0) {
       // Unknown expiration - periodic check
       delayMs = UNKNOWN_EXP_CHECK_INTERVAL_MS;
-    } else if (remainingSec <= TOKEN_REFRESH_THRESHOLD) {
-      // Expired or within threshold - refresh now
+    } else if (remainingSec === 0) {
+      // Already expired - refresh now
+      delayMs = 0;
+    } else if (remainingSec <= threshold) {
+      // Within threshold - refresh now
       delayMs = 0;
     } else {
       // Not yet in threshold - schedule for threshold entry
-      delayMs = (remainingSec - TOKEN_REFRESH_THRESHOLD) * 1000;
+      delayMs = (remainingSec - threshold) * 1000;
       // Cap to avoid very long timers (setTimeout drift / overflow)
       delayMs = Math.min(delayMs, MAX_SCHEDULE_INTERVAL_MS);
     }
@@ -441,7 +487,7 @@ export const useAuthStore = defineStore("auth", () => {
       console.log(
         `[TokenRefresh] Scheduled in ${Math.round(delayMs / 1000)}s` +
           (remainingSec >= 0
-            ? ` (token expires in ${remainingSec}s)`
+            ? ` (token expires in ${remainingSec}s, threshold ${threshold}s)`
             : " (unknown expiration, periodic check)")
       );
     }
@@ -458,16 +504,21 @@ export const useAuthStore = defineStore("auth", () => {
     const t = getToken();
     if (!t) return;
 
+    const threshold = getEffectiveThreshold();
+
     // If token is still well outside threshold (e.g., cap-triggered early check),
     // just reschedule for the correct time.
     const remainingSec = getTokenExpirationTime();
-    if (remainingSec > TOKEN_REFRESH_THRESHOLD) {
+    if (remainingSec > threshold) {
       _refreshRetryCount = 0;
       scheduleTokenRefresh();
       return;
     }
 
+    // Set flag so the TOKEN_REFRESHED_EVENT_NAME listener won't double-schedule
+    _inProactiveRefresh = true;
     const ok = await refreshAccessToken();
+    _inProactiveRefresh = false;
 
     if (ok) {
       _refreshRetryCount = 0;
@@ -510,7 +561,7 @@ export const useAuthStore = defineStore("auth", () => {
     if (!t) return false;
     const exp = getTokenExpirationTime();
     if (exp < 0) return true;
-    if (exp <= TOKEN_REFRESH_THRESHOLD) return await refreshAccessToken();
+    if (exp <= getEffectiveThreshold()) return await refreshAccessToken();
     return true;
   };
 
@@ -758,11 +809,14 @@ export const useAuthStore = defineStore("auth", () => {
     });
 
     // Axios layer completed a reactive token refresh (e.g., on 401 retry).
-    // Sync store state and reschedule the proactive timer for the new token.
+    // Sync store state. Only reschedule if this wasn't triggered by our own
+    // proactive doRefreshCycle (which handles its own rescheduling).
     window.addEventListener(TOKEN_REFRESHED_EVENT_NAME, () => {
       syncTokenStateFromStorage();
-      _refreshRetryCount = 0;
-      scheduleTokenRefresh();
+      if (!_inProactiveRefresh) {
+        _refreshRetryCount = 0;
+        scheduleTokenRefresh();
+      }
     });
 
     // Tab visibility: when the user returns to the tab, check if the timer
@@ -790,7 +844,8 @@ export const useAuthStore = defineStore("auth", () => {
     if (!t) return;
 
     const exp = getTokenExpirationTime();
-    if (exp >= 0 && exp <= TOKEN_REFRESH_THRESHOLD) {
+    const threshold = getEffectiveThreshold();
+    if (exp >= 0 && exp <= threshold) {
       console.log("[TokenRefresh] Token near expiry on init, refreshing...");
       const ok = await refreshAccessToken();
       if (!ok && !isTokenValid()) return;
