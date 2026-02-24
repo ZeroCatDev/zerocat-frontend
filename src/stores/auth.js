@@ -1,8 +1,7 @@
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { defineStore } from "pinia";
 import axiosInstance, {
   requestTokenRefresh,
-  isTokenRefreshInFlight,
   handleNeedLogout,
   TOKEN_REFRESHED_EVENT_NAME,
 } from "@/axios/axios";
@@ -16,9 +15,15 @@ const TOKEN_EXPIRES_AT_KEY = "tokenExpiresAt";
 const REFRESH_TOKEN_EXPIRES_AT_KEY = "refreshTokenExpiresAt";
 const AUTH_REDIRECT_URL_KEY = "auth_redirect_url";
 
-// Token refresh threshold (seconds before expiry to start refreshing)
-const TOKEN_REFRESH_THRESHOLD = 5 * 60; // 5 minutes
+// Token refresh configuration
+const TOKEN_REFRESH_THRESHOLD = 5 * 60; // Refresh 5 minutes before expiry (seconds)
 const AUTO_REFRESH_ENABLED = true;
+const MAX_REFRESH_RETRIES = 2;
+const MAX_SCHEDULE_INTERVAL_MS = 30 * 60 * 1000; // Cap timer at 30 minutes
+const UNKNOWN_EXP_CHECK_INTERVAL_MS = 5 * 60 * 1000; // Check every 5 min if exp unknown
+const RETRY_BACKOFF_BASE_MS = 10_000; // 10 seconds base for retry backoff
+const RETRY_BACKOFF_CAP_MS = 30_000; // 30 seconds max retry delay
+const FALLBACK_RETRY_INTERVAL_MS = 60_000; // 60 seconds fallback after max retries
 
 // --- Internal helpers (not exported) ---
 
@@ -44,12 +49,11 @@ const parseDateTime = (value) => {
   return Number.isNaN(date.getTime()) ? null : date;
 };
 
-// JWT exp 解析（不做签名校验，只用于本地调度）
+// JWT exp parsing (no signature verification, local scheduling only)
 const base64UrlToJson = (base64Url) => {
   const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
   const padded = base64 + "===".slice((base64.length + 3) % 4);
   const str = atob(padded);
-  // 处理 unicode
   const jsonStr = decodeURIComponent(
     Array.from(str)
       .map((c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"))
@@ -83,32 +87,48 @@ const DEFAULT_USER = {
 };
 
 /**
- * Singleton token refresh manager (timer only)
+ * Token refresh scheduler.
+ *
+ * Manages a single setTimeout for proactive token refresh.
+ * Tracks the target fire time so we can detect when the browser
+ * has throttled the timer (e.g., backgrounded tab) and act on
+ * visibility change.
  */
-const TokenRefreshManager = {
-  timer: null,
+const TokenRefreshScheduler = {
+  _timer: null,
+  _targetTime: null,
 
   clear() {
-    if (this.timer) clearTimeout(this.timer);
-    this.timer = null;
-    window.tokenRefreshTimer = null;
+    if (this._timer !== null) clearTimeout(this._timer);
+    this._timer = null;
+    this._targetTime = null;
   },
 
-  set(callback, delayMs) {
+  schedule(callback, delayMs) {
     this.clear();
-    const d = Math.max(0, Number(delayMs) || 0);
-    this.timer = setTimeout(() => {
-      this.timer = null;
-      window.tokenRefreshTimer = null;
-      Promise.resolve(callback()).catch((error) => {
-        console.error("Token refresh timer callback failed:", error);
+    const d = Math.max(0, Math.round(delayMs));
+    this._targetTime = Date.now() + d;
+    this._timer = setTimeout(() => {
+      this._timer = null;
+      this._targetTime = null;
+      Promise.resolve(callback()).catch((err) => {
+        console.error("[TokenRefresh] Scheduled callback error:", err);
       });
     }, d);
-    window.tokenRefreshTimer = this.timer;
+  },
+
+  /** True if the timer should have fired but hasn't (browser throttled). */
+  isOverdue() {
+    if (this._targetTime === null) return false;
+    return Date.now() > this._targetTime + 5000;
+  },
+
+  isActive() {
+    return this._timer !== null;
   },
 };
 
-// 防止重复绑定 window 事件（开发 HMR / 多实例）
+// Prevent duplicate window event binding (HMR / multiple instances)
 let _listenersInstalled = false;
 
 export const useAuthStore = defineStore("auth", () => {
@@ -118,7 +138,9 @@ export const useAuthStore = defineStore("auth", () => {
   // --- Reactive state ---
   const token = ref(localStorage.getItem(TOKEN_KEY));
   const tokenExpiresAt = ref(localStorage.getItem(TOKEN_EXPIRES_AT_KEY));
-  const refreshTokenExpiresAt = ref(localStorage.getItem(REFRESH_TOKEN_EXPIRES_AT_KEY));
+  const refreshTokenExpiresAt = ref(
+    localStorage.getItem(REFRESH_TOKEN_EXPIRES_AT_KEY)
+  );
   const user = ref({ ...DEFAULT_USER });
   const isLogin = ref(false);
   const devices = ref([]);
@@ -127,12 +149,18 @@ export const useAuthStore = defineStore("auth", () => {
 
   // --- Dialog & redirect ---
   const loginDialogVisible = ref(false);
-  const authRedirectUrl = ref(sessionStorage.getItem(AUTH_REDIRECT_URL_KEY) || "");
+  const authRedirectUrl = ref(
+    sessionStorage.getItem(AUTH_REDIRECT_URL_KEY) || ""
+  );
 
-  // --- Single-flight refresh lock (关键修复) ---
+  // --- Single-flight refresh lock ---
   let refreshPromise = null;
+  // Retry counter for proactive refresh cycle
+  let _refreshRetryCount = 0;
 
-  // --- Actions: Login dialog ---
+  // ============================
+  // Login dialog
+  // ============================
 
   const showLoginDialog = (redirectUrl) => {
     if (redirectUrl) setAuthRedirectUrl(redirectUrl);
@@ -143,7 +171,9 @@ export const useAuthStore = defineStore("auth", () => {
     loginDialogVisible.value = false;
   };
 
-  // --- Actions: Redirect URL management ---
+  // ============================
+  // Redirect URL management
+  // ============================
 
   const setAuthRedirectUrl = (url) => {
     authRedirectUrl.value = url || "";
@@ -167,17 +197,26 @@ export const useAuthStore = defineStore("auth", () => {
     return url;
   };
 
-  // --- Token helpers ---
+  // ============================
+  // Token helpers
+  // ============================
 
   const getToken = () => localStorage.getItem(TOKEN_KEY);
 
   const syncTokenStateFromStorage = () => {
     token.value = localStorage.getItem(TOKEN_KEY);
     tokenExpiresAt.value = localStorage.getItem(TOKEN_EXPIRES_AT_KEY);
-    refreshTokenExpiresAt.value = localStorage.getItem(REFRESH_TOKEN_EXPIRES_AT_KEY);
+    refreshTokenExpiresAt.value = localStorage.getItem(
+      REFRESH_TOKEN_EXPIRES_AT_KEY
+    );
   };
 
-  // 返回 access token 剩余秒数；优先 JWT exp，其次 storage 的 expiresAt；未知返回 -1
+  /**
+   * Returns remaining seconds for the access token.
+   *  > 0 : seconds remaining
+   *  0   : expired
+   *  -1  : unknown (unparseable exp)
+   */
   const getTokenExpirationTime = () => {
     const t = getToken();
     if (!t) return 0;
@@ -188,8 +227,10 @@ export const useAuthStore = defineStore("auth", () => {
       return Math.max(0, expSec - nowSec);
     }
 
-    // fallback：兼容旧逻辑
-    const expiresAt = parseDateTime(localStorage.getItem(TOKEN_EXPIRES_AT_KEY));
+    // fallback: legacy storage-based expiration
+    const expiresAt = parseDateTime(
+      localStorage.getItem(TOKEN_EXPIRES_AT_KEY)
+    );
     if (!expiresAt) return -1;
     const diffMs = expiresAt.getTime() - Date.now();
     if (!Number.isFinite(diffMs)) return -1;
@@ -201,19 +242,22 @@ export const useAuthStore = defineStore("auth", () => {
     if (!t) return false;
 
     const exp = getTokenExpirationTime();
-    if (exp < 0) return true; // 不知道就认为有效，兜底靠 401 刷新
+    if (exp < 0) return true; // Unknown expiration - assume valid; 401 will catch it
     return exp > 0;
   };
 
   const isRefreshTokenValid = () => {
-    const refreshExpiresAt = parseDateTime(localStorage.getItem(REFRESH_TOKEN_EXPIRES_AT_KEY));
-    const now = new Date();
-    // 如果你用 HttpOnly-cookie refresh，这里可能拿不到到期时间 → 认为有效
+    const refreshExpiresAt = parseDateTime(
+      localStorage.getItem(REFRESH_TOKEN_EXPIRES_AT_KEY)
+    );
+    // HttpOnly cookie refresh - can't check expiry, assume valid
     if (!refreshExpiresAt) return true;
-    return refreshExpiresAt > now;
+    return refreshExpiresAt > new Date();
   };
 
-  // --- Actions: User loading ---
+  // ============================
+  // User loading
+  // ============================
 
   const fetchUserInfo = async () => {
     try {
@@ -252,7 +296,7 @@ export const useAuthStore = defineStore("auth", () => {
       return;
     }
 
-    // 启动时如果 token 已过期，先尝试刷新一次（不会并发）
+    // If token expired on load, try refreshing first
     const exp = getTokenExpirationTime();
     if (exp === 0) {
       const ok = await refreshAccessToken();
@@ -277,7 +321,9 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
-  // --- Actions: Set user/token after login ---
+  // ============================
+  // Token update (after login / refresh)
+  // ============================
 
   const updateToken = (newToken, expiresAt) => {
     if (!newToken) return false;
@@ -285,12 +331,15 @@ export const useAuthStore = defineStore("auth", () => {
     setStorageValue(TOKEN_KEY, newToken);
     token.value = newToken;
 
-    // 你说是 JWT 且含 exp：我们把 exp 写进 storage，方便你看，但调度仍以 JWT 为准
     const expSec = getJwtExpSeconds(newToken);
     if (Number.isFinite(expSec)) {
       setStorageValue(TOKEN_EXPIRES_AT_KEY, expSec * 1000);
       tokenExpiresAt.value = String(expSec * 1000);
-    } else if (expiresAt !== undefined && expiresAt !== null && expiresAt !== "") {
+    } else if (
+      expiresAt !== undefined &&
+      expiresAt !== null &&
+      expiresAt !== ""
+    ) {
       setStorageValue(TOKEN_EXPIRES_AT_KEY, expiresAt);
       tokenExpiresAt.value = String(expiresAt);
     }
@@ -299,47 +348,45 @@ export const useAuthStore = defineStore("auth", () => {
   };
 
   const setUser = async (data) => {
-    // data.token 必须存在
     updateToken(data.token, data.expires_at);
 
-    // refresh_expires_at 你目前存本地，保留
     setStorageValue(REFRESH_TOKEN_EXPIRES_AT_KEY, data.refresh_expires_at);
     refreshTokenExpiresAt.value = data.refresh_expires_at || null;
 
     await loadUser(true);
-    startTokenRefreshTimer(); // 登录完成立刻排程
+
+    // Start proactive refresh cycle after login
+    _refreshRetryCount = 0;
+    scheduleTokenRefresh();
   };
 
-  // --- Actions: Token refresh (single-flight) ---
+  // ============================
+  // Token refresh (single-flight)
+  // ============================
 
+  /**
+   * Refresh the access token. Uses single-flight pattern to prevent
+   * concurrent refresh requests.
+   *
+   * IMPORTANT: This method does NOT reschedule the timer.
+   * The caller (doRefreshCycle / event listener) handles rescheduling.
+   */
   const refreshAccessToken = async () => {
-    // 无 token / refresh 无效时，直接失败
     if (!getToken() && !isRefreshTokenValid()) return false;
 
-    // single-flight：如果已有刷新在进行，直接等待它
+    // Single-flight: reuse in-progress refresh
     if (refreshPromise) return await refreshPromise;
 
     refreshPromise = (async () => {
       try {
-        // 这里如果 axios 层也有 inFlight，也没关系；store 层先锁住
-        if (isTokenRefreshInFlight()) {
-          // 仅提示，不额外发起
-          console.log("令牌刷新进行中（axios层），store层将等待刷新结果");
-        }
-
-        await requestTokenRefresh(); // 约定：内部会把新 token 写入 localStorage 或触发事件
+        await requestTokenRefresh();
         syncTokenStateFromStorage();
-
-        // 刷新成功后，立刻重排程（不依赖 watch）
-        startTokenRefreshTimer();
-
         return !!getToken();
       } catch (error) {
-        console.error("Token refresh failed:", error);
+        console.error("[TokenRefresh] Refresh failed:", error);
 
         const code = error?.response?.data?.code || error?.code;
         if (code === "ZC_ERROR_NEED_LOGOUT") {
-          // refresh token 也失效了，走完整退出流程
           handleNeedLogout();
         }
         return false;
@@ -351,111 +398,131 @@ export const useAuthStore = defineStore("auth", () => {
     return await refreshPromise;
   };
 
-  // --- Refresh decision ---
+  // ============================
+  // Proactive refresh scheduling
+  // ============================
+
+  /**
+   * Calculate the optimal delay and set a single timer for the next refresh.
+   *
+   * Schedule rules:
+   *  - No token       -> clear timer
+   *  - Token expired   -> immediate (0ms)
+   *  - Within threshold -> immediate (0ms)
+   *  - Outside threshold -> delay until threshold boundary (capped)
+   *  - Unknown exp      -> periodic check at UNKNOWN_EXP_CHECK_INTERVAL_MS
+   */
+  const scheduleTokenRefresh = () => {
+    if (!AUTO_REFRESH_ENABLED) return;
+
+    const t = getToken();
+    if (!t) {
+      TokenRefreshScheduler.clear();
+      return;
+    }
+
+    const remainingSec = getTokenExpirationTime();
+    let delayMs;
+
+    if (remainingSec < 0) {
+      // Unknown expiration - periodic check
+      delayMs = UNKNOWN_EXP_CHECK_INTERVAL_MS;
+    } else if (remainingSec <= TOKEN_REFRESH_THRESHOLD) {
+      // Expired or within threshold - refresh now
+      delayMs = 0;
+    } else {
+      // Not yet in threshold - schedule for threshold entry
+      delayMs = (remainingSec - TOKEN_REFRESH_THRESHOLD) * 1000;
+      // Cap to avoid very long timers (setTimeout drift / overflow)
+      delayMs = Math.min(delayMs, MAX_SCHEDULE_INTERVAL_MS);
+    }
+
+    if (delayMs > 0) {
+      console.log(
+        `[TokenRefresh] Scheduled in ${Math.round(delayMs / 1000)}s` +
+          (remainingSec >= 0
+            ? ` (token expires in ${remainingSec}s)`
+            : " (unknown expiration, periodic check)")
+      );
+    }
+
+    TokenRefreshScheduler.schedule(() => doRefreshCycle(), delayMs);
+  };
+
+  /**
+   * Timer callback: performs the refresh and reschedules.
+   * On failure, retries with linear backoff up to MAX_REFRESH_RETRIES,
+   * then falls back to a longer periodic check.
+   */
+  const doRefreshCycle = async () => {
+    const t = getToken();
+    if (!t) return;
+
+    // If token is still well outside threshold (e.g., cap-triggered early check),
+    // just reschedule for the correct time.
+    const remainingSec = getTokenExpirationTime();
+    if (remainingSec > TOKEN_REFRESH_THRESHOLD) {
+      _refreshRetryCount = 0;
+      scheduleTokenRefresh();
+      return;
+    }
+
+    const ok = await refreshAccessToken();
+
+    if (ok) {
+      _refreshRetryCount = 0;
+      scheduleTokenRefresh();
+    } else {
+      _refreshRetryCount++;
+      if (_refreshRetryCount <= MAX_REFRESH_RETRIES) {
+        const retryDelay = Math.min(
+          RETRY_BACKOFF_BASE_MS * _refreshRetryCount,
+          RETRY_BACKOFF_CAP_MS
+        );
+        console.warn(
+          `[TokenRefresh] Retry ${_refreshRetryCount}/${MAX_REFRESH_RETRIES} in ${retryDelay / 1000}s`
+        );
+        TokenRefreshScheduler.schedule(() => doRefreshCycle(), retryDelay);
+      } else {
+        console.error(
+          "[TokenRefresh] Max retries exceeded, backing off to " +
+            `${FALLBACK_RETRY_INTERVAL_MS / 1000}s`
+        );
+        _refreshRetryCount = 0;
+        TokenRefreshScheduler.schedule(
+          () => doRefreshCycle(),
+          FALLBACK_RETRY_INTERVAL_MS
+        );
+      }
+    }
+  };
+
+  const stopTokenRefreshTimer = () => {
+    TokenRefreshScheduler.clear();
+    _refreshRetryCount = 0;
+  };
+
+  // Backward-compatible aliases
+  const startTokenRefreshTimer = () => scheduleTokenRefresh();
 
   const checkAndRefreshToken = async () => {
     const t = getToken();
     if (!t) return false;
-
-    const expirationTime = getTokenExpirationTime();
-    if (expirationTime < 0) {
-      // 不知道什么时候过期：不主动刷新，靠 401 或者低频检查
-      return true;
-    }
-
-    if (expirationTime === 0) {
-      return await refreshAccessToken();
-    }
-
-    if (expirationTime <= TOKEN_REFRESH_THRESHOLD) {
-      console.log(`访问令牌将在${expirationTime}秒后过期，正在刷新...`);
-      return await refreshAccessToken();
-    }
-
+    const exp = getTokenExpirationTime();
+    if (exp < 0) return true;
+    if (exp <= TOKEN_REFRESH_THRESHOLD) return await refreshAccessToken();
     return true;
   };
 
-  // --- Timer scheduling (修复核心) ---
-
-  const calculateRefreshDelayMs = () => {
-    const exp = getTokenExpirationTime();
-    if (exp < 0) {
-      // 未知过期时间：低频检查，避免无意义刷新
-      return 5 * 60 * 1000;
-    }
-
-    // 已过期：立即触发（0ms）
-    if (exp === 0) return 0;
-
-    // 还没进入阈值：安排在“进入阈值”那一刻触发
-    // delaySec = exp - threshold（到达阈值剩余秒数）
-    const delaySec = exp - TOKEN_REFRESH_THRESHOLD;
-
-    // 如果已经进入阈值：尽快刷新（0~1s）
-    if (delaySec <= 0) return 0;
-
-    // 给一个下限，避免太频繁 setTimeout；也给上限避免太久不检查
-    const delayMs = delaySec * 1000;
-    return Math.min(Math.max(delayMs, 1000), 10 * 60 * 1000); // 1s ~ 10min
-  };
-
-  const startTokenRefreshTimer = () => {
-    if (!AUTO_REFRESH_ENABLED) {
-      console.log("令牌自动刷新功能已禁用");
-      return;
-    }
-
-    const t = getToken();
-    if (!t) {
-      stopTokenRefreshTimer();
-      return;
-    }
-
-    const exp = getTokenExpirationTime();
-    const delayMs = calculateRefreshDelayMs();
-
-    if (exp >= 0) {
-      console.log(
-        `[单例] 令牌自动刷新计划: ${Math.floor(delayMs / 1000)}秒后检查 (令牌剩余${exp}秒)`
-      );
-    } else {
-      console.log(
-        `[单例] 令牌自动刷新计划: ${Math.floor(delayMs / 1000)}秒后检查 (无法解析exp，低频检查)`
-      );
-    }
-
-    TokenRefreshManager.set(async () => {
-      const ok = await checkAndRefreshToken();
-      if (ok) {
-        // 成功（或无需刷新）→ 继续排程
-        startTokenRefreshTimer();
-      } else {
-        // 失败策略：10 秒后重试一次；再失败就按下一次排程（最多 30 秒）
-        console.log("令牌刷新失败，将在10秒后重试");
-        TokenRefreshManager.set(async () => {
-          const retryOk = await checkAndRefreshToken();
-          if (retryOk) startTokenRefreshTimer();
-          else {
-            const next = Math.min(calculateRefreshDelayMs(), 30_000);
-            console.log(`令牌刷新重试失败，将在${Math.floor(next / 1000)}秒后再次尝试排程`);
-            TokenRefreshManager.set(() => startTokenRefreshTimer(), next);
-          }
-        }, 10_000);
-      }
-    }, delayMs);
-  };
-
-  const stopTokenRefreshTimer = () => {
-    TokenRefreshManager.clear();
-  };
-
-  // --- Auth status utility ---
+  // ============================
+  // Auth status utility
+  // ============================
 
   const isAuthenticationNeeded = () => {
     if (isTokenValid()) return false;
 
     if (isRefreshTokenValid()) {
-      // 不要 block UI：异步尝试刷新
+      // Don't block UI: async refresh attempt
       void refreshAccessToken();
       return false;
     }
@@ -463,14 +530,30 @@ export const useAuthStore = defineStore("auth", () => {
     return true;
   };
 
-  // --- Logout ---
+  // ============================
+  // Logout
+  // ============================
+
+  const resetStoreState = () => {
+    stopTokenRefreshTimer();
+    token.value = null;
+    tokenExpiresAt.value = null;
+    refreshTokenExpiresAt.value = null;
+    user.value = { ...DEFAULT_USER };
+    isLogin.value = false;
+    devices.value = [];
+    activeTokens.value = [];
+    currentTokenDetails.value = null;
+    loginDialogVisible.value = false;
+    authRedirectUrl.value = "";
+    refreshPromise = null;
+  };
 
   const logout = async (logoutFromServer = true) => {
     stopTokenRefreshTimer();
 
     if (logoutFromServer && isLogin.value && token.value) {
       try {
-        // 用 fetch 绕过 axiosInstance 的拦截器，避免 401 触发 refresh 链
         await fetch(
           `${import.meta.env.VITE_APP_BASE_API}/account/logout`,
           {
@@ -483,7 +566,7 @@ export const useAuthStore = defineStore("auth", () => {
           }
         );
       } catch {
-        // 无论成功与否，继续清除本地登录态
+        // Continue clearing local state regardless
       }
     }
 
@@ -493,31 +576,19 @@ export const useAuthStore = defineStore("auth", () => {
       // ignore
     }
 
-    // 清除 localStorage
+    // Clear localStorage
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(TOKEN_EXPIRES_AT_KEY);
     localStorage.removeItem(REFRESH_TOKEN_EXPIRES_AT_KEY);
     localStorage.removeItem(USER_INFO_KEY);
-    // 清除 sudo token
     localStorage.removeItem("sudo_token");
     localStorage.removeItem("sudo_token_expires_at");
     localStorage.removeItem("sudo_token_duration");
 
-    // 清除 sessionStorage
+    // Clear sessionStorage
     sessionStorage.removeItem(AUTH_REDIRECT_URL_KEY);
 
-    // 重置所有 auth store 状态
-    token.value = null;
-    tokenExpiresAt.value = null;
-    refreshTokenExpiresAt.value = null;
-    user.value = { ...DEFAULT_USER };
-    isLogin.value = false;
-    devices.value = [];
-    activeTokens.value = [];
-    currentTokenDetails.value = null;
-    loginDialogVisible.value = false;
-    authRedirectUrl.value = "";
-    refreshPromise = null;
+    resetStoreState();
     return true;
   };
 
@@ -539,7 +610,9 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
-  // --- Devices / Sessions ---
+  // ============================
+  // Devices / Sessions
+  // ============================
 
   const getDevices = async () => {
     try {
@@ -620,7 +693,9 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
-  // --- Profile ---
+  // ============================
+  // Profile
+  // ============================
 
   const updateUserProfile = async (profileData) => {
     try {
@@ -659,7 +734,9 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
-  // --- Avatar ---
+  // ============================
+  // Avatar
+  // ============================
 
   const getUserAvatar = (avatar) => {
     const a = avatar ?? user.value.avatar;
@@ -667,71 +744,68 @@ export const useAuthStore = defineStore("auth", () => {
     return `${s3BucketUrl}/assets/${a.slice(0, 2)}/${a.slice(2, 4)}/${a}.webp`;
   };
 
-  // --- Initialization ---
+  // ============================
+  // Initialization
+  // ============================
 
   const installListenersOnce = () => {
     if (_listenersInstalled) return;
     _listenersInstalled = true;
 
+    // Force logout: reset all store state (localStorage/redirect handled by axios layer)
     window.addEventListener("forceLogout", () => {
-      // 仅重置 store 内部的响应式状态
-      // localStorage 和页面跳转已由 axios 层处理
-      stopTokenRefreshTimer();
-      token.value = null;
-      tokenExpiresAt.value = null;
-      refreshTokenExpiresAt.value = null;
-      user.value = { ...DEFAULT_USER };
-      isLogin.value = false;
-      devices.value = [];
-      activeTokens.value = [];
-      currentTokenDetails.value = null;
-      loginDialogVisible.value = false;
-      authRedirectUrl.value = "";
-      refreshPromise = null;
+      resetStoreState();
     });
 
+    // Axios layer completed a reactive token refresh (e.g., on 401 retry).
+    // Sync store state and reschedule the proactive timer for the new token.
     window.addEventListener(TOKEN_REFRESHED_EVENT_NAME, () => {
       syncTokenStateFromStorage();
-      // 刷新事件到来后，确保排程续命（不依赖 token watch）
-      startTokenRefreshTimer();
+      _refreshRetryCount = 0;
+      scheduleTokenRefresh();
+    });
+
+    // Tab visibility: when the user returns to the tab, check if the timer
+    // was throttled by the browser and reschedule if needed.
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState !== "visible") return;
+      if (!getToken()) return;
+
+      if (
+        TokenRefreshScheduler.isOverdue() ||
+        !TokenRefreshScheduler.isActive()
+      ) {
+        scheduleTokenRefresh();
+      }
     });
   };
 
+  /**
+   * Initialize token refresh on app startup.
+   * If the token is already expired or near expiry, refresh immediately,
+   * then start the proactive scheduling cycle.
+   */
   async function initializeTokenRefresh() {
     const t = getToken();
     if (!t) return;
 
-    // 若已进入阈值（或已过期）就先 refresh 一次
     const exp = getTokenExpirationTime();
-    const shouldRefresh = exp >= 0 && exp <= TOKEN_REFRESH_THRESHOLD;
-    if (shouldRefresh) {
-      console.log("初始化时发现令牌即将过期/已过期，正在刷新...");
+    if (exp >= 0 && exp <= TOKEN_REFRESH_THRESHOLD) {
+      console.log("[TokenRefresh] Token near expiry on init, refreshing...");
       const ok = await refreshAccessToken();
       if (!ok && !isTokenValid()) return;
     }
 
-    startTokenRefreshTimer();
+    scheduleTokenRefresh();
   }
 
   installListenersOnce();
 
-  // Load user on store creation
-  loadUser().catch((err) => console.error("Initial loadUser failed:", err));
-  initializeTokenRefresh().catch((err) =>
-    console.error("Initial token refresh failed:", err)
-  );
-
-  // Watch token AND tokenExpiresAt（修复：不依赖 token 字符串变化）
-  watch([token, tokenExpiresAt], () => {
-    // 有 token 就尽量启动 timer；没有就停
-    if (getToken() && AUTO_REFRESH_ENABLED) startTokenRefreshTimer();
-    else stopTokenRefreshTimer();
-
-    // 同步用户
-    void loadUser().catch((err) =>
-      console.error("loadUser on token/expires change failed:", err)
-    );
-  });
+  // Sequential initialization: load user first, then start refresh cycle.
+  // This avoids the race condition of both calling refreshAccessToken concurrently.
+  loadUser()
+    .then(() => initializeTokenRefresh())
+    .catch((err) => console.error("[Auth] Initialization failed:", err));
 
   // --- Return public API ---
   return {
@@ -745,7 +819,7 @@ export const useAuthStore = defineStore("auth", () => {
     activeTokens,
     currentTokenDetails,
 
-    // New state
+    // Dialog & redirect
     loginDialogVisible,
     authRedirectUrl,
 
@@ -766,9 +840,10 @@ export const useAuthStore = defineStore("auth", () => {
     refreshAccessToken,
     checkAndRefreshToken,
 
-    // Token refresh timer
+    // Token refresh scheduling
     startTokenRefreshTimer,
     stopTokenRefreshTimer,
+    scheduleTokenRefresh,
     initializeTokenRefresh,
 
     // Token status
@@ -803,7 +878,7 @@ export const useAuthStore = defineStore("auth", () => {
 
     // Constants / debug
     AUTO_REFRESH_ENABLED,
-    TokenRefreshManager,
+    TokenRefreshScheduler,
     DEFAULT_USER,
   };
 });

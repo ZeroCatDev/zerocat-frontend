@@ -471,9 +471,9 @@ export default {
 
     // 检查自动刷新状态
     checkAutoRefreshStatus() {
-      // 这里无法直接检查定时器状态，只能通过一个功能标志来表示
-      // 通过检查tokenRefreshTimer不为null来判断是否启用了自动刷新
-      this.isAutoRefreshActive = Boolean(window.tokenRefreshTimer);
+      this.isAutoRefreshActive = localuser.TokenRefreshScheduler
+        ? localuser.TokenRefreshScheduler.isActive()
+        : false;
 
       // 如果是初始状态，且自动刷新已启用，则尝试检查一次令牌状态
       if (!this.autoRefreshStatus && this.isLogin && this.isAutoRefreshEnabled) {

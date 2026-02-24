@@ -67,9 +67,9 @@ export const localuser = {
   checkAndRefreshToken: () => store.checkAndRefreshToken(),
   startTokenRefreshTimer: () => store.startTokenRefreshTimer(),
   stopTokenRefreshTimer: () => store.stopTokenRefreshTimer(),
+  scheduleTokenRefresh: () => store.scheduleTokenRefresh(),
   initializeTokenRefresh: () => store.initializeTokenRefresh(),
-  calculateRefreshDelay: () => store.calculateRefreshDelay(),
 
   // Debug
-  TokenRefreshManager: store.TokenRefreshManager,
+  TokenRefreshScheduler: store.TokenRefreshScheduler,
 };
