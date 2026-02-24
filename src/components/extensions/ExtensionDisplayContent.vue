@@ -355,8 +355,7 @@ export default {
     async fetchExtensionDetail() {
       this.loading = true;
       if (!this.extensionId && !this.projectId) {
-        this.loading = false;
-        this.extension = null;
+        // 保持 loading 状态，等待 ID 通过 props 传入
         return;
       }
       try {
@@ -372,8 +371,9 @@ export default {
             `/extensions/detail/${this.extensionId}`
           );
         }
-
-        if (response.data?.status === "success") {
+        console.log("Extension detail response:", response);
+        if (response.status == 200) {
+          console.log("Extension detail data:", response.data.data);
           this.extension = response.data.data;
           this.updatePageTitle();
         } else {
@@ -514,9 +514,7 @@ export default {
 
     updatePageTitle() {
       if (this.extension) {
-        useHead({
-          title: `${this.extension.project?.title || "扩展"} - ZeroCat`,
-        });
+        document.title = `${this.extension.project?.title || "扩展"} - ZeroCat`;
       }
     },
 

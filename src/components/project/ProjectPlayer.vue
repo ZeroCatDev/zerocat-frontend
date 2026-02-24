@@ -12,7 +12,9 @@
     </template>
     <template v-else-if="projectType === 'scratch-extension'">
       <ExtensionDisplayContent
-        :project-id="projectId"
+        v-if="projectId"
+        :extensionId="projectId"
+        :projectId="projectId"
       />
     </template>
     <template v-else-if="projectType === 'text'">
