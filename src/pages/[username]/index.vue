@@ -47,14 +47,14 @@
             />
           </template>
 
-          <!-- Projects Tab -->
-          <template v-if="currentTab === 'projects'">
-            <Projects :url="url" :showAuthor="false" />
-          </template>
-
-          <!-- Lists Tab -->
-          <template v-if="currentTab === 'lists'">
-            <user-project-lists :project-lists="lists" :user-id="user.id" />
+          <!-- Projects & Lists Tab -->
+          <template v-if="currentTab === 'projects' || currentTab === 'lists'">
+            <UserContentSearch
+              :key="currentTab"
+              :user-id="user.id"
+              :default-scope="currentTab === 'lists' ? 'lists' : 'projects'"
+              :show-author="false"
+            />
           </template>
 
           <!-- Followers Tab -->
@@ -119,36 +119,32 @@ import { getUserByUsername } from "../../stores/user.js";
 import request from "../../axios/axios.js";
 import Markdown from "@/components/Markdown.vue";
 import "github-markdown-css";
-import UserProjectLists from "@/components/projectlist/UserProjectLists.vue";
 import UserFollowers from "@/components/user/UserFollowers.vue";
 import UserFollowing from "@/components/user/UserFollowing.vue";
 import Timeline from "@/components/timeline/Timeline.vue";
 import PageAnalytics from "@/components/analytics/PageAnalytics.vue";
-import Projects from "@/components/project/Projects.vue";
 import UserProfileSidebar from "@/components/user/UserProfileSidebar.vue";
 import UserTopProjects from "@/components/user/UserTopProjects.vue";
 import UserRecentPosts from "@/components/user/UserRecentPosts.vue";
+import UserContentSearch from "@/components/shared/UserContentSearch.vue";
 
 export default {
   components: {
     Comment,
     Markdown,
-    UserProjectLists,
     UserFollowers,
     UserFollowing,
     Timeline,
     PageAnalytics,
-    Projects,
     UserProfileSidebar,
     UserTopProjects,
     UserRecentPosts,
+    UserContentSearch,
   },
   data() {
     return {
       username: this.$route.params.username,
       user: {},
-      lists: [],
-      url: "",
       timeline: {
         events: [],
         pagination: {
@@ -179,7 +175,6 @@ export default {
   },
   async created() {
     await this.fetchUser();
-    await this.getProjectList();
     await this.fetchTimeline();
   },
   methods: {
@@ -187,21 +182,6 @@ export default {
       this.user = await getUserByUsername(this.username);
       this.pageTitle = "" + this.user.display_name;
       this.pageDescription = `${this.user.display_name} 的 ZeroCat 个人主页`;
-      this.url = `/searchapi?search_userid=${this.user.id}&search_orderby=view_up&search_state=public`;
-    },
-    async getProjectList() {
-      try {
-        const response = await request({
-          url: `/projectlist/userid/${this.user.id}/public`,
-          method: "get",
-        });
-        if (response.data && response.data.data) {
-          this.lists = response.data.data;
-        }
-      } catch (error) {
-        console.error("获取用户项目列表失败:", error);
-        this.lists = [];
-      }
     },
     async fetchTimeline(page = 1) {
       try {
