@@ -141,11 +141,21 @@ onMounted(() => {
   padding: 0 12px;
 }
 
+.sidebar-twitter--vuetify {
+  position: static;
+  top: auto;
+  height: auto;
+}
+
 .sidebar-content {
   display: flex;
   flex-direction: column;
   height: 100%;
   padding: 12px 0;
+}
+
+.sidebar-twitter--vuetify .sidebar-content {
+  height: auto;
 }
 
 /* Vuetify drawer header */
@@ -371,3 +381,4 @@ onMounted(() => {
   }
 }
 </style>
+

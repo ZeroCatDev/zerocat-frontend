@@ -243,8 +243,8 @@
     <v-dialog v-model="changeVisibility" max-width="500px">
       <v-card>
         <v-card-title class="headline"
-          >{{ project.state === "public" ? "私密" : "公开" }}
-          {{ project.title }}</v-card-title
+          >要将{{ project.title }}设为{{ project.state === "public" ? "私密" : "公开" }}吗？
+          </v-card-title
         >
         <v-card-text>
           <v-if v-if="project.state === 'public'">
@@ -259,7 +259,7 @@
             您的操作历史记录和日志将对所有人可见。
           </v-if>
           <br /><br />
-          要确认，请在下面的框中输入提示的小字以确认您的操作。
+          要确认，请在下面的框中输入 <code>{{localuser.user.username}}/{{project.name}}</code> 以确认您的操作。
           <br /><br />
           <v-text-field
             v-model="changeVisibilityText"
@@ -582,7 +582,7 @@ export default {
           life: 3000,
         });
         this.$router.push(
-          `/explore/${localuser.user.value.username}/${this.project.name}`,
+          `/${localuser.user.value.username}/${this.project.name}`,
         );
       } catch (error) {
         if (error.type !== "cancelled") {
@@ -597,7 +597,7 @@ export default {
       }
     },
     cancel() {
-      this.$router.push("/explore/my");
+      this.$router.push("/app/explore");
     },
     onFileChange(event) {
       const file = event.target.files[0];
