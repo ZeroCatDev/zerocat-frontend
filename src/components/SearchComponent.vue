@@ -669,8 +669,8 @@ export default {
       }
     }
   },
-  created() {
-    this.searchHistory = loadSearchHistory();
+  async created() {
+    this.searchHistory = await loadSearchHistory();
   },
   beforeUnmount() {
     this.cleanupInfiniteScroll();
@@ -819,7 +819,7 @@ export default {
     async handleSearch() {
       const keyword = this.searchQuery.trim();
       if (keyword) {
-        this.searchHistory = addToSearchHistory(keyword, this.searchHistory);
+        this.searchHistory = await addToSearchHistory(keyword, this.searchHistory);
       }
       const payload = this.buildPayload();
 
@@ -967,3 +967,4 @@ export default {
   border-radius: 12px;
 }
 </style>
+

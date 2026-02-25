@@ -1,4 +1,5 @@
- { get as getCacheKv, set as setCacheKv } from '@/services/cachekv';
+import axios from '@/axios/axios';
+import { get as getCacheKv, set as setCacheKv } from '@/services/cachekv';
 
 const SEARCH_HISTORY_KEY = 'search_history';
 const MAX_HISTORY_ITEMS = 10;
