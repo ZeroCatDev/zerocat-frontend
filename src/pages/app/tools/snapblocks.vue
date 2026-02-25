@@ -8,12 +8,23 @@
     <v-card border class="mb-4">
       <v-card-text>
         <v-row dense>
-          <v-col cols="12" md="9">
+          <v-col cols="12" md="6">
             <v-file-input
               v-model="projectFile"
               label="选择 project.json 或 .sb3"
               accept="application/json,.json,.sb3,application/zip"
               prepend-icon="mdi-file-upload"
+              border
+              hide-details
+            />
+          </v-col>
+          <v-col cols="12" md="3">
+            <v-select
+              v-model="selectedLanguage"
+              :items="languageOptions"
+              item-title="label"
+              item-value="value"
+              label="积木语言"
               border
               hide-details
             />
@@ -96,7 +107,8 @@
 import { computed, nextTick, ref, watch } from 'vue';
 import { useHead } from '@unhead/vue';
 import JSZip from 'jszip';
-import scratchblocksZh from '@/constants/scratchblocks_zh.json';
+import scratchblocksAllLocales from '@/constants/scratchblocks-locales/all.js';
+import scratchblocksZhCn from '@/constants/scratchblocks-locales/zh-cn.json';
 
 useHead({ title: 'ScratchBlocks 转换' });
 
@@ -107,8 +119,11 @@ const copied = ref(false);
 const convertedTargets = ref([]);
 const renderRootRef = ref(null);
 const activeTargetIndex = ref(0);
+const selectedLanguage = ref('zh-cn');
+const sourceProject = ref(null);
 
 let scratchblocksModule = null;
+const loadedLanguageCodes = new Set();
 
 const totalScripts = computed(() => {
   return convertedTargets.value.reduce((sum, target) => sum + target.scripts.length, 0);
@@ -120,6 +135,54 @@ const activeTarget = computed(() => {
   }
   const index = Math.min(Math.max(Number(activeTargetIndex.value) || 0, 0), convertedTargets.value.length - 1);
   return convertedTargets.value[index] || null;
+});
+
+const normalizedLocaleMap = Object.fromEntries(
+  Object.entries(scratchblocksAllLocales).map(([code, locale]) => [code.replaceAll('_', '-'), locale]),
+);
+
+const LANGUAGE_NAME_OVERRIDES = {
+  'zh-cn': '简体中文',
+  'zh-tw': '繁體中文',
+  'pt-br': '葡萄牙语（巴西）',
+  'es-419': '西班牙语（拉美）',
+  'ja-Hira': '日语（平假名）',
+};
+
+const languageNameFormatter =
+  typeof Intl !== 'undefined' && typeof Intl.DisplayNames === 'function'
+    ? new Intl.DisplayNames(['zh-Hans', 'zh'], { type: 'language' })
+    : null;
+
+function getLanguageLabel(code) {
+  if (LANGUAGE_NAME_OVERRIDES[code]) {
+    return `${LANGUAGE_NAME_OVERRIDES[code]} (${code})`;
+  }
+  const canonicalCode = code.toLowerCase();
+  if (LANGUAGE_NAME_OVERRIDES[canonicalCode]) {
+    return `${LANGUAGE_NAME_OVERRIDES[canonicalCode]} (${code})`;
+  }
+  try {
+    const normalized = code.includes('-') ? code : code.toLowerCase();
+    const display = languageNameFormatter?.of(normalized);
+    if (display) {
+      return `${display} (${code})`;
+    }
+  } catch {
+  }
+  return code;
+}
+
+const languageOptions = computed(() => {
+  const codes = Object.keys(normalizedLocaleMap).sort((a, b) => a.localeCompare(b));
+  const sorted = codes.includes('zh-cn')
+    ? ['zh-cn', ...codes.filter((code) => code !== 'zh-cn')]
+    : codes;
+  return sorted.map((code) => ({ label: getLanguageLabel(code), value: code }));
+});
+
+const currentLocale = computed(() => {
+  return normalizedLocaleMap[selectedLanguage.value] || scratchblocksZhCn;
 });
 
 const IGNORED_INPUT_KEYS = new Set(['SUBSTACK', 'SUBSTACK2']);
@@ -147,7 +210,7 @@ function normalizeOpcode(opcode) {
 
 function getTemplate(opcode) {
   const key = normalizeOpcode(opcode);
-  return scratchblocksZh.commands[key] || '';
+  return currentLocale.value?.commands?.[key] || scratchblocksZhCn?.commands?.[key] || '';
 }
 
 function fieldToArg(fieldKey, fieldValue) {
@@ -365,6 +428,7 @@ async function convert() {
   try {
     const text = await resolveProjectText();
     const project = parseProject(text);
+    sourceProject.value = project;
     convertedTargets.value = project.targets.map(convertTarget);
     activeTargetIndex.value = 0;
     await nextTick();
@@ -373,6 +437,31 @@ async function convert() {
     error.value = err?.message || '转换失败，请检查 JSON 格式是否正确';
   } finally {
     loading.value = false;
+  }
+}
+
+function getLocalePayload(code) {
+  return normalizedLocaleMap[code] || null;
+}
+
+async function ensureScratchblocksLanguages(sb, codes) {
+  const languagePayload = {};
+  let hasNewLanguage = false;
+
+  for (const code of codes) {
+    if (!code || loadedLanguageCodes.has(code)) {
+      continue;
+    }
+    const payload = getLocalePayload(code);
+    if (payload) {
+      languagePayload[code] = payload;
+      loadedLanguageCodes.add(code);
+      hasNewLanguage = true;
+    }
+  }
+
+  if (hasNewLanguage) {
+    sb.loadLanguages(languagePayload);
   }
 }
 
@@ -387,19 +476,18 @@ async function renderScratchBlocks() {
   }
 
   if (!scratchblocksModule) {
-    const [sb, zhCn] = await Promise.all([
-      import('scratchblocks').then((m) => m.default),
-      import('scratchblocks/locales/zh-cn.json'),
-    ]);
-    sb.loadLanguages({ 'zh-cn': zhCn.default || zhCn });
+    const sb = await import('scratchblocks').then((m) => m.default);
+    await ensureScratchblocksLanguages(sb, ['zh-cn', selectedLanguage.value]);
     scratchblocksModule = sb;
+  } else {
+    await ensureScratchblocksLanguages(scratchblocksModule, [selectedLanguage.value]);
   }
 
   const sb = scratchblocksModule;
   const options = {
     style: 'scratch3',
     inline: false,
-    languages: ['en', 'zh-cn'],
+    languages: ['en', selectedLanguage.value],
     scale: 1,
   };
 
@@ -424,6 +512,15 @@ async function copyText(text) {
 }
 
 watch(activeTargetIndex, async () => {
+  await nextTick();
+  await renderScratchBlocks();
+});
+
+watch(selectedLanguage, async () => {
+  if (!sourceProject.value) {
+    return;
+  }
+  convertedTargets.value = sourceProject.value.targets.map(convertTarget);
   await nextTick();
   await renderScratchBlocks();
 });
