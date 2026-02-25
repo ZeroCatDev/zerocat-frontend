@@ -63,9 +63,9 @@ const items = computed(() => {
     },
     {
       icon: 'mdi-code-json',
-      label: 'Snapblocks 转换',
-      desc: '将 Scratch 文件转换为 scratchblocks 文本',
-      to: '/app/tools/snapblocks',
+      label: 'ScratchBlocks 转换',
+      desc: '将 Scratch 文件转换为 ScratchBlocks 文本',
+      to: '/app/tools/scratchblocks',
     },
     {
       icon: 'mdi-puzzle',
