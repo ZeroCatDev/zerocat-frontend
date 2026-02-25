@@ -90,7 +90,7 @@
         </div>
 
         <!-- 内容 -->
-        <div class="root-content" v-html="formatContent(post.content)" />
+        <div ref="rootContentRef" class="root-content" v-html="formatContent(post.content)" />
 
         <!-- 媒体 -->
         <div v-if="postMedia.length" class="root-media" :class="`root-media--${Math.min(postMedia.length, 4)}`">
@@ -257,7 +257,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { localuser } from '@/services/localAccount';
 import { getS3staticurl } from '@/services/projectService';
@@ -289,6 +289,7 @@ const cursor = ref(null);
 const hasMoreReplies = ref(true);
 const mediaViewerOpen = ref(false);
 const mediaViewerIndex = ref(0);
+const rootContentRef = ref(null);
 
 const replyComposerRef = ref(null);
 
@@ -464,7 +465,17 @@ const getMediaUrl = (media) => {
 
 const formatContent = (content) => {
   if (!content) return '';
-  let text = content
+  let text = content;
+
+  // 提取 ```blocks...``` 代码块，用占位符替换
+  const scratchBlocksSegments = [];
+  text = text.replace(/```blocks\n([\s\S]*?)```/g, (_, code) => {
+    const index = scratchBlocksSegments.length;
+    scratchBlocksSegments.push(code);
+    return `\x00SCRATCHBLOCK_${index}\x00`;
+  });
+
+  text = text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
@@ -473,8 +484,55 @@ const formatContent = (content) => {
   text = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" class="thread-link" target="_blank" rel="noopener">$1</a>');
   text = text.replace(/\n/g, '<br>');
 
+  // 还原 scratchblocks 代码块
+  text = text.replace(/\x00SCRATCHBLOCK_(\d+)\x00/g, (_, idx) => {
+    const code = scratchBlocksSegments[Number(idx)]
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    return `<pre class="blocks">${code}</pre>`;
+  });
+
   return text;
 };
+
+// Scratchblocks: 懒加载并渲染
+let scratchblocksModule = null;
+async function renderScratchBlocks() {
+  if (!rootContentRef.value) return;
+  const preBlocks = rootContentRef.value.querySelectorAll('pre.blocks');
+  if (!preBlocks.length) return;
+
+  if (!scratchblocksModule) {
+    const [sb, zhCn] = await Promise.all([
+      import('scratchblocks').then((m) => m.default),
+      import('scratchblocks/locales/zh-cn.json'),
+    ]);
+    sb.loadLanguages({ 'zh-cn': zhCn.default || zhCn });
+    scratchblocksModule = sb;
+  }
+
+  const sb = scratchblocksModule;
+  const options = { style: 'scratch3', inline: false, languages: ['en', 'zh-cn'], scale: 1 };
+
+  preBlocks.forEach((el) => {
+    if (el.querySelector('.scratchblocks')) return;
+    const code = sb.read(el, options);
+    const doc = sb.parse(code, options);
+    const svg = sb.render(doc, options);
+    sb.replace(el, svg, doc, options);
+  });
+}
+
+watch(
+  () => post.value?.content,
+  (content) => {
+    if (content && /```blocks\n[\s\S]*?```/.test(content)) {
+      nextTick(() => renderScratchBlocks());
+    }
+  },
+  { immediate: true },
+);
 
 const formatFullTime = (dateStr) => {
   if (!dateStr) return '';
@@ -881,6 +939,16 @@ onMounted(loadThread);
 .root-content :deep(.thread-mention:hover),
 .root-content :deep(.thread-link:hover) {
   text-decoration: underline;
+}
+
+.root-content :deep(.scratchblocks) {
+  overflow-x: auto;
+  margin: 8px 0;
+}
+
+.root-content :deep(pre.blocks) {
+  white-space: pre;
+  margin: 8px 0;
 }
 
 /* Root Media */

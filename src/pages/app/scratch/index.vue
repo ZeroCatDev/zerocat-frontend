@@ -62,6 +62,12 @@ const items = computed(() => {
       to: '/app/tools/comparer',
     },
     {
+      icon: 'mdi-code-json',
+      label: 'Snapblocks 转换',
+      desc: '将 Scratch 文件转换为 scratchblocks 文本',
+      to: '/app/tools/snapblocks',
+    },
+    {
       icon: 'mdi-puzzle',
       label: 'Scratch 扩展',
       desc: '浏览和管理 Scratch 扩展',

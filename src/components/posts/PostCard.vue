@@ -148,6 +148,7 @@
         <div v-else class="post-body">
           <div
             v-if="displayContent"
+            ref="postTextRef"
             class="post-text"
             v-html="formattedContent"
           />
@@ -430,7 +431,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { localuser } from "@/services/localAccount";
 import { getS3staticurl } from "@/services/projectService";
@@ -471,6 +472,9 @@ const actionLoading = ref(false);
 
 const mediaViewerOpen = ref(false);
 const mediaViewerIndex = ref(0);
+
+// Post text ref for scratchblocks rendering
+const postTextRef = ref(null);
 
 // Delete confirmation
 const { showDeleteConfirm } = useDeleteConfirm();
@@ -556,6 +560,14 @@ const formattedContent = computed(() => {
   if (!displayContent.value) return "";
   let text = displayContent.value;
 
+  // 提取 ```blocks...``` 代码块，用占位符替换，避免被后续处理破坏
+  const scratchBlocksSegments = [];
+  text = text.replace(/```blocks\n([\s\S]*?)```/g, (_, code) => {
+    const index = scratchBlocksSegments.length;
+    scratchBlocksSegments.push(code);
+    return `\x00SCRATCHBLOCK_${index}\x00`;
+  });
+
   // 转义HTML
   text = text
     .replace(/&/g, "&amp;")
@@ -577,8 +589,67 @@ const formattedContent = computed(() => {
   // 换行
   text = text.replace(/\n/g, "<br>");
 
+  // 还原 scratchblocks 代码块
+  text = text.replace(/\x00SCRATCHBLOCK_(\d+)\x00/g, (_, idx) => {
+    const code = scratchBlocksSegments[Number(idx)]
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    return `<pre class="blocks">${code}</pre>`;
+  });
+
   return text;
 });
+
+// Scratchblocks: 检测内容是否包含积木代码块
+const hasScratchBlocks = computed(() => {
+  if (!displayContent.value) return false;
+  return /```blocks\n[\s\S]*?```/.test(displayContent.value);
+});
+
+// Scratchblocks: 懒加载并渲染
+let scratchblocksModule = null;
+async function renderScratchBlocks() {
+  if (!postTextRef.value) return;
+  const preBlocks = postTextRef.value.querySelectorAll("pre.blocks");
+  if (!preBlocks.length) return;
+
+  if (!scratchblocksModule) {
+    const [sb, zhCn] = await Promise.all([
+      import("scratchblocks").then((m) => m.default),
+      import("scratchblocks/locales/zh-cn.json"),
+    ]);
+    sb.loadLanguages({ "zh-cn": zhCn.default || zhCn });
+    scratchblocksModule = sb;
+  }
+
+  const sb = scratchblocksModule;
+  const options = {
+    style: "scratch3",
+    inline: false,
+    languages: ["en", "zh-cn"],
+    scale: 1,
+  };
+
+  preBlocks.forEach((el) => {
+    // 跳过已渲染的元素
+    if (el.querySelector(".scratchblocks")) return;
+    const code = sb.read(el, options);
+    const doc = sb.parse(code, options);
+    const svg = sb.render(doc, options);
+    sb.replace(el, svg, doc, options);
+  });
+}
+
+watch(
+  () => formattedContent.value,
+  () => {
+    if (hasScratchBlocks.value) {
+      nextTick(() => renderScratchBlocks());
+    }
+  },
+  { immediate: true },
+);
 
 // Stats
 const stats = computed(() => {
@@ -1262,6 +1333,16 @@ const openMediaViewer = (index) => {
 
 .post-text :deep(.post-link:hover) {
   text-decoration: underline;
+}
+
+.post-text :deep(.scratchblocks) {
+  overflow-x: auto;
+  margin: 8px 0;
+}
+
+.post-text :deep(pre.blocks) {
+  white-space: pre;
+  margin: 8px 0;
 }
 
 .post-embed-note {

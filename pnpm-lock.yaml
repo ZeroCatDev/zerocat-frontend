@@ -107,6 +107,9 @@ importers:
       roboto-fontface:
         specifier: '*'
         version: 0.10.0
+      scratchblocks:
+        specifier: ^3.6.4
+        version: 3.6.4
       twitter-text:
         specifier: ^3.1.0
         version: 3.1.0
@@ -3933,6 +3936,9 @@ packages:
 
   scheduler@0.23.2:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
+
+  scratchblocks@3.6.4:
+    resolution: {integrity: sha512-2qesRNViXrceNG7OvMim3D2rBQ2qDjH24VwRVijef1XQlLmEKNiMItx/3dQpdybnUDXTnfZyRU41vc/if+Au7w==}
 
   scslre@0.3.0:
     resolution: {integrity: sha512-3A6sD0WYP7+QrjbfNA2FN3FsOaGGFoekCVgTyypy53gPxhbkCIjtO6YWgdrfM+n/8sI8JeXZOIxsHjMTNxQ4nQ==}
@@ -8899,6 +8905,8 @@ snapshots:
   scheduler@0.23.2:
     dependencies:
       loose-envify: 1.4.0
+
+  scratchblocks@3.6.4: {}
 
   scslre@0.3.0:
     dependencies:
