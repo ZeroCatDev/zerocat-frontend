@@ -1,4 +1,4 @@
-import axios from '@/axios/axios';
+ { get as getCacheKv, set as setCacheKv } from '@/services/cachekv';
 
 const SEARCH_HISTORY_KEY = 'search_history';
 const MAX_HISTORY_ITEMS = 10;
@@ -141,32 +141,57 @@ export const buildSearchParams = (query = {}) => {
   return params;
 };
 
-export const loadSearchHistory = () => {
+const normalizeSearchHistory = (value) => {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set();
+  const normalized = [];
+  for (const item of value) {
+    const term = String(item || '').trim();
+    if (!term || seen.has(term)) continue;
+    seen.add(term);
+    normalized.push(term);
+    if (normalized.length >= MAX_HISTORY_ITEMS) break;
+  }
+  return normalized;
+};
+
+export const loadSearchHistory = async () => {
   try {
-    const history = localStorage.getItem(SEARCH_HISTORY_KEY);
-    return history ? JSON.parse(history) : [];
+    const history = await getCacheKv(SEARCH_HISTORY_KEY);
+    if (history === undefined || history === null) return [];
+    if (typeof history === 'string') {
+      try {
+        return normalizeSearchHistory(JSON.parse(history));
+      } catch {
+        return normalizeSearchHistory([history]);
+      }
+    }
+    return normalizeSearchHistory(history);
   } catch (error) {
     console.error('Failed to load search history:', error);
     return [];
   }
 };
 
-export const addToSearchHistory = (term, currentHistory = []) => {
+export const addToSearchHistory = async (term, currentHistory = []) => {
   try {
-    const history = [...currentHistory];
-    const index = history.indexOf(term);
+    const normalizedTerm = String(term || '').trim();
+    if (!normalizedTerm) return normalizeSearchHistory(currentHistory);
+
+    const history = normalizeSearchHistory(currentHistory);
+    const index = history.indexOf(normalizedTerm);
     if (index > -1) {
       history.splice(index, 1);
     }
-    history.unshift(term);
+    history.unshift(normalizedTerm);
     if (history.length > MAX_HISTORY_ITEMS) {
       history.pop();
     }
-    localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history));
+    await setCacheKv(SEARCH_HISTORY_KEY, history);
     return history;
   } catch (error) {
     console.error('Failed to save search history:', error);
-    return currentHistory;
+    return normalizeSearchHistory(currentHistory);
   }
 };
 
@@ -220,3 +245,4 @@ export const getScopeItems = (response) => {
   if (scope === 'tags') return response.tags || [];
   return [];
 };
+

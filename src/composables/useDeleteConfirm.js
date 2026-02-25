@@ -4,8 +4,8 @@ const confirmDelete = ref(false);
 const deleteCallback = ref(null);
 const deleteLoading = ref(false);
 const deleteContext = ref({
-  title: '删除推文？',
-  message: '这将永久删除此推文。',
+  title: '删除帖文？',
+  message: '这将永久删除此帖文。',
   confirmText: '删除',
   cancelText: '取消'
 });
@@ -13,8 +13,8 @@ const deleteContext = ref({
 export function useDeleteConfirm() {
   const showDeleteConfirm = (callback, context = {}) => {
     deleteContext.value = {
-      title: context.title || '删除推文？',
-      message: context.message || '这将永久删除此推文。',
+      title: context.title || '删除帖文？',
+      message: context.message || '这将永久删除此帖文。',
       confirmText: context.confirmText || '删除',
       cancelText: context.cancelText || '取消'
     };

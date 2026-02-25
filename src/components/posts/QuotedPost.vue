@@ -8,7 +8,7 @@
   >
     <div v-if="isDeleted" class="quoted-deleted">
       <v-icon size="16" class="mr-1">mdi-alert-circle-outline</v-icon>
-      此推文不可用
+      此帖文不可用
     </div>
 
     <template v-else>

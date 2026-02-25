@@ -180,7 +180,7 @@ export const PostsService = {
       const response = await axios.post(`/posts/${postId}/quote`, payload);
       return normalizeSingleResponse(response.data);
     } catch (error) {
-      throw new Error(getErrorMessage(error, '引用推文失败'));
+      throw new Error(getErrorMessage(error, '引用帖文失败'));
     }
   },
 
@@ -264,7 +264,7 @@ export const PostsService = {
       const response = await axios.delete(`/posts/${postId}`);
       return response.data;
     } catch (error) {
-      throw new Error(getErrorMessage(error, '删除推文失败'));
+      throw new Error(getErrorMessage(error, '删除帖文失败'));
     }
   },
 
@@ -276,7 +276,7 @@ export const PostsService = {
       const response = await axios.get(`/posts/${postId}`);
       return normalizeSingleResponse(response.data);
     } catch (error) {
-      throw new Error(getErrorMessage(error, '获取推文失败'));
+      throw new Error(getErrorMessage(error, '获取帖文失败'));
     }
   },
 
@@ -313,7 +313,7 @@ export const PostsService = {
       const response = await axios.get(`/posts/user/${userId}`, { params });
       return normalizeListResponse(response.data);
     } catch (error) {
-      throw new Error(getErrorMessage(error, '获取用户推文失败'));
+      throw new Error(getErrorMessage(error, '获取用户帖文失败'));
     }
   },
 

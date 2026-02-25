@@ -586,7 +586,7 @@ const sharePost = async () => {
   if (navigator.share) {
     try {
       await navigator.share({
-        title: `${getAuthorDisplayName(post.value)}的推文`,
+        title: `${getAuthorDisplayName(post.value)}的帖文`,
         text: post.value?.content?.slice(0, 100),
         url
       });
@@ -605,12 +605,12 @@ const deletePost = async (p) => {
   showDeleteConfirm(
     async () => {
       await PostsService.remove(p.id);
-      showSnackbar('推文已删除', 'success');
+      showSnackbar('帖文已删除', 'success');
       router.push('/app/posts');
     },
     {
-      title: '删除推文？',
-      message: '此操作无法撤消。该推文将从你的个人资料、任何关注你的用户的时间线以及搜索结果中删除。',
+      title: '删除帖文？',
+      message: '此操作无法撤消。该帖文将从你的个人资料、任何关注你的用户的时间线以及搜索结果中删除。',
       confirmText: '删除',
       cancelText: '取消'
     }

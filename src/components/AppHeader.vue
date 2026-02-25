@@ -426,7 +426,7 @@ export default {
               login: true,
             },
             {
-              title: "推文",
+              title: "帖文",
               link: "/app/posts",
               icon: "mdi-twitter",
               login: false,

@@ -141,7 +141,7 @@
         <!-- 已删除提示 -->
         <div v-if="isDeleted" class="post-deleted-notice">
           <v-icon size="16" class="mr-1">mdi-alert-circle-outline</v-icon>
-          此推文已被删除
+          此帖文已被删除
         </div>
 
         <!-- 正文内容 -->
@@ -374,7 +374,7 @@
         <v-btn icon variant="text" size="small" @click="quoteDialog = false">
           <v-icon>mdi-close</v-icon>
         </v-btn>
-        <span class="ml-4 text-subtitle-1">引用推文</span>
+        <span class="ml-4 text-subtitle-1">引用帖文</span>
       </v-card-title>
       <v-card-text class="post-dialog-content">
         <PostComposer
@@ -1013,7 +1013,7 @@ const doDelete = async () => {
   try {
     await PostsService.remove(postId.value);
     confirmDelete.value = false;
-    showSnackbar("推文已删除", "success");
+    showSnackbar("帖文已删除", "success");
     emit("deleted", postId.value);
   } catch (e) {
     showSnackbar(e?.message || "删除失败", "error");
@@ -1037,13 +1037,13 @@ const handleDeleteClick = () => {
   showDeleteConfirm(
     async () => {
       await PostsService.remove(postId.value);
-      showSnackbar("推文已删除", "success");
+      showSnackbar("帖文已删除", "success");
       emit("deleted", postId.value);
     },
     {
-      title: "删除推文？",
+      title: "删除帖文？",
       message:
-        "此操作无法撤消。该推文将从你的个人资料、任何关注你的用户的时间线以及搜索结果中删除。",
+        "此操作无法撤消。该帖文将从你的个人资料、任何关注你的用户的时间线以及搜索结果中删除。",
       confirmText: "删除",
       cancelText: "取消",
     },
@@ -1061,7 +1061,7 @@ const sharePost = async () => {
   if (navigator.share) {
     try {
       await navigator.share({
-        title: `${authorDisplayName.value}的推文`,
+        title: `${authorDisplayName.value}的帖文`,
         text: displayContent.value?.slice(0, 100),
         url,
       });
