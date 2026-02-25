@@ -1,27 +1,52 @@
 <template>
   <aside class="home-right-sidebar">
-    <!-- Search Box -->
-    <v-form class="search-box" @submit.prevent="goToSearch">
-      <v-text-field
-        v-model="searchText"
-        class="search-input"
-        density="compact"
-        hide-details
-        placeholder="搜索帖子"
-        prepend-inner-icon="mdi-magnify"
-        variant="plain"
-        @keyup.enter="goToSearch"
-      />
-      <v-btn
-        class="search-submit"
-        color="primary"
-        icon="mdi-magnify"
-        size="small"
-        variant="text"
-        aria-label="搜索帖子"
-        @click="goToSearch"
-      />
-    </v-form>
+    <transition name="search-scrim">
+      <div v-if="showSearchOverlay" class="search-scrim" @click="closeSearchOverlay" />
+    </transition>
+
+    <div ref="searchShellRef" class="search-shell">
+      <v-form class="search-box" :class="{ 'search-box-active': showSearchOverlay }" @submit.prevent="goToSearch">
+        <v-text-field
+          v-model="searchText"
+          class="search-input"
+          density="compact"
+          hide-details
+          placeholder="搜索帖子"
+          prepend-inner-icon="mdi-magnify"
+          variant="plain"
+          @focus="openSearchOverlay"
+          @click="openSearchOverlay"
+          @keyup.enter="goToSearch"
+        />
+        <v-btn
+          class="search-submit"
+          color="primary"
+          icon="mdi-magnify"
+          size="small"
+          variant="text"
+          aria-label="搜索帖子"
+          @click="goToSearch"
+        />
+      </v-form>
+
+      <transition name="search-popover">
+        <div v-if="showSearchOverlay" class="search-popover">
+          <div class="search-history-title">搜索历史</div>
+          <div v-if="searchHistory.length" class="search-history-list">
+            <v-chip
+              v-for="(term, index) in searchHistory"
+              :key="`${term}-${index}`"
+              class="search-history-chip"
+              size="small"
+              @click="searchFromHistory(term)"
+            >
+              {{ term }}
+            </v-chip>
+          </div>
+          <div v-else class="search-history-empty">暂无搜索历史</div>
+        </div>
+      </transition>
+    </div>
 
     <!-- About ZeroCat Card -->
     <div class="sidebar-card about-card">
@@ -83,17 +108,33 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { addToSearchHistory, loadSearchHistory } from '@/services/searchService';
 
 const router = useRouter();
 const searchText = ref('');
+const searchHistory = ref([]);
+const showSearchOverlay = ref(false);
+const searchShellRef = ref(null);
 
 const currentYear = computed(() => new Date().getFullYear());
 
-const goToSearch = () => {
+const openSearchOverlay = () => {
+  showSearchOverlay.value = true;
+};
+
+const closeSearchOverlay = () => {
+  showSearchOverlay.value = false;
+};
+
+const goToSearch = async () => {
   const keyword = searchText.value.trim();
-  router.push({
+  if (keyword) {
+    searchHistory.value = await addToSearchHistory(keyword, searchHistory.value);
+  }
+  closeSearchOverlay();
+  await router.push({
     path: '/app/search',
     query: {
       keyword,
@@ -103,6 +144,35 @@ const goToSearch = () => {
     }
   });
 };
+
+const searchFromHistory = async (term) => {
+  searchText.value = term;
+  await goToSearch();
+};
+
+const handleDocumentPointerDown = (event) => {
+  if (!showSearchOverlay.value) return;
+  const shell = searchShellRef.value;
+  if (shell && shell.contains(event.target)) return;
+  closeSearchOverlay();
+};
+
+const handleDocumentKeydown = (event) => {
+  if (event.key === 'Escape') {
+    closeSearchOverlay();
+  }
+};
+
+onMounted(async () => {
+  searchHistory.value = await loadSearchHistory();
+  document.addEventListener('mousedown', handleDocumentPointerDown);
+  document.addEventListener('keydown', handleDocumentKeydown);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('mousedown', handleDocumentPointerDown);
+  document.removeEventListener('keydown', handleDocumentKeydown);
+});
 </script>
 
 <style scoped>
@@ -117,6 +187,18 @@ const goToSearch = () => {
   overflow-y: auto;
 }
 
+.search-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 20, 25, 0.12);
+  z-index: 10;
+}
+
+.search-shell {
+  position: relative;
+  z-index: 20;
+}
+
 /* Search Box */
 .search-box {
   display: flex;
@@ -125,11 +207,16 @@ const goToSearch = () => {
   padding: 6px 10px;
   background: rgba(var(--v-theme-on-surface), 0.05);
   border-radius: 9999px;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, box-shadow 0.2s;
 }
 
 .search-box:hover {
   background: rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.search-box-active {
+  background: rgba(var(--v-theme-surface), 0.98);
+  box-shadow: 0 0 0 2px rgba(var(--v-theme-primary), 0.18);
 }
 
 .search-input {
@@ -150,6 +237,68 @@ const goToSearch = () => {
   flex-shrink: 0;
   width: 32px;
   height: 32px;
+}
+
+.search-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  padding: 12px;
+  background: rgb(var(--v-theme-surface));
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(15, 20, 25, 0.14);
+}
+
+.search-history-title {
+  font-size: 12px;
+  color: rgba(var(--v-theme-on-surface), 0.65);
+  margin-bottom: 8px;
+}
+
+.search-history-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.search-history-chip {
+  max-width: 100%;
+}
+
+.search-history-chip :deep(.v-chip__content) {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-history-empty {
+  font-size: 13px;
+  color: rgba(var(--v-theme-on-surface), 0.55);
+  padding: 6px 2px;
+}
+
+.search-popover-enter-active,
+.search-popover-leave-active {
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.search-popover-enter-from,
+.search-popover-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.search-scrim-enter-active,
+.search-scrim-leave-active {
+  transition: opacity 0.16s ease;
+}
+
+.search-scrim-enter-from,
+.search-scrim-leave-to {
+  opacity: 0;
 }
 
 /* Sidebar Card */
