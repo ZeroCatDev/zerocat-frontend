@@ -1,5 +1,6 @@
 import axios from '@/axios/axios';
 import { get as getCacheKv, set as setCacheKv } from '@/services/cachekv';
+import { localuser } from '@/services/localAccount';
 
 const SEARCH_HISTORY_KEY = 'search_history';
 const MAX_HISTORY_ITEMS = 10;
@@ -156,7 +157,19 @@ const normalizeSearchHistory = (value) => {
   return normalized;
 };
 
+const hasAccessToken = () => {
+  try {
+    return !!localuser?.isLogin?.value;
+  } catch {
+    return false;
+  }
+};
+
 export const loadSearchHistory = async () => {
+  if (!hasAccessToken()) {
+    return [];
+  }
+
   try {
     const history = await getCacheKv(SEARCH_HISTORY_KEY);
     if (history === undefined || history === null) return [];
@@ -175,6 +188,10 @@ export const loadSearchHistory = async () => {
 };
 
 export const addToSearchHistory = async (term, currentHistory = []) => {
+  if (!hasAccessToken()) {
+    return [];
+  }
+
   try {
     const normalizedTerm = String(term || '').trim();
     if (!normalizedTerm) return normalizeSearchHistory(currentHistory);
@@ -188,11 +205,12 @@ export const addToSearchHistory = async (term, currentHistory = []) => {
     if (history.length > MAX_HISTORY_ITEMS) {
       history.pop();
     }
+
     await setCacheKv(SEARCH_HISTORY_KEY, history);
     return history;
   } catch (error) {
     console.error('Failed to save search history:', error);
-    return normalizeSearchHistory(currentHistory);
+    return [];
   }
 };
 
