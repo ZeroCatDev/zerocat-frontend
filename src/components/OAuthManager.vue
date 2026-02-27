@@ -3,7 +3,7 @@
     <v-card>
       <v-card-title class="d-flex align-center">
         <v-icon class="mr-2">mdi-link-variant</v-icon>
-        <h2>已绑定的 OAuth 账号</h2>
+        <h5>已绑定</h5>
       </v-card-title>
       <v-card-text>
         <v-row>
@@ -170,15 +170,12 @@
     </v-dialog>
 
     <!-- 可绑定的 OAuth 提供商 -->
-    <v-card class="mt-4">
+    <v-card class="mt-4" border>
       <v-card-title class="d-flex align-center">
         <v-icon class="mr-2">mdi-link-plus</v-icon>
-        <h2>可绑定的 OAuth 提供商</h2>
+        <h5>可绑定</h5>
       </v-card-title>
       <v-card-text>
-        <v-alert text type="info">
-          不论怎样，你都需要确保对绑定账户内邮箱完全的控制。
-        </v-alert>
         <v-row class="mt-2">
           <v-col v-for="(provider, index) in filteredProviders"
                  :key="index"

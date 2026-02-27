@@ -101,7 +101,7 @@
       <div class="footer-copyright">
         &copy; {{ currentYear }} ZeroCat
         <span class="footer-separator">·</span>
-        <a href="https://langs.ink/article/houlangs/" target="_blank" class="footer-link">厚浪开发组</a>
+        <a href="https://houlang.cloud/zh-CN/article/about/team" target="_blank" class="footer-link">厚浪开发组</a>
       </div>
     </div>
   </aside>

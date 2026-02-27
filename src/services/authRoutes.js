@@ -41,7 +41,13 @@ export const authRequiredRoutes = [
       '/app/account/magiclink/validate',
       '/app/account/email/verify',
       '/app/account/oauth/callback',
-      '/app/account/oauth/bind/success'
+      '/app/account/oauth/login/error',
+      '/app/account/oauth/bind/success',
+      '/app/account/oauth/bind/error',
+      '/app/account/social/sync/twitter/success',
+      '/app/account/social/sync/twitter/error',
+      '/app/account/social/sync/bluesky/success',
+      '/app/account/social/sync/bluesky/error'
     ],
     description: '账户管理页面'
   },

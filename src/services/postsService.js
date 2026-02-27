@@ -268,6 +268,15 @@ export const PostsService = {
     }
   },
 
+  async syncToSocial(postId) {
+    try {
+      const response = await axios.post(`/social/sync/post/${postId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error, '提交社交同步任务失败'));
+    }
+  },
+
   /**
    * 获取单条帖子
    */

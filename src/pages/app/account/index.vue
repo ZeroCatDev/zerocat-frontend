@@ -75,6 +75,7 @@
           <v-window-item value="oauth">
             <h3 class="text-h5 mb-4">第三方账号关联</h3>
             <o-auth-manager/>
+            <social-integration-manager class="mt-4" />
           </v-window-item>
 
           <!-- Security Tab -->
@@ -134,6 +135,7 @@ import UserFollowers from "@/components/user/UserFollowers.vue";
 import UserBlocked from "@/components/user/UserBlocked.vue";
 import TokenManager from "@/components/account/TokenManager.vue";
 import NotificationSettingsCard from "@/components/NotificationSettingsCard.vue";
+import SocialIntegrationManager from "@/components/SocialIntegrationManager.vue";
 
 export default {
   components: {
@@ -150,6 +152,7 @@ export default {
     UserBlocked,
     TokenManager,
     NotificationSettingsCard,
+    SocialIntegrationManager,
   },
   data() {
     return {

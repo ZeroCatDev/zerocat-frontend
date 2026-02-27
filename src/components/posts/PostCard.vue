@@ -127,6 +127,13 @@
                 </template>
                 <v-list-item-title>删除</v-list-item-title>
               </v-list-item>
+              <!-- 手动触发社交同步 -->
+              <v-list-item :disabled="actionLoading" @click="manualSyncPost">
+                <template #prepend>
+                  <v-icon size="18">mdi-share-all-outline</v-icon>
+                </template>
+                <v-list-item-title>同步到社交平台</v-list-item-title>
+              </v-list-item>
               <!-- 复制链接 -->
               <v-list-item @click="copyLink">
                 <template #prepend>
@@ -1119,6 +1126,23 @@ const handleDeleteClick = () => {
       cancelText: "取消",
     },
   );
+};
+
+const manualSyncPost = async () => {
+  if (!requireLogin("手动同步")) return;
+  actionLoading.value = true;
+  try {
+    const result = await PostsService.syncToSocial(postId.value);
+    if (result?.status === "success") {
+      showSnackbar("已提交同步任务", "success");
+    } else {
+      showSnackbar(result?.message || "提交同步任务失败", "error");
+    }
+  } catch (e) {
+    showSnackbar(e?.message || "提交同步任务失败", "error");
+  } finally {
+    actionLoading.value = false;
+  }
 };
 
 const onMenuOpen = (isOpen) => {
