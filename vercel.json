@@ -2,15 +2,15 @@
   "rewrites": [
     {
       "source": "/.well-known/webfinger",
-      "destination": "${VITE_APP_BASE_API}/.well-known/webfinger"
+      "destination": "https://api.zcservice.houlang.cloud/.well-known/webfinger"
     },
     {
       "source": "/.well-known/nodeinfo",
-      "destination": "${VITE_APP_BASE_API}/.well-known/nodeinfo"
+      "destination": "https://api.zcservice.houlang.cloud/.well-known/nodeinfo"
     },
     {
       "source": "/.well-known/host-meta",
-      "destination": "${VITE_APP_BASE_API}/.well-known/host-meta"
+      "destination": "https://api.zcservice.houlang.cloud/.well-known/host-meta"
     }
   ],
   "headers": [
