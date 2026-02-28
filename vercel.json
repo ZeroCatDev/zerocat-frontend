@@ -11,12 +11,25 @@
     {
       "source": "/.well-known/host-meta",
       "destination": "https://api.zcservice.houlang.cloud/.well-known/host-meta"
+    },
+    {
+      "source": "/scratch/:path*",
+      "destination": "/scratch/:path*"
+    },
+    {
+      "source": "/:match*",
+      "destination": "/"
     }
   ],
   "headers": [
     {
       "source": "/.well-known/webfinger",
-      "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }]
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
     }
   ]
 }
