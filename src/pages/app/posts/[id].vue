@@ -79,6 +79,13 @@
               </v-btn>
             </template>
             <v-list density="compact">
+              <v-list-item @click="openFederationDialog">
+                <template #prepend>
+                  <v-icon size="18">mdi-earth</v-icon>
+                </template>
+                <v-list-item-title>联邦社交数据</v-list-item-title>
+              </v-list-item>
+
               <v-list-item class="text-error" @click="deletePost(post)">
                 <template #prepend>
                   <v-icon size="18">mdi-delete-outline</v-icon>
@@ -182,6 +189,82 @@
             <v-icon size="22">mdi-share-variant-outline</v-icon>
           </button>
         </div>
+
+        <!-- Federation Data Dialog -->
+        <v-dialog v-model="federationDialog" max-width="500px">
+          <v-card class="post-dialog-card">
+              <div class="post-dialog-header">
+                  <span class="text-h6">联邦社交数据</span>
+                  <v-spacer></v-spacer>
+                  <v-btn icon="mdi-close" variant="text" size="small" @click="federationDialog = false"></v-btn>
+              </div>
+              <v-card-text class="pa-4">
+                  <v-list density="compact" v-if="post && post.platform_refs">
+                      <v-list-item v-if="post.platform_refs.twitter">
+                          <template v-slot:prepend><v-icon color="blue">mdi-twitter</v-icon></template>
+                          <v-list-item-title>Twitter</v-list-item-title>
+                          <v-list-item-subtitle>
+                              <a v-if="post.platform_refs.twitter.url" :href="post.platform_refs.twitter.url" target="_blank">
+                                  {{ post.platform_refs.twitter.id || 'Link' }}
+                              </a>
+                              <span v-else>{{ post.platform_refs.twitter.id }}</span>
+                              <span v-if="post.platform_refs.twitter.kind" class="ml-2 text-caption">({{ post.platform_refs.twitter.kind }})</span>
+                          </v-list-item-subtitle>
+                      </v-list-item>
+
+                      <v-list-item v-if="post.platform_refs.bluesky">
+                          <template v-slot:prepend><v-icon color="light-blue">mdi-weather-cloudy</v-icon></template>
+                          <v-list-item-title>Bluesky</v-list-item-title>
+                          <v-list-item-subtitle>
+                              <a v-if="getBskyUrl(post.platform_refs.bluesky)" :href="getBskyUrl(post.platform_refs.bluesky)" target="_blank" rel="noopener">
+                                  在 Bluesky 上查看
+                              </a>
+                              <div v-if="post.platform_refs.bluesky.uri" class="text-caption text-truncate" style="max-width: 300px;">URI: {{ post.platform_refs.bluesky.uri }}</div>
+                              <div v-if="post.platform_refs.bluesky.cid" class="text-caption text-truncate" style="max-width: 300px;">CID: {{ post.platform_refs.bluesky.cid }}</div>
+                          </v-list-item-subtitle>
+                      </v-list-item>
+
+                      <v-list-item v-if="post.platform_refs.activitypub">
+                          <template v-slot:prepend><v-icon color="purple">mdi-earth</v-icon></template>
+                          <v-list-item-title>ActivityPub</v-list-item-title>
+                          <v-list-item-subtitle>
+                              <a v-if="post.platform_refs.activitypub.url" :href="post.platform_refs.activitypub.url" target="_blank">
+                                  {{ post.platform_refs.activitypub.id || 'View Note' }}
+                              </a>
+                              <span v-else>{{ post.platform_refs.activitypub.id }}</span>
+                          </v-list-item-subtitle>
+                      </v-list-item>
+                  </v-list>
+                  <div v-else class="text-center pa-4 text-medium-emphasis">
+                      无同步数据
+                  </div>
+              </v-card-text>
+
+              <v-divider></v-divider>
+
+              <v-card-actions v-if="canDelete(post)">
+                  <v-btn
+                      variant="text"
+                      color="primary"
+                      :loading="actionLoading"
+                      prepend-icon="mdi-share-all-outline"
+                      @click="manualSyncPost"
+                  >
+                      全平台同步
+                  </v-btn>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                      variant="text"
+                      color="secondary"
+                      :loading="actionLoading"
+                      prepend-icon="mdi-earth"
+                      @click="pushToFederation"
+                  >
+                      推送到联邦
+                  </v-btn>
+              </v-card-actions>
+          </v-card>
+        </v-dialog>
       </article>
 
       <!-- 回复输入框 -->
@@ -269,6 +352,7 @@ import PostCard from '@/components/posts/PostCard.vue';
 import PostList from '@/components/posts/PostList.vue';
 import PostEmbed from '@/components/posts/PostEmbed.vue';
 import QuotedPost from '@/components/posts/QuotedPost.vue';
+import federationService from '@/services/federationService';
 import UnifiedSidebar from '@/components/sidebar/UnifiedSidebar.vue';
 import HomeRightSidebar from '@/components/home/HomeRightSidebar.vue';
 
@@ -292,6 +376,9 @@ const mediaViewerIndex = ref(0);
 const rootContentRef = ref(null);
 
 const replyComposerRef = ref(null);
+
+const federationDialog = ref(false);
+const actionLoading = ref(false);
 
 // Delete confirmation
 const { showDeleteConfirm } = useDeleteConfirm();
@@ -656,6 +743,62 @@ const sharePost = async () => {
     } catch {
       showSnackbar('复制失败', 'error');
     }
+  }
+};
+
+const getBskyUrl = (bluesky) => {
+  if (!bluesky) return null;
+  if (bluesky.url) return bluesky.url;
+  // Parse AT URI: at://did:plc:xxx/app.bsky.feed.post/rkey
+  const uri = bluesky.uri;
+  if (!uri) return null;
+  const match = uri.match(/^at:\/\/([^/]+)\/[^/]+\/([^/]+)$/);
+  if (match) {
+    return `https://bsky.app/profile/${match[1]}/post/${match[2]}`;
+  }
+  return null;
+};
+
+const openFederationDialog = () => {
+  if (!canDelete(post.value)) return;
+  federationDialog.value = true;
+};
+
+const manualSyncPost = async () => {
+  if (!canDelete(post.value)) return;
+  if (!confirm("确定要重新同步此帖子到所有关联的社交平台吗？")) return;
+
+  actionLoading.value = true;
+  try {
+    const res = await federationService.userResyncPost(post.value.id);
+    if (res.data?.status === "success" || res.data?.status === "ok") {
+      showSnackbar("同步任务已提交", "success");
+    } else {
+      showSnackbar(res.data?.message || "同步失败", "error");
+    }
+  } catch (e) {
+    showSnackbar(e?.message || "同步失败", "error");
+  } finally {
+    actionLoading.value = false;
+  }
+};
+
+const pushToFederation = async () => {
+  if (!canDelete(post.value)) return;
+  if (!confirm("确定要推送到 ActivityPub 联邦网络吗？")) return;
+
+  actionLoading.value = true;
+  try {
+    const res = await federationService.userPushPostToFederation(post.value.id);
+    if (res.data?.status === "success" || res.data?.status === "ok") {
+        showSnackbar("推送任务已提交", "success");
+    } else {
+        showSnackbar(res.data?.message || "推送失败", "error");
+    }
+  } catch (e) {
+    showSnackbar(e?.message || "推送失败", "error");
+  } finally {
+    actionLoading.value = false;
   }
 };
 
