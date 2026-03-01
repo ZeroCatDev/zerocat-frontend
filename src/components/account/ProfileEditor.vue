@@ -256,7 +256,8 @@ export default {
           sex: this.selectedGender.abbr,
           url: this.profileData.url,
           birthday: this.profileData.birthday,
-          featured_projects: this.profileData.featured_projects || undefined
+          featured_projects: this.profileData.featured_projects || undefined,
+          motto: this.profileData.motto || undefined
         });
 
         this.$emit('profile-updated', response);
