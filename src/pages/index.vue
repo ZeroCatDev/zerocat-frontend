@@ -19,7 +19,7 @@
             <div class="header-content">
               <h1 class="header-title">首页</h1>
             </div>
-            <div class="header-tabs">
+            <div v-if="isLogin" class="header-tabs">
               <button
                 class="header-tab"
                 :class="{ 'header-tab--active': feedType === 'for-you' }"
@@ -33,6 +33,13 @@
                 @click="feedType = 'following'"
               >
                 关注
+              </button>
+              <button
+                class="header-tab"
+                :class="{ 'header-tab--active': feedType === 'global' }"
+                @click="feedType = 'global'"
+              >
+                全局
               </button>
             </div>
           </header>
@@ -149,12 +156,21 @@ const loadFeed = async (isInitial = false) => {
   }
 
   try {
-    const res = await PostsService.getFeed({
-      cursor: isInitial ? undefined : cursor.value,
-      limit: 20,
-      includeReplies: false,
-      followingOnly: feedType.value === 'following'
-    });
+    let res;
+    if (feedType.value === 'global') {
+      res = await PostsService.getGlobalFeed({
+        cursor: isInitial ? undefined : cursor.value,
+        limit: 20,
+        includeReplies: false,
+      });
+    } else {
+      res = await PostsService.getFeed({
+        cursor: isInitial ? undefined : cursor.value,
+        limit: 20,
+        includeReplies: false,
+        followingOnly: feedType.value === 'following',
+      });
+    }
 
     if (isInitial) {
       posts.value = res.posts;

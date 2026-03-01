@@ -347,6 +347,24 @@ export const PostsService = {
   },
 
   /**
+   * 获取全局信息流（包含 Mastodon 同步帖子，仅登录可用）
+   * @param {Object} options
+   * @param {string} options.cursor - 分页游标
+   * @param {number} options.limit - 每页数量
+   * @param {boolean} options.includeReplies - 是否包含回复
+   */
+  async getGlobalFeed({ cursor, limit = 20, includeReplies = false } = {}) {
+    try {
+      const params = { limit, include_replies: String(includeReplies) };
+      if (cursor) params.cursor = cursor;
+      const response = await axios.get('/posts/global', { params });
+      return normalizeListResponse(response.data);
+    } catch (error) {
+      throw new Error(getErrorMessage(error, '获取全局时间线失败'));
+    }
+  },
+
+  /**
    * 获取提及列表
    * @param {Object} options
    * @param {string} options.cursor - 分页游标
