@@ -1,4 +1,5 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
       "source": "/.well-known/webfinger",
@@ -13,15 +14,15 @@
       "destination": "https://api.zcservice.houlang.cloud/.well-known/host-meta"
     },
     {
-      "source": "/ap/:path*",
-      "destination": "https://api.zcservice.houlang.cloud/ap/:path*"
+      "source": "/ap/(.*)",
+      "destination": "https://api.zcservice.houlang.cloud/ap/(.*)"
     },
     {
-      "source": "/scratch/:path*",
-      "destination": "/scratch/:path*"
+      "source": "/scratch/(.*)",
+      "destination": "/scratch/(.*)"
     },
     {
-      "source": "/:match*",
+      "source": "/(.*)",
       "destination": "/"
     }
   ],
