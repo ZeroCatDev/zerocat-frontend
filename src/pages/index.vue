@@ -16,8 +16,8 @@
         <div class="posts-feed">
           <!-- Feed Header -->
           <header class="feed-header">
-            <div class="header-content">
-              <h1 class="header-title">首页</h1>
+            <div class="header-content" style="display: none;">
+              <img src="@/assets/logo.png" alt="ZeroCat Logo" class="header-logo" />
             </div>
             <div v-if="isLogin" class="header-tabs">
               <button
@@ -286,8 +286,14 @@ onMounted(() => {
 .header-content {
   display: flex;
   align-items: center;
+  justify-content: center; /* 添加水平居中 */
   padding: 0 16px;
   height: 53px;
+}
+
+.header-logo {
+  max-width: 32px;
+  max-height: 32px;
 }
 
 .header-title {
