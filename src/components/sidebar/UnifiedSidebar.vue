@@ -12,7 +12,7 @@
         >
           <v-icon :icon="isDark ? 'mdi-weather-sunny' : 'mdi-weather-night'" />
         </v-btn>
-        <router-link v-if="isLogin && user" :to="`/${user.username}`" class="drawer-user-link">
+        <router-link v-if="isLogin && user" :to="`/${user.username}`" class="drawer-user-link" v-ripple>
           <v-avatar size="40">
             <v-img :src="userAvatar" alt="avatar" />
           </v-avatar>
@@ -22,7 +22,7 @@
       </div>
 
       <!-- Logo (独立侧栏模式) -->
-      <router-link v-if="!isVuetify" to="/" class="sidebar-logo" @click="goHome">
+      <router-link v-if="!isVuetify" to="/" class="sidebar-logo" v-ripple @click="goHome">
         <div class="logo-icon">
           <svg fill="none" height="32" viewBox="0 0 200 200" width="32" xmlns="http://www.w3.org/2000/svg">
             <circle cx="100" cy="100" fill="#FFFFFF" r="100"></circle>
@@ -40,6 +40,7 @@
           :to="item.to"
           class="nav-item"
           :class="{ 'nav-item--active': isRouteActive(item.to) }"
+          v-ripple
         >
           <v-icon class="nav-icon" :icon="item.icon" />
           <span class="nav-label">{{ item.label }}</span>
@@ -64,7 +65,7 @@
 
       <!-- 独立侧栏模式底部：主题切换 + 用户信息 -->
       <template v-if="!isVuetify">
-        <button class="theme-toggle" @click="toggleTheme">
+        <button class="theme-toggle" v-ripple @click="toggleTheme">
           <v-icon :icon="isDark ? 'mdi-weather-sunny' : 'mdi-weather-night'" />
           <span class="nav-label">{{ isDark ? '浅色模式' : '深色模式' }}</span>
         </button>
@@ -73,6 +74,7 @@
           v-if="isLogin && user"
           :to="`/${user.username}`"
           class="user-profile"
+          v-ripple
         >
           <v-avatar size="40" class="user-avatar">
             <v-img :src="userAvatar" alt="avatar" />
@@ -139,6 +141,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   padding: 0 12px;
+  z-index: 2;
+  overflow-y: auto;
 }
 
 .sidebar-twitter--vuetify {
@@ -175,6 +179,9 @@ onMounted(() => {
   text-decoration: none;
   color: rgb(var(--v-theme-on-surface));
   margin-bottom: 12px;
+  overflow: hidden;
+  position: relative;
+  border-radius: 12px;
 }
 
 .drawer-user-name {
@@ -200,6 +207,8 @@ onMounted(() => {
   border-radius: 9999px;
   transition: background-color 0.2s;
   text-decoration: none;
+  overflow: hidden;
+  position: relative;
 }
 
 .sidebar-logo:hover {
@@ -229,6 +238,8 @@ onMounted(() => {
   font-size: 20px;
   font-weight: 400;
   transition: background-color 0.2s;
+  overflow: hidden;
+  position: relative;
 }
 
 .nav-item:hover {
@@ -270,6 +281,8 @@ onMounted(() => {
   cursor: pointer;
   width: 100%;
   transition: background-color 0.2s;
+  overflow: hidden;
+  position: relative;
 }
 
 .theme-toggle:hover {
@@ -291,6 +304,8 @@ onMounted(() => {
   color: rgb(var(--v-theme-on-surface));
   transition: background-color 0.2s;
   margin-top: 12px;
+  overflow: hidden;
+  position: relative;
 }
 
 .user-profile:hover {
