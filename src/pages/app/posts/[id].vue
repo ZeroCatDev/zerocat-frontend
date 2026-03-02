@@ -58,6 +58,7 @@
         <PostCard
           :post="post"
           :includes="mergedIncludes"
+          :enable-translation="true"
           featured
           @focus-reply="focusReply"
           @deleted="handlePostDeleted"

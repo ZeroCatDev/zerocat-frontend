@@ -105,6 +105,28 @@
               v-html="formattedContent"
             />
 
+            <div
+              v-if="canTranslateFeatured"
+              class="post-featured-translate"
+            >
+              <v-btn
+                variant="text"
+                density="comfortable"
+                prepend-icon="mdi-translate"
+                :loading="translationLoading"
+                @click.stop="toggleFeaturedTranslation"
+              >
+                {{ featuredTranslateButtonText }}
+              </v-btn>
+            </div>
+
+            <div
+              v-if="showTranslatedContent"
+              class="post-featured-text post-featured-translation-text"
+            >
+              {{ translatedContent }}
+            </div>
+
             <!-- 媒体 -->
             <div
               v-if="mediaItems.length"
@@ -765,6 +787,7 @@ const props = defineProps({
   contextEmbedData: { type: Object, default: () => ({}) },
   hideCurrentContextBase: { type: Boolean, default: false },
   featured: { type: Boolean, default: false },
+  enableTranslation: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(["deleted", "created", "updated", "focus-reply"]);
@@ -780,6 +803,8 @@ const actionLoading = ref(false);
 
 const mediaViewerOpen = ref(false);
 const mediaViewerIndex = ref(0);
+
+const TRANSLATE_API_BASE = "https://translate.houlang.cloud";
 
 // Post text ref for scratchblocks rendering
 const postTextRef = ref(null);
@@ -867,6 +892,42 @@ const fullDateTime = computed(() => {
 const displayContent = computed(() => {
   if (isDeleted.value) return null;
   return props.post?.content ?? "";
+});
+
+const translatedContent = ref("");
+const translationLoading = ref(false);
+const translationExpanded = ref(false);
+const detectedSourceLang = ref("");
+const shouldShowTranslateButton = ref(false);
+const languageDetecting = ref(false);
+
+const isChineseLanguage = (lang) => /^zh(?:$|[-_])/i.test(String(lang || ""));
+
+const canDetectFeaturedLanguage = computed(() => {
+  return (
+    props.featured &&
+    props.enableTranslation &&
+    !isDeleted.value &&
+    Boolean(translationSourceText.value)
+  );
+});
+
+const canTranslateFeatured = computed(() => {
+  return (
+    canDetectFeaturedLanguage.value &&
+    shouldShowTranslateButton.value
+  );
+});
+
+const showTranslatedContent = computed(() => {
+  return translationExpanded.value && Boolean(translatedContent.value);
+});
+
+const featuredTranslateButtonText = computed(() => {
+  if (translationLoading.value) return "翻译中...";
+  if (showTranslatedContent.value) return "收起";
+  if (translatedContent.value) return "翻译";
+  return "翻译";
 });
 
 const formattedContent = computed(() => {
@@ -972,6 +1033,34 @@ const formattedContent = computed(() => {
   return text;
 });
 
+const translationSourceText = computed(() => {
+  if (!formattedContent.value) return "";
+  let text = formattedContent.value;
+
+  text = text
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>\s*<p[^>]*>/gi, "\n\n")
+    .replace(/<[^>]*>/g, "");
+
+  let prev;
+  do {
+    prev = text;
+    text = text
+      .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+      .replace(/&#x([0-9a-fA-F]+);/g, (_, n) => String.fromCharCode(parseInt(n, 16)))
+      .replace(/&quot;/g, '"')
+      .replace(/&apos;/g, "'")
+      .replace(/&#39;/g, "'")
+      .replace(/&#34;/g, '"')
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&nbsp;/g, " ");
+  } while (text !== prev);
+
+  return text.trim();
+});
+
 // Scratchblocks: 检测内容是否包含积木代码块
 const hasScratchBlocks = computed(() => {
   if (!displayContent.value) return false;
@@ -1018,6 +1107,68 @@ watch(
     if (hasScratchBlocks.value) {
       nextTick(() => renderScratchBlocks());
     }
+  },
+  { immediate: true },
+);
+
+watch(
+  () => postId.value,
+  () => {
+    translatedContent.value = "";
+    translationExpanded.value = false;
+    translationLoading.value = false;
+    detectedSourceLang.value = "";
+    shouldShowTranslateButton.value = false;
+    languageDetecting.value = false;
+  },
+);
+
+const detectFeaturedLanguage = async ({ silent = true } = {}) => {
+  const text = translationSourceText.value;
+  if (!text || !canDetectFeaturedLanguage.value) {
+    detectedSourceLang.value = "";
+    shouldShowTranslateButton.value = false;
+    return;
+  }
+
+  languageDetecting.value = true;
+  try {
+    const detectRes = await fetch(`${TRANSLATE_API_BASE}/detect`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text,
+        minConfidence: 0,
+      }),
+    });
+    if (!detectRes.ok) {
+      throw new Error(`语言检测失败 (${detectRes.status})`);
+    }
+    const detectJson = await detectRes.json();
+    const fromLang = String(detectJson?.language || "").trim();
+
+    detectedSourceLang.value = fromLang;
+    shouldShowTranslateButton.value = Boolean(fromLang) && !isChineseLanguage(fromLang);
+  } catch (e) {
+    detectedSourceLang.value = "";
+    shouldShowTranslateButton.value = true;
+    if (!silent) {
+      showSnackbar(e?.message || "语言检测失败", "error");
+    }
+  } finally {
+    languageDetecting.value = false;
+  }
+};
+
+watch(
+  () => [postId.value, translationSourceText.value, canDetectFeaturedLanguage.value],
+  async () => {
+    translatedContent.value = "";
+    translationExpanded.value = false;
+    detectedSourceLang.value = "";
+    shouldShowTranslateButton.value = false;
+    if (!canDetectFeaturedLanguage.value) return;
+    await detectFeaturedLanguage({ silent: true });
   },
   { immediate: true },
 );
@@ -1574,6 +1725,66 @@ const sharePost = async () => {
   } else {
     copyLink();
   }
+};
+
+const fetchFeaturedTranslation = async () => {
+  const text = translationSourceText.value;
+  if (!text) return;
+
+  translationLoading.value = true;
+  try {
+    if (!detectedSourceLang.value) {
+      await detectFeaturedLanguage({ silent: false });
+    }
+
+    const fromLang = detectedSourceLang.value;
+
+    if (!fromLang || isChineseLanguage(fromLang)) {
+      translatedContent.value = "";
+      translationExpanded.value = false;
+      return;
+    }
+
+    const translateRes = await fetch(`${TRANSLATE_API_BASE}/translate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: fromLang,
+        to: "zh-Hans",
+        text,
+      }),
+    });
+    if (!translateRes.ok) {
+      throw new Error(`翻译请求失败 (${translateRes.status})`);
+    }
+    const translateJson = await translateRes.json();
+    if (!translateJson?.result) {
+      throw new Error("未获取到翻译结果");
+    }
+
+    translatedContent.value = String(translateJson.result);
+    translationExpanded.value = true;
+  } catch (e) {
+    showSnackbar(e?.message || "翻译失败，请稍后重试", "error");
+  } finally {
+    translationLoading.value = false;
+  }
+};
+
+const toggleFeaturedTranslation = async () => {
+  if (!canTranslateFeatured.value || translationLoading.value) return;
+
+  if (showTranslatedContent.value) {
+    translationExpanded.value = false;
+    return;
+  }
+
+  if (translatedContent.value) {
+    translationExpanded.value = true;
+    return;
+  }
+
+  await fetchFeaturedTranslation();
 };
 
 const openMediaViewer = (index) => {
@@ -2138,6 +2349,14 @@ const openMediaViewer = (index) => {
 .post-featured-text :deep(pre.blocks) {
   white-space: pre;
   margin: 8px 0;
+}
+
+.post-featured-translate {
+  margin-top: 8px;
+}
+
+.post-featured-translation-text {
+  margin-top: 8px;
 }
 
 .post-featured-media {
