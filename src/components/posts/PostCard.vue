@@ -991,7 +991,7 @@ const formattedContent = computed(() => {
     (_, user, domain) => {
       const index = mentionSegments.length;
       mentionSegments.push(
-        `<a href="/@${user}@${domain}" class="post-mention" onclick="event.stopPropagation()">@${user}@${domain}</a>`
+        `<a href="/${user}@${domain}" class="post-mention" onclick="event.stopPropagation()">@${user}@${domain}</a>`
       );
       return `\x00MENTION_${index}\x00`;
     },

@@ -62,7 +62,6 @@
 
     <!-- Quick Links Card -->
     <div class="sidebar-card links-card">
-      <h2 class="card-title">快速链接</h2>
       <div class="quick-links">
         <router-link to="/app/explore" class="quick-link">
           <v-icon size="18">mdi-compass</v-icon>
@@ -72,10 +71,14 @@
           <v-icon size="18">mdi-github</v-icon>
           <span>GitHub</span>
         </a>
+        <a href="https://kernyr.wuyuan.dev" class="quick-link">
+          <v-icon size="18">mdi-github</v-icon>
+          <span>Kernyr</span>
+        </a>
         <a href="https://qm.qq.com/q/E3eF6xtoHe" target="_blank" class="quick-link"> <v-icon size="18">mdi-mail</v-icon>
           <span>QQ 群</span>
         </a>
-         <a href="https://houlang.cloud" target="_blank" class="quick-link"> <v-icon size="18">mdi-earth</v-icon>
+         <a href="https://houlang.cloud" class="quick-link"> <v-icon size="18">mdi-earth</v-icon>
           <span>厚浪云</span>
         </a>
       </div>
