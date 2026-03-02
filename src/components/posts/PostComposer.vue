@@ -67,17 +67,50 @@
                 <v-img :src="avatarUrl" alt="avatar" />
               </v-avatar>
               <div class="composer-editor-content">
-                <textarea
-                  ref="textareaRef"
-                  v-model="content"
-                  class="composer-textarea composer-textarea--compact"
-                  placeholder="有什么新鲜事？"
-                  :disabled="submitting"
-                  rows="2"
-                  @input="autoResize"
-                  @keydown="onKeydown"
-                  @paste="onPaste"
-                />
+                <div class="composer-textarea-wrapper">
+                  <textarea
+                    ref="textareaRef"
+                    v-model="content"
+                    class="composer-textarea composer-textarea--compact"
+                    placeholder="有什么新鲜事？"
+                    :disabled="submitting"
+                    rows="2"
+                    @focus="isFocused = true"
+                    @blur="onBlur"
+                    @input="onInput"
+                    @keydown="onKeydown"
+                    @paste="onPaste"
+                  />
+                  <!-- Mention dropdown -->
+                  <div v-if="mentionVisible" class="composer-mention-dropdown">
+                    <div v-if="mentionLoading" class="composer-mention-loading">
+                      <v-progress-circular size="20" width="2" indeterminate />
+                      <span>搜索中...</span>
+                    </div>
+                    <template v-else-if="mentionResults.length">
+                      <div
+                        v-for="(user, idx) in mentionResults"
+                        :key="user.id"
+                        class="composer-mention-item"
+                        :class="{ 'composer-mention-item--active': idx === mentionIndex }"
+                        @mousedown.prevent="selectMention(user)"
+                        @mouseenter="mentionIndex = idx"
+                      >
+                        <v-avatar size="28">
+                          <v-img v-if="user.avatar" :src="getUserAvatar(user.avatar)" />
+                          <v-icon v-else size="18">mdi-account</v-icon>
+                        </v-avatar>
+                        <div class="composer-mention-info">
+                          <span class="composer-mention-name">{{ user.display_name || user.username }}</span>
+                          <span class="composer-mention-handle">@{{ user.username }}</span>
+                        </div>
+                      </div>
+                    </template>
+                    <div v-else-if="mentionQuery" class="composer-mention-empty">
+                      未找到用户
+                    </div>
+                  </div>
+                </div>
                 <slot name="append" />
                 <ComposerPreviews
                   :embed="embedPreview"
@@ -124,20 +157,51 @@
       </v-avatar>
 
       <div class="composer-editor-content">
-        <textarea
-          ref="textareaRef"
-          v-model="content"
-          class="composer-textarea"
-          :class="{ 'composer-textarea--compact': compact }"
-          :placeholder="placeholder"
-          :disabled="disabled || submitting"
-          rows="1"
-          @focus="isFocused = true"
-          @blur="onBlur"
-          @input="autoResize"
-          @keydown="onKeydown"
-          @paste="onPaste"
-        />
+        <div class="composer-textarea-wrapper">
+          <textarea
+            ref="textareaRef"
+            v-model="content"
+            class="composer-textarea"
+            :class="{ 'composer-textarea--compact': compact }"
+            :placeholder="placeholder"
+            :disabled="disabled || submitting"
+            rows="1"
+            @focus="isFocused = true"
+            @blur="onBlur"
+            @input="onInput"
+            @keydown="onKeydown"
+            @paste="onPaste"
+          />
+          <!-- Mention dropdown -->
+          <div v-if="mentionVisible" class="composer-mention-dropdown">
+            <div v-if="mentionLoading" class="composer-mention-loading">
+              <v-progress-circular size="20" width="2" indeterminate />
+              <span>搜索中...</span>
+            </div>
+            <template v-else-if="mentionResults.length">
+              <div
+                v-for="(user, idx) in mentionResults"
+                :key="user.id"
+                class="composer-mention-item"
+                :class="{ 'composer-mention-item--active': idx === mentionIndex }"
+                @mousedown.prevent="selectMention(user)"
+                @mouseenter="mentionIndex = idx"
+              >
+                <v-avatar size="28">
+                  <v-img v-if="user.avatar" :src="getUserAvatar(user.avatar)" />
+                  <v-icon v-else size="18">mdi-account</v-icon>
+                </v-avatar>
+                <div class="composer-mention-info">
+                  <span class="composer-mention-name">{{ user.display_name || user.username }}</span>
+                  <span class="composer-mention-handle">@{{ user.username }}</span>
+                </div>
+              </div>
+            </template>
+            <div v-else-if="mentionQuery" class="composer-mention-empty">
+              未找到用户
+            </div>
+          </div>
+        </div>
 
         <slot name="append" />
 
@@ -191,10 +255,11 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, nextTick, watch } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
 import { localuser } from '@/services/localAccount';
 import { getS3staticurl } from '@/services/projectService';
 import PostsService from '@/services/postsService';
+import axios from '@/axios/axios';
 import { getLocalCountInfo, getPostContentLimit } from '@/utils/postCount';
 import { showSnackbar } from '@/composables/useNotifications';
 import ComposerPreviews from './ComposerPreviews.vue';
@@ -228,6 +293,15 @@ const fileInputRef = ref(null);
 const content = ref('');
 const isFocused = ref(false);
 const uploading = ref(false);
+
+// Mention state
+const mentionVisible = ref(false);
+const mentionQuery = ref('');
+const mentionResults = ref([]);
+const mentionLoading = ref(false);
+const mentionIndex = ref(0);
+const mentionStart = ref(-1);
+let mentionSearchTimeout = null;
 const submitting = ref(false);
 const isDragging = ref(false);
 const uploadedAssets = ref([]);
@@ -301,16 +375,129 @@ const autoResize = () => {
   textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + 'px';
 };
 
+// Mention helpers
+const getUserAvatar = (avatar) => {
+  return localuser.getUserAvatar(avatar);
+};
+
+const checkMention = () => {
+  const textarea = textareaRef.value;
+  if (!textarea) return;
+
+  const cursorPos = textarea.selectionStart;
+  const textBeforeCursor = content.value.slice(0, cursorPos);
+
+  // Find the last '@' that starts a mention (preceded by start or whitespace)
+  const mentionMatch = textBeforeCursor.match(/(?:^|\s)@(\S*)$/);
+
+  if (mentionMatch) {
+    const query = mentionMatch[1];
+    // Include the '@' symbol itself so it gets replaced on selection
+    mentionStart.value = cursorPos - query.length - 1;
+    mentionQuery.value = query;
+    mentionIndex.value = 0;
+
+    if (query.length >= 1) {
+      mentionVisible.value = true;
+      clearTimeout(mentionSearchTimeout);
+      mentionSearchTimeout = setTimeout(() => {
+        searchMentionUsers(query);
+      }, 300);
+    } else {
+      // Just typed '@', show empty state
+      mentionVisible.value = true;
+      mentionResults.value = [];
+    }
+  } else {
+    closeMention();
+  }
+};
+
+const searchMentionUsers = async (query) => {
+  if (!query) return;
+  mentionLoading.value = true;
+  try {
+    const params = { scope: 'users', keyword: query, perPage: 8 };
+    const res = await axios.get('/searchapi', { params });
+    mentionResults.value = res.data?.users || res.data?.results || [];
+  } catch {
+    mentionResults.value = [];
+  } finally {
+    mentionLoading.value = false;
+  }
+};
+
+const selectMention = (user) => {
+  if (!user) return;
+  const textarea = textareaRef.value;
+  if (!textarea) return;
+
+  const before = content.value.slice(0, mentionStart.value);
+  const after = content.value.slice(textarea.selectionStart);
+  const mention = `@${user.username} `;
+  content.value = before + mention + after;
+
+  closeMention();
+
+  // Restore cursor position
+  nextTick(() => {
+    const newPos = before.length + mention.length;
+    textarea.selectionStart = newPos;
+    textarea.selectionEnd = newPos;
+    textarea.focus();
+    autoResize();
+  });
+};
+
+const closeMention = () => {
+  mentionVisible.value = false;
+  mentionQuery.value = '';
+  mentionResults.value = [];
+  mentionIndex.value = 0;
+  mentionStart.value = -1;
+  clearTimeout(mentionSearchTimeout);
+};
+
+const onInput = () => {
+  autoResize();
+  checkMention();
+};
+
 const onBlur = () => {
   setTimeout(() => {
+    closeMention();
     if (!content.value.trim() && !uploadedAssets.value.length && !embedPreview.value) {
       isFocused.value = false;
       emit('blur');
     }
-  }, 150);
+  }, 200);
 };
 
 const onKeydown = (e) => {
+  // Mention dropdown keyboard navigation
+  if (mentionVisible.value && mentionResults.value.length > 0) {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      mentionIndex.value = (mentionIndex.value + 1) % mentionResults.value.length;
+      return;
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      mentionIndex.value = (mentionIndex.value - 1 + mentionResults.value.length) % mentionResults.value.length;
+      return;
+    }
+    if (e.key === 'Enter' || e.key === 'Tab') {
+      e.preventDefault();
+      selectMention(mentionResults.value[mentionIndex.value]);
+      return;
+    }
+  }
+  if (e.key === 'Escape' && mentionVisible.value) {
+    e.preventDefault();
+    closeMention();
+    return;
+  }
+
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
     e.preventDefault();
     if (canSubmit.value && !submitting.value) {
@@ -516,6 +703,11 @@ const focus = () => {
 // Watch
 watch(() => props.initialEmbed, (newEmbed) => {
   if (newEmbed) setEmbed(newEmbed);
+});
+
+// Cleanup
+onBeforeUnmount(() => {
+  clearTimeout(mentionSearchTimeout);
 });
 
 // Mount
@@ -736,6 +928,94 @@ defineExpose({
 
 @media (min-width: 600px) {
   .expand-enter-from, .expand-leave-to { transform: translateX(-50%) translateY(20px) scale(0.95); }
+}
+
+/* Textarea wrapper for mention positioning */
+.composer-textarea-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* @提及下拉 */
+.composer-mention-dropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 100;
+  max-height: 240px;
+  overflow-y: auto;
+  background: rgb(var(--v-theme-surface));
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.12);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  margin-top: 4px;
+}
+
+.composer-mention-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.composer-mention-item:first-child {
+  border-radius: 12px 12px 0 0;
+}
+
+.composer-mention-item:last-child {
+  border-radius: 0 0 12px 12px;
+}
+
+.composer-mention-item:only-child {
+  border-radius: 12px;
+}
+
+.composer-mention-item:hover,
+.composer-mention-item--active {
+  background: rgba(var(--v-theme-primary), 0.08);
+}
+
+.composer-mention-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.composer-mention-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgb(var(--v-theme-on-surface));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.composer-mention-handle {
+  font-size: 12px;
+  color: rgba(var(--v-theme-on-surface), 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.composer-mention-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  font-size: 13px;
+  color: rgba(var(--v-theme-on-surface), 0.5);
+}
+
+.composer-mention-empty {
+  padding: 12px;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(var(--v-theme-on-surface), 0.45);
 }
 
 /* 安全区域 */

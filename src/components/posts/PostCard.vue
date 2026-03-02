@@ -5,8 +5,226 @@
       'post-card--deleted': isDeleted,
       'post-card--retweet': isRetweet,
       'post-card--highlight': highlight,
+      'post-card--featured': featured,
     }"
   >
+    <!-- ==================== Featured (主帖) 模式 ==================== -->
+    <template v-if="featured">
+      <div class="post-featured">
+        <!-- Header -->
+        <div class="post-featured-header">
+          <v-avatar size="48" class="post-featured-avatar" @click.stop="goUser">
+            <v-img :src="authorAvatar" :alt="authorUsername" />
+          </v-avatar>
+          <router-link
+            :to="`/${authorUsername}`"
+            class="post-featured-author-link"
+            @click.stop
+          >
+            <div class="post-featured-display-name">{{ authorDisplayName }}</div>
+            <div class="post-featured-username">@{{ authorUsername }}</div>
+          </router-link>
+          <v-spacer />
+          <v-menu
+            v-if="!isDeleted"
+            location="bottom end"
+            @update:model-value="onMenuOpen"
+          >
+            <template #activator="{ props: menuProps }">
+              <v-btn
+                v-bind="menuProps"
+                icon
+                size="small"
+                variant="text"
+                @click.stop
+              >
+                <v-icon size="18">mdi-dots-horizontal</v-icon>
+              </v-btn>
+            </template>
+            <v-list density="compact" class="post-menu-list">
+              <v-list-item
+                v-if="!isSelf && followStatus !== null && !isBlocked"
+                :disabled="followLoading"
+                @click="toggleFollow"
+              >
+                <template #prepend>
+                  <v-icon size="18">{{ isFollowing ? "mdi-account-minus-outline" : "mdi-account-plus-outline" }}</v-icon>
+                </template>
+                <v-list-item-title>{{ isFollowing ? `取消关注 @${authorUsername}` : `关注 @${authorUsername}` }}</v-list-item-title>
+              </v-list-item>
+              <v-list-item
+                v-if="!isSelf && followStatus !== null"
+                :disabled="followLoading"
+                :class="{ 'text-error': !isBlocked }"
+                @click="toggleBlock"
+              >
+                <template #prepend>
+                  <v-icon size="18">{{ isBlocked ? "mdi-account-check-outline" : "mdi-block-helper" }}</v-icon>
+                </template>
+                <v-list-item-title>{{ isBlocked ? `解除拉黑 @${authorUsername}` : `拉黑 @${authorUsername}` }}</v-list-item-title>
+              </v-list-item>
+              <v-list-item
+                v-if="canDelete"
+                class="text-error"
+                @click="handleDeleteClick"
+              >
+                <template #prepend>
+                  <v-icon size="18">mdi-delete-outline</v-icon>
+                </template>
+                <v-list-item-title>删除</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="copyLink">
+                <template #prepend>
+                  <v-icon size="18">mdi-link-variant</v-icon>
+                </template>
+                <v-list-item-title>复制链接</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="federationDialog = true">
+                <template #prepend>
+                  <v-icon size="18">mdi-access-point-network</v-icon>
+                </template>
+                <v-list-item-title>联邦社交数据</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </div>
+
+        <!-- 已删除提示 -->
+        <div v-if="isDeleted" class="post-deleted-notice">
+          <v-icon size="16" class="mr-1">mdi-alert-circle-outline</v-icon>
+          此帖文已被删除
+        </div>
+
+        <!-- 内容区 -->
+        <template v-else>
+          <div class="post-featured-body">
+            <div
+              v-if="displayContent"
+              ref="postTextRef"
+              class="post-featured-text"
+              v-html="formattedContent"
+            />
+
+            <!-- 媒体 -->
+            <div
+              v-if="mediaItems.length"
+              class="post-media post-featured-media"
+              :class="mediaGridClass"
+            >
+              <div
+                v-for="(media, idx) in mediaItems.slice(0, 4)"
+                :key="media.id || idx"
+                v-ripple
+                class="post-media-item"
+                @click.stop="openMediaViewer(idx)"
+              >
+                <v-img
+                  :src="getMediaUrl(media)"
+                  :cover="mediaItems.length > 1"
+                  :max-height="mediaItems.length === 1 ? 600 : undefined"
+                  class="post-media-img"
+                >
+                  <template #placeholder>
+                    <div class="d-flex align-center justify-center fill-height">
+                      <v-progress-circular indeterminate size="24" width="2" />
+                    </div>
+                  </template>
+                </v-img>
+                <div
+                  v-if="idx === 3 && mediaItems.length > 4"
+                  class="post-media-more"
+                >
+                  +{{ mediaItems.length - 4 }}
+                </div>
+              </div>
+            </div>
+
+            <!-- 嵌入内容 -->
+            <PostEmbed
+              v-if="embedData"
+              :embed="embedData"
+              class="mt-4"
+              @click.stop
+            />
+
+            <!-- 引用帖子 -->
+            <QuotedPost
+              v-if="quotedPost"
+              :post="quotedPost"
+              :is-deleted="quotedPost.is_deleted"
+              class="mt-4"
+              @click.stop="goToQuotedPost"
+            />
+          </div>
+
+          <!-- 时间 -->
+          <div class="post-featured-time">
+            <time :datetime="createdAt">{{ fullDateTime }}</time>
+          </div>
+
+          <!-- 统计 -->
+          <div v-if="hasVisibleStats" class="post-featured-stats">
+            <div v-if="stats.retweets > 0" class="post-featured-stat">
+              <span class="post-featured-stat-value">{{ formatCount(stats.retweets) }}</span>
+              <span class="post-featured-stat-label">转推</span>
+            </div>
+            <div v-if="stats.likes > 0" class="post-featured-stat">
+              <span class="post-featured-stat-value">{{ formatCount(stats.likes) }}</span>
+              <span class="post-featured-stat-label">喜欢</span>
+            </div>
+            <div v-if="stats.bookmarks > 0" class="post-featured-stat">
+              <span class="post-featured-stat-value">{{ formatCount(stats.bookmarks) }}</span>
+              <span class="post-featured-stat-label">书签</span>
+            </div>
+          </div>
+
+          <!-- 操作栏 -->
+          <div class="post-featured-actions">
+            <button
+              v-ripple
+              class="post-featured-action post-featured-action--reply"
+              @click.stop="handleFeaturedReply"
+            >
+              <v-icon size="22">mdi-chat-outline</v-icon>
+            </button>
+            <button
+              v-ripple
+              class="post-featured-action post-featured-action--retweet"
+              :class="{ 'post-featured-action--active': isRetweeted }"
+              @click.stop="toggleRetweet"
+            >
+              <v-icon size="22">mdi-repeat-variant</v-icon>
+            </button>
+            <button
+              v-ripple
+              class="post-featured-action post-featured-action--like"
+              :class="{ 'post-featured-action--active': isLiked }"
+              @click.stop="toggleLike"
+            >
+              <v-icon size="22">{{ isLiked ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
+            </button>
+            <button
+              v-ripple
+              class="post-featured-action post-featured-action--bookmark"
+              :class="{ 'post-featured-action--active': isBookmarked }"
+              @click.stop="toggleBookmark"
+            >
+              <v-icon size="22">{{ isBookmarked ? 'mdi-bookmark' : 'mdi-bookmark-outline' }}</v-icon>
+            </button>
+            <button
+              v-ripple
+              class="post-featured-action post-featured-action--share"
+              @click.stop="sharePost"
+            >
+              <v-icon size="22">mdi-share-variant-outline</v-icon>
+            </button>
+          </div>
+        </template>
+      </div>
+    </template>
+
+    <!-- ==================== 普通模式 ==================== -->
+    <template v-else>
     <!-- 转推提示 -->
     <div v-if="retweetAuthor" class="post-retweet-indicator">
       <v-icon size="14" class="mr-2">mdi-repeat</v-icon>
@@ -335,6 +553,7 @@
         </div>
       </div>
     </div>
+    </template>
   </article>
 
   <!-- 回复对话框 -->
@@ -545,9 +764,10 @@ const props = defineProps({
   contextProjectRouteBase: { type: String, default: "" },
   contextEmbedData: { type: Object, default: () => ({}) },
   hideCurrentContextBase: { type: Boolean, default: false },
+  featured: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(["deleted", "created", "updated"]);
+const emit = defineEmits(["deleted", "created", "updated", "focus-reply"]);
 
 const router = useRouter();
 const route = useRoute();
@@ -661,26 +881,84 @@ const formattedContent = computed(() => {
     return `\x00SCRATCHBLOCK_${index}\x00`;
   });
 
+  // 解码 HTML 实体（多轮迭代，处理双重/多重编码如 &amp;quot; → &quot; → "）
+  let _prev;
+  do {
+    _prev = text;
+    text = text
+      .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+      .replace(/&#x([0-9a-fA-F]+);/g, (_, n) => String.fromCharCode(parseInt(n, 16)))
+      .replace(/&quot;/g, '"')
+      .replace(/&apos;/g, "'")
+      .replace(/&#39;/g, "'")
+      .replace(/&#34;/g, '"')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>');
+  } while (text !== _prev);
+
+  // 去除服务端可能已包含的 HTML 标签（如 ActivityPub 联邦格式化后的 <a> 标签），保留纯文本
+  text = text
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>\s*<p[^>]*>/gi, '\n\n')
+    .replace(/<[^>]*>/g, '');
+
+  // 清理残损的 HTML 属性碎片（服务端可能部分剥离标签，留下属性文本）
+  // 通用模式：移除 " class="..." onclick="..." ... > 这类残留
+  text = text.replace(/["']\s*(?:\w[\w-]*\s*=\s*["'][^"']*["']\s*)+>/g, '');
+  // 去除因标签剥离产生的重复相邻 @提及（如 @user@domain@user@domain）
+  text = text.replace(/(@\w+@[\w.-]+\.\w{2,})\s*\1/g, '$1');
+
+  // 提取 URL，用占位符替换（必须在 HTML 转义前提取，避免 & 被转义为 &amp; 进入 href）
+  const urlSegments = [];
+  text = text.replace(/(https?:\/\/[^\s]+)/g, (_, url) => {
+    const index = urlSegments.length;
+    urlSegments.push(url);
+    return `\x00URL_${index}\x00`;
+  });
+
   // 转义HTML
   text = text
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 
-  // @提及
+  // @提及：先处理联邦式 @user@domain.tld，用占位符保护，防止本地提及正则破坏已生成的 HTML
+  const mentionSegments = [];
+  text = text.replace(
+    /@(\w+)@([\w.-]+\.\w{2,})/g,
+    (_, user, domain) => {
+      const index = mentionSegments.length;
+      mentionSegments.push(
+        `<a href="/@${user}@${domain}" class="post-mention" onclick="event.stopPropagation()">@${user}@${domain}</a>`
+      );
+      return `\x00MENTION_${index}\x00`;
+    },
+  );
+
+  // 再处理本地 @user
   text = text.replace(
     /@(\w+)/g,
-    '<a href="/$1" class="post-mention" onclick="event.stopPropagation()">@$1</a>',
+    (match, username, offset, str) => {
+      // 如果前一个字符是 @ 或字母/数字，跳过
+      if (offset > 0 && /[@\w]/.test(str[offset - 1])) return match;
+      return `<a href="/${username}" class="post-mention" onclick="event.stopPropagation()">@${username}</a>`;
+    },
   );
 
-  // URL链接
-  text = text.replace(
-    /(https?:\/\/[^\s]+)/g,
-    '<a href="$1" class="post-link" target="_blank" rel="noopener" onclick="event.stopPropagation()">$1</a>',
-  );
+  // 还原联邦提及占位符
+  text = text.replace(/\x00MENTION_(\d+)\x00/g, (_, idx) => mentionSegments[Number(idx)]);
+
+  // 还原 URL 占位符为 <a> 标签（href 使用原始 URL，不含 HTML 实体）
+  text = text.replace(/\x00URL_(\d+)\x00/g, (_, idx) => {
+    const url = urlSegments[Number(idx)];
+    const safeHref = url.replace(/"/g, '&quot;');
+    const displayUrl = url.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    return `<a href="${safeHref}" class="post-link" target="_blank" rel="noopener" onclick="event.stopPropagation()">${displayUrl}</a>`;
+  });
 
   // 换行
-  text = text.replace(/\n/g, "<br>");
+  text = text.replace(/\\n|\n/g, "<br>");
 
   // 还原 scratchblocks 代码块
   text = text.replace(/\x00SCRATCHBLOCK_(\d+)\x00/g, (_, idx) => {
@@ -753,6 +1031,10 @@ const stats = computed(() => {
     likes: s.likes || 0,
     bookmarks: s.bookmarks || 0,
   };
+});
+
+const hasVisibleStats = computed(() => {
+  return stats.value.retweets > 0 || stats.value.likes > 0 || stats.value.bookmarks > 0;
 });
 
 // Viewer context
@@ -1145,6 +1427,11 @@ const openReplyDialog = () => {
 const openQuoteDialog = () => {
   if (!requireLogin("引用")) return;
   quoteDialog.value = true;
+};
+
+const handleFeaturedReply = () => {
+  if (!requireLogin("回复")) return;
+  emit('focus-reply');
 };
 
 const submitReply = async ({ content, mediaIds, embed }) => {
@@ -1774,5 +2061,178 @@ const openMediaViewer = (index) => {
   align-items: center;
   justify-content: center;
   height: 100%;
+}
+
+/* ==================== Featured (主帖) 模式 ==================== */
+.post-card--featured {
+  border-bottom: none;
+  background: transparent;
+}
+
+.post-card--featured:hover {
+  background: transparent;
+}
+
+.post-featured {
+  padding: 16px;
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.post-featured-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.post-featured-avatar {
+  cursor: pointer;
+  margin-right: 12px;
+}
+
+.post-featured-author-link {
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.post-featured-author-link:hover .post-featured-display-name {
+  text-decoration: underline;
+}
+
+.post-featured-display-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: rgb(var(--v-theme-on-surface));
+  line-height: 1.2;
+}
+
+.post-featured-username {
+  font-size: 15px;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+}
+
+.post-featured-text {
+  font-size: 17px;
+  line-height: 1.5;
+  color: rgb(var(--v-theme-on-surface));
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.post-featured-text :deep(.post-mention),
+.post-featured-text :deep(.post-link) {
+  color: rgb(var(--v-theme-primary));
+  text-decoration: none;
+}
+
+.post-featured-text :deep(.post-mention:hover),
+.post-featured-text :deep(.post-link:hover) {
+  text-decoration: underline;
+}
+
+.post-featured-text :deep(.scratchblocks) {
+  overflow-x: auto;
+  margin: 8px 0;
+}
+
+.post-featured-text :deep(pre.blocks) {
+  white-space: pre;
+  margin: 8px 0;
+}
+
+.post-featured-media {
+  margin-top: 16px;
+}
+
+.post-featured-time {
+  padding: 16px 0;
+  font-size: 15px;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.post-featured-stats {
+  display: flex;
+  gap: 20px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.post-featured-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.post-featured-stat-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.post-featured-stat-label {
+  font-size: 14px;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+}
+
+.post-featured-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.post-featured-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: none;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.post-featured-action--reply:hover {
+  color: rgb(var(--v-theme-primary));
+  background: rgba(var(--v-theme-primary), 0.1);
+}
+
+.post-featured-action--retweet:hover {
+  color: #00ba7c;
+  background: rgba(0, 186, 124, 0.1);
+}
+
+.post-featured-action--retweet.post-featured-action--active {
+  color: #00ba7c;
+}
+
+.post-featured-action--like:hover {
+  color: #f91880;
+  background: rgba(249, 24, 128, 0.1);
+}
+
+.post-featured-action--like.post-featured-action--active {
+  color: #f91880;
+}
+
+.post-featured-action--bookmark:hover {
+  color: rgb(var(--v-theme-primary));
+  background: rgba(var(--v-theme-primary), 0.1);
+}
+
+.post-featured-action--bookmark.post-featured-action--active {
+  color: rgb(var(--v-theme-primary));
+}
+
+.post-featured-action--share:hover {
+  color: rgb(var(--v-theme-primary));
+  background: rgba(var(--v-theme-primary), 0.1);
 }
 </style>
