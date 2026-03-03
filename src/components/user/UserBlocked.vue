@@ -16,17 +16,21 @@
       <v-card v-for="blockedUser in blockedUsers" :key="blockedUser.id" class="mb-3" hover>
         <v-card-item>
           <template v-slot:prepend>
-            <router-link :to="`/${blockedUser.user.username}`">
-              <v-avatar size="50">
-                <v-img :src="localuser.getUserAvatar(blockedUser.user.avatar)" alt="用户头像"/>
-              </v-avatar>
-            </router-link>
+            <UserHoverCard :username="blockedUser.user.username">
+              <router-link :to="`/${blockedUser.user.username}`">
+                <v-avatar size="50">
+                  <v-img :src="localuser.getUserAvatar(blockedUser.user.avatar)" alt="用户头像"/>
+                </v-avatar>
+              </router-link>
+            </UserHoverCard>
           </template>
 
           <v-card-title>
-            <router-link :to="`/${blockedUser.user.username}`" class="text-decoration-none">
-              {{ blockedUser.user.display_name }}
-            </router-link>
+            <UserHoverCard :username="blockedUser.user.username" inline>
+              <router-link :to="`/${blockedUser.user.username}`" class="text-decoration-none">
+                {{ blockedUser.user.display_name }}
+              </router-link>
+            </UserHoverCard>
           </v-card-title>
 
           <v-card-subtitle class="text-truncate">{{ blockedUser.metadata.reason }} - {{ blockedUser.created_at }}
@@ -84,6 +88,7 @@
 import request from "@/axios/axios.js";
 import {localuser} from "@/services/localAccount";
 import {ref, onMounted} from "vue";
+import UserHoverCard from "@/components/UserHoverCard.vue";
 
 
 export default {

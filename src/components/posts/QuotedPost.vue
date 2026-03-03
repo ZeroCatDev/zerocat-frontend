@@ -14,11 +14,15 @@
     <template v-else>
       <!-- 作者信息 -->
       <div class="quoted-header">
-        <v-avatar size="20" class="quoted-avatar">
-          <v-img :src="authorAvatar" :alt="authorUsername" />
-        </v-avatar>
-        <span class="quoted-display-name">{{ authorDisplayName }}</span>
-        <span class="quoted-username">@{{ authorUsername }}</span>
+        <UserHoverCard :username="authorUsername" inline>
+          <v-avatar size="20" class="quoted-avatar">
+            <v-img :src="authorAvatar" :alt="authorUsername" />
+          </v-avatar>
+        </UserHoverCard>
+        <UserHoverCard :username="authorUsername" inline>
+          <span class="quoted-display-name">{{ authorDisplayName }}</span>
+          <span class="quoted-username">@{{ authorUsername }}</span>
+        </UserHoverCard>
         <span class="quoted-separator">·</span>
         <span class="quoted-time">{{ timeAgo }}</span>
       </div>
@@ -47,6 +51,7 @@
 <script setup>
 import { computed } from 'vue';
 import { localuser } from '@/services/localAccount';
+import UserHoverCard from '@/components/UserHoverCard.vue';
 
 const props = defineProps({
   post: { type: Object, required: true },

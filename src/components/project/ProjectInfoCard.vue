@@ -8,15 +8,17 @@
 
     <!-- Author rounded card -->
     <div v-if="author.username" class="project-info__author-card">
-      <router-link :to="'/' + author.username" class="project-info__author-link">
-        <v-avatar size="42">
-          <v-img :src="localuser.getUserAvatar(author.avatar)" :alt="author.display_name" />
-        </v-avatar>
-        <div class="project-info__author-text">
-          <span class="project-info__author-name">{{ author.display_name }}</span>
-          <span v-if="author.motto" class="project-info__author-motto">{{ author.motto }}</span>
-        </div>
-      </router-link>
+      <UserHoverCard :username="author.username">
+        <router-link :to="'/' + author.username" class="project-info__author-link">
+          <v-avatar size="42">
+            <v-img :src="localuser.getUserAvatar(author.avatar)" :alt="author.display_name" />
+          </v-avatar>
+          <div class="project-info__author-text">
+            <span class="project-info__author-name">{{ author.display_name }}</span>
+            <span v-if="author.motto" class="project-info__author-motto">{{ author.motto }}</span>
+          </div>
+        </router-link>
+      </UserHoverCard>
       <div
         v-if="variant === 'full' && localuser.id && author.id && localuser.id !== author.id"
         class="project-info__author-follow"
@@ -128,6 +130,7 @@
 import TimeAgo from "@/components/TimeAgo.vue";
 import ProjectStar from "@/components/project/ProjectStar.vue";
 import UserRelationControls from "@/components/user/UserRelationControls.vue";
+import UserHoverCard from "@/components/UserHoverCard.vue";
 import openEditor from "@/stores/openEdit";
 import { getProjectStats } from "@/services/projectService";
 import { openFloatingPostBar } from "@/composables/useFloatingPostBar";

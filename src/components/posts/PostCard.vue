@@ -13,17 +13,21 @@
       <div class="post-featured">
         <!-- Header -->
         <div class="post-featured-header">
-          <v-avatar size="48" class="post-featured-avatar" @click.stop="goUser">
-            <v-img :src="authorAvatar" :alt="authorUsername" />
-          </v-avatar>
-          <router-link
-            :to="`/${authorUsername}`"
-            class="post-featured-author-link"
-            @click.stop
-          >
-            <div class="post-featured-display-name">{{ authorDisplayName }}</div>
-            <div class="post-featured-username">@{{ authorUsername }}</div>
-          </router-link>
+          <UserHoverCard :username="authorUsername" inline>
+            <v-avatar size="48" class="post-featured-avatar" @click.stop="goUser">
+              <v-img :src="authorAvatar" :alt="authorUsername" />
+            </v-avatar>
+          </UserHoverCard>
+          <UserHoverCard :username="authorUsername" inline>
+            <router-link
+              :to="`/${authorUsername}`"
+              class="post-featured-author-link"
+              @click.stop
+            >
+              <div class="post-featured-display-name">{{ authorDisplayName }}</div>
+              <div class="post-featured-username">@{{ authorUsername }}</div>
+            </router-link>
+          </UserHoverCard>
           <v-spacer />
           <v-menu
             v-if="!isDeleted"
@@ -102,6 +106,7 @@
               v-if="displayContent"
               ref="postTextRef"
               class="post-featured-text"
+              v-user-hover
               v-html="formattedContent"
             />
 
@@ -277,9 +282,11 @@
     <div v-ripple class="post-main" @click="openDetail">
       <!-- 头像 -->
       <div class="post-avatar-col">
-        <v-avatar size="48" class="post-avatar" @click.stop="goUser">
-          <v-img :src="authorAvatar" :alt="authorUsername" />
-        </v-avatar>
+        <UserHoverCard :username="authorUsername" inline>
+          <v-avatar size="48" class="post-avatar" @click.stop="goUser">
+            <v-img :src="authorAvatar" :alt="authorUsername" />
+          </v-avatar>
+        </UserHoverCard>
         <!-- 线程连接线 -->
         <div v-if="showThreadLine" class="post-thread-line" />
       </div>
@@ -288,14 +295,16 @@
       <div class="post-content-col">
         <!-- 作者信息行 -->
         <div class="post-header">
-          <router-link
-            :to="`/${authorUsername}`"
-            class="post-author-link"
-            @click.stop
-          >
-            <span class="post-display-name">{{ authorDisplayName }}</span>
-            <span class="post-username">@{{ authorUsername }}</span>
-          </router-link>
+          <UserHoverCard :username="authorUsername" inline>
+            <router-link
+              :to="`/${authorUsername}`"
+              class="post-author-link"
+              @click.stop
+            >
+              <span class="post-display-name">{{ authorDisplayName }}</span>
+              <span class="post-username">@{{ authorUsername }}</span>
+            </router-link>
+          </UserHoverCard>
           <span class="post-separator">·</span>
           <time class="post-time" :datetime="createdAt" :title="fullDateTime">
             {{ timeAgo }}
@@ -399,6 +408,7 @@
             v-if="displayContent"
             ref="postTextRef"
             class="post-text"
+            v-user-hover
             v-html="formattedContent"
           />
 
@@ -769,6 +779,7 @@ import axios from "@/axios/axios";
 import PostComposer from "./PostComposer.vue";
 import PostEmbed from "./PostEmbed.vue";
 import QuotedPost from "./QuotedPost.vue";
+import UserHoverCard from "@/components/UserHoverCard.vue";
 import {
   getEmbedSpecialMarkers,
   isSameEmbedTarget,

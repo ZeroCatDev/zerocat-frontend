@@ -16,18 +16,22 @@
       <v-card v-for="followedUser in following" :key="followedUser.id" class="mb-3" hover>
         <v-card-item>
           <template v-slot:prepend>
-            <router-link :to="`/${followedUser.user.username}`">
-              <v-avatar size="50">
-                <v-img :src="localuser.getUserAvatar(followedUser.user.avatar)"
-                       alt="用户头像"/>
-              </v-avatar>
-            </router-link>
+            <UserHoverCard :username="followedUser.user.username">
+              <router-link :to="`/${followedUser.user.username}`">
+                <v-avatar size="50">
+                  <v-img :src="localuser.getUserAvatar(followedUser.user.avatar)"
+                         alt="用户头像"/>
+                </v-avatar>
+              </router-link>
+            </UserHoverCard>
           </template>
 
           <v-card-title>
-            <router-link :to="`/${followedUser.user.username}`" class="text-decoration-none">
-              {{ followedUser.user.display_name }}
-            </router-link>
+            <UserHoverCard :username="followedUser.user.username" inline>
+              <router-link :to="`/${followedUser.user.username}`" class="text-decoration-none">
+                {{ followedUser.user.display_name }}
+              </router-link>
+            </UserHoverCard>
           </v-card-title>
 
           <v-card-subtitle class="text-truncate">{{ followedUser.created_at || '' }}</v-card-subtitle>
@@ -85,6 +89,7 @@
 import request from "@/axios/axios.js";
 import {localuser} from "@/services/localAccount";
 import {ref, onMounted} from "vue";
+import UserHoverCard from "@/components/UserHoverCard.vue";
 
 
 export default {

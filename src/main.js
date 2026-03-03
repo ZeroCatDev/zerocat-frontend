@@ -22,6 +22,9 @@ import './styles/settings.scss'
 
 import router from "./router";
 
+// Directives
+import { UserHoverDirectivePlugin } from "@/directives/userHoverDirective";
+
 const app = createApp(App);
 
 const head = createHead();
@@ -33,6 +36,9 @@ app.use(PrimeVue, {
   },
 });
 app.use(ToastService);
+
+// 注册用户悬停卡片全局指令
+app.use(UserHoverDirectivePlugin);
 
 // 使用 Vercel Speed Insights 观测网站性能
 // import { injectSpeedInsights } from "@vercel/speed-insights";
