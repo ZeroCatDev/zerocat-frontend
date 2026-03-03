@@ -25,7 +25,7 @@
             <v-card border rounded="lg" class="h-100">
               <v-card-item>
                 <v-card-title class="text-subtitle-1"
-                  >𝕏（Twitter）设置</v-card-title
+                  >𝕏（Twitter）设置 未完工！猫要死了，twitter什么人才接口。</v-card-title
                 >
                 <v-card-subtitle
                   >先配置 OAuth App，再进行授权。</v-card-subtitle
