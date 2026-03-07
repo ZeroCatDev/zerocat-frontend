@@ -189,6 +189,11 @@ const loadThread = async () => {
       includes.value = res.includes;
       cursor.value = res.nextCursor;
       hasMoreReplies.value = res.hasMore;
+
+      // 非阻塞上报已读，驱动 Gorse 推荐去重
+      if (isLogin.value) {
+        PostsService.markRead(postId.value);
+      }
     } else {
       // 兼容：尝试单独获取帖子
       const singleRes = await PostsService.getPost(postId.value);

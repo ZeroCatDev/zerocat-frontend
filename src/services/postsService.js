@@ -105,6 +105,20 @@ const normalizeThreadResponse = (res) => {
 
 export const PostsService = {
   /**
+   * 上报已读（Gorse read 反馈，驱动推荐去重）
+   * 仅已登录用户有效，未登录时服务端直接返回 acknowledged: false
+   * @param {string|number} postId
+   */
+  async markRead(postId) {
+    try {
+      const response = await axios.post(`/posts/${postId}/read`);
+      return response.data;
+    } catch {
+      // 静默失败，不影响主流程
+    }
+  },
+
+  /**
    * 上传图片
    */
   async uploadImage(file) {
@@ -361,6 +375,33 @@ export const PostsService = {
       return normalizeListResponse(response.data);
     } catch (error) {
       throw new Error(getErrorMessage(error, '获取全局时间线失败'));
+    }
+  },
+
+  /**
+   * 获取个性化推荐信息流（Gorse）
+   * 使用 offset 分页，无推荐时自动降级为时间线
+   * @param {Object} options
+   * @param {number} options.offset - 分页偏移量
+   * @param {number} options.limit - 每页数量（1-50）
+   */
+  async getRecommendFeed({ offset = 0, limit = 20 } = {}) {
+    try {
+      const params = { limit, offset };
+      const response = await axios.get('/posts/recommend', { params });
+      const data = response.data?.data ?? response.data ?? response;
+
+      const posts = Array.isArray(data?.posts) ? data.posts : [];
+      const includes = data?.includes ?? { posts: {} };
+
+      // 推荐接口使用 next_offset；降级时使用 next_cursor
+      const nextOffset = data?.next_offset ?? null;
+      const nextCursor = data?.next_cursor ?? data?.nextCursor ?? null;
+      const hasMore = data?.has_more ?? data?.hasMore ?? posts.length > 0;
+
+      return { posts, includes, nextOffset, nextCursor, hasMore };
+    } catch (error) {
+      throw new Error(getErrorMessage(error, '获取推荐时间线失败'));
     }
   },
 

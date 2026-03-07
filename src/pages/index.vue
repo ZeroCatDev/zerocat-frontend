@@ -19,15 +19,23 @@
             <div class="header-content" style="display: none;">
               <img src="@/assets/logo.png" alt="ZeroCat Logo" class="header-logo" />
             </div>
-            <div v-if="isLogin" class="header-tabs">
+            <div class="header-tabs">
+              <button
+                class="header-tab"
+                :class="{ 'header-tab--active': feedType === 'recommend' }"
+                @click="feedType = 'recommend'"
+              >
+                推荐
+              </button>
               <button
                 class="header-tab"
                 :class="{ 'header-tab--active': feedType === 'for-you' }"
                 @click="feedType = 'for-you'"
               >
-                推荐
+                最新
               </button>
               <button
+                v-if="isLogin"
                 class="header-tab"
                 :class="{ 'header-tab--active': feedType === 'following' }"
                 @click="feedType = 'following'"
@@ -131,8 +139,9 @@ const includes = ref({ posts: {} });
 const loading = ref(false);
 const loadingMore = ref(false);
 const cursor = ref(null);
+const recommendOffset = ref(0); // Gorse 推荐接口使用 offset 分页
 const hasMore = ref(true);
-const feedType = ref('for-you');
+const feedType = ref('recommend');
 
 const isLogin = computed(() => localuser.isLogin.value);
 
@@ -149,6 +158,7 @@ const loadFeed = async (isInitial = false) => {
   if (isInitial) {
     loading.value = true;
     cursor.value = null;
+    recommendOffset.value = 0;
     posts.value = [];
     includes.value = { posts: {} };
   } else {
@@ -157,19 +167,33 @@ const loadFeed = async (isInitial = false) => {
 
   try {
     let res;
-    if (feedType.value === 'global') {
+    if (feedType.value === 'recommend') {
+      // Gorse 个性化推荐，offset 分页
+      res = await PostsService.getRecommendFeed({
+        offset: isInitial ? 0 : recommendOffset.value,
+        limit: 20,
+      });
+      if (res.nextOffset !== null && res.nextOffset !== undefined) {
+        recommendOffset.value = res.nextOffset;
+      } else if (res.nextCursor) {
+        cursor.value = res.nextCursor;
+      }
+    } else if (feedType.value === 'global') {
       res = await PostsService.getGlobalFeed({
         cursor: isInitial ? undefined : cursor.value,
         limit: 20,
         includeReplies: false,
       });
+      cursor.value = res.nextCursor;
     } else {
+      // for-you（最新）/ following
       res = await PostsService.getFeed({
         cursor: isInitial ? undefined : cursor.value,
         limit: 20,
         includeReplies: false,
         followingOnly: feedType.value === 'following',
       });
+      cursor.value = res.nextCursor;
     }
 
     if (isInitial) {
@@ -180,7 +204,6 @@ const loadFeed = async (isInitial = false) => {
       Object.assign(includes.value.posts, res.includes.posts);
     }
 
-    cursor.value = res.nextCursor;
     hasMore.value = res.hasMore;
   } catch (e) {
     showSnackbar(e?.message || '加载失败', 'error');
