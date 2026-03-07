@@ -1925,11 +1925,14 @@ export default {
 
 <style scoped>
 .project-editor {
-  position: relative;
-  height: 100%;
-  width: 100%;
+  position: fixed;
+  top: var(--v-layout-top, 64px);
+  bottom: 0;
+  left: var(--v-layout-left, 0);
+  right: var(--v-layout-right, 0);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  overflow: hidden;
 }
 
 .editor-main-container {
