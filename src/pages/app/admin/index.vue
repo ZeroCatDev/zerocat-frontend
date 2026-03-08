@@ -66,6 +66,7 @@ export default {
         {name: "评论服务", path: "/app/admin/commentservice"},
         {name: "联邦管理", path: "/app/admin/federation"},
         {name: "Gorse 推荐", path: "/app/admin/gorse"},
+        {name: "Embedding 向量", path: "/app/admin/embedding"},
       ],
     };
   },
