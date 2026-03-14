@@ -86,16 +86,45 @@
         ></v-text-field>
       </v-col>
       <v-col cols="12">
-        <v-textarea
-          v-model="profileData.bio"
-          :counter="2000"
-          auto-grow
-          hint="支持Markdown格式"
-          label="详细介绍"
-          persistent-hint
-          rows="3"
-          variant="outlined"
-        ></v-textarea>
+        <v-card variant="tonal" rounded="lg" class="pa-4">
+          <div class="d-flex flex-wrap align-center ga-3">
+            <div class="flex-grow-1">
+              <div class="text-subtitle-1 font-weight-medium">详细介绍（README 项目）</div>
+              <div class="text-body-2 text-medium-emphasis mt-1">
+                使用与 GitHub 类似的方式：通过 <strong>{{ readmePath }}</strong> 项目维护个人详细介绍。
+              </div>
+            </div>
+            <v-chip size="small" variant="outlined" prepend-icon="mdi-file-document-outline">
+              {{ readmeChecking ? '检测中' : (readmeExists ? '已存在' : '未创建') }}
+            </v-chip>
+          </div>
+
+          <v-progress-linear
+            v-if="readmeChecking"
+            indeterminate
+            color="primary"
+            class="mt-3"
+            rounded
+          />
+
+          <div class="d-flex flex-wrap ga-2 mt-4">
+            <v-btn
+              color="primary"
+              variant="elevated"
+              prepend-icon="mdi-book-open-page-variant-outline"
+              :loading="readmeLoading"
+              :disabled="readmeChecking"
+              @click="openOrCreateReadmeProject"
+            >{{ readmeChecking ? '检测 README 项目中...' : (readmeExists ? '打开 README 项目' : '创建并编辑 README 项目') }}</v-btn>
+
+            <v-btn
+              v-if="!readmeChecking && readmeExists"
+              variant="tonal"
+              prepend-icon="mdi-open-in-new"
+              :to="readmeArticleViewPath"
+            >查看 README 页面</v-btn>
+          </div>
+        </v-card>
       </v-col>
 
       <v-col cols="12" md="6">
@@ -142,6 +171,8 @@
 
 <script>
 import {updateUserInfo} from "@/services/accountService";
+import { getProjectInfoByNamespace, initProject } from "@/services/projectService";
+import request from "@/axios/axios";
 import region_zh_CN from "@/constants/region_zh-CN.json";
 import RegionSelector from "./RegionSelector.vue";
 import ProjectSelector from "../shared/ProjectSelector.vue";
@@ -163,6 +194,9 @@ export default {
       loading: false,
       valid: false,
       showRegionDialog: false,
+      readmeLoading: false,
+      readmeChecking: true,
+      readmeExists: false,
       profileData: {
         display_name: this.userData.display_name || '',
         motto: this.userData.motto || '',
@@ -205,7 +239,16 @@ export default {
       ]
     };
   },
-  computed: {},
+  computed: {
+    readmePath() {
+      const username = this.userData?.username || 'username';
+      return `/${username}/${username}`;
+    },
+    readmeArticleViewPath() {
+      const username = this.userData?.username || 'username';
+      return `/${username}/articles/${username}`;
+    }
+  },
   watch: {
     userData: {
       handler(newVal) {
@@ -226,9 +269,84 @@ export default {
       },
       immediate: true,
       deep: true
+    },
+    'userData.username': {
+      handler() {
+        this.checkReadmeProjectExists();
+      },
+      immediate: true
     }
   },
   methods: {
+    getUsername() {
+      return this.userData?.username || '';
+    },
+    getReadmeProjectName() {
+      const username = this.getUsername();
+      return username;
+    },
+    async checkReadmeProjectExists() {
+      const username = this.getUsername();
+      const projectName = this.getReadmeProjectName();
+      if (!username || !projectName) {
+        this.readmeChecking = false;
+        this.readmeExists = false;
+        return;
+      }
+
+      this.readmeChecking = true;
+      try {
+        const project = await getProjectInfoByNamespace(username, projectName);
+        this.readmeExists = Boolean(project?.id && project.id !== 0 && project?.type === 'article');
+      } catch {
+        this.readmeExists = false;
+      } finally {
+        this.readmeChecking = false;
+      }
+    },
+    async openOrCreateReadmeProject() {
+      const username = this.getUsername();
+      const projectName = this.getReadmeProjectName();
+      if (!username || !projectName) {
+        this.$emit('error', new Error('无法获取当前用户名'));
+        return;
+      }
+
+      this.readmeLoading = true;
+      try {
+        const existing = await getProjectInfoByNamespace(username, projectName);
+        if (existing?.id && existing.id !== 0 && existing?.type === 'article') {
+          this.readmeExists = true;
+          this.$router.push(`/${username}/articles/${projectName}/edit`);
+          return;
+        }
+
+        const createRes = await request.post('/project/', {
+          name: projectName,
+          title: 'README.md',
+          description: '',
+          state: 'public',
+          type: 'article',
+          license: 'None'
+        });
+
+        if (createRes?.data?.status === 'error') {
+          throw new Error(createRes?.data?.message || '创建 README 项目失败');
+        }
+
+        const projectId = createRes?.data?.data?.id ?? createRes?.data?.id;
+        if (projectId) {
+          await initProject(projectId, 'text');
+        }
+
+        this.readmeExists = true;
+        this.$router.push(`/${username}/articles/${projectName}/edit`);
+      } catch (error) {
+        this.$emit('error', error);
+      } finally {
+        this.readmeLoading = false;
+      }
+    },
     formatDateForInput(dateString) {
       if (!dateString) return '';
       const date = new Date(dateString);

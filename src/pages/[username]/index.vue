@@ -20,14 +20,54 @@
           <!-- Home Tab -->
           <template v-if="currentTab === 'home'">
             <!-- README -->
-            <v-card v-if="user.bio" rounded="lg" border class="mb-4">
+            <v-card v-if="readmeContent" rounded="lg" border class="mb-4">
               <v-card-title class="d-flex align-center py-3">
                 <v-icon start size="20">mdi-file-document-outline</v-icon>
                 <span class="text-body-1 font-weight-bold">README.md</span>
               </v-card-title>
               <v-divider />
               <v-card-text class="markdown-body">
-                <Markdown>{{ user.bio }}</Markdown>
+                <Markdown>{{ readmeContent }}</Markdown>
+              </v-card-text>
+            </v-card>
+
+            <v-card v-else-if="showReadmeLoadingCard" rounded="lg" border class="mb-4">
+              <v-card-title class="d-flex align-center py-3">
+                <v-icon start size="20">mdi-file-document-outline</v-icon>
+                <span class="text-body-1 font-weight-bold">README.md</span>
+              </v-card-title>
+              <v-divider />
+              <v-card-text>
+                <v-skeleton-loader type="paragraph, paragraph" />
+              </v-card-text>
+            </v-card>
+
+            <v-card v-else-if="showReadmePrompt" rounded="lg" border class="mb-4" variant="tonal">
+              <v-card-title class="d-flex align-center py-3">
+                <v-icon start size="20">mdi-file-document-plus-outline</v-icon>
+                <span class="text-body-1 font-weight-bold">README.md</span>
+              </v-card-title>
+              <v-divider />
+              <v-card-text>
+                <div class="text-body-2 text-medium-emphasis mb-3">
+                  还没有个人简介，创建 README 项目后可在主页展示详细介绍。
+                </div>
+                <div class="d-flex flex-wrap ga-2">
+                  <v-btn
+                    color="primary"
+                    variant="elevated"
+                    prepend-icon="mdi-book-open-page-variant-outline"
+                    :loading="readmeLoading"
+                    @click="openOrCreateReadmeProject"
+                  >{{ readmeExists ? '打开 README 项目' : '创建并编辑 README 项目' }}</v-btn>
+
+                  <v-btn
+                    v-if="readmeExists"
+                    variant="tonal"
+                    prepend-icon="mdi-open-in-new"
+                    :to="`/${username}/articles/${username}`"
+                  >查看 README 页面</v-btn>
+                </div>
               </v-card-text>
             </v-card>
 
@@ -115,7 +155,9 @@
 import Comment from "../../components/Comment.vue";
 import { useSeo } from "@/composables/useSeo";
 import { ref } from "vue";
+import { localuser } from "@/services/localAccount";
 import { getUserByUsername } from "../../stores/user.js";
+import { getProjectInfoByNamespace, initProject } from "@/services/projectService";
 import request from "../../axios/axios.js";
 import Markdown from "@/components/Markdown.vue";
 import "github-markdown-css";
@@ -153,6 +195,10 @@ export default {
           total: 0,
         },
       },
+      readmeContent: "",
+      readmeExists: false,
+      readmeLoading: false,
+      readmeChecking: true,
       isLoadingMore: false,
     };
   },
@@ -160,6 +206,15 @@ export default {
     currentTab() {
       return this.$route.query.tab || "home";
     },
+    isCurrentUser() {
+      return Boolean(localuser.isLogin.value && localuser.user.value?.username === this.username);
+    },
+    showReadmeLoadingCard() {
+      return this.isCurrentUser && this.readmeChecking;
+    },
+    showReadmePrompt() {
+      return this.isCurrentUser && !this.readmeChecking && !this.readmeContent;
+    }
   },
   setup() {
     const pageTitle = ref("用户主页");
@@ -175,6 +230,7 @@ export default {
   },
   async created() {
     await this.fetchUser();
+    await this.fetchReadmeContent();
     await this.fetchTimeline();
   },
   methods: {
@@ -205,6 +261,79 @@ export default {
         }
       } catch (error) {
         console.error("Failed to fetch timeline:", error);
+      }
+    },
+    async fetchReadmeContent() {
+      this.readmeChecking = true;
+      this.readmeContent = "";
+      this.readmeExists = false;
+      try {
+        const readmeProject = await getProjectInfoByNamespace(this.username, this.username);
+        if (!readmeProject?.id || readmeProject.id === 0 || readmeProject.type !== "article") {
+          return;
+        }
+
+        this.readmeExists = true;
+
+        const commitRes = await request.get(`/project/${readmeProject.id}/main/latest`);
+        if (commitRes.data?.status !== "success") return;
+
+        const token = commitRes.data.accessFileToken;
+        const commitFile = commitRes.data.commit?.commit_file;
+        if (!token || !commitFile) return;
+
+        const fileRes = await request.get(
+          `/project/files/${commitFile}?accessFileToken=${token}&content=true`
+        );
+        let raw = fileRes.data;
+        if (typeof raw === "object") {
+          raw = raw.index ?? "";
+        }
+        this.readmeContent = typeof raw === "string" ? raw : "";
+      } catch (error) {
+        console.error("Failed to fetch user README content:", error);
+        this.readmeContent = "";
+        this.readmeExists = false;
+      } finally {
+        this.readmeChecking = false;
+      }
+    },
+    async openOrCreateReadmeProject() {
+      if (!this.isCurrentUser) return;
+
+      this.readmeLoading = true;
+      try {
+        const readmeProject = await getProjectInfoByNamespace(this.username, this.username);
+        if (readmeProject?.id && readmeProject.id !== 0 && readmeProject.type === "article") {
+          this.readmeExists = true;
+          this.$router.push(`/${this.username}/articles/${this.username}/edit`);
+          return;
+        }
+
+        const createRes = await request.post('/project/', {
+          name: this.username,
+          title: 'README.md',
+          description: '',
+          state: 'public',
+          type: 'article',
+          license: 'None'
+        });
+
+        if (createRes?.data?.status === 'error') {
+          throw new Error(createRes?.data?.message || '创建 README 项目失败');
+        }
+
+        const projectId = createRes?.data?.data?.id ?? createRes?.data?.id;
+        if (projectId) {
+          await initProject(projectId, 'text');
+        }
+
+        this.readmeExists = true;
+        this.$router.push(`/${this.username}/articles/${this.username}/edit`);
+      } catch (error) {
+        console.error('Failed to open/create README project:', error);
+      } finally {
+        this.readmeLoading = false;
       }
     },
     async loadMoreEvents() {
