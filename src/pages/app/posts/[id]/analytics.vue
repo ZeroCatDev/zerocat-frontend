@@ -66,7 +66,7 @@
             <section class="analytics-section">
               <h2 class="section-title">趋势</h2>
               <div class="chart-grid">
-                <v-card rounded="xl" variant="outlined" class="chart-card">
+                <v-card rounded="xl" border class="chart-card">
                   <v-card-title class="chart-title">曝光与互动</v-card-title>
                   <v-card-text>
                     <v-chart
@@ -79,7 +79,7 @@
                   </v-card-text>
                 </v-card>
 
-                <v-card rounded="xl" variant="outlined" class="chart-card">
+                <v-card rounded="xl" border class="chart-card">
                   <v-card-title class="chart-title">访客趋势</v-card-title>
                   <v-card-text>
                     <v-chart
@@ -96,7 +96,7 @@
 
             <section class="analytics-section">
               <h2 class="section-title">互动构成</h2>
-              <v-card rounded="xl" variant="outlined" class="chart-card">
+              <v-card rounded="xl" border class="chart-card">
                 <v-card-text>
                   <v-chart
                     v-if="hasBreakdown"
@@ -112,7 +112,7 @@
             <section class="analytics-section">
               <h2 class="section-title">流量来源与受众</h2>
               <div class="table-grid">
-                <v-card v-for="item in audienceTables" :key="item.key" rounded="xl" variant="outlined">
+                <v-card v-for="item in audienceTables" :key="item.key" rounded="xl" border>
                   <v-card-title class="table-title">
                     <v-icon :icon="item.icon" size="18" class="mr-2" />
                     {{ item.title }}
