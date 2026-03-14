@@ -4,9 +4,12 @@
 
 <script setup>
 import error404 from "@/components/error/404.vue";
+import { useRoute, useRouter } from 'vue-router';
 
+const route = useRoute();
+const router = useRouter();
 
-if (this.$route.path.startsWith('/proxy')) {
-  this.$router.replace(`/app${route.path}`);
+if (route.path.startsWith('/proxy')) {
+  router.replace(`/app${route.path}`);
 }
 </script>

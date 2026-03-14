@@ -1,5 +1,6 @@
 <template>
   <article
+    ref="cardRootRef"
     class="post-card"
     :class="{
       'post-card--deleted': isDeleted,
@@ -82,6 +83,12 @@
                   <v-icon size="18">mdi-link-variant</v-icon>
                 </template>
                 <v-list-item-title>复制链接</v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="openAnalyticsPage">
+                <template #prepend>
+                  <v-icon size="18">mdi-chart-line</v-icon>
+                </template>
+                <v-list-item-title>查看分析</v-list-item-title>
               </v-list-item>
               <v-list-item @click="federationDialog = true">
                 <template #prepend>
@@ -207,44 +214,78 @@
 
           <!-- 操作栏 -->
           <div class="post-featured-actions">
-            <button
-              v-ripple
-              class="post-featured-action post-featured-action--reply"
-              @click.stop="handleFeaturedReply"
-            >
-              <v-icon size="22">mdi-chat-outline</v-icon>
-            </button>
-            <button
-              v-ripple
-              class="post-featured-action post-featured-action--retweet"
-              :class="{ 'post-featured-action--active': isRetweeted }"
-              @click.stop="toggleRetweet"
-            >
-              <v-icon size="22">mdi-repeat-variant</v-icon>
-            </button>
-            <button
-              v-ripple
-              class="post-featured-action post-featured-action--like"
-              :class="{ 'post-featured-action--active': isLiked }"
-              @click.stop="toggleLike"
-            >
-              <v-icon size="22">{{ isLiked ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
-            </button>
-            <button
-              v-ripple
-              class="post-featured-action post-featured-action--bookmark"
-              :class="{ 'post-featured-action--active': isBookmarked }"
-              @click.stop="toggleBookmark"
-            >
-              <v-icon size="22">{{ isBookmarked ? 'mdi-bookmark' : 'mdi-bookmark-outline' }}</v-icon>
-            </button>
-            <button
-              v-ripple
-              class="post-featured-action post-featured-action--share"
-              @click.stop="sharePost"
-            >
-              <v-icon size="22">mdi-share-variant-outline</v-icon>
-            </button>
+            <div class="post-featured-actions-main">
+              <button
+                v-ripple
+                class="post-featured-action post-featured-action--reply"
+                @click.stop="handleFeaturedReply"
+              >
+                <v-icon size="22">mdi-chat-outline</v-icon>
+              </button>
+              <v-menu location="top">
+                <template #activator="{ props: menuProps }">
+                  <button
+                    v-bind="menuProps"
+                    v-ripple
+                    class="post-featured-action post-featured-action--retweet"
+                    :class="{ 'post-featured-action--active': isRetweeted }"
+                    :disabled="actionLoading"
+                    @click.stop
+                  >
+                    <v-icon size="22">mdi-repeat-variant</v-icon>
+                  </button>
+                </template>
+                <v-list density="compact" class="post-menu-list">
+                  <v-list-item @click="toggleRetweet">
+                    <template #prepend>
+                      <v-icon size="18">{{ isRetweeted ? 'mdi-repeat-off' : 'mdi-repeat-variant' }}</v-icon>
+                    </template>
+                    <v-list-item-title>{{ isRetweeted ? '取消转贴' : '转贴' }}</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="openQuoteDialog">
+                    <template #prepend>
+                      <v-icon size="18">mdi-format-quote-close</v-icon>
+                    </template>
+                    <v-list-item-title>引用</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+              <button
+                v-ripple
+                class="post-featured-action post-featured-action--like"
+                :class="{ 'post-featured-action--active': isLiked }"
+                @click.stop="toggleLike"
+              >
+                <v-icon size="22">{{ isLiked ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
+              </button>
+              <button
+                v-if="stats.views > 0"
+                v-ripple
+                class="post-featured-action post-featured-action--views"
+                aria-label="阅读量"
+                @click.stop="openAnalyticsPage"
+              >
+                <v-icon size="20">mdi-poll</v-icon>
+                <span class="post-featured-action-count">{{ formatCount(stats.views) }}</span>
+              </button>
+            </div>
+            <div class="post-featured-actions-side">
+              <button
+                v-ripple
+                class="post-featured-action post-featured-action--bookmark"
+                :class="{ 'post-featured-action--active': isBookmarked }"
+                @click.stop="toggleBookmark"
+              >
+                <v-icon size="22">{{ isBookmarked ? 'mdi-bookmark' : 'mdi-bookmark-outline' }}</v-icon>
+              </button>
+              <button
+                v-ripple
+                class="post-featured-action post-featured-action--share"
+                @click.stop="sharePost"
+              >
+                <v-icon size="22">mdi-share-variant-outline</v-icon>
+              </button>
+            </div>
           </div>
         </template>
       </div>
@@ -383,6 +424,12 @@
                 </template>
                 <v-list-item-title>复制链接</v-list-item-title>
               </v-list-item>
+              <v-list-item @click="openAnalyticsPage">
+                <template #prepend>
+                  <v-icon size="18">mdi-chart-line</v-icon>
+                </template>
+                <v-list-item-title>查看分析</v-list-item-title>
+              </v-list-item>
               <!-- 联邦社交数据 -->
               <v-list-item
                 @click="federationDialog = true"
@@ -514,74 +561,100 @@
 
         <!-- 操作栏 -->
         <div v-if="!isDeleted" class="post-actions">
-          <button
-            v-ripple
-            class="post-action post-action--reply"
-            :disabled="actionLoading"
-            @click.stop="openReplyDialog"
-          >
-            <v-icon size="18">mdi-chat-outline</v-icon>
-            <span v-if="stats.replies > 0" class="post-action-count">
-              {{ formatCount(stats.replies) }}
-            </span>
-          </button>
+          <div class="post-actions-main">
+            <button
+              v-ripple
+              class="post-action post-action--reply"
+              :disabled="actionLoading"
+              @click.stop="openReplyDialog"
+            >
+              <v-icon size="18">mdi-chat-outline</v-icon>
+              <span v-if="stats.replies > 0" class="post-action-count">
+                {{ formatCount(stats.replies) }}
+              </span>
+            </button>
 
-          <button
-            v-ripple
-            class="post-action post-action--retweet"
-            :class="{ 'post-action--active': isRetweeted }"
-            :disabled="actionLoading"
-            @click.stop="toggleRetweet"
-          >
-            <v-icon size="18">mdi-repeat-variant</v-icon>
-            <span v-if="stats.retweets > 0" class="post-action-count">
-              {{ formatCount(stats.retweets) }}
-            </span>
-          </button>
+            <v-menu location="top">
+              <template #activator="{ props: menuProps }">
+                <button
+                  v-bind="menuProps"
+                  v-ripple
+                  class="post-action post-action--retweet"
+                  :class="{ 'post-action--active': isRetweeted }"
+                  :disabled="actionLoading"
+                  @click.stop
+                >
+                  <v-icon size="18">mdi-repeat-variant</v-icon>
+                  <span v-if="stats.retweets > 0" class="post-action-count">
+                    {{ formatCount(stats.retweets) }}
+                  </span>
+                </button>
+              </template>
+              <v-list density="compact" class="post-menu-list">
+                <v-list-item @click="toggleRetweet">
+                  <template #prepend>
+                    <v-icon size="18">{{ isRetweeted ? 'mdi-repeat-off' : 'mdi-repeat-variant' }}</v-icon>
+                  </template>
+                  <v-list-item-title>{{ isRetweeted ? '取消转贴' : '转贴' }}</v-list-item-title>
+                </v-list-item>
+                <v-list-item @click="openQuoteDialog">
+                  <template #prepend>
+                    <v-icon size="18">mdi-format-quote-close</v-icon>
+                  </template>
+                  <v-list-item-title>引用</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
 
-          <button
-            v-ripple
-            class="post-action post-action--quote"
-            :disabled="actionLoading"
-            @click.stop="openQuoteDialog"
-          >
-            <v-icon size="18">mdi-format-quote-close</v-icon>
-          </button>
+            <button
+              v-ripple
+              class="post-action post-action--like"
+              :class="{ 'post-action--active': isLiked }"
+              :disabled="actionLoading"
+              @click.stop="toggleLike"
+            >
+              <v-icon size="18">
+                {{ isLiked ? "mdi-heart" : "mdi-heart-outline" }}
+              </v-icon>
+              <span v-if="stats.likes > 0" class="post-action-count">
+                {{ formatCount(stats.likes) }}
+              </span>
+            </button>
 
-          <button
-            v-ripple
-            class="post-action post-action--like"
-            :class="{ 'post-action--active': isLiked }"
-            :disabled="actionLoading"
-            @click.stop="toggleLike"
-          >
-            <v-icon size="18">
-              {{ isLiked ? "mdi-heart" : "mdi-heart-outline" }}
-            </v-icon>
-            <span v-if="stats.likes > 0" class="post-action-count">
-              {{ formatCount(stats.likes) }}
-            </span>
-          </button>
+            <button
+              v-if="stats.views > 0"
+              v-ripple
+              class="post-action post-action--views"
+              aria-label="阅读量"
+              @click.stop="openAnalyticsPage"
+            >
+              <v-icon size="18">mdi-poll</v-icon>
+              <span class="post-action-count">{{ formatCount(stats.views) }}</span>
+            </button>
+          </div>
 
-          <button
-            v-ripple
-            class="post-action post-action--bookmark"
-            :class="{ 'post-action--active': isBookmarked }"
-            :disabled="actionLoading"
-            @click.stop="toggleBookmark"
-          >
-            <v-icon size="18">
-              {{ isBookmarked ? "mdi-bookmark" : "mdi-bookmark-outline" }}
-            </v-icon>
-          </button>
+          <div class="post-actions-side">
+            <button
+              v-ripple
+              class="post-action post-action--bookmark"
+              :class="{ 'post-action--active': isBookmarked }"
+              :disabled="actionLoading"
+              @click.stop="toggleBookmark"
+            >
+              <v-icon size="18">
+                {{ isBookmarked ? "mdi-bookmark" : "mdi-bookmark-outline" }}
+              </v-icon>
+            </button>
 
-          <button
-            v-ripple
-            class="post-action post-action--share"
-            @click.stop="sharePost"
-          >
-            <v-icon size="18">mdi-share-variant-outline</v-icon>
-          </button>
+            <button
+              v-ripple
+              class="post-action post-action--share"
+              @click.stop="sharePost"
+            >
+              <v-icon size="18">mdi-share-variant-outline</v-icon>
+            </button>
+          </div>
+
         </div>
       </div>
     </div>
@@ -764,14 +837,32 @@
         </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <v-dialog v-model="viewCountDialog" max-width="420">
+    <v-card class="post-dialog-card view-count-dialog-card" border>
+      <v-card-title class="view-count-dialog-title">浏览量</v-card-title>
+      <v-card-text class="view-count-dialog-content">
+        <div v-if="viewCountLoading" class="view-count-dialog-loading">
+          <v-progress-circular indeterminate color="primary" size="28" width="3" />
+        </div>
+        <div v-else class="view-count-value">{{ viewCountDisplayText }}</div>
+        <div v-if="viewCountError" class="view-count-error">{{ viewCountError }}</div>
+      </v-card-text>
+      <v-card-actions class="view-count-dialog-actions">
+        <v-spacer />
+        <v-btn variant="text" color="primary" @click="viewCountDialog = false">关闭</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
-import { computed, ref, watch, nextTick } from "vue";
+import { computed, ref, watch, nextTick, onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { localuser } from "@/services/localAccount";
 import { getS3staticurl } from "@/services/projectService";
 import PostsService from "@/services/postsService";
+import { reportPostView } from '@/services/analyticsService';
 import federationService from "@/services/federationService";
 import { showSnackbar } from "@/composables/useNotifications";
 import { useDeleteConfirm } from "@/composables/useDeleteConfirm";
@@ -805,11 +896,16 @@ const emit = defineEmits(["deleted", "created", "updated", "focus-reply"]);
 
 const router = useRouter();
 const route = useRoute();
+const cardRootRef = ref(null);
 
 // Dialog states
 const replyDialog = ref(false);
 const quoteDialog = ref(false);
 const federationDialog = ref(false);
+const viewCountDialog = ref(false);
+const viewCountLoading = ref(false);
+const viewCountError = ref("");
+const viewCountDisplay = ref(0);
 const actionLoading = ref(false);
 
 const mediaViewerOpen = ref(false);
@@ -1192,11 +1288,22 @@ const stats = computed(() => {
     retweets: s.retweets || 0,
     likes: s.likes || 0,
     bookmarks: s.bookmarks || 0,
+    views: s.views || s.reads || s.impressions || s.view_count || s.viewCount || 0,
   };
 });
 
+const viewCountDisplayText = computed(() => {
+  const value = Number(viewCountDisplay.value || 0);
+  return Number.isFinite(value) ? value.toLocaleString("zh-CN") : "0";
+});
+
 const hasVisibleStats = computed(() => {
-  return stats.value.retweets > 0 || stats.value.likes > 0 || stats.value.bookmarks > 0;
+  return (
+    stats.value.retweets > 0
+    || stats.value.likes > 0
+    || stats.value.bookmarks > 0
+    || stats.value.views > 0
+  );
 });
 
 // Viewer context
@@ -1494,6 +1601,39 @@ const goUser = () => {
 const goToQuotedPost = () => {
   if (!quotedPostId.value) return;
   router.push(`/app/posts/${quotedPostId.value}`);
+};
+
+const openAnalyticsPage = () => {
+  if (!postId.value || isDeleted.value) return;
+  if (!canDelete.value) {
+    openViewCountDialog();
+    return;
+  }
+  router.push(`/app/posts/${postId.value}/analytics`);
+};
+
+const openViewCountDialog = async () => {
+  if (!postId.value) return;
+
+  const localViews = Number(stats.value.views || 0);
+  viewCountDisplay.value = Number.isFinite(localViews) ? Math.max(0, localViews) : 0;
+  viewCountError.value = "";
+  viewCountDialog.value = true;
+  viewCountLoading.value = true;
+
+  try {
+    const res = await PostsService.getAnalytics(postId.value);
+    const remoteViews = Number(res?.viewCount ?? res?.raw?.view_count ?? viewCountDisplay.value);
+    if (Number.isFinite(remoteViews)) {
+      viewCountDisplay.value = Math.max(0, remoteViews);
+    }
+  } catch (e) {
+    if (!viewCountDisplay.value) {
+      viewCountError.value = e?.message || "加载浏览量失败";
+    }
+  } finally {
+    viewCountLoading.value = false;
+  }
 };
 
 // Actions
@@ -1802,6 +1942,67 @@ const openMediaViewer = (index) => {
   mediaViewerIndex.value = index;
   mediaViewerOpen.value = true;
 };
+
+let exposureObserver = null;
+let exposureTimer = null;
+
+const clearExposureTimer = () => {
+  if (exposureTimer) {
+    clearTimeout(exposureTimer);
+    exposureTimer = null;
+  }
+};
+
+const setupExposureReporting = () => {
+  if (props.featured || !cardRootRef.value || !postId.value) return;
+
+  exposureObserver = new IntersectionObserver(
+    (entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+      if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+        clearExposureTimer();
+        exposureTimer = setTimeout(() => {
+          reportPostView(postId.value);
+          clearExposureTimer();
+        }, 1000);
+      } else {
+        clearExposureTimer();
+      }
+    },
+    {
+      threshold: [0, 0.6, 1],
+    },
+  );
+
+  exposureObserver.observe(cardRootRef.value);
+};
+
+const cleanupExposureReporting = () => {
+  clearExposureTimer();
+  if (exposureObserver) {
+    exposureObserver.disconnect();
+    exposureObserver = null;
+  }
+};
+
+watch(
+  () => postId.value,
+  () => {
+    cleanupExposureReporting();
+    nextTick(() => {
+      setupExposureReporting();
+    });
+  },
+);
+
+onMounted(() => {
+  setupExposureReporting();
+});
+
+onUnmounted(() => {
+  cleanupExposureReporting();
+});
 </script>
 
 <style scoped>
@@ -2116,8 +2317,30 @@ const openMediaViewer = (index) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 425px;
+  width: 100%;
   margin-top: 4px;
+}
+
+.post-actions-main,
+.post-actions-side {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.post-actions-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+}
+
+.post-actions-main > * {
+  justify-self: center;
+}
+
+.post-actions-side {
+  flex-shrink: 0;
 }
 
 .post-action {
@@ -2156,11 +2379,6 @@ const openMediaViewer = (index) => {
   color: #00ba7c;
 }
 
-.post-action--quote:hover {
-  color: rgb(var(--v-theme-primary));
-  background: rgba(var(--v-theme-primary), 0.1);
-}
-
 .post-action--like:hover {
   color: #f91880;
   background: rgba(249, 24, 128, 0.1);
@@ -2180,6 +2398,16 @@ const openMediaViewer = (index) => {
 }
 
 .post-action--share:hover {
+  color: rgb(var(--v-theme-primary));
+  background: rgba(var(--v-theme-primary), 0.1);
+}
+
+.post-action--views {
+  cursor: pointer;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+}
+
+.post-action--views:hover {
   color: rgb(var(--v-theme-primary));
   background: rgba(var(--v-theme-primary), 0.1);
 }
@@ -2206,6 +2434,46 @@ const openMediaViewer = (index) => {
 
 .post-confirm-dialog {
   border-radius: 16px !important;
+}
+
+.view-count-dialog-card {
+  border-radius: 18px !important;
+}
+
+.view-count-dialog-title {
+  font-size: 18px;
+  font-weight: 700;
+  justify-content: center;
+  padding-top: 20px;
+}
+
+.view-count-dialog-content {
+  padding-top: 8px;
+  padding-bottom: 12px;
+}
+
+.view-count-dialog-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 72px;
+}
+
+.view-count-value {
+  font-size: 52px;
+  line-height: 1;
+  font-weight: 800;
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.view-count-error {
+  margin-top: 8px;
+  font-size: 13px;
+  color: rgb(var(--v-theme-error));
+}
+
+.view-count-dialog-actions {
+  padding: 8px 16px 14px;
 }
 
 /* Reply Preview */
@@ -2408,9 +2676,32 @@ const openMediaViewer = (index) => {
 .post-featured-actions {
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-between;
   padding: 8px 0;
   border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.post-featured-actions-main,
+.post-featured-actions-side {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.post-featured-actions-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+}
+
+.post-featured-actions-main > * {
+  justify-self: center;
+}
+
+.post-featured-actions-side {
+  flex-shrink: 0;
+  gap: 8px;
 }
 
 .post-featured-action {
@@ -2427,6 +2718,27 @@ const openMediaViewer = (index) => {
   transition: all 0.15s ease;
   position: relative;
   overflow: hidden;
+}
+
+.post-featured-action--views {
+  width: auto;
+  height: auto;
+  padding: 6px 10px;
+  border-radius: 50px;
+  gap: 6px;
+  cursor: pointer;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+}
+
+.post-featured-action--views:hover {
+  color: rgb(var(--v-theme-primary));
+  background: rgba(var(--v-theme-primary), 0.1);
+}
+
+.post-featured-action-count {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .post-featured-action--reply:hover {

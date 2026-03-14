@@ -19,6 +19,8 @@
         <v-icon>mdi-arrow-left</v-icon>
       </v-btn>
       <h1 class="header-title">帖子</h1>
+      <v-spacer />
+
     </header>
 
     <!-- 加载状态 -->
@@ -149,6 +151,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { localuser } from '@/services/localAccount';
 import PostsService from '@/services/postsService';
+import { reportPostView } from '@/services/analyticsService';
 import { showSnackbar } from '@/composables/useNotifications';
 import PostComposer from '@/components/posts/PostComposer.vue';
 import PostCard from '@/components/posts/PostCard.vue';
@@ -297,6 +300,8 @@ const loadThread = async () => {
         PostsService.markRead(postId.value);
       }
 
+      reportPostView(post.value.id);
+
       loadSimilarPosts(post.value.id);
     } else {
       // 兼容：尝试单独获取帖子
@@ -313,6 +318,7 @@ const loadThread = async () => {
           repliesByParent.value = {};
         }
         hasMoreReplies.value = false;
+        reportPostView(post.value.id);
         loadSimilarPosts(post.value.id);
       } else {
         notFound.value = true;
@@ -368,6 +374,12 @@ const goBack = () => {
   } else {
     router.push('/app/posts');
   }
+};
+
+const goAnalytics = () => {
+  const targetId = post.value?.id ?? postId.value;
+  if (!targetId) return;
+  router.push(`/app/posts/${targetId}/analytics`);
 };
 
 // Reply

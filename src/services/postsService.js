@@ -662,22 +662,72 @@ export const PostsService = {
   /**
    * 获取帖子互动分析（收藏数仅作者可见）
    * @param {string|number} postId - 帖子ID
-   * @returns {Object} { postId, replyCount, retweetCount, quoteCount, likeCount, bookmarkCount? }
+   * @returns {Object}
    */
   async getAnalytics(postId) {
     try {
       const response = await axios.get(`/posts/${postId}/analytics`);
-      const data = response.data;
+      const data = response.data?.data ?? response.data ?? {};
       return {
         postId: data?.post_id ?? data?.postId ?? postId,
+        viewCount: data?.view_count ?? data?.viewCount ?? 0,
+        visitorCount: data?.visitor_count ?? data?.visitorCount ?? 0,
+        engagementCount: data?.engagement_count ?? data?.engagementCount ?? 0,
+        engagementRate: data?.engagement_rate ?? data?.engagementRate ?? 0,
         replyCount: data?.reply_count ?? data?.replyCount ?? 0,
         retweetCount: data?.retweet_count ?? data?.retweetCount ?? 0,
         quoteCount: data?.quote_count ?? data?.quoteCount ?? 0,
         likeCount: data?.like_count ?? data?.likeCount ?? 0,
-        bookmarkCount: data?.bookmark_count ?? data?.bookmarkCount // 仅作者可见，可能为 undefined
+        bookmarkCount: data?.bookmark_count ?? data?.bookmarkCount,
+        raw: data
       };
     } catch (error) {
-      throw new Error(getErrorMessage(error, '获取帖子分析失败'));
+      const analyticsError = new Error(getErrorMessage(error, '获取帖子分析失败'));
+      analyticsError.status = error?.response?.status;
+      throw analyticsError;
+    }
+  },
+
+  /**
+   * 获取帖子浏览分析明细（Twitter 风格）
+   * @param {string|number} postId - 帖子ID
+   * @param {Object} options
+   * @param {string} options.startDate - 开始日期 YYYY-MM-DD
+   * @param {string} options.endDate - 结束日期 YYYY-MM-DD
+   */
+  async getAnalyticsViews(postId, { startDate, endDate } = {}) {
+    try {
+      const params = {};
+      if (startDate) params.start_date = startDate;
+      if (endDate) params.end_date = endDate;
+
+      const response = await axios.get(`/posts/${postId}/analytics/views`, { params });
+      const data = response.data?.data ?? response.data ?? {};
+
+      return {
+        postId: data?.post_id ?? data?.postId ?? postId,
+        range: data?.range ?? {
+          start_date: startDate ?? null,
+          end_date: endDate ?? null
+        },
+        twitterLikeOverview: data?.twitter_like_overview ?? data?.overview ?? {},
+        engagementBreakdown: data?.engagement_breakdown ?? {},
+        twitterLikeTimeseries: data?.twitter_like_timeseries ?? data?.timeseries ?? {
+          impressions: [],
+          visitors: [],
+          engagements: []
+        },
+        referrers: Array.isArray(data?.referrers) ? data.referrers : [],
+        browsers: Array.isArray(data?.browsers) ? data.browsers : [],
+        os: Array.isArray(data?.os) ? data.os : [],
+        devices: Array.isArray(data?.devices) ? data.devices : [],
+        countries: Array.isArray(data?.countries) ? data.countries : [],
+        raw: data
+      };
+    } catch (error) {
+      const analyticsError = new Error(getErrorMessage(error, '获取帖子分析明细失败'));
+      analyticsError.status = error?.response?.status;
+      throw analyticsError;
     }
   },
 

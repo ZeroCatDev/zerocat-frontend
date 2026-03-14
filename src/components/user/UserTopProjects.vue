@@ -60,7 +60,7 @@
                 {{ formatCount(project.like_count) }}
               </span>
               <span class="d-flex align-center text-caption">
-                <v-icon size="14" class="mr-1">mdi-eye-outline</v-icon>
+                <v-icon size="14" class="mr-1">mdi-poll</v-icon>
                 {{ formatCount(project.view_count) }}
               </span>
             </div>

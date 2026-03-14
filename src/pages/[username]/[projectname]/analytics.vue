@@ -274,7 +274,7 @@ export default {
         {
           label: '浏览量',
           value: o?.pageviews?.value || 0,
-          icon: 'mdi-eye-outline',
+          icon: 'mdi-poll',
           growth: this.calculateGrowth(o?.pageviews?.value, o?.pageviews?.prev),
           growthColor: this.getGrowthColor(o?.pageviews?.value, o?.pageviews?.prev),
         },

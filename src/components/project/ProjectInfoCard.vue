@@ -34,7 +34,7 @@
     <!-- Stats -->
     <div class="project-info__stats">
       <span class="project-info__stat">
-        <v-icon size="18" icon="mdi-eye-outline" />
+        <v-icon size="18" icon="mdi-poll" />
         {{ stats.pageviews }} 浏览
       </span>
       <span class="project-info__stat">

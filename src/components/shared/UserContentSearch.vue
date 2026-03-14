@@ -48,7 +48,7 @@
           最新
         </v-btn>
         <v-btn value="view_down" size="small">
-          <v-icon start size="16">mdi-eye-outline</v-icon>
+          <v-icon start size="16">mdi-poll</v-icon>
           浏览
         </v-btn>
         <v-btn value="star_down" size="small">

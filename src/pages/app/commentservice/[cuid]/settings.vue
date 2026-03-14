@@ -182,7 +182,7 @@
             <v-card-text class="pa-5">
               <div class="d-flex align-center mb-4">
                 <v-avatar size="32" color="success" variant="tonal" class="mr-3">
-                  <v-icon size="16" color="success">mdi-eye-outline</v-icon>
+                  <v-icon size="16" color="success">mdi-poll</v-icon>
                 </v-avatar>
                 <div class="text-subtitle-1 font-weight-bold">显示设置</div>
               </div>
