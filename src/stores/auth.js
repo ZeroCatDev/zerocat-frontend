@@ -231,7 +231,7 @@ export const useAuthStore = defineStore("auth", () => {
 
     // Security: only allow relative paths starting with '/' but not '//'
     if (!url || !url.startsWith("/") || url.startsWith("//")) {
-      url = "/app/dashboard";
+      url = "/";
     }
 
     authRedirectUrl.value = "";

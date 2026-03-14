@@ -23,7 +23,7 @@
         </v-icon>
         <h3 class="text-h6">登录成功</h3>
         <p class="text-body-1">欢迎回来，{{ displayName }}</p>
-        <p class="text-body-2 text-medium-emphasis">正在跳转到控制台...</p>
+        <p class="text-body-2 text-medium-emphasis">正在跳转到首页...</p>
       </div>
 
       <!-- Error state -->
