@@ -322,6 +322,45 @@ export const PostsService = {
   },
 
   /**
+   * 获取相似帖子（Embedding）
+   * @param {string|number} postId - 基准帖子ID
+   * @param {Object} options
+   * @param {number} options.limit - 返回数量（1-50）
+   * @param {number|null} options.minSimilarity - 相似度阈值（0-1）
+   * @returns {Object} { posts, includes, sourcePostId, minSimilarity }
+   */
+  async getSimilarPosts(postId, { limit = 10, minSimilarity = null } = {}) {
+    try {
+      const parsedLimit = Number(limit);
+      const safeLimit = Number.isFinite(parsedLimit)
+        ? Math.min(Math.max(parsedLimit, 1), 50)
+        : 10;
+
+      const params = { limit: safeLimit };
+
+      if (minSimilarity !== null && minSimilarity !== undefined && `${minSimilarity}` !== '') {
+        const parsedSimilarity = Number(minSimilarity);
+        if (!Number.isFinite(parsedSimilarity) || parsedSimilarity < 0 || parsedSimilarity > 1) {
+          throw new Error('min_similarity 必须在 0 到 1 之间');
+        }
+        params.min_similarity = parsedSimilarity;
+      }
+
+      const response = await axios.get(`/posts/${postId}/similar`, { params });
+      const data = response.data?.data ?? response.data ?? {};
+
+      return {
+        posts: Array.isArray(data?.posts) ? data.posts : [],
+        includes: data?.includes ?? { posts: {} },
+        sourcePostId: data?.source_post_id ?? data?.sourcePostId ?? postId,
+        minSimilarity: data?.min_similarity ?? data?.minSimilarity ?? null
+      };
+    } catch (error) {
+      throw new Error(getErrorMessage(error, '获取相似帖子失败'));
+    }
+  },
+
+  /**
    * 获取用户帖子
    * @param {string|number} userId - 用户ID
    * @param {Object} options

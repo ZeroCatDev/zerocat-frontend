@@ -94,6 +94,48 @@
           @load-more="loadMoreReplies"
         />
       </div>
+
+      <!-- 相似推荐 -->
+      <section class="thread-similar" aria-label="探索更多帖子">
+        <div class="thread-similar-header">
+          <h2 class="thread-similar-title">探索更多</h2>
+          <p class="thread-similar-subtitle">源自于整个社区</p>
+        </div>
+
+        <div v-if="similarLoading" class="thread-similar-loading">
+          <v-skeleton-loader
+            type="article"
+            class="thread-similar-skeleton"
+          />
+          <v-skeleton-loader
+            type="article"
+            class="thread-similar-skeleton"
+          />
+        </div>
+
+        <div v-else-if="similarPosts.length > 0" class="thread-similar-list">
+          <div
+            v-for="item in similarPosts"
+            :key="item.id ?? item.postId"
+            class="thread-similar-item"
+          >
+
+            <PostCard
+              :post="item"
+              :includes="recommendationIncludes"
+              @deleted="removeSimilarPost"
+              @updated="updateSimilarPost"
+            />
+            <v-divider
+              ></v-divider>
+          </div>
+        </div>
+
+        <div v-else-if="similarLoadError" class="thread-similar-empty">
+          <v-icon size="18" class="mr-2">mdi-refresh-alert</v-icon>
+          暂时无法加载推荐内容
+        </div>
+      </section>
     </template>
         </div>
       </main>
@@ -129,6 +171,10 @@ const loadingMore = ref(false);
 const notFound = ref(false);
 const cursor = ref(null);
 const hasMoreReplies = ref(true);
+const similarPosts = ref([]);
+const similarIncludes = ref({ posts: {} });
+const similarLoading = ref(false);
+const similarLoadError = ref(false);
 
 const replyComposerRef = ref(null);
 
@@ -172,12 +218,68 @@ const mergedIncludes = computed(() => {
   return result;
 });
 
+const recommendationIncludes = computed(() => {
+  return {
+    posts: {
+      ...mergedIncludes.value.posts,
+      ...(similarIncludes.value?.posts || {})
+    }
+  };
+});
+
+const loadSimilarPosts = async (targetPostId) => {
+  if (!targetPostId) {
+    similarPosts.value = [];
+    similarIncludes.value = { posts: {} };
+    similarLoading.value = false;
+    similarLoadError.value = false;
+    return;
+  }
+
+  similarLoading.value = true;
+  similarLoadError.value = false;
+
+  try {
+    const res = await PostsService.getSimilarPosts(targetPostId, { limit: 8, minSimilarity: 0.68 });
+    const currentPostId = String(targetPostId);
+    const seen = new Set();
+
+    const list = (Array.isArray(res.posts) ? res.posts : []).filter((item) => {
+      const id = item?.id ?? item?.postId;
+      if (id === undefined || id === null) return false;
+      const key = String(id);
+      if (key === currentPostId || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    similarPosts.value = list;
+    similarIncludes.value = { posts: { ...(res.includes?.posts || {}) } };
+  } catch {
+    similarPosts.value = [];
+    similarIncludes.value = { posts: {} };
+    similarLoadError.value = true;
+  } finally {
+    similarLoading.value = false;
+  }
+};
+
+const formatSimilarity = (value) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return null;
+  const percent = Math.round(Math.max(0, Math.min(1, num)) * 100);
+  return `${percent}%`;
+};
+
 // Load thread
 const loadThread = async () => {
   if (!postId.value) return;
 
   loading.value = true;
   notFound.value = false;
+  similarPosts.value = [];
+  similarIncludes.value = { posts: {} };
+  similarLoadError.value = false;
 
   try {
     const res = await PostsService.getThread(postId.value, { limit: 50 });
@@ -194,6 +296,8 @@ const loadThread = async () => {
       if (isLogin.value) {
         PostsService.markRead(postId.value);
       }
+
+      loadSimilarPosts(post.value.id);
     } else {
       // 兼容：尝试单独获取帖子
       const singleRes = await PostsService.getPost(postId.value);
@@ -209,15 +313,19 @@ const loadThread = async () => {
           repliesByParent.value = {};
         }
         hasMoreReplies.value = false;
+        loadSimilarPosts(post.value.id);
       } else {
         notFound.value = true;
+        loadSimilarPosts(null);
       }
     }
   } catch (e) {
     if (e.message?.includes('404') || e.message?.includes('不存在')) {
       notFound.value = true;
+      loadSimilarPosts(null);
     } else {
       showSnackbar(e?.message || '加载失败', 'error');
+      loadSimilarPosts(null);
     }
   } finally {
     loading.value = false;
@@ -313,6 +421,33 @@ const addReply = (data) => {
   if (newIncludes) {
     Object.assign(includes.value.posts, newIncludes);
   }
+};
+
+const removeSimilarPost = (deletedId) => {
+  similarPosts.value = similarPosts.value.filter((item) => {
+    const id = item?.id ?? item?.postId;
+    return id !== deletedId;
+  });
+};
+
+const updateSimilarPost = (updatedPost) => {
+  const targetId = updatedPost?.id ?? updatedPost?.postId;
+  if (targetId === undefined || targetId === null) return;
+
+  const index = similarPosts.value.findIndex((item) => {
+    const id = item?.id ?? item?.postId;
+    return id === targetId;
+  });
+
+  if (index !== -1) {
+    similarPosts.value[index] = {
+      ...similarPosts.value[index],
+      ...updatedPost
+    };
+  }
+
+  similarIncludes.value.posts[targetId] = updatedPost;
+  similarIncludes.value.posts[String(targetId)] = updatedPost;
 };
 
 // Handle post deleted from PostCard
@@ -482,5 +617,59 @@ onMounted(loadThread);
 .thread-replies {
   /* PostList 自带样式 */
   min-height: 0;
+}
+
+.thread-similar {
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.thread-similar-header {
+  padding: 16px;
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.06);
+}
+
+.thread-similar-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.thread-similar-subtitle {
+  margin-top: 4px;
+  font-size: 13px;
+  color: rgba(var(--v-theme-on-surface), 0.62);
+}
+
+.thread-similar-loading {
+  padding: 8px 0;
+}
+
+.thread-similar-skeleton {
+  margin: 0 16px 12px;
+}
+
+.thread-similar-list {
+  min-height: 0;
+}
+
+.thread-similar-item {
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.06);
+}
+
+.thread-similar-item :deep(.post-card) {
+  border-bottom: none;
+}
+
+.thread-similar-meta {
+  padding: 12px 16px 0;
+}
+
+.thread-similar-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  font-size: 14px;
+  color: rgba(var(--v-theme-on-surface), 0.6);
 }
 </style>
