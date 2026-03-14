@@ -78,7 +78,9 @@ const floatingVisible = computed(() => isLogin.value && !shouldHide.value);
 // Context computed
 const contextIcon = computed(() => {
   if (!detectedContext.value) return 'mdi-link';
-  return detectedContext.value.type === 'project' ? 'mdi-cube-outline' : 'mdi-account';
+  if (detectedContext.value.type === 'project') return 'mdi-cube-outline';
+  if (detectedContext.value.type === 'article') return 'mdi-file-document-outline';
+  return 'mdi-account';
 });
 
 const contextDescription = computed(() => {
@@ -92,6 +94,9 @@ const contextDescription = computed(() => {
     }
     return desc;
   }
+  if (detectedContext.value.type === 'article') {
+    return `${detectedContext.value.username}/articles/${detectedContext.value.slug}`;
+  }
   return `@${detectedContext.value.username}`;
 });
 
@@ -100,6 +105,9 @@ const contextKey = computed(() => {
   const ctx = detectedContext.value;
   if (ctx.type === 'project') {
     return `project:${ctx.username}/${ctx.projectname}:${ctx.branch || ''}:${ctx.commit || ''}`;
+  }
+  if (ctx.type === 'article') {
+    return `article:${ctx.username}/${ctx.slug}`;
   }
   return `user:${ctx.username}`;
 });
@@ -124,6 +132,8 @@ const parseRouteContext = () => {
     detectedContext.value = { type: 'project', username: segments[0], projectname: segments[1], commit: segments[3], branch: null };
   } else if (segments.length >= 4 && segments[2] === 'tree') {
     detectedContext.value = { type: 'project', username: segments[0], projectname: segments[1], branch: segments[3], commit: null };
+  } else if (segments.length >= 3 && segments[1] === 'articles') {
+    detectedContext.value = { type: 'article', username: segments[0], slug: segments[2] };
   } else if (segments.length === 2) {
     detectedContext.value = { type: 'project', username: segments[0], projectname: segments[1], branch: null, commit: null };
   } else if (segments.length === 1 && !skipPaths.includes(segments[0])) {
@@ -158,6 +168,17 @@ const embedContextInternal = async () => {
       if (detectedContext.value.branch && detectedContext.value.branch !== 'main') embed.branch = detectedContext.value.branch;
       if (detectedContext.value.commit) embed.commit = detectedContext.value.commit;
       currentEmbed.value = embed;
+    }
+  } else if (detectedContext.value.type === 'article') {
+    const articleRes = await getProjectInfoByNamespace(detectedContext.value.username, detectedContext.value.slug);
+    const article = articleRes?.data || articleRes;
+    if (article?.id && article?.type === 'article') {
+      currentEmbed.value = {
+        type: 'article',
+        id: article.id,
+        username: article.author?.username || detectedContext.value.username,
+        slug: article.name || detectedContext.value.slug,
+      };
     }
   } else if (detectedContext.value.type === 'user') {
     try {

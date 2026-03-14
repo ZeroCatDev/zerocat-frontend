@@ -112,6 +112,35 @@
       </div>
     </template>
 
+    <!-- 文章嵌入 -->
+    <template v-else-if="embed.type === 'article'">
+      <div
+        class="post-embed"
+        :class="{ 'post-embed--compact': compact }"
+        @click="handleClick"
+      >
+        <div class="embed-icon embed-icon--list">
+          <v-icon size="20">mdi-file-document-outline</v-icon>
+        </div>
+        <div class="embed-content">
+          <div class="embed-label">文章</div>
+          <div class="embed-title">
+            {{ articleData?.title || `文章 #${embed.id}` }}
+          </div>
+          <div v-if="articleData?.description" class="embed-description">
+            {{ articleData.description }}
+          </div>
+          <div v-if="articleData?.author?.username" class="embed-meta">
+            <span class="embed-meta-item">
+              <v-icon size="14">mdi-account-outline</v-icon>
+              @{{ articleData.author.username }}
+            </span>
+          </div>
+        </div>
+        <v-icon class="embed-arrow" size="16">mdi-arrow-top-right</v-icon>
+      </div>
+    </template>
+
     <!-- 用户嵌入 -->
     <template v-else-if="embed.type === 'user'">
       <div
@@ -257,6 +286,7 @@ const router = useRouter();
 // Loaded data
 const projectData = ref(null);
 const listData = ref(null);
+const articleData = ref(null);
 const userData = ref(null);
 const loading = ref(false);
 
@@ -407,6 +437,12 @@ const loadEmbedData = async () => {
           listData.value = { id: props.embed.id };
         }
         break;
+      case 'article':
+        const articles = await getProjectInfo([props.embed.id]);
+        if (articles?.length) {
+          articleData.value = articles[0];
+        }
+        break;
       case 'user':
         // Fetch user data from API
         try {
@@ -451,6 +487,15 @@ const handleClick = () => {
       break;
     case 'list':
       router.push(`/app/projectlist/${props.embed.id}`);
+      break;
+    case 'article':
+      if (articleData.value?.author?.username && articleData.value?.name) {
+        router.push(`/${articleData.value.author.username}/articles/${articleData.value.name}`);
+      } else if (props.embed.username && props.embed.slug) {
+        router.push(`/${props.embed.username}/articles/${props.embed.slug}`);
+      } else if (props.embed.id) {
+        router.push(`/app/project/${props.embed.id}`);
+      }
       break;
     case 'user':
       if (userData.value?.username || props.embed.username) {

@@ -66,6 +66,10 @@
             <v-list-item-title>项目</v-list-item-title>
             <v-list-item-subtitle>创建新的项目</v-list-item-subtitle>
           </v-list-item>
+          <v-list-item to="/app/articles/new" prepend-icon="mdi-file-document-edit-outline">
+            <v-list-item-title>文章</v-list-item-title>
+            <v-list-item-subtitle>写一篇长文章</v-list-item-subtitle>
+          </v-list-item>
           <v-list-item to="/app/extensions/my" prepend-icon="mdi-puzzle">
             <v-list-item-title>扩展</v-list-item-title>
             <v-list-item-subtitle>发布你的Scratch扩展</v-list-item-subtitle>
@@ -541,6 +545,17 @@ export default {
       } else if (pathSegments.length === 1) {
         this.subNavItems = this.getUserSubNavItems(pathSegments[0]);
         this.activeTab = route.query.tab || "home";
+      } else if (pathSegments[1] === 'articles') {
+        // Articles section — show user subnav, mark articles tab active
+        // /username/articles (list), /username/articles/slug (detail), /username/articles/slug/edit (editor)
+        if (pathSegments.length >= 3 && pathSegments[3] === 'edit') {
+          // Full-screen editor: hide subnav
+          this.subNavItems = [];
+          this.activeTab = null;
+        } else {
+          this.subNavItems = this.getUserSubNavItems(pathSegments[0]);
+          this.activeTab = 'articles';
+        }
       } else {
         this.subNavItems = this.getProjectSubNavItems(
           pathSegments[1],
@@ -564,6 +579,7 @@ export default {
         { title: "主页", link: `/${userId}`, name: "home" },
         { title: "项目", link: `/${userId}/?tab=projects`, name: "projects" },
         { title: "列表", link: `/${userId}/?tab=lists`, name: "lists" },
+        { title: "文章", link: `/${userId}/articles`, name: "articles" },
         { title: "关注者", link: `/${userId}/?tab=followers`, name: "followers" },
         { title: "关注的人", link: `/${userId}/?tab=following`, name: "following" },
         { title: "时间线", link: `/${userId}/?tab=timeline`, name: "timeline" },

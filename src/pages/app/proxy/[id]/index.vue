@@ -204,22 +204,24 @@
       </v-col>
     </v-row>
 
-    <Comment
-      :url="'scratchmiteduproject-' + project.id"
-      name="Scratch官网项目"
-    ></Comment>
+    <RelatedPostsPanel
+      v-if="project.id"
+      type="project"
+      :id="project.id"
+      :hide-current-context-base="true"
+    />
   </v-container>
 </template>
 
 <script>
 import {getProject} from "@/services/proxy/projectService";
-import Comment from "../../../../components/Comment.vue";
+import RelatedPostsPanel from '@/components/posts/RelatedPostsPanel.vue';
 import ProxyShowUsers from "../../../../components/proxy/ProxyShowUsers.vue";
 import ProxyShowProjects from "../../../../components/proxy/ProxyShowProjects.vue";
 import {get} from '@/services/serverConfig';
 
 export default {
-  components: {Comment, ProxyShowProjects},
+  components: {RelatedPostsPanel, ProxyShowProjects},
   data() {
     return {
       project: {

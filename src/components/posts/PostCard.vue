@@ -1362,6 +1362,7 @@ const compactEmbedPrimaryLinkIsExternal = computed(
 const compactEmbedPrimaryText = computed(() => {
   if (!embedData.value) return "查看内容";
   if (embedData.value.type === "project") return `项目 #${embedData.value.id}`;
+  if (embedData.value.type === "article") return `文章 #${embedData.value.id}`;
   if (embedData.value.type === "list") return `列表 #${embedData.value.id}`;
   if (embedData.value.type === "user") {
     return embedData.value.username
@@ -1383,6 +1384,11 @@ const compactEmbedPrimaryLink = computed(() => {
   switch (embedData.value.type) {
     case "project":
       if (props.contextProjectRouteBase) return props.contextProjectRouteBase;
+      return embedData.value.id ? `/app/project/${embedData.value.id}` : "";
+    case "article":
+      if (embedData.value.username && embedData.value.slug) {
+        return `/${embedData.value.username}/articles/${embedData.value.slug}`;
+      }
       return embedData.value.id ? `/app/project/${embedData.value.id}` : "";
     case "list":
       return embedData.value.id ? `/app/projectlist/${embedData.value.id}` : "";

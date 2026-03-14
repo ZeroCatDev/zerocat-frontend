@@ -17,4 +17,10 @@ scratch: {
       description: "普通文本文件",
       icon: "mdi-text",
     },
+    article: {
+      name: "文章",
+      extension: "md",
+      description: "Markdown 长文内容",
+      icon: "mdi-file-document-edit-outline",
+    },
 }
