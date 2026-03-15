@@ -81,7 +81,7 @@
           v-model="profileData.bio"
           :counter="500"
           density="comfortable"
-          label="一行简介"
+          label="个人简介"
           variant="outlined"
         ></v-text-field>
       </v-col>
