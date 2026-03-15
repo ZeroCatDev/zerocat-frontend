@@ -67,6 +67,7 @@ export default {
         {name: "联邦管理", path: "/app/admin/federation"},
         {name: "Gorse 推荐", path: "/app/admin/gorse"},
         {name: "Embedding 向量", path: "/app/admin/embedding"},
+        {name: "40code 镜像同步", path: "/app/admin/mirror40code"},
       ],
     };
   },
