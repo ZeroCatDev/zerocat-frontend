@@ -1,6 +1,31 @@
 <template>
   <v-card class="box-shadow" rounded="lg">
+    <template v-if="isArticleProject()">
+      <v-card rounded="lg" border class="d-flex flex-column article-preview-card">
+        <v-card-item>
+          <v-card-title>{{ project?.title || "加载中..." }}</v-card-title>
+          <v-card-subtitle>文章作品</v-card-subtitle>
+        </v-card-item>
+
+        <v-divider />
+
+        <v-card-text class="markdown-body article-markdown-preview">
+          <Markdown>{{ getArticlePreviewMarkdown() }}</Markdown>
+        </v-card-text>
+
+        <v-card-actions class="px-4 pb-4 pt-0">
+          <v-btn
+            :to="getArticleLink()"
+            color="primary"
+            variant="tonal"
+            prepend-icon="mdi-open-in-new"
+          >阅读文章</v-btn>
+        </v-card-actions>
+      </v-card>
+    </template>
+
     <v-card
+      v-else
       :to="getProjectLink()"
       rounded="lg"
       style="aspect-ratio: 4/3"
@@ -31,7 +56,12 @@
 <script>
 import {getProjectInfo, getS3staticurl} from "@/services/projectService";
 import { localuser } from "@/services/localAccount";
+import Markdown from "@/components/Markdown.vue";
+import "github-markdown-css";
 export default {
+  components: {
+    Markdown,
+  },
   props: {
     project: {
       type: Object,
@@ -90,6 +120,26 @@ export default {
       }
     },
 
+    isArticleProject() {
+      return this.project?.type === "article";
+    },
+
+    getArticlePreviewMarkdown() {
+      const description = (this.project?.description || "").trim();
+      if (description) {
+        return description;
+      }
+      const title = (this.project?.title || "未命名文章").trim();
+      return `# ${title}\n\n暂无内容摘要。`;
+    },
+
+    getArticleLink() {
+      if (this.project?.author?.username && this.project?.name) {
+        return `/${this.project.author.username}/articles/${this.project.name}`;
+      }
+      return this.getProjectLink();
+    },
+
     getProjectLink() {
       if (!this.project) return '';
 
@@ -139,6 +189,26 @@ export default {
   0 6px 6px -3px rgba(42, 51, 70, 0.04),
   0 12px 12px -6px rgba(14, 63, 126, 0.04),
   0 24px 24px -12px rgba(14, 63, 126, 0.04);
+}
+
+.article-preview-card {
+  min-height: 300px;
+}
+
+.article-markdown-preview {
+  max-height: 220px;
+  overflow: hidden;
+}
+
+:deep(.article-markdown-preview.markdown-body) {
+  background: transparent;
+  color: inherit;
+}
+
+:deep(.article-markdown-preview.markdown-body h1),
+:deep(.article-markdown-preview.markdown-body h2),
+:deep(.article-markdown-preview.markdown-body h3) {
+  margin-top: 0.4em;
 }
 </style>
 

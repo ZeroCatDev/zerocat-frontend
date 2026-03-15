@@ -4,6 +4,7 @@
     <ProjectPageLayout>
       <template #main>
         <ProjectBranchNav
+          v-if="project.type !== 'article'"
           :branch-history="projectbranchhistory"
           :branches="projectbranchs"
           :current-branch="player.branch"
@@ -13,6 +14,7 @@
         />
 
         <ProjectPlayer
+          v-if="project.type !== 'article'"
           :branch="player.branch"
           :commit-id="player.commit.id"
           :project-id="project.id"
@@ -28,7 +30,23 @@
           <v-card-text class="markdown-body">
             <v-tabs-window v-model="tab">
               <v-tabs-window-item value="readme">
-                <Markdown>{{ project.description }}</Markdown>
+                <template v-if="project.type === 'article'">
+                  <div class="d-flex justify-end mb-3">
+                    <v-btn
+                      :to="articleReadLink"
+                      color="primary"
+                      variant="tonal"
+                      prepend-icon="mdi-open-in-new"
+                    >跳转阅读页面</v-btn>
+                  </div>
+
+                  <v-skeleton-loader
+                    v-if="articleContentLoading"
+                    type="paragraph, paragraph"
+                  />
+                  <Markdown v-else>{{ articleMarkdownContent }}</Markdown>
+                </template>
+                <Markdown v-else>{{ project.description }}</Markdown>
               </v-tabs-window-item>
 
               <v-tabs-window-item value="license">
@@ -92,6 +110,7 @@ import ProjectPageLayout from "@/components/project/ProjectPageLayout.vue";
 import CloudVariablesInfoCard from "@/components/project/CloudVariablesInfoCard.vue";
 import "github-markdown-css";
 import PageAnalytics from "@/components/analytics/PageAnalytics.vue";
+import request from "@/axios/axios";
 
 export default {
   components: {
@@ -114,6 +133,8 @@ export default {
       tab: "readme",
       projectbranchs: [],
       projectbranchhistory: [],
+      articleContent: "",
+      articleContentLoading: false,
       showplayer: true,
       player: {
         branch: "main",
@@ -131,6 +152,16 @@ export default {
       const projectname = this.$route.params.projectname;
       if (!username || !projectname) return '';
       return `/${username}/${projectname}`;
+    },
+    articleReadLink() {
+      const username = this.$route.params.username;
+      const projectname = this.$route.params.projectname;
+      if (!username || !projectname) return '';
+      return `/${username}/articles/${projectname}`;
+    },
+    articleMarkdownContent() {
+      if (this.articleContent) return this.articleContent;
+      return this.project?.description || "暂无文章内容";
     }
   },
   setup() {
@@ -169,6 +200,10 @@ export default {
       }
       this.project = projectFromCloud;
       this.project.id = this.project.id; // 更新 projectid
+      if (this.project.type === 'article') {
+        this.showplayer = false;
+        await this.loadArticleContent();
+      }
       if (this.project.default_branch == null) this.showplayer = false;
       this.player.branch = this.project.default_branch;
       var res = await getBranchs(this.project.id);
@@ -192,6 +227,33 @@ export default {
         this.player.latest_commit_hash
       );
       this.projectbranchhistory = res;
+    },
+    async loadArticleContent() {
+      this.articleContentLoading = true;
+      this.articleContent = "";
+      try {
+        const commitRes = await request.get(`/project/${this.project.id}/main/latest`);
+        if (commitRes.data?.status !== "success") return;
+
+        const token = commitRes.data.accessFileToken;
+        const commitFile = commitRes.data.commit?.commit_file;
+        if (!token || !commitFile) return;
+
+        const fileRes = await request.get(
+          `/project/files/${commitFile}?accessFileToken=${token}&content=true`
+        );
+
+        let raw = fileRes.data;
+        if (typeof raw === "object") {
+          raw = raw.index ?? "";
+        }
+        this.articleContent = typeof raw === "string" ? raw : "";
+      } catch (error) {
+        this.articleContent = "";
+        console.error("Failed to load article content:", error);
+      } finally {
+        this.articleContentLoading = false;
+      }
     },
   },
   watch: {
