@@ -17,6 +17,28 @@
 
         <!-- Main Content -->
         <v-col cols="12" md="8" lg="9">
+          <v-card v-if="is40codeMirrorUser" rounded="lg" border class="mb-4" variant="tonal" color="info">
+            <v-card-item>
+              <template #prepend>
+                <v-icon icon="mdi-source-branch-sync" />
+              </template>
+              <v-card-title>40code 镜像账户</v-card-title>
+              <v-card-subtitle>该账号是从 40code 自动镜像同步而来</v-card-subtitle>
+              <template #append>
+                <v-btn
+                  color="info"
+                  variant="flat"
+                  prepend-icon="mdi-open-in-new"
+                  :href="mirror40codeProfileUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  前往 40code 主页
+                </v-btn>
+              </template>
+            </v-card-item>
+          </v-card>
+
           <!-- Home Tab -->
           <template v-if="currentTab === 'home'">
             <!-- README -->
@@ -208,6 +230,19 @@ export default {
   computed: {
     currentTab() {
       return this.$route.query.tab || "home";
+    },
+    is40codeMirrorUser() {
+      return String(this.username || '').toLowerCase().endsWith('@40code.com');
+    },
+    mirror40codeUserId() {
+      const match = String(this.username || '').toLowerCase().match(/^(\d+)@40code\.com$/);
+      if (match) {
+        return Number(match[1]);
+      }
+      return 1;
+    },
+    mirror40codeProfileUrl() {
+      return `https://40code.com/#page=user&id=${this.mirror40codeUserId}`;
     },
     isCurrentUser() {
       return Boolean(localuser.isLogin.value && localuser.user.value?.username === this.username);
