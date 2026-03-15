@@ -21,22 +21,25 @@
           <template v-if="currentTab === 'home'">
             <!-- README -->
             <v-card v-if="readmeContent" rounded="lg" border class="mb-4">
-              <v-card-title class="d-flex align-center py-3">
-                <v-icon start size="20">mdi-file-document-outline</v-icon>
-                <span class="text-body-1 font-weight-bold">README.md</span>
+              <v-card-title class="d-flex align-center justify-space-between py-2 px-4 readme-card-header">
+                <span class="text-body-2 font-weight-light">{{ username }} / README.md</span>
+                <v-btn
+                  v-if="isCurrentUser"
+                  :to="`/${username}/articles/${username}/edit`"
+                  icon="mdi-pencil-outline"
+                  size="small"
+                  variant="text"
+                  aria-label="编辑 README"
+                ></v-btn>
               </v-card-title>
-              <v-divider />
-              <v-card-text class="markdown-body">
+
+              <v-card-text class="markdown-body readme-markdown-body">
                 <Markdown>{{ readmeContent }}</Markdown>
               </v-card-text>
             </v-card>
 
             <v-card v-else-if="showReadmeLoadingCard" rounded="lg" border class="mb-4">
-              <v-card-title class="d-flex align-center py-3">
-                <v-icon start size="20">mdi-file-document-outline</v-icon>
-                <span class="text-body-1 font-weight-bold">README.md</span>
-              </v-card-title>
-              <v-divider />
+
               <v-card-text>
                 <v-skeleton-loader type="paragraph, paragraph" />
               </v-card-text>
@@ -359,6 +362,18 @@ export default {
 .profile-sidebar {
   position: sticky;
   top: 80px;
+}
+
+.readme-card-header {
+  min-height: 44px;
+}
+
+.readme-markdown-body {
+  background: transparent;
+}
+
+:deep(.readme-markdown-body.markdown-body) {
+  background-color: transparent;
 }
 
 @media (max-width: 959px) {
