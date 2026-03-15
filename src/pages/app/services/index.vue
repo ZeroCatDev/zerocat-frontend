@@ -58,6 +58,12 @@ const items = [
     label: 'OAuth',
     desc: 'ZeroCat OAuth',
     to: '/app/oauth/applications',
+  },
+  {
+    icon: 'mdi-source-branch-sync',
+    label: '40code 镜像同步',
+    desc: '管理员镜像同步状态与任务触发',
+    to: '/app/services/mirror40code',
   }
 ];
 </script>
