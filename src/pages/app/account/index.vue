@@ -171,7 +171,7 @@ export default {
         {title: "关系", value: "relationships", icon: "mdi-account-group", to: "/app/account/relationships"},
         {title: "通知", value: "notifications", icon: "mdi-bell"},
         {title: "令牌", value: "tokens", icon: "mdi-key"},
-        {title: "开发者", value: "developer", icon: "mdi-account-group", to: "/app/account/developer"},
+        {title: "开发者", value: "developer", icon: "mdi-account-group", to: "/app/services"},
 
       ],
       loading: false,
