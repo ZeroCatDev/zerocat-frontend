@@ -15,7 +15,7 @@
           </v-avatar>
           <div class="project-info__author-text">
             <span class="project-info__author-name">{{ author.display_name }}</span>
-            <span v-if="author.motto" class="project-info__author-motto">{{ author.motto }}</span>
+            <span v-if="author.bio" class="project-info__author-bio">{{ author.bio }}</span>
           </div>
         </router-link>
       </UserHoverCard>
@@ -291,7 +291,7 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.project-info__author-motto {
+.project-info__author-bio {
   font-size: 0.85rem;
   opacity: 0.5;
   line-height: 1.35;

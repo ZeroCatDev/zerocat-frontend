@@ -24,7 +24,7 @@
     </div>
 
     <!-- Bio -->
-    <p v-if="user.motto" class="text-body-2 mb-4">{{ user.motto }}</p>
+    <p v-if="user.bio" class="text-body-2 mb-4">{{ user.bio }}</p>
 
     <!-- Actions -->
     <div class="mb-4">

@@ -117,7 +117,7 @@
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
-                        v-model="userData.motto"
+                        v-model="userData.bio"
                         dense
                         label="一句话简介"
                         outlined
@@ -644,7 +644,6 @@ export default {
         email: user?.email ?? "",
         featured_projects: user?.featured_projects ?? "",
         // 个人资料
-        motto: user?.motto ?? "",
         bio: user?.bio ?? "",
         location: user?.location ?? "",
         region: user?.region ?? "",

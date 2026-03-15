@@ -96,14 +96,12 @@
                 @{{ userData.username }}
               </div>
             </div>
-
-
-            <!-- motto -->
+            <!-- bio -->
             <div
-              v-if="userData.motto"
-              class="user-hover-motto text-body-2 text-medium-emphasis mt-1 "
+              v-if="truncatedBio"
+              class="user-hover-bio text-body-2 text-medium-emphasis mt-1"
             >
-              "{{ userData.motto }}"
+              {{ truncatedBio }}
             </div>
           </v-card-text>
 
@@ -325,10 +323,6 @@ onBeforeUnmount(() => {
   overflow: hidden;
   word-break: break-word;
   line-height: 1.5;
-}
-
-.user-hover-motto {
-  opacity: 0.8;
 }
 
 .user-hover-stats {

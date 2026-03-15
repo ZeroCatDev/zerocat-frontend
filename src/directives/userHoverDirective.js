@@ -192,7 +192,6 @@ function buildCardHTML(data) {
   const displayName = escapeHtml(data.display_name || data.username);
   const username = escapeHtml(data.username);
   const bio = data.bio && data.bio !== "用户信息未缓存" ? escapeHtml(data.bio.length > 120 ? data.bio.slice(0, 120) + "…" : data.bio) : "";
-  const motto = data.motto ? escapeHtml(data.motto) : "";
   const isAdmin = data.type === "administrator" || data.role === "admin";
   const projectCount = formatCount(data.project_count);
   const followingCount = formatCount(data.following_count);
@@ -241,8 +240,6 @@ function buildCardHTML(data) {
       </a>
 
       ${bio ? `<div style="font-size: 14px; line-height: 1.5; margin-top: 8px; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">${bio}</div>` : ""}
-
-      ${motto ? `<div style="font-size: 13px; color: rgba(var(--v-theme-on-surface), 0.6); margin-top: 4px; font-style: italic;">"${motto}"</div>` : ""}
 
       <!-- Stats -->
       <div style="display: flex; gap: 16px; margin-top: 12px; font-size: 14px;">

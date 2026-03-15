@@ -35,8 +35,8 @@
           </v-list-item-title>
           <v-list-item-subtitle>
             @{{ item.raw.username }}
-            <span v-if="item.raw.motto" class="ml-2 text-grey">
-              {{ item.raw.motto }}
+            <span v-if="item.raw.bio" class="ml-2 text-grey">
+              {{ item.raw.bio }}
             </span>
           </v-list-item-subtitle>
         </v-list-item>

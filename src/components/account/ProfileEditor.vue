@@ -78,7 +78,7 @@
       </v-col>
       <v-col cols="12">
         <v-text-field
-          v-model="profileData.motto"
+          v-model="profileData.bio"
           :counter="500"
           density="comfortable"
           label="一行简介"
@@ -199,7 +199,6 @@ export default {
       readmeExists: false,
       profileData: {
         display_name: this.userData.display_name || '',
-        motto: this.userData.motto || '',
         bio: this.userData.bio || '',
         location: this.userData.location || '',
         region: this.userData.region ? {
@@ -254,7 +253,6 @@ export default {
       handler(newVal) {
         this.profileData = {
           display_name: newVal.display_name || '',
-          motto: newVal.motto || '',
           bio: newVal.bio || '',
           location: newVal.location || '',
           region: newVal.region ? {
@@ -367,15 +365,13 @@ export default {
       try {
         const response = await updateUserInfo({
           display_name: this.profileData.display_name,
-          motto: this.profileData.motto,
-          bio: this.profileData.bio,
+          bio: this.profileData.bio || undefined,
           location: this.profileData.location,
           region: this.profileData.region?.value || '',
           sex: this.selectedGender.abbr,
           url: this.profileData.url,
           birthday: this.profileData.birthday,
-          featured_projects: this.profileData.featured_projects || undefined,
-          motto: this.profileData.motto || undefined
+          featured_projects: this.profileData.featured_projects || undefined
         });
 
         this.$emit('profile-updated', response);
