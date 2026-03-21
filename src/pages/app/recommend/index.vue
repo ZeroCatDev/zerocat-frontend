@@ -82,7 +82,7 @@ onMounted(() => {
 .recommend-feed-container {
   /* Attempt to fill the remaining height in v-main */
   /* Fallback to calc(100vh - 64px) assuming standard header */
-  height: calc(100vh - 64px);
+  height: calc(100dvh - 64px);
   width: 100%;
   overflow-y: auto;
   scroll-snap-type: y mandatory;

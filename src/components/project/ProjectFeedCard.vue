@@ -343,8 +343,8 @@ watch(() => props.project.id, () => {
 
 /* Adjust ProjectPlayer sizing if possible via deep selection or props */
 :deep(.v-card) {
-  width: 100%;
-  max-width: 80vh; /* maintain aspect ratio visually */
+  width: min(100vw, calc(100vh * 4 / 3));
+  max-width: 100%;
   border: none !important;
   background: transparent !important;
 }

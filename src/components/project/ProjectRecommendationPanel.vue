@@ -20,7 +20,11 @@
             暂无推荐内容
           </div>
           <template v-else>
-             <ShowProjects :projects="contextProjects" :show-author="true" />
+             <v-row>
+               <v-col v-for="project in contextProjects" :key="project.id" cols="12">
+                 <ProjectCard :project="project" :show-author="true" :author="project.author" />
+               </v-col>
+             </v-row>
              <div class="d-flex justify-center mt-4" v-if="contextHasMore">
                <v-btn :loading="contextLoadingMore" variant="text" @click="loadMoreContext">加载更多</v-btn>
              </div>
@@ -57,7 +61,6 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
 import ProjectRecommendationService from '@/services/projectRecommendationService';
-import ShowProjects from '@/components/project/showProjects.vue';
 import ProjectCard from '@/components/project/ProjectCard.vue';
 
 const props = defineProps({
