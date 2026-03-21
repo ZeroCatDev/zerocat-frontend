@@ -105,9 +105,55 @@ export const EmbeddingService = {
   },
 
   /**
-   * 全量生成所有向量（帖子 + 用户）
+   * 全量生成项目向量
    * @param {boolean} [force=false] - 是否强制重新生成
-   * @returns {{ status, message, data: { posts, users } }}
+   * @returns {{ status, message, data: { total, batches, jobIds } }}
+   */
+  async generateAllProjects(force = false) {
+    try {
+      const response = await axios.post('/admin/embedding/generate/projects', { force }, {
+        timeout: 60_000,
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error, '全量生成项目向量失败'));
+    }
+  },
+
+  /**
+   * 生成“每日检查缺失”的项目向量
+   * @returns {{ status, message, data?: { total?, batches?, jobIds? } }}
+   */
+  async generateMissingDailyCheckProjects() {
+    try {
+      const response = await axios.post('/admin/embedding/generate/projects/missing-daily-check', {}, {
+        timeout: 60_000,
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error, '生成每日检查缺失项目向量失败'));
+    }
+  },
+
+  /**
+   * 预览“每日检查缺失”的项目向量候选（不入队）
+   * @returns {{ status, message, data?: { rules, candidates, previewProjectIds } }}
+   */
+  async previewMissingDailyCheckProjects() {
+    try {
+      const response = await axios.get('/admin/embedding/generate/projects/missing-daily-check/preview', {
+        timeout: 60_000,
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error, '预览每日检查缺失项目向量失败'));
+    }
+  },
+
+  /**
+   * 全量生成所有向量（帖子 + 用户 + 项目）
+   * @param {boolean} [force=false] - 是否强制重新生成
+   * @returns {{ status, message, data: { posts, users, projects } }}
    */
   async generateAll(force = false) {
     try {
@@ -145,6 +191,20 @@ export const EmbeddingService = {
       return response.data;
     } catch (error) {
       throw new Error(getErrorMessage(error, `生成用户 ${userId} 向量失败`));
+    }
+  },
+
+  /**
+   * 单项目向量生成（强制模式）
+   * @param {number} projectId - 项目 ID
+   * @returns {{ status, message, data: { jobId } }}
+   */
+  async generateProject(projectId) {
+    try {
+      const response = await axios.post(`/admin/embedding/generate/project/${projectId}`);
+      return response.data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error, `生成项目 ${projectId} 向量失败`));
     }
   },
 };

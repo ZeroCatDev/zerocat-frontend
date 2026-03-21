@@ -93,6 +93,12 @@
           />
         </div>
         <div class="mt-4">
+          <ProjectRecommendationPanel
+             v-if="project.id"
+             :project-id="project.id"
+          />
+        </div>
+        <div class="mt-4">
           <Comment :url="'project-' + project.id" name="项目"></Comment>
         </div>
       </template>
@@ -105,6 +111,7 @@ import {use404Helper} from '@/composables/use404';
 import {localuser} from "@/services/localAccount";
 import Comment from '@/components/Comment.vue';
 import RelatedPostsPanel from '@/components/posts/RelatedPostsPanel.vue';
+import ProjectRecommendationPanel from '@/components/project/ProjectRecommendationPanel.vue';
 import {useSeo} from "@/composables/useSeo";
 import {ref} from "vue";
 import {
@@ -128,6 +135,7 @@ export default {
   components: {
     Comment,
     RelatedPostsPanel,
+    ProjectRecommendationPanel,
     Markdown,
     License,
     ProjectBranchNav,
