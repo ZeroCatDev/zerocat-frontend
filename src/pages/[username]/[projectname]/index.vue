@@ -3,6 +3,18 @@
     <PageAnalytics :target-id="project.id" target-type="project"/>
     <ProjectPageLayout>
       <template #main>
+        <v-alert
+          v-if="isMirroredFrom40code"
+          class="mb-4"
+          type="info"
+          variant="tonal"
+          density="comfortable"
+        >
+          此项目从 40code 镜像而来，建议直接访问
+          <a :href="mirror40codeLink" target="_blank" rel="noopener noreferrer">40code 原项目</a>
+          获取最新内容。
+        </v-alert>
+
         <ProjectBranchNav
           v-if="project.type !== 'article'"
           :branch-history="projectbranchhistory"
@@ -158,6 +170,17 @@ export default {
       const projectname = this.$route.params.projectname;
       if (!username || !projectname) return '';
       return `/${username}/articles/${projectname}`;
+    },
+    isMirroredFrom40code() {
+      const username = this.$route.params.username;
+      const projectname = this.$route.params.projectname;
+      if (!username || !projectname) return false;
+      return username.toLowerCase().endsWith('@40code.com') && /^\d+$/.test(projectname);
+    },
+    mirror40codeLink() {
+      const projectname = this.$route.params.projectname;
+      if (!projectname || !/^\d+$/.test(projectname)) return 'https://40code.com/';
+      return `https://40code.com/#page=work&id=${projectname}`;
     },
     articleMarkdownContent() {
       if (this.articleContent) return this.articleContent;

@@ -21,7 +21,7 @@ export const Mirror40codeService = {
 
   async triggerFullSync() {
     try {
-      const response = await axios.post('/admin/mirror40code/full-sync', {});
+      const response = await axios.post('/admin/mirror40code/daily-sync', {});
       return response.data;
     } catch (error) {
       throw new Error(getErrorMessage(error, '触发全量同步失败'));
