@@ -27,7 +27,7 @@
     </div>
 
     <!-- Info Overlay -->
-    <div class="info-overlay">
+    <div class="info-overlay" :class="{ 'is-playing': isPlaying }">
       <div class="d-flex align-center mb-2 pointer-events-auto" @click.stop="navigateToProject">
         <h2 class="text-h6 text-white font-weight-bold mr-2 text-shadow">{{ project.title }}</h2>
         <v-icon icon="mdi-chevron-right" color="white" />
@@ -311,15 +311,23 @@ onMounted(() => {
 });
 
 watch(() => props.project.id, () => {
+  isPlaying.value = false;
   checkStar();
   checkFollow();
 });
+
+watch(() => props.isActive, (isActive) => {
+  if (!isActive && isPlaying.value) {
+    isPlaying.value = false;
+  }
+}, { immediate: true });
 
 </script>
 
 <style scoped>
 .feed-card-container {
   position: relative;
+  --frame-width: min(100vw, calc(100dvh * 4 / 3));
   width: 100%;
   height: 100%;
   background: #000;
@@ -374,21 +382,46 @@ watch(() => props.project.id, () => {
 .info-overlay {
   position: absolute;
   bottom: 0;
-  left: 0;
-  width: 75%;
-  padding: 20px 16px 80px 16px; /* Bottom padding for nav bar */
-  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 60%, transparent 100%);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(100%, var(--frame-width));
+  padding: 20px clamp(12px, 2.4vw, 24px) 80px clamp(12px, 2.4vw, 24px);
   z-index: 5;
   pointer-events: none;
+  position: absolute;
+}
+
+.info-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.86) 0%, rgba(0,0,0,0.38) 58%, rgba(0,0,0,0.1) 78%, transparent 100%);
+  z-index: -1;
+  opacity: 1;
+  transition: opacity 0.35s ease;
+}
+
+.info-overlay.is-playing::before {
+  opacity: 0;
 }
 
 .actions-overlay {
   position: absolute;
   bottom: 100px;
-  right: 12px;
+  right: calc((100% - min(100%, var(--frame-width))) / 2 + 12px);
   z-index: 10;
   width: 60px;
   pointer-events: none; /* Make container click-through */
+}
+
+@media (min-width: 1280px) {
+  .info-overlay {
+    padding-bottom: 92px;
+  }
+
+  .actions-overlay {
+    bottom: 108px;
+  }
 }
 
 .action-item {

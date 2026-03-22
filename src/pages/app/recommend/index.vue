@@ -1,11 +1,16 @@
 <template>
   <div class="recommend-feed-container" @scroll="handleScroll">
     <div
-      v-for="(project) in projects"
+      v-for="(project, index) in projects"
       :key="project.id"
       class="feed-item"
     >
-      <ProjectFeedCard :project="project" @play="handleProjectPlay" />
+      <ProjectFeedCard
+        v-if="shouldRenderProject(index)"
+        :project="project"
+        :is-active="index === activeIndex"
+        @play="handleProjectPlay"
+      />
     </div>
 
     <div v-if="loading" class="loading-indicator">
@@ -34,6 +39,7 @@ useHead({ title: '发现 - 猜你喜欢' });
 const projects = ref([]);
 const loading = ref(false);
 const offset = ref(0);
+const activeIndex = ref(0);
 const hasMore = ref(true);
 const limit = 5;
 const readReportedIds = new Set();
@@ -68,11 +74,18 @@ const fetchProjects = async () => {
 
 const handleScroll = (e) => {
   const { scrollTop, clientHeight, scrollHeight } = e.target;
+  const nextActiveIndex = Math.max(0, Math.round(scrollTop / clientHeight));
+  if (nextActiveIndex !== activeIndex.value) {
+    activeIndex.value = nextActiveIndex;
+  }
+
   // Load more when user scrolls near bottom (1 screen away)
   if (scrollHeight - scrollTop - clientHeight < clientHeight) {
     fetchProjects();
   }
 };
+
+const shouldRenderProject = (index) => index === activeIndex.value || index === activeIndex.value + 1;
 
 const handleProjectPlay = async (projectId) => {
   if (!projectId || readReportedIds.has(projectId)) return;
