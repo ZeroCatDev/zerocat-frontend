@@ -22,7 +22,7 @@
       "destination": "/scratch/(.*)"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!ap/).*)",
       "destination": "/"
     }
   ],
