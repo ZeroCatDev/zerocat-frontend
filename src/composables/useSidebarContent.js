@@ -66,6 +66,7 @@ export function useSidebarContent() {
     const items = [
       { name: 'home', label: '首页', icon: 'mdi-home', to: '/' },
       { name: 'explore', label: '探索项目', icon: 'mdi-compass', to: '/app/explore' },
+      { name: 'recommend', label: '猜你喜欢', icon: 'mdi-heart', to: '/app/recommend' },
     ];
 
     if (isLogin.value) {

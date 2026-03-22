@@ -101,8 +101,9 @@
             </v-card-text>
           </v-card>
         </v-col>
+      <v-col cols="12" md="9" lg="10">
+  <v-card title="查看 猜你喜欢" to="/app/recommend" border rounded="xl" hover  subtitle="基于AI的智能推荐" class="mb-2" append-icon="mdi-arrow-right"></v-card>
 
-        <v-col cols="12" md="9" lg="10">
           <div class="result-topbar">
             <div class="text-h6 mb-2">项目探索</div>
             <div class="d-flex flex-wrap ga-2">
