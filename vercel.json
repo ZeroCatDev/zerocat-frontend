@@ -14,15 +14,15 @@
       "destination": "https://api.zcservice.houlang.cloud/.well-known/host-meta"
     },
     {
-      "source": "/ap/(.*)",
-      "destination": "https://api.zcservice.houlang.cloud/ap/(.*)"
+      "source": "/ap/:path*",
+      "destination": "https://api.zcservice.houlang.cloud/ap/:path*"
     },
     {
-      "source": "/scratch/(.*)",
-      "destination": "/scratch/(.*)"
+      "source": "/scratch/:path*",
+      "destination": "/scratch/:path*"
     },
     {
-      "source": "/((?!ap/).*)",
+      "source": "/:path*",
       "destination": "/"
     }
   ],
