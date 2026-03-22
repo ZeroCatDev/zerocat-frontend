@@ -81,6 +81,16 @@ export const GorseService = {
       throw new Error(getErrorMessage(error, '同步反馈失败'));
     }
   },
+  async syncProjects() {
+    try {
+      const response = await axios.post('/admin/gorse/sync/projects', null, {
+        timeout: 120_000,
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(getErrorMessage(error, '同步项目失败'));
+    }
+    },
 };
 
 export default GorseService;

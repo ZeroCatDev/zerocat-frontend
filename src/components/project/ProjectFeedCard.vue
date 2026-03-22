@@ -136,11 +136,18 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(['play']);
+
 const router = useRouter();
 const isPlaying = ref(false);
 
 const togglePlay = () => {
-  isPlaying.value = !isPlaying.value;
+  const willPlay = !isPlaying.value;
+  isPlaying.value = willPlay;
+
+  if (willPlay && props.project?.id) {
+    emit('play', props.project.id);
+  }
 };
 
 const navigateToProject = () => {

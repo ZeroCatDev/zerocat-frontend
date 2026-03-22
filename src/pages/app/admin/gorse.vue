@@ -140,6 +140,19 @@
                   同步反馈
                 </v-btn>
               </v-col>
+
+              <v-col cols="12" sm="4">
+                <v-btn
+                  color="secondary"
+                  prepend-icon="mdi-heart-pulse"
+                  :loading="syncing.projects"
+                  :disabled="anySyncing"
+                  block
+                  @click="runSync('projects')"
+                >
+                  同步项目
+                </v-btn>
+              </v-col>
             </v-row>
 
             <!-- 同步进行中提示 -->
@@ -184,6 +197,14 @@
                       <td colspan="2">{{ count }}</td>
                     </tr>
                   </template>
+                                    <template v-if="syncResult.data?.projects">
+
+                  <tr v-if="syncResult.data?.projects">
+                    <td>项目</td>
+                    <td>{{ syncResult.data.projects.total }}</td>
+                    <td>{{ syncResult.data.projects.synced }}</td>
+                  </tr>
+                  </template>
                 </tbody>
               </v-table>
             </template>
@@ -214,7 +235,7 @@ const statusLoading = ref(false);
 const statusError = ref(null);
 const status = ref({ enabled: false, endpoint: '', message: '' });
 
-const syncing = ref({ all: false, users: false, posts: false, feedbacks: false });
+const syncing = ref({ all: false, users: false, posts: false, feedbacks: false, projects: false });
 const syncResult = ref(null);
 const syncError = ref(null);
 
@@ -238,6 +259,7 @@ const syncMap = {
   users: GorseService.syncUsers.bind(GorseService),
   posts: GorseService.syncPosts.bind(GorseService),
   feedbacks: GorseService.syncFeedbacks.bind(GorseService),
+  projects: GorseService.syncProjects.bind(GorseService),
 };
 
 const runSync = async (type) => {

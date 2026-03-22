@@ -27,6 +27,20 @@ export const ProjectRecommendationService = {
   },
 
   /**
+   * 上报项目已读（推荐反馈）
+   * 仅在用户明确播放时调用
+   * @param {string|number} projectId
+   */
+  async markProjectRead(projectId) {
+    try {
+      const response = await axios.post(`/project/${projectId}/read`);
+      return response.data;
+    } catch {
+      // 静默失败，不影响主流程
+    }
+  },
+
+  /**
    * 获取上下文项目推荐（用户兴趣 + 当前项目）
    * @param {number} projectId - 当前项目 ID
    * @param {Object} params - 查询参数

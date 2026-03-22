@@ -5,7 +5,7 @@
       :key="project.id"
       class="feed-item"
     >
-      <ProjectFeedCard :project="project" />
+      <ProjectFeedCard :project="project" @play="handleProjectPlay" />
     </div>
 
     <div v-if="loading" class="loading-indicator">
@@ -36,6 +36,7 @@ const loading = ref(false);
 const offset = ref(0);
 const hasMore = ref(true);
 const limit = 5;
+const readReportedIds = new Set();
 
 const fetchProjects = async () => {
   if (loading.value || (!hasMore.value && offset.value > 0)) return;
@@ -71,6 +72,13 @@ const handleScroll = (e) => {
   if (scrollHeight - scrollTop - clientHeight < clientHeight) {
     fetchProjects();
   }
+};
+
+const handleProjectPlay = async (projectId) => {
+  if (!projectId || readReportedIds.has(projectId)) return;
+
+  readReportedIds.add(projectId);
+  await ProjectRecommendationService.markProjectRead(projectId);
 };
 
 onMounted(() => {
