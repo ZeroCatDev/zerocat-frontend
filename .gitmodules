@@ -9,3 +9,6 @@
 	path = public/clipcc
 	url = "https://github.com/ZeroCatDev/zerocat-clipcc-gui.git"
 	branch = build
+[submodule "public/twemoji"]
+	path = public/twemoji
+	url = https://github.com/twitter/twemoji
