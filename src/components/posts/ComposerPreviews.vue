@@ -1,8 +1,18 @@
 <template>
   <div class="composer-previews">
+    <div v-if="urlPreviewLoading && !embed" class="preview-url-state preview-url-state--loading">
+      <v-progress-circular size="14" width="2" indeterminate class="mr-2" />
+      正在生成链接预览...
+    </div>
+
+    <div v-else-if="urlPreviewError && !embed" class="preview-url-state preview-url-state--error">
+      <v-icon size="16" class="mr-1">mdi-alert-circle-outline</v-icon>
+      {{ urlPreviewError }}，将按普通链接发布
+    </div>
+
     <!-- 嵌入内容预览 -->
     <div v-if="embed" class="preview-embed">
-      <PostEmbed :embed="embed" compact />
+      <PostEmbed :embed="embed" :compact="embedCompact" />
       <v-btn
         icon
         size="x-small"
@@ -53,10 +63,12 @@ import { computed } from 'vue';
 import { getS3staticurl } from '@/services/projectService';
 import PostEmbed from './PostEmbed.vue';
 
-defineProps({
+const props = defineProps({
   embed: { type: Object, default: null },
   assets: { type: Array, default: () => [] },
-  uploading: { type: Boolean, default: false }
+  uploading: { type: Boolean, default: false },
+  urlPreviewLoading: { type: Boolean, default: false },
+  urlPreviewError: { type: String, default: '' }
 });
 
 defineEmits(['remove-embed', 'remove-asset']);
@@ -64,6 +76,8 @@ defineEmits(['remove-embed', 'remove-asset']);
 const mediaGridClass = computed(() => {
   return {}; // 可以根据图片数量动态调整
 });
+
+const embedCompact = computed(() => props.embed?.type !== 'url');
 
 const assetKey = (asset) => asset?.id ?? asset?.assetId ?? JSON.stringify(asset);
 
@@ -82,6 +96,26 @@ const getAssetUrl = (asset) => {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.preview-url-state {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.preview-url-state--loading {
+  color: rgba(var(--v-theme-on-surface), 0.72);
+  background: rgba(var(--v-theme-on-surface), 0.06);
+}
+
+.preview-url-state--error {
+  color: rgb(var(--v-theme-warning));
+  background: rgba(var(--v-theme-warning), 0.12);
 }
 
 /* 嵌入预览 */

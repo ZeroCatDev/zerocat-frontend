@@ -19,6 +19,33 @@ export const getLocalCountInfo = (content) => {
   };
 };
 
+const tryNormalizeHttpUrl = (value) => {
+  if (!value) return null;
+  try {
+    const parsed = new URL(String(value).trim());
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+};
+
+export const extractFirstHttpUrl = (content) => {
+  const text = content == null ? '' : String(content);
+  if (!text.trim()) return null;
+
+  const extracted = twitterText.extractUrls(text) || [];
+  for (const raw of extracted) {
+    const direct = tryNormalizeHttpUrl(raw);
+    if (direct) return direct;
+
+    const withProtocol = tryNormalizeHttpUrl(`https://${raw}`);
+    if (withProtocol) return withProtocol;
+  }
+
+  return null;
+};
+
 /**
  * 发布前格式化内容：
  * - 去除首尾空白

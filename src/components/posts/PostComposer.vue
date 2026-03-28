@@ -116,6 +116,8 @@
                   :embed="embedPreview"
                   :assets="uploadedAssets"
                   :uploading="uploading"
+                  :url-preview-loading="urlPreviewLoading"
+                  :url-preview-error="urlPreviewError"
                   @remove-embed="removeEmbed"
                   @remove-asset="removeAsset"
                 />
@@ -209,6 +211,8 @@
           :embed="embedPreview"
           :assets="uploadedAssets"
           :uploading="uploading"
+          :url-preview-loading="urlPreviewLoading"
+          :url-preview-error="urlPreviewError"
           @remove-embed="removeEmbed"
           @remove-asset="removeAsset"
         />
@@ -260,7 +264,7 @@ import { localuser } from '@/services/localAccount';
 import { getS3staticurl } from '@/services/projectService';
 import PostsService from '@/services/postsService';
 import axios from '@/axios/axios';
-import { getLocalCountInfo, getPostContentLimit } from '@/utils/postCount';
+import { getLocalCountInfo, getPostContentLimit, extractFirstHttpUrl } from '@/utils/postCount';
 import { showSnackbar } from '@/composables/useNotifications';
 import ComposerPreviews from './ComposerPreviews.vue';
 import ComposerToolbar from './ComposerToolbar.vue';
@@ -293,6 +297,8 @@ const fileInputRef = ref(null);
 const content = ref('');
 const isFocused = ref(false);
 const uploading = ref(false);
+const urlPreviewLoading = ref(false);
+const urlPreviewError = ref('');
 
 // Mention state
 const mentionVisible = ref(false);
@@ -306,6 +312,8 @@ const submitting = ref(false);
 const isDragging = ref(false);
 const uploadedAssets = ref([]);
 const embedPreview = ref(props.initialEmbed || null);
+const autoEmbedUrl = ref('');
+const dismissedAutoEmbedUrl = ref('');
 
 // Auth
 const isLogin = computed(() => localuser.isLogin.value);
@@ -365,6 +373,106 @@ const inlineClass = computed(() => ({
 const editorClass = computed(() => ({
   'composer-editor--compact': props.compact
 }));
+
+let urlPreviewDebounceTimer = null;
+
+const detectPreviewUrl = (text) => {
+  const raw = extractFirstHttpUrl(text);
+  if (!raw) return null;
+  try {
+    const parsed = new URL(raw);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+};
+
+const buildUrlEmbed = (fallbackUrl, previewData) => {
+  const preview = previewData?.preview || {};
+  const normalizedUrl = preview.url || preview.requested_url || fallbackUrl;
+
+  return {
+    type: 'url',
+    id: normalizedUrl,
+    url: normalizedUrl,
+    requested_url: preview.requested_url || fallbackUrl,
+    title: preview.title || null,
+    description: preview.description || null,
+    image: preview.image || null,
+    icon: preview.icon || null,
+    author: preview.author || null,
+    publisher: preview.publisher || null,
+    published_at: preview.published_at || null,
+    content_type: preview.content_type || null,
+    cache: previewData?.cache || null
+  };
+};
+
+const scheduleUrlPreview = () => {
+  clearTimeout(urlPreviewDebounceTimer);
+
+  const nextUrl = detectPreviewUrl(content.value);
+  if (dismissedAutoEmbedUrl.value && dismissedAutoEmbedUrl.value !== nextUrl) {
+    dismissedAutoEmbedUrl.value = '';
+  }
+
+  if (!nextUrl) {
+    urlPreviewLoading.value = false;
+    urlPreviewError.value = '';
+    autoEmbedUrl.value = '';
+    if (embedPreview.value?.type === 'url') {
+      embedPreview.value = null;
+    }
+    return;
+  }
+
+  if (dismissedAutoEmbedUrl.value === nextUrl) {
+    urlPreviewLoading.value = false;
+    urlPreviewError.value = '';
+    return;
+  }
+
+  if (embedPreview.value && embedPreview.value.type !== 'url') {
+    urlPreviewLoading.value = false;
+    urlPreviewError.value = '';
+    return;
+  }
+
+  if (embedPreview.value?.type === 'url' && embedPreview.value.url === nextUrl && autoEmbedUrl.value === nextUrl) {
+    return;
+  }
+
+  urlPreviewDebounceTimer = setTimeout(async () => {
+    const latestUrl = detectPreviewUrl(content.value);
+    if (!latestUrl || latestUrl !== nextUrl) return;
+    if (dismissedAutoEmbedUrl.value === latestUrl) return;
+
+    urlPreviewLoading.value = true;
+    urlPreviewError.value = '';
+
+    try {
+      const previewData = await PostsService.fetchUrlPreview(latestUrl);
+      const stillLatest = detectPreviewUrl(content.value) === latestUrl;
+      if (!stillLatest) return;
+      embedPreview.value = buildUrlEmbed(latestUrl, previewData);
+      autoEmbedUrl.value = latestUrl;
+      urlPreviewError.value = '';
+    } catch (error) {
+      const stillLatest = detectPreviewUrl(content.value) === latestUrl;
+      if (!stillLatest) return;
+      if (embedPreview.value?.type === 'url' && autoEmbedUrl.value === latestUrl) {
+        embedPreview.value = null;
+      }
+      autoEmbedUrl.value = '';
+      urlPreviewError.value = error?.message || '链接预览不可用';
+    } finally {
+      if (detectPreviewUrl(content.value) === nextUrl) {
+        urlPreviewLoading.value = false;
+      }
+    }
+  }, 600);
+};
 
 // Methods
 const autoResize = () => {
@@ -651,11 +759,25 @@ const onPaste = async (e) => {
 
 // Embed
 const removeEmbed = () => {
+  if (embedPreview.value?.type === 'url') {
+    dismissedAutoEmbedUrl.value = detectPreviewUrl(content.value) || embedPreview.value.url || '';
+    autoEmbedUrl.value = '';
+  }
   embedPreview.value = null;
+  urlPreviewLoading.value = false;
+  if (!detectPreviewUrl(content.value)) {
+    urlPreviewError.value = '';
+  }
 };
 
 const setEmbed = (embed) => {
   embedPreview.value = embed;
+  if (embed?.type !== 'url') {
+    dismissedAutoEmbedUrl.value = '';
+    autoEmbedUrl.value = '';
+    urlPreviewLoading.value = false;
+    urlPreviewError.value = '';
+  }
 };
 
 // Reset
@@ -663,6 +785,10 @@ const reset = () => {
   content.value = '';
   uploadedAssets.value = [];
   embedPreview.value = null;
+  autoEmbedUrl.value = '';
+  dismissedAutoEmbedUrl.value = '';
+  urlPreviewLoading.value = false;
+  urlPreviewError.value = '';
   isFocused.value = false;
   nextTick(() => {
     if (textareaRef.value) textareaRef.value.style.height = 'auto';
@@ -705,9 +831,14 @@ watch(() => props.initialEmbed, (newEmbed) => {
   if (newEmbed) setEmbed(newEmbed);
 });
 
+watch(content, () => {
+  scheduleUrlPreview();
+});
+
 // Cleanup
 onBeforeUnmount(() => {
   clearTimeout(mentionSearchTimeout);
+  clearTimeout(urlPreviewDebounceTimer);
 });
 
 // Mount

@@ -233,18 +233,61 @@
     <template v-else-if="embed.type === 'url'">
       <div
         class="post-embed post-embed--url"
-        :class="{ 'post-embed--compact': compact }"
+        :class="{ 'post-embed--compact': compact, 'post-embed--url-large': !compact }"
         @click="handleClick"
       >
-        <div class="embed-icon embed-icon--url">
-          <v-icon size="20">mdi-link-variant</v-icon>
-        </div>
-        <div class="embed-content">
-          <div class="embed-label">{{ urlDomain }}</div>
-          <div class="embed-title">{{ urlTitle }}</div>
-          <div v-if="!compact" class="embed-url-path">{{ urlPath }}</div>
-        </div>
-        <v-icon class="embed-arrow" size="16">mdi-arrow-top-right</v-icon>
+        <template v-if="!compact">
+          <div v-if="urlImage" class="embed-url-hero">
+            <v-img :src="urlImage" cover class="embed-url-hero-content">
+              <template #placeholder>
+                <div class="d-flex align-center justify-center fill-height">
+                  <v-progress-circular indeterminate size="20" width="2" />
+                </div>
+              </template>
+            </v-img>
+          </div>
+          <div v-else class="embed-url-hero embed-url-hero--placeholder">
+            <v-icon size="44">mdi-link-variant</v-icon>
+          </div>
+
+          <div class="embed-url-body">
+            <div class="embed-url-site">
+              <v-img
+                v-if="urlIcon"
+                :src="urlIcon"
+ aspect-ratio="1/1"
+:height="16"
+:width="16"
+style="flex: 0 0 auto!important"
+              />
+              <v-icon v-else size="14" class="embed-url-site-fallback">mdi-web</v-icon>
+              <span class="embed-url-site-name">{{ urlPublisher }}</span>
+              <v-spacer />
+              <v-icon class="embed-arrow" size="16">mdi-arrow-top-right</v-icon>
+            </div>
+
+            <div class="embed-title embed-title--url-large">{{ urlTitle }}</div>
+            <div v-if="urlDescription" class="embed-description embed-description--url">{{ urlDescription }}</div>
+            <div v-else class="embed-url-path">{{ urlPath }}</div>
+          </div>
+        </template>
+
+        <template v-else>
+          <div class="embed-icon embed-icon--url">
+            <v-img
+              v-if="urlIcon"
+              :src="urlIcon"
+              class="embed-url-icon"
+            />
+            <v-icon v-else size="20">mdi-link-variant</v-icon>
+          </div>
+
+          <div class="embed-content embed-content--url">
+            <div class="embed-label">{{ urlPublisher }}</div>
+            <div class="embed-title">{{ urlTitle }}</div>
+          </div>
+          <v-icon class="embed-arrow" size="16">mdi-arrow-top-right</v-icon>
+        </template>
       </div>
     </template>
 
@@ -321,7 +364,7 @@ const projectTypeLabel = computed(() => {
 
 // URL embed computed properties
 const urlDomain = computed(() => {
-  if (props.embed.type !== 'url' || !props.embed.url) return '';
+  if (props.embed.type !== 'url' || !props.embed.url) return '链接';
   try {
     const url = new URL(props.embed.url);
     return url.hostname.replace(/^www\./, '');
@@ -330,26 +373,52 @@ const urlDomain = computed(() => {
   }
 });
 
+const urlPublisher = computed(() => {
+  if (props.embed.type !== 'url') return '链接';
+  return props.embed.publisher || urlDomain.value;
+});
+
 const urlTitle = computed(() => {
   if (props.embed.type !== 'url' || !props.embed.url) return '';
+  if (props.embed.title) return props.embed.title;
   try {
     const url = new URL(props.embed.url);
-    // Extract meaningful title from pathname
+    if (!url.pathname || url.pathname === '/') {
+      return url.hostname.replace(/^www\./, '');
+    }
+
     const pathParts = url.pathname.split('/').filter(Boolean);
     if (pathParts.length > 0) {
-      return decodeURIComponent(pathParts[pathParts.length - 1]).replace(/[-_]/g, ' ');
+      const tail = decodeURIComponent(pathParts[pathParts.length - 1]).replace(/[-_]/g, ' ');
+      return tail || url.hostname.replace(/^www\./, '');
     }
-    return url.hostname;
+    return url.hostname.replace(/^www\./, '');
   } catch {
     return props.embed.url;
   }
+});
+
+const urlDescription = computed(() => {
+  if (props.embed.type !== 'url') return '';
+  return props.embed.description || '';
+});
+
+const urlImage = computed(() => {
+  if (props.embed.type !== 'url') return '';
+  return props.embed.image || '';
+});
+
+const urlIcon = computed(() => {
+  if (props.embed.type !== 'url') return '';
+  return props.embed.icon || '';
 });
 
 const urlPath = computed(() => {
   if (props.embed.type !== 'url' || !props.embed.url) return '';
   try {
     const url = new URL(props.embed.url);
-    return url.pathname + url.search;
+    const path = `${url.pathname}${url.search}`;
+    return path && path !== '/' ? path : url.hostname.replace(/^www\./, '');
   } catch {
     return '';
   }
@@ -724,6 +793,97 @@ watch(() => props.embed, loadEmbedData, { immediate: true, deep: true });
 
 .embed-icon--url .v-icon {
   color: rgba(var(--v-theme-on-surface), 0.7);
+}
+
+.embed-url-icon {
+  width: 20px;
+  height: 20px;
+  aspect-ratio: 1 / 1;
+  min-width: 20px;
+  min-height: 20px;
+  max-height: 20px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(var(--v-theme-on-surface), 0.06);
+}
+
+
+
+.embed-content--url {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-embed--url-large {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.embed-url-hero {
+  width: 100%;
+  aspect-ratio: 1.91 / 1;
+  background: rgba(var(--v-theme-on-surface), 0.05);
+  overflow: hidden;
+}
+
+.embed-url-hero-content {
+  width: 100%;
+  height: 100%;
+}
+
+.embed-url-hero--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(var(--v-theme-on-surface), 0.45);
+}
+
+.embed-url-body {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+}
+
+.embed-url-site {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+  min-height: 16px;
+}
+
+.embed-url-site-icon {
+  width: 16px;
+  height: 16px;
+  aspect-ratio: 1 / 1!important;
+
+  background: rgba(var(--v-theme-on-surface), 0.06);
+}
+
+
+
+.embed-url-site-fallback {
+  color: rgba(var(--v-theme-on-surface), 0.5);
+}
+
+.embed-url-site-name {
+  font-size: 12px;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.embed-title--url-large {
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.embed-description--url {
+  -webkit-line-clamp: 2;
+  margin-top: 4px;
 }
 
 .embed-url-path {

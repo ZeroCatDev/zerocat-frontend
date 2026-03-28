@@ -9,6 +9,19 @@ const getErrorMessage = (error, fallback = '请求失败') => {
   );
 };
 
+const pendingUrlPreviewRequests = new Map();
+
+const normalizeHttpUrl = (value) => {
+  if (!value) return null;
+  try {
+    const parsed = new URL(String(value).trim());
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+};
+
 /**
  * 标准化列表响应数据
  * @param {Object} res - API响应
@@ -594,6 +607,55 @@ export const PostsService = {
    */
   async count(content) {
     return getLocalCountInfo(content);
+  },
+
+  /**
+   * 获取 URL 链接预览
+   * @param {string} url - 需要解析的链接，仅支持 http/https
+   * @param {Object} options
+   * @param {boolean} options.force - 是否强制刷新缓存
+   * @returns {Object} { preview, cache }
+   */
+  async fetchUrlPreview(url, { force = false } = {}) {
+    const normalizedUrl = normalizeHttpUrl(url);
+    if (!normalizedUrl) {
+      throw new Error('无效的 URL');
+    }
+
+    const forceRefresh = force === true || force === 'true';
+    const requestKey = `${normalizedUrl}::${forceRefresh ? '1' : '0'}`;
+
+    if (pendingUrlPreviewRequests.has(requestKey)) {
+      return pendingUrlPreviewRequests.get(requestKey);
+    }
+
+    const requestPromise = (async () => {
+      try {
+        const response = await axios.get('/posts/preview', {
+          params: {
+            url: normalizedUrl,
+            force: String(forceRefresh)
+          },
+          headers: {
+            Accept: 'application/json'
+          }
+        });
+
+        const body = response?.data;
+        if (body?.status === 'error') {
+          throw new Error(body?.message || '获取链接预览失败');
+        }
+
+        return body?.data ?? body;
+      } catch (error) {
+        throw new Error(getErrorMessage(error, '获取链接预览失败'));
+      } finally {
+        pendingUrlPreviewRequests.delete(requestKey);
+      }
+    })();
+
+    pendingUrlPreviewRequests.set(requestKey, requestPromise);
+    return requestPromise;
   },
 
   // ==================== 帖子级接口 ====================
