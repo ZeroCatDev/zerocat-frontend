@@ -6,6 +6,7 @@
 
 <script>
 import "highlight.js/styles/atom-one-dark.css";
+import twemoji from "twemoji";
 
 // 懒加载重型依赖
 let markdownInstancePromise = null;
@@ -105,12 +106,22 @@ export default {
       // 通过 slot 的内容作为 Markdown 输入
       const rawContent = this.$slots.default ? this.$slots.default()[0].children : "";
       const renderedMarkdown = this.markdownInstance.render(rawContent);
-      return this.sanitizeContent(renderedMarkdown);
+      const sanitized = this.sanitizeContent(renderedMarkdown);
+      return twemoji.parse(sanitized, {
+        folder: "svg",
+        ext: ".svg",
+        className: "twemoji",
+      });
     },
   },
 };
 </script>
 
 <style scoped>
-/* Scoped styling, if needed */
+:deep(img.twemoji) {
+  width: 1.1em;
+  height: 1.1em;
+  margin: 0 0.05em;
+  vertical-align: -0.2em;
+}
 </style>

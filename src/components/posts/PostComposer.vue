@@ -130,6 +130,7 @@
                   :compact="true"
                   :hide-submit="true"
                   @upload="triggerUpload"
+                  @emoji-select="insertEmojiAtCursor"
                   @add-embed="setEmbed"
                 >
                   <template #embed-quick>
@@ -229,6 +230,7 @@
           :submitting="submitting"
           :submit-label="submitLabel"
           @upload="triggerUpload"
+          @emoji-select="insertEmojiAtCursor"
           @add-embed="setEmbed"
           @submit="handleSubmit"
         >
@@ -569,6 +571,31 @@ const closeMention = () => {
 const onInput = () => {
   autoResize();
   checkMention();
+};
+
+const insertEmojiAtCursor = (emoji) => {
+  if (!emoji || props.disabled || submitting.value) return;
+
+  const textarea = textareaRef.value;
+  if (!textarea) {
+    content.value += emoji;
+    return;
+  }
+
+  const start = textarea.selectionStart ?? content.value.length;
+  const end = textarea.selectionEnd ?? content.value.length;
+  const before = content.value.slice(0, start);
+  const after = content.value.slice(end);
+
+  content.value = `${before}${emoji}${after}`;
+
+  nextTick(() => {
+    const nextPos = start + emoji.length;
+    textarea.focus();
+    textarea.setSelectionRange(nextPos, nextPos);
+    autoResize();
+    checkMention();
+  });
 };
 
 const onBlur = () => {

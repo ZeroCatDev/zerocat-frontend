@@ -65,6 +65,9 @@ importers:
       echarts:
         specifier: ^6.0.0
         version: 6.0.0
+      emoji-picker-element:
+        specifier: ^1.29.1
+        version: 1.29.1
       fuse.js:
         specifier: ^7.1.0
         version: 7.1.0
@@ -110,6 +113,9 @@ importers:
       scratchblocks:
         specifier: ^3.6.4
         version: 3.6.4
+      twemoji:
+        specifier: ^14.0.2
+        version: 14.0.2
       twitter-text:
         specifier: ^3.1.0
         version: 3.1.0
@@ -2192,6 +2198,9 @@ packages:
     engines: {node: '>= 12.20.55'}
     hasBin: true
 
+  emoji-picker-element@1.29.1:
+    resolution: {integrity: sha512-TOiHzu9Dqib3x4MwcAi3wi3RdyT4SoeB4b15AvH1ks4SBwTl7DeebhZ0d3x6dNi4XfNU7IGRZ7NBQllj0RqwrQ==}
+
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
 
@@ -3175,6 +3184,9 @@ packages:
 
   jsonfile@4.0.0:
     resolution: {integrity: sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg==}
+
+  jsonfile@5.0.0:
+    resolution: {integrity: sha512-NQRZ5CRo74MhMMC3/3r5g2k4fjodJ/wh8MxjFbCViWKFjxrnudWSY5vomh+23ZaXzAS7J3fBZIR2dV6WbmfM0w==}
 
   jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
@@ -4228,6 +4240,12 @@ packages:
 
   twemoji-parser@11.0.2:
     resolution: {integrity: sha512-5kO2XCcpAql6zjdLwRwJjYvAZyDy3+Uj7v1ipBzLthQmDL7Ce19bEqHr3ImSNeoSW2OA8u02XmARbXHaNO8GhA==}
+
+  twemoji-parser@14.0.0:
+    resolution: {integrity: sha512-9DUOTGLOWs0pFWnh1p6NF+C3CkQ96PWmEFwhOVmT3WbecRC+68AIqpsnJXygfkFcp4aXbOp8Dwbhh/HQgvoRxA==}
+
+  twemoji@14.0.2:
+    resolution: {integrity: sha512-BzOoXIe1QVdmsUmZ54xbEH+8AgtOKUiG53zO5vVP2iUu6h5u9lN15NcuS6te4OY96qx0H7JK9vjjl9WQbkTRuA==}
 
   twitter-text@3.1.0:
     resolution: {integrity: sha512-nulfUi3FN6z0LUjYipJid+eiwXvOLb8Ass7Jy/6zsXmZK3URte043m8fL3FyDzrK+WLpyqhHuR/TcARTN/iuGQ==}
@@ -6939,6 +6957,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  emoji-picker-element@1.29.1: {}
+
   emoji-regex@8.0.0: {}
 
   empathic@2.0.0: {}
@@ -8138,6 +8158,12 @@ snapshots:
     optionalDependencies:
       graceful-fs: 4.2.11
 
+  jsonfile@5.0.0:
+    dependencies:
+      universalify: 0.1.2
+    optionalDependencies:
+      graceful-fs: 4.2.11
+
   jsonfile@6.1.0:
     dependencies:
       universalify: 2.0.1
@@ -9252,6 +9278,15 @@ snapshots:
   tslib@2.8.1: {}
 
   twemoji-parser@11.0.2: {}
+
+  twemoji-parser@14.0.0: {}
+
+  twemoji@14.0.2:
+    dependencies:
+      fs-extra: 8.1.0
+      jsonfile: 5.0.0
+      twemoji-parser: 14.0.0
+      universalify: 0.1.2
 
   twitter-text@3.1.0:
     dependencies:

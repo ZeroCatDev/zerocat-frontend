@@ -18,6 +18,58 @@
         </template>
       </v-tooltip>
 
+      <!-- 表情选择 -->
+      <v-menu
+        v-model="emojiMenuOpen"
+        :close-on-content-click="false"
+        location="bottom start"
+        :z-index="2100"
+      >
+        <template #activator="{ props: menuProps }">
+          <v-tooltip text="表情" location="bottom">
+            <template #activator="{ props: tooltipProps }">
+              <v-btn
+                v-bind="{ ...menuProps, ...tooltipProps }"
+                icon
+                size="small"
+                variant="text"
+                color="primary"
+                :disabled="disabled"
+              >
+                <v-icon size="20">mdi-emoticon-outline</v-icon>
+              </v-btn>
+            </template>
+          </v-tooltip>
+        </template>
+        <v-card class="emoji-menu" min-width="340" max-width="380">
+          <div v-if="recentEmojis.length" class="emoji-recent">
+            <div class="emoji-recent-header">
+              <span class="emoji-recent-title">最近使用</span>
+            </div>
+            <div class="emoji-recent-list">
+              <v-btn
+                v-for="emoji in recentEmojis"
+                :key="emoji"
+                variant="text"
+                size="small"
+                class="emoji-recent-item"
+                @click="selectRecentEmoji(emoji)"
+              >
+                <span
+                  class="emoji-recent-item-content"
+                  v-html="renderTwemojiEmoji(emoji)"
+                />
+              </v-btn>
+            </div>
+          </div>
+          <emoji-picker
+            ref="emojiPickerRef"
+            class="emoji-picker-panel"
+            @emoji-click="handleEmojiClick"
+          />
+        </v-card>
+      </v-menu>
+
       <!-- 嵌入内容 -->
       <v-menu
         v-model="embedMenuOpen"
@@ -221,9 +273,13 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue';
+import 'emoji-picker-element';
+import twemoji from 'twemoji';
 import { getBranchs } from '@/services/projectService';
 import axios from '@/axios/axios';
+import { get as getCacheKv, set as setCacheKv } from '@/services/cachekv';
+import { localuser } from '@/services/localAccount';
 import ProjectSelector from '@/components/shared/ProjectSelector.vue';
 import ListSelector from '@/components/shared/ListSelector.vue';
 import UserSelector from '@/components/shared/UserSelector.vue';
@@ -241,12 +297,148 @@ const props = defineProps({
   submitLabel: { type: String, default: '发布' }
 });
 
-const emit = defineEmits(['upload', 'add-embed', 'submit']);
+const emit = defineEmits(['upload', 'add-embed', 'submit', 'emoji-select']);
 
 // 嵌入菜单状态
+const emojiMenuOpen = ref(false);
+const emojiPickerRef = ref(null);
 const embedMenuOpen = ref(false);
 const localEmbedType = ref('project');
 const addingEmbed = ref(false);
+let emojiShadowObserver = null;
+const recentEmojis = ref([]);
+
+const TWEMOJI_STYLE_ID = 'zerocat-twemoji-style';
+const RECENT_EMOJI_KEY = 'composer_recent_emojis';
+const MAX_RECENT_EMOJIS = 24;
+
+const hasAccessToken = () => {
+  try {
+    return !!localuser?.isLogin?.value;
+  } catch {
+    return false;
+  }
+};
+
+const normalizeRecentEmojis = (value) => {
+  if (!Array.isArray(value)) return [];
+  const list = [];
+  const seen = new Set();
+  for (const item of value) {
+    const emoji = String(item || '').trim();
+    if (!emoji || seen.has(emoji)) continue;
+    seen.add(emoji);
+    list.push(emoji);
+    if (list.length >= MAX_RECENT_EMOJIS) break;
+  }
+  return list;
+};
+
+const loadRecentEmojis = async () => {
+  if (!hasAccessToken()) {
+    recentEmojis.value = [];
+    return;
+  }
+  try {
+    const value = await getCacheKv(RECENT_EMOJI_KEY);
+    if (value == null) {
+      recentEmojis.value = [];
+      return;
+    }
+    if (typeof value === 'string') {
+      try {
+        recentEmojis.value = normalizeRecentEmojis(JSON.parse(value));
+      } catch {
+        recentEmojis.value = normalizeRecentEmojis([value]);
+      }
+      return;
+    }
+    recentEmojis.value = normalizeRecentEmojis(value);
+  } catch (error) {
+    console.error('Failed to load recent emojis:', error);
+    recentEmojis.value = [];
+  }
+};
+
+const saveRecentEmojis = async (list) => {
+  if (!hasAccessToken()) return;
+  try {
+    await setCacheKv(RECENT_EMOJI_KEY, list);
+  } catch (error) {
+    console.error('Failed to save recent emojis:', error);
+  }
+};
+
+const pushRecentEmoji = async (emoji) => {
+  const normalized = String(emoji || '').trim();
+  if (!normalized) return;
+  const next = normalizeRecentEmojis([normalized, ...recentEmojis.value]);
+  recentEmojis.value = next;
+  await saveRecentEmojis(next);
+};
+
+const renderTwemojiEmoji = (emoji) => {
+  const value = String(emoji || '').trim();
+  if (!value) return '';
+  return twemoji.parse(value, {
+    folder: 'svg',
+    ext: '.svg',
+    className: 'twemoji'
+  });
+};
+
+const ensureTwemojiStyleInShadow = (shadowRoot) => {
+  if (!shadowRoot || shadowRoot.getElementById(TWEMOJI_STYLE_ID)) return;
+  const style = document.createElement('style');
+  style.id = TWEMOJI_STYLE_ID;
+  style.textContent = `
+    img.twemoji {
+      width: 1.2em;
+      height: 1.2em;
+      margin: 0 0.04em;
+      vertical-align: -0.2em;
+      pointer-events: none;
+    }
+  `;
+  shadowRoot.appendChild(style);
+};
+
+const applyTwemojiToPicker = () => {
+  const picker = emojiPickerRef.value;
+  const shadowRoot = picker?.shadowRoot;
+  if (!shadowRoot) return;
+
+  ensureTwemojiStyleInShadow(shadowRoot);
+  twemoji.parse(shadowRoot, {
+    folder: 'svg',
+    ext: '.svg',
+    className: 'twemoji'
+  });
+};
+
+const stopEmojiObserver = () => {
+  if (emojiShadowObserver) {
+    emojiShadowObserver.disconnect();
+    emojiShadowObserver = null;
+  }
+};
+
+const startEmojiObserver = () => {
+  const picker = emojiPickerRef.value;
+  const shadowRoot = picker?.shadowRoot;
+  if (!shadowRoot) return;
+
+  stopEmojiObserver();
+  emojiShadowObserver = new MutationObserver(() => {
+    applyTwemojiToPicker();
+  });
+
+  emojiShadowObserver.observe(shadowRoot, {
+    childList: true,
+    subtree: true,
+    characterData: true
+  });
+};
 
 // 项目相关
 const selectedProjectId = ref(null);
@@ -355,6 +547,34 @@ const onListSelect = (list) => {
 const onUserSelect = (user) => {
   selectedUser.value = user;
 };
+
+const handleEmojiClick = (event) => {
+  const emoji = event?.detail?.unicode || event?.detail?.emoji?.unicode;
+  if (!emoji) return;
+  pushRecentEmoji(emoji);
+  emit('emoji-select', emoji);
+};
+
+const selectRecentEmoji = (emoji) => {
+  if (!emoji) return;
+  pushRecentEmoji(emoji);
+  emit('emoji-select', emoji);
+};
+
+watch(emojiMenuOpen, async (open) => {
+  if (open) {
+    await loadRecentEmojis();
+    await nextTick();
+    applyTwemojiToPicker();
+    startEmojiObserver();
+    return;
+  }
+  stopEmojiObserver();
+});
+
+onBeforeUnmount(() => {
+  stopEmojiObserver();
+});
 
 // 格式化提交时间
 const formatCommitTime = (time) => {
@@ -485,6 +705,63 @@ const countTextClass = computed(() => ({
   min-width: 80px;
   font-weight: 700;
   border-radius: 20px;
+}
+
+.emoji-menu {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.emoji-picker-panel {
+  width: 100%;
+  min-height: 380px;
+}
+
+.emoji-recent {
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  background: rgba(var(--v-theme-on-surface), 0.02);
+}
+
+.emoji-recent-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.emoji-recent-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(var(--v-theme-on-surface), 0.62);
+}
+
+.emoji-recent-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.emoji-recent-item {
+  min-width: 30px;
+  width: 30px;
+  height: 30px !important;
+  padding: 0 !important;
+  border-radius: 8px;
+}
+
+.emoji-recent-item-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.emoji-recent-item-content :deep(img.twemoji) {
+  width: 1.2em;
+  height: 1.2em;
+  margin: 0;
+  vertical-align: -0.2em;
 }
 
 .composer-toolbar--compact .toolbar-submit {

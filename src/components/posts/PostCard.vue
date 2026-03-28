@@ -867,6 +867,7 @@ import federationService from "@/services/federationService";
 import { showSnackbar } from "@/composables/useNotifications";
 import { useDeleteConfirm } from "@/composables/useDeleteConfirm";
 import axios from "@/axios/axios";
+import twemoji from "twemoji";
 import PostComposer from "./PostComposer.vue";
 import PostEmbed from "./PostEmbed.vue";
 import QuotedPost from "./QuotedPost.vue";
@@ -1137,7 +1138,11 @@ const formattedContent = computed(() => {
     return `<pre class="blocks">${code}</pre>`;
   });
 
-  return text;
+  return twemoji.parse(text, {
+    folder: "svg",
+    ext: ".svg",
+    className: "twemoji",
+  });
 });
 
 const translationSourceText = computed(() => {
@@ -2204,6 +2209,14 @@ onUnmounted(() => {
 .post-text :deep(pre.blocks) {
   white-space: pre;
   margin: 8px 0;
+}
+
+.post-text :deep(img.twemoji),
+.post-featured-text :deep(img.twemoji) {
+  width: 1.1em;
+  height: 1.1em;
+  margin: 0 0.05em;
+  vertical-align: -0.2em;
 }
 
 .post-embed-note {

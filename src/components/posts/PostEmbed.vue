@@ -61,13 +61,21 @@
                   />
                   <v-icon v-else size="10">mdi-account</v-icon>
                 </v-avatar>
-                <span class="embed-author-name">{{ projectData.author.display_name || projectData.author.username }}</span>
+                <span class="embed-author-name">{{
+                  projectData.author.display_name || projectData.author.username
+                }}</span>
               </div>
             </div>
             <div class="embed-info-right">
               <!-- 分支/提交信息 -->
-              <div v-if="(embed.branch && embed.branch !== 'main') || embed.commit" class="embed-version-info">
-                <span v-if="embed.branch && embed.branch !== 'main'" class="embed-version-item">
+              <div
+                v-if="(embed.branch && embed.branch !== 'main') || embed.commit"
+                class="embed-version-info"
+              >
+                <span
+                  v-if="embed.branch && embed.branch !== 'main'"
+                  class="embed-version-item"
+                >
                   <v-icon size="12">mdi-source-branch</v-icon>
                   {{ embed.branch }}
                 </span>
@@ -157,10 +165,7 @@
         <div class="user-embed-content">
           <!-- 头部：头像 + 关注按钮 -->
           <div class="user-embed-header">
-            <v-avatar
-              :size="compact ? 48 : 64"
-              class="user-embed-avatar"
-            >
+            <v-avatar :size="compact ? 48 : 64" class="user-embed-avatar">
               <v-img
                 v-if="userData?.avatar"
                 :src="getAvatarUrl(userData.avatar)"
@@ -178,7 +183,7 @@
               :loading="userFollowLoading"
               @click.stop="toggleUserFollow"
             >
-              {{ isFollowingUser ? '已关注' : '关注' }}
+              {{ isFollowingUser ? "已关注" : "关注" }}
             </v-btn>
           </div>
 
@@ -186,7 +191,12 @@
           <div class="user-embed-info">
             <div class="user-embed-names">
               <span class="user-embed-display-name">
-                {{ userData?.display_name || userData?.username || embed.username || `用户 #${embed.id}` }}
+                {{
+                  userData?.display_name ||
+                  userData?.username ||
+                  embed.username ||
+                  `用户 #${embed.id}`
+                }}
               </span>
               <v-icon
                 v-if="userData?.role === 'admin'"
@@ -210,15 +220,21 @@
           <!-- 统计信息 -->
           <div v-if="!compact" class="user-embed-stats">
             <div class="user-embed-stat">
-              <span class="user-embed-stat-value">{{ formatStatNumber(userData?.following_count || 0) }}</span>
+              <span class="user-embed-stat-value">{{
+                formatStatNumber(userData?.following_count || 0)
+              }}</span>
               <span class="user-embed-stat-label">正在关注</span>
             </div>
             <div class="user-embed-stat">
-              <span class="user-embed-stat-value">{{ formatStatNumber(userData?.followers_count || 0) }}</span>
+              <span class="user-embed-stat-value">{{
+                formatStatNumber(userData?.followers_count || 0)
+              }}</span>
               <span class="user-embed-stat-label">关注者</span>
             </div>
             <div v-if="userData?.project_count" class="user-embed-stat">
-              <span class="user-embed-stat-value">{{ formatStatNumber(userData.project_count) }}</span>
+              <span class="user-embed-stat-value">{{
+                formatStatNumber(userData.project_count)
+              }}</span>
               <span class="user-embed-stat-label">作品</span>
             </div>
           </div>
@@ -233,7 +249,10 @@
     <template v-else-if="embed.type === 'url'">
       <div
         class="post-embed post-embed--url"
-        :class="{ 'post-embed--compact': compact, 'post-embed--url-large': !compact }"
+        :class="{
+          'post-embed--compact': compact,
+          'post-embed--url-large': !compact,
+        }"
         @click="handleClick"
       >
         <template v-if="!compact">
@@ -255,30 +274,33 @@
               <v-img
                 v-if="urlIcon"
                 :src="urlIcon"
- aspect-ratio="1/1"
-:height="16"
-:width="16"
-style="flex: 0 0 auto!important"
+                aspect-ratio="1/1"
+                :height="16"
+                :width="16"
+                style="flex: 0 0 auto !important"
               />
-              <v-icon v-else size="14" class="embed-url-site-fallback">mdi-web</v-icon>
+              <v-icon v-else size="14" class="embed-url-site-fallback"
+                >mdi-web</v-icon
+              >
               <span class="embed-url-site-name">{{ urlPublisher }}</span>
               <v-spacer />
               <v-icon class="embed-arrow" size="16">mdi-arrow-top-right</v-icon>
             </div>
 
             <div class="embed-title embed-title--url-large">{{ urlTitle }}</div>
-            <div v-if="urlDescription" class="embed-description embed-description--url">{{ urlDescription }}</div>
+            <div
+              v-if="urlDescription"
+              class="embed-description embed-description--url"
+            >
+              {{ urlDescription }}
+            </div>
             <div v-else class="embed-url-path">{{ urlPath }}</div>
           </div>
         </template>
 
         <template v-else>
           <div class="embed-icon embed-icon--url">
-            <v-img
-              v-if="urlIcon"
-              :src="urlIcon"
-              class="embed-url-icon"
-            />
+            <v-img v-if="urlIcon" :src="urlIcon" class="embed-url-icon" />
             <v-icon v-else size="20">mdi-link-variant</v-icon>
           </div>
 
@@ -312,16 +334,16 @@ style="flex: 0 0 auto!important"
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { localuser } from '@/services/localAccount';
-import { getProjectInfo, getS3staticurl } from '@/services/projectService';
-import axios from '@/axios/axios';
-import ProjectPlayer from '@/components/project/ProjectPlayer.vue';
+import { ref, computed, watch } from "vue";
+import { useRouter } from "vue-router";
+import { localuser } from "@/services/localAccount";
+import { getProjectInfo, getS3staticurl } from "@/services/projectService";
+import axios from "@/axios/axios";
+import ProjectPlayer from "@/components/project/ProjectPlayer.vue";
 
 const props = defineProps({
   embed: { type: Object, required: true },
-  compact: { type: Boolean, default: false }
+  compact: { type: Boolean, default: false },
 });
 
 const router = useRouter();
@@ -345,82 +367,85 @@ const isSelf = computed(() => {
 
 // Computed properties
 const isScratchProject = computed(() => {
-  const type = projectData.value?.type || 'scratch';
-  return type === 'scratch' || type === 'scratch3';
+  const type = projectData.value?.type || "scratch";
+  return type === "scratch" || type === "scratch3";
 });
 
 const projectTypeLabel = computed(() => {
-  const type = projectData.value?.type || 'scratch';
+  const type = projectData.value?.type || "scratch";
   const labels = {
-    'scratch': 'Scratch 作品',
-    'scratch3': 'Scratch 作品',
-    'scratch-extension': '扩展',
-    'python': 'Python',
-    'javascript': 'JavaScript',
-    'text': '文本'
+    scratch: "Scratch 作品",
+    scratch3: "Scratch 作品",
+    "scratch-extension": "扩展",
+    python: "Python",
+    javascript: "JavaScript",
+    text: "文本",
   };
-  return labels[type] || '项目';
+  return labels[type] || "项目";
 });
 
 // URL embed computed properties
 const urlDomain = computed(() => {
-  if (props.embed.type !== 'url' || !props.embed.url) return '链接';
+  if (props.embed.type !== "url" || !props.embed.url) return "链接";
   try {
     const url = new URL(props.embed.url);
-    return url.hostname.replace(/^www\./, '');
+    return url.hostname.replace(/^www\./, "");
   } catch {
-    return '链接';
+    return "链接";
   }
 });
 
 const urlPublisher = computed(() => {
-  if (props.embed.type !== 'url') return '链接';
+  if (props.embed.type !== "url") return "链接";
   return props.embed.publisher || urlDomain.value;
 });
 
 const urlTitle = computed(() => {
-  if (props.embed.type !== 'url' || !props.embed.url) return '';
+  if (props.embed.type !== "url" || !props.embed.url) return "";
   if (props.embed.title) return props.embed.title;
   try {
     const url = new URL(props.embed.url);
-    if (!url.pathname || url.pathname === '/') {
-      return url.hostname.replace(/^www\./, '');
+    if (!url.pathname || url.pathname === "/") {
+      return url.hostname.replace(/^www\./, "");
     }
 
-    const pathParts = url.pathname.split('/').filter(Boolean);
+    const pathParts = url.pathname.split("/").filter(Boolean);
     if (pathParts.length > 0) {
-      const tail = decodeURIComponent(pathParts[pathParts.length - 1]).replace(/[-_]/g, ' ');
-      return tail || url.hostname.replace(/^www\./, '');
+      const tail = decodeURIComponent(pathParts[pathParts.length - 1]).replace(
+        /[-_]/g,
+        " ",
+      );
+      return tail || url.hostname.replace(/^www\./, "");
     }
-    return url.hostname.replace(/^www\./, '');
+    return url.hostname.replace(/^www\./, "");
   } catch {
     return props.embed.url;
   }
 });
 
 const urlDescription = computed(() => {
-  if (props.embed.type !== 'url') return '';
-  return props.embed.description || '';
+  if (props.embed.type !== "url") return "";
+  return props.embed.description || "";
 });
 
 const urlImage = computed(() => {
-  if (props.embed.type !== 'url') return '';
-  return props.embed.image || '';
+  if (props.embed.type !== "url") return "";
+  return props.embed.image || "";
 });
 
 const urlIcon = computed(() => {
-  if (props.embed.type !== 'url') return '';
-  return props.embed.icon || '';
+  if (props.embed.type !== "url") return "";
+  return props.embed.icon || "";
 });
 
 const urlPath = computed(() => {
-  if (props.embed.type !== 'url' || !props.embed.url) return '';
+  if (props.embed.type !== "url" || !props.embed.url) return "";
   try {
     const url = new URL(props.embed.url);
     const path = `${url.pathname}${url.search}`;
-    return path && path !== '/' ? path : url.hostname.replace(/^www\./, '');
+    return path && path !== "/" ? path : url.hostname.replace(/^www\./, "");
   } catch {
-    return '';
+    return "";
   }
 });
 
@@ -439,7 +464,7 @@ const formatStatNumber = (num) => {
 // Toggle user follow
 const toggleUserFollow = async () => {
   if (!localuser.isLogin.value) {
-    router.push('/login');
+    router.push("/login");
     return;
   }
   if (!userData.value?.id) return;
@@ -455,10 +480,11 @@ const toggleUserFollow = async () => {
     } else {
       await axios.post(`/follows/${userData.value.id}`);
       isFollowingUser.value = true;
-      userData.value.followers_count = (userData.value.followers_count || 0) + 1;
+      userData.value.followers_count =
+        (userData.value.followers_count || 0) + 1;
     }
   } catch (e) {
-    console.error('Follow action failed:', e);
+    console.error("Follow action failed:", e);
   } finally {
     userFollowLoading.value = false;
   }
@@ -483,21 +509,23 @@ const loadEmbedData = async () => {
   loading.value = true;
   try {
     switch (props.embed.type) {
-      case 'project':
+      case "project":
         const projects = await getProjectInfo([props.embed.id]);
         if (projects?.length) {
           projectData.value = projects[0];
         }
         break;
-      case 'list':
+      case "list":
         try {
-          const res = await axios.get(`/projectlist/lists/listid/${props.embed.id}`);
-          if (res.data?.status === 'success' && res.data?.data) {
+          const res = await axios.get(
+            `/projectlist/lists/listid/${props.embed.id}`,
+          );
+          if (res.data?.status === "success" && res.data?.data) {
             listData.value = {
               id: props.embed.id,
               name: res.data.data.title,
               description: res.data.data.description,
-              itemCount: res.data.data.projects?.length || 0
+              itemCount: res.data.data.projects?.length || 0,
             };
           } else {
             listData.value = { id: props.embed.id };
@@ -506,39 +534,39 @@ const loadEmbedData = async () => {
           listData.value = { id: props.embed.id };
         }
         break;
-      case 'article':
+      case "article":
         const articles = await getProjectInfo([props.embed.id]);
         if (articles?.length) {
           articleData.value = articles[0];
         }
         break;
-      case 'user':
+      case "user":
         // Fetch user data from API
         try {
           const endpoint = props.embed.id
             ? `/user/id/${props.embed.id}`
             : `/user/name/${props.embed.username}`;
           const res = await axios.get(endpoint);
-          if (res.data?.status === 'success' && res.data?.data) {
+          if (res.data?.status === "success" && res.data?.data) {
             userData.value = res.data.data;
             // Check follow status after loading user data
             checkUserFollowStatus();
           } else {
             userData.value = {
               id: props.embed.id,
-              username: props.embed.username
+              username: props.embed.username,
             };
           }
         } catch {
           userData.value = {
             id: props.embed.id,
-            username: props.embed.username
+            username: props.embed.username,
           };
         }
         break;
     }
   } catch (e) {
-    console.error('Failed to load embed data:', e);
+    console.error("Failed to load embed data:", e);
   } finally {
     loading.value = false;
   }
@@ -547,35 +575,39 @@ const loadEmbedData = async () => {
 // Handle click - navigate to project page
 const handleClick = () => {
   switch (props.embed.type) {
-    case 'project':
+    case "project":
       if (projectData.value?.author?.username && projectData.value?.name) {
-        router.push(`/${projectData.value.author.username}/${projectData.value.name}`);
+        router.push(
+          `/${projectData.value.author.username}/${projectData.value.name}`,
+        );
       } else {
         router.push(`/app/project/${props.embed.id}`);
       }
       break;
-    case 'list':
+    case "list":
       router.push(`/app/projectlist/${props.embed.id}`);
       break;
-    case 'article':
+    case "article":
       if (articleData.value?.author?.username && articleData.value?.name) {
-        router.push(`/${articleData.value.author.username}/articles/${articleData.value.name}`);
+        router.push(
+          `/${articleData.value.author.username}/articles/${articleData.value.name}`,
+        );
       } else if (props.embed.username && props.embed.slug) {
         router.push(`/${props.embed.username}/articles/${props.embed.slug}`);
       } else if (props.embed.id) {
         router.push(`/app/project/${props.embed.id}`);
       }
       break;
-    case 'user':
+    case "user":
       if (userData.value?.username || props.embed.username) {
         router.push(`/${userData.value?.username || props.embed.username}`);
       } else {
         router.push(`/app/posts/user/${props.embed.id}`);
       }
       break;
-    case 'url':
+    case "url":
       if (props.embed.url) {
-        window.open(props.embed.url, '_blank', 'noopener,noreferrer');
+        window.open(props.embed.url, "_blank", "noopener,noreferrer");
       }
       break;
   }
@@ -664,7 +696,11 @@ watch(() => props.embed, loadEmbedData, { immediate: true, deep: true });
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.1) 0%, rgba(var(--v-theme-primary), 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--v-theme-primary), 0.1) 0%,
+    rgba(var(--v-theme-primary), 0.05) 100%
+  );
 }
 
 /* Project info bar */
@@ -807,8 +843,6 @@ watch(() => props.embed, loadEmbedData, { immediate: true, deep: true });
   background: rgba(var(--v-theme-on-surface), 0.06);
 }
 
-
-
 .embed-content--url {
   display: flex;
   flex-direction: column;
@@ -857,12 +891,10 @@ watch(() => props.embed, loadEmbedData, { immediate: true, deep: true });
 .embed-url-site-icon {
   width: 16px;
   height: 16px;
-  aspect-ratio: 1 / 1!important;
+  aspect-ratio: 1 / 1 !important;
 
   background: rgba(var(--v-theme-on-surface), 0.06);
 }
-
-
 
 .embed-url-site-fallback {
   color: rgba(var(--v-theme-on-surface), 0.5);
@@ -1034,16 +1066,17 @@ watch(() => props.embed, loadEmbedData, { immediate: true, deep: true });
 .user-embed-bg-pattern {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(
-    circle at 20% 80%,
-    rgba(var(--v-theme-primary), 0.1) 0%,
-    transparent 50%
-  ),
-  radial-gradient(
-    circle at 80% 20%,
-    rgba(var(--v-theme-secondary), 0.08) 0%,
-    transparent 50%
-  );
+  background-image:
+    radial-gradient(
+      circle at 20% 80%,
+      rgba(var(--v-theme-primary), 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(var(--v-theme-secondary), 0.08) 0%,
+      transparent 50%
+    );
 }
 
 /* Main content area */
