@@ -144,7 +144,7 @@
             <v-col cols="12" sm="6">
               <v-select
                 v-model="currentProject.type"
-                :items="['scratch', 'python', 'text']"
+                :items="['scratch', 'scratch-clipcc', 'python', 'text']"
                 hint="不建议你改"
                 label="类型"
                 required
@@ -266,6 +266,7 @@ export default {
       typeitems: [
         {name: "所有", type: ""},
         {name: "Scratch", type: "scratch"},
+        {name: "Scratch (ClipCC)", type: "scratch-clipcc"},
         {name: "Python", type: "python"},
       ],
       orderitems: [

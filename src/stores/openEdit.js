@@ -1,12 +1,13 @@
 export default function open(id, type, username, projectname) {
-  if (type == "scratch") {
+  if (type == "scratch" || type == "scratch3") {
+    let editorUrl = "/scratch/editor.html?id=" + id;
     if (localStorage.getItem("embedurl")) {
-      window.open(
-        localStorage.getItem("embedurl") + "/editor.html?id=" + id
-      );
-    } else {
-      window.open("/scratch/editor.html?id=" + id);
+      editorUrl = localStorage.getItem("embedurl") + "/editor.html?id=" + id;
     }
+    window.open(editorUrl);
+  }
+  if (type == "scratch-clipcc") {
+    window.open("/clipcc/editor.html?id=" + id);
   }
   if (type == "python") {
     window.open("/python/edit.html?id=" + id);

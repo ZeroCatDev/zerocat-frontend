@@ -368,7 +368,7 @@ const isSelf = computed(() => {
 // Computed properties
 const isScratchProject = computed(() => {
   const type = projectData.value?.type || "scratch";
-  return type === "scratch" || type === "scratch3";
+  return ["scratch", "scratch3", "scratch-clipcc"].includes(type);
 });
 
 const projectTypeLabel = computed(() => {
@@ -376,6 +376,7 @@ const projectTypeLabel = computed(() => {
   const labels = {
     scratch: "Scratch 作品",
     scratch3: "Scratch 作品",
+    "scratch-clipcc": "Scratch (ClipCC) 作品",
     "scratch-extension": "扩展",
     python: "Python",
     javascript: "JavaScript",

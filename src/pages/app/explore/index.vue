@@ -195,6 +195,7 @@ const DEFAULT_SEARCH = Object.freeze({
 
 const TYPE_PRESET_KEYS = [
   "scratch",
+  "scratch-clipcc",
   "scratch-extension",
   "python",
   "javascript",

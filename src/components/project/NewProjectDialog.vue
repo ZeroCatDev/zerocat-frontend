@@ -15,7 +15,7 @@
           <v-col cols="12" sm="6">
             <v-select
               v-model="projectinfo.type"
-              :items="['scratch', 'python', 'text']"
+              :items="['scratch', 'scratch-clipcc', 'python', 'text']"
               hint="选择一个"
               label="类型"
               required

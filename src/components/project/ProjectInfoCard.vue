@@ -104,14 +104,14 @@
     <!-- Editor buttons (full only) -->
     <div v-if="variant === 'full'" class="project-info__actions">
       <v-btn
-        v-if="project.type === 'scratch'"
+        v-if="['scratch', 'scratch3', 'scratch-clipcc'].includes(project.type)"
         variant="tonal"
         rounded="lg"
         class="text-none"
         append-icon="mdi-open-in-new"
         @click="openEditor(project.id, project.type)"
       >
-        Scratch 编辑器
+        {{ project.type === 'scratch-clipcc' ? 'ClipCC 编辑器' : 'Scratch 编辑器' }}
       </v-btn>
       <v-btn
         :to="`/${username}/${projectname}/edit`"

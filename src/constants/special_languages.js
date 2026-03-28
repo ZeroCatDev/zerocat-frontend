@@ -5,6 +5,12 @@ scratch: {
       description: "图形化编程语言",
       icon: "mdi-puzzle",
     },
+    "scratch-clipcc": {
+      name: "Scratch (ClipCC)",
+      extension: "sb3",
+      description: "使用 ClipCC 编辑器与播放器",
+      icon: "mdi-puzzle-check",
+    },
     "scratch-extension": {
       name: "Scratch扩展",
       extension: "js",

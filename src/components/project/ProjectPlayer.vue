@@ -1,6 +1,6 @@
 <template>
   <div>
-    <template v-if="projectType === 'scratch'">
+    <template v-if="isScratchLikeProjectType(projectType)">
       <v-card v-if="showplayer" border hover style="aspect-ratio: 4 / 3">
         <iframe
           :src="embedurl"
@@ -55,6 +55,13 @@
 import {initProject, getProjectContent} from "@/services/projectService";
 import CodeRunner from './CodeRunner.vue';
 import ExtensionDisplayContent from "../extensions/ExtensionDisplayContent.vue";
+
+const PLAYER_BASE_PATHS = {
+  scratch: '/scratch',
+  scratch3: '/scratch',
+  'scratch-clipcc': '/clipcc'
+};
+
 export default {
   name: 'ProjectPlayer',
   components: {
@@ -93,13 +100,22 @@ export default {
     }
   },
   computed: {
+    playerBasePath() {
+      return PLAYER_BASE_PATHS[this.projectType] || '/scratch';
+    },
     embedurl() {
+      const playerFile = this.projectType === 'scratch-clipcc' ? 'player.html' : 'embed.html';
+      let baseUrl = `${this.playerBasePath}/${playerFile}?id=${this.projectId}&embed=true`;
 
-         let baseUrl = import.meta.env.DEV ?`http://localhost:8601/embed.html?id=${this.projectId}&embed=true` : `/scratch/embed.html?id=${this.projectId}&embed=true`;
-
-      if(localStorage.getItem('embedurl')){
-        baseUrl = `${localStorage.getItem('embedurl')}/embed.html?id=${this.projectId}&embed=true`;
+      if (this.projectType === 'scratch' || this.projectType === 'scratch3') {
+        if (import.meta.env.DEV) {
+          baseUrl = `http://localhost:8601/embed.html?id=${this.projectId}&embed=true`;
+        }
+        if (localStorage.getItem('embedurl')) {
+          baseUrl = `${localStorage.getItem('embedurl')}/embed.html?id=${this.projectId}&embed=true`;
+        }
       }
+
       if (this.commitId !== 'latest') {
         return `${baseUrl}&ref=${this.commitId}`;
       }
@@ -107,8 +123,11 @@ export default {
     }
   },
   methods: {
+    isScratchLikeProjectType(type) {
+      return ['scratch', 'scratch3', 'scratch-clipcc'].includes(type);
+    },
     async loadProjectContent() {
-      if (!this.showplayer || this.projectType === 'scratch') {
+      if (!this.showplayer || this.isScratchLikeProjectType(this.projectType)) {
         return;
       }
 
