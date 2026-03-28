@@ -39,93 +39,7 @@
             </v-card-item>
           </v-card>
 
-          <v-card v-if="isAdminViewer && user.id" rounded="lg" border class="mb-4" variant="tonal" color="warning">
-            <v-card-title class="d-flex align-center justify-space-between py-3">
-              <div class="d-flex align-center">
-                <v-icon start>mdi-bug</v-icon>
-                <span class="font-weight-bold">ow_target_config 调试器</span>
-              </div>
-              <v-btn color="warning" prepend-icon="mdi-plus" size="small" variant="text" @click="openCreateTargetConfigDialog">
-                新增
-              </v-btn>
-            </v-card-title>
-            <v-divider />
-            <v-card-text>
-              <v-row dense>
-                <v-col cols="12" md="3">
-                  <v-text-field
-                    v-model="targetConfigQuery.key"
-                    clearable
-                    density="compact"
-                    hide-details
-                    label="key 精确匹配"
-                    variant="outlined"
-                    @keyup.enter="applyTargetConfigFilters"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" md="3">
-                  <v-text-field
-                    v-model="targetConfigQuery.keyLike"
-                    clearable
-                    density="compact"
-                    hide-details
-                    label="key 模糊匹配"
-                    variant="outlined"
-                    @keyup.enter="applyTargetConfigFilters"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" md="2">
-                  <v-select
-                    v-model="targetConfigQuery.itemsPerPage"
-                    :items="[10, 20, 50, 100, 200]"
-                    density="compact"
-                    hide-details
-                    label="每页"
-                    variant="outlined"
-                    @update:model-value="applyTargetConfigFilters"
-                  ></v-select>
-                </v-col>
-                <v-col class="d-flex ga-2" cols="12" md="4">
-                  <v-btn color="primary" prepend-icon="mdi-magnify" @click="applyTargetConfigFilters">查询</v-btn>
-                  <v-btn prepend-icon="mdi-refresh" variant="tonal" @click="resetTargetConfigFilters">重置</v-btn>
-                </v-col>
-              </v-row>
 
-              <v-alert
-                v-if="targetConfigError"
-                class="mt-3"
-                density="compact"
-                type="error"
-                variant="tonal"
-              >
-                {{ targetConfigError }}
-              </v-alert>
-
-              <v-data-table-server
-                v-model:items-per-page="targetConfigQuery.itemsPerPage"
-                v-model:page="targetConfigQuery.page"
-                class="mt-3"
-                :headers="targetConfigHeaders"
-                :items="targetConfigItems"
-                :items-length="targetConfigTotal"
-                :loading="targetConfigLoading"
-                item-value="id"
-                @update:options="loadTargetConfigs"
-              >
-                <template v-slot:item.value="{ item }">
-                  <pre class="target-config-value">{{ formatTargetConfigValue(item.value) }}</pre>
-                </template>
-                <template v-slot:item.updated_at="{ item }">
-                  {{ formatDateTime(item.updated_at) }}
-                </template>
-                <template v-slot:item.actions="{ item }">
-                  <v-btn color="primary" prepend-icon="mdi-pencil" size="small" variant="text" @click="openEditTargetConfigDialog(item)">
-                    编辑
-                  </v-btn>
-                </template>
-              </v-data-table-server>
-            </v-card-text>
-          </v-card>
 
           <!-- Home Tab -->
           <template v-if="currentTab === 'home'">
@@ -257,7 +171,93 @@
 
                 <Comment :url="'user-' + user.id" name="用户" />
 
-          </template>
+          </template><v-card v-if="isAdminViewer && user.id" rounded="lg" border class="mb-4" variant="tonal" color="warning">
+            <v-card-title class="d-flex align-center justify-space-between py-3">
+              <div class="d-flex align-center">
+                <v-icon start>mdi-bug</v-icon>
+                <span class="font-weight-bold">ow_target_config 调试器</span>
+              </div>
+              <v-btn color="warning" prepend-icon="mdi-plus" size="small" variant="text" @click="openCreateTargetConfigDialog">
+                新增
+              </v-btn>
+            </v-card-title>
+            <v-divider />
+            <v-card-text>
+              <v-row dense>
+                <v-col cols="12" md="3">
+                  <v-text-field
+                    v-model="targetConfigQuery.key"
+                    clearable
+                    density="compact"
+                    hide-details
+                    label="key 精确匹配"
+                    variant="outlined"
+                    @keyup.enter="applyTargetConfigFilters"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" md="3">
+                  <v-text-field
+                    v-model="targetConfigQuery.keyLike"
+                    clearable
+                    density="compact"
+                    hide-details
+                    label="key 模糊匹配"
+                    variant="outlined"
+                    @keyup.enter="applyTargetConfigFilters"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" md="2">
+                  <v-select
+                    v-model="targetConfigQuery.itemsPerPage"
+                    :items="[10, 20, 50, 100, 200]"
+                    density="compact"
+                    hide-details
+                    label="每页"
+                    variant="outlined"
+                    @update:model-value="applyTargetConfigFilters"
+                  ></v-select>
+                </v-col>
+                <v-col class="d-flex ga-2" cols="12" md="4">
+                  <v-btn color="primary" prepend-icon="mdi-magnify" @click="applyTargetConfigFilters">查询</v-btn>
+                  <v-btn prepend-icon="mdi-refresh" variant="tonal" @click="resetTargetConfigFilters">重置</v-btn>
+                </v-col>
+              </v-row>
+
+              <v-alert
+                v-if="targetConfigError"
+                class="mt-3"
+                density="compact"
+                type="error"
+                variant="tonal"
+              >
+                {{ targetConfigError }}
+              </v-alert>
+
+              <v-data-table-server
+                v-model:items-per-page="targetConfigQuery.itemsPerPage"
+                v-model:page="targetConfigQuery.page"
+                class="mt-3"
+                :headers="targetConfigHeaders"
+                :items="targetConfigItems"
+                :items-length="targetConfigTotal"
+                :loading="targetConfigLoading"
+                item-value="id"
+                @update:options="loadTargetConfigs"
+              >
+                <template v-slot:item.value="{ item }">
+                  <pre class="target-config-value">{{ formatTargetConfigValue(item.value) }}</pre>
+                </template>
+                <template v-slot:item.updated_at="{ item }">
+                  {{ formatDateTime(item.updated_at) }}
+                </template>
+                <template v-slot:item.actions="{ item }">
+                  <v-btn color="primary" prepend-icon="mdi-pencil" size="small" variant="text" @click="openEditTargetConfigDialog(item)">
+                    编辑
+                  </v-btn>
+                </template>
+              </v-data-table-server>
+            </v-card-text>
+          </v-card>
         </v-col>
       </v-row>
     </v-container>
