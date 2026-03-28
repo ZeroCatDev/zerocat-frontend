@@ -276,6 +276,7 @@
 import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue';
 import 'emoji-picker-element';
 import twemoji from 'twemoji';
+import { TWEMOJI_SVG_OPTIONS } from '@/utils/twemoji';
 import { getBranchs } from '@/services/projectService';
 import axios from '@/axios/axios';
 import { get as getCacheKv, set as setCacheKv } from '@/services/cachekv';
@@ -306,6 +307,9 @@ const embedMenuOpen = ref(false);
 const localEmbedType = ref('project');
 const addingEmbed = ref(false);
 let emojiShadowObserver = null;
+let emojiParseFrame = null;
+let emojiRetryTimer = null;
+let applyingPickerTwemoji = false;
 const recentEmojis = ref([]);
 
 const TWEMOJI_STYLE_ID = 'zerocat-twemoji-style';
@@ -380,11 +384,7 @@ const pushRecentEmoji = async (emoji) => {
 const renderTwemojiEmoji = (emoji) => {
   const value = String(emoji || '').trim();
   if (!value) return '';
-  return twemoji.parse(value, {
-    folder: 'svg',
-    ext: '.svg',
-    className: 'twemoji'
-  });
+  return twemoji.parse(value, TWEMOJI_SVG_OPTIONS);
 };
 
 const ensureTwemojiStyleInShadow = (shadowRoot) => {
@@ -392,10 +392,19 @@ const ensureTwemojiStyleInShadow = (shadowRoot) => {
   const style = document.createElement('style');
   style.id = TWEMOJI_STYLE_ID;
   style.textContent = `
+    /* Disable skin tone picker UI entirely. */
+    .skintone-button-wrapper,
+    #skintone-button,
+    #skintone-list,
+    #skintone-description {
+      display: none !important;
+      pointer-events: none !important;
+    }
+
     img.twemoji {
       width: 1.2em;
       height: 1.2em;
-      margin: 0 0.04em;
+      margin: 0;
       vertical-align: -0.2em;
       pointer-events: none;
     }
@@ -409,14 +418,32 @@ const applyTwemojiToPicker = () => {
   if (!shadowRoot) return;
 
   ensureTwemojiStyleInShadow(shadowRoot);
-  twemoji.parse(shadowRoot, {
-    folder: 'svg',
-    ext: '.svg',
-    className: 'twemoji'
+
+  applyingPickerTwemoji = true;
+  try {
+    twemoji.parse(shadowRoot, TWEMOJI_SVG_OPTIONS);
+  } finally {
+    applyingPickerTwemoji = false;
+  }
+};
+
+const scheduleApplyTwemojiToPicker = () => {
+  if (emojiParseFrame != null) return;
+  emojiParseFrame = window.requestAnimationFrame(() => {
+    emojiParseFrame = null;
+    applyTwemojiToPicker();
   });
 };
 
 const stopEmojiObserver = () => {
+  if (emojiRetryTimer != null) {
+    window.clearTimeout(emojiRetryTimer);
+    emojiRetryTimer = null;
+  }
+  if (emojiParseFrame != null) {
+    window.cancelAnimationFrame(emojiParseFrame);
+    emojiParseFrame = null;
+  }
   if (emojiShadowObserver) {
     emojiShadowObserver.disconnect();
     emojiShadowObserver = null;
@@ -429,14 +456,17 @@ const startEmojiObserver = () => {
   if (!shadowRoot) return;
 
   stopEmojiObserver();
-  emojiShadowObserver = new MutationObserver(() => {
-    applyTwemojiToPicker();
+
+  emojiShadowObserver = new MutationObserver((mutations) => {
+    if (applyingPickerTwemoji) return;
+    if (mutations.length) {
+      scheduleApplyTwemojiToPicker();
+    }
   });
 
   emojiShadowObserver.observe(shadowRoot, {
     childList: true,
-    subtree: true,
-    characterData: true
+    subtree: true
   });
 };
 
@@ -565,7 +595,11 @@ watch(emojiMenuOpen, async (open) => {
   if (open) {
     await loadRecentEmojis();
     await nextTick();
-    applyTwemojiToPicker();
+    scheduleApplyTwemojiToPicker();
+    emojiRetryTimer = window.setTimeout(() => {
+      emojiRetryTimer = null;
+      scheduleApplyTwemojiToPicker();
+    }, 180);
     startEmojiObserver();
     return;
   }

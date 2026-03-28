@@ -868,6 +868,7 @@ import { showSnackbar } from "@/composables/useNotifications";
 import { useDeleteConfirm } from "@/composables/useDeleteConfirm";
 import axios from "@/axios/axios";
 import twemoji from "twemoji";
+import { TWEMOJI_SVG_OPTIONS } from "@/utils/twemoji";
 import PostComposer from "./PostComposer.vue";
 import PostEmbed from "./PostEmbed.vue";
 import QuotedPost from "./QuotedPost.vue";
@@ -1138,11 +1139,7 @@ const formattedContent = computed(() => {
     return `<pre class="blocks">${code}</pre>`;
   });
 
-  return twemoji.parse(text, {
-    folder: "svg",
-    ext: ".svg",
-    className: "twemoji",
-  });
+  return twemoji.parse(text, TWEMOJI_SVG_OPTIONS);
 });
 
 const translationSourceText = computed(() => {

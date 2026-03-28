@@ -7,6 +7,7 @@
 <script>
 import "highlight.js/styles/atom-one-dark.css";
 import twemoji from "twemoji";
+import { TWEMOJI_SVG_OPTIONS } from "@/utils/twemoji";
 
 // 懒加载重型依赖
 let markdownInstancePromise = null;
@@ -107,11 +108,7 @@ export default {
       const rawContent = this.$slots.default ? this.$slots.default()[0].children : "";
       const renderedMarkdown = this.markdownInstance.render(rawContent);
       const sanitized = this.sanitizeContent(renderedMarkdown);
-      return twemoji.parse(sanitized, {
-        folder: "svg",
-        ext: ".svg",
-        className: "twemoji",
-      });
+      return twemoji.parse(sanitized, TWEMOJI_SVG_OPTIONS);
     },
   },
 };
