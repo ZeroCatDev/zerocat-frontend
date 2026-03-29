@@ -107,13 +107,11 @@ export default {
       const playerFile = this.projectType === 'scratch-clipcc' ? 'player.html' : 'embed.html';
       let baseUrl = `${this.playerBasePath}/${playerFile}?id=${this.projectId}&embed=true`;
 
-      if (this.projectType === 'scratch' || this.projectType === 'scratch3') {
+      if (this.projectType === 'scratch'||this.projectType === 'scratch-clipcc' || this.projectType === 'scratch3') {
         if (import.meta.env.DEV) {
-          baseUrl = `http://localhost:8601/embed.html?id=${this.projectId}&embed=true`;
+          baseUrl = `http://localhost:8601/player.html?id=${this.projectId}&embed=true`;
         }
-        if (localStorage.getItem('embedurl')) {
-          baseUrl = `${localStorage.getItem('embedurl')}/embed.html?id=${this.projectId}&embed=true`;
-        }
+
       }
 
       if (this.commitId !== 'latest') {
