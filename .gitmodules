@@ -12,3 +12,7 @@
 [submodule "public/twemoji"]
 	path = public/twemoji
 	url = https://github.com/twitter/twemoji
+[submodule "public/02engine"]
+	path = public/02engine
+	url = https://github.com/ZeroCatDev/02engine-scratch-gui.git
+	branch = build
