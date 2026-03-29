@@ -59,7 +59,8 @@ import ExtensionDisplayContent from "../extensions/ExtensionDisplayContent.vue";
 const PLAYER_BASE_PATHS = {
   scratch: '/scratch',
   scratch3: '/scratch',
-  'scratch-clipcc': '/clipcc'
+  'scratch-clipcc': '/clipcc',
+  'scratch-02engine': '/02engine'
 };
 
 export default {
@@ -104,14 +105,16 @@ export default {
       return PLAYER_BASE_PATHS[this.projectType] || '/scratch';
     },
     embedurl() {
-      const playerFile = this.projectType === 'scratch-clipcc' ? 'player.html' : 'embed.html';
+      let playerFile = 'embed.html';
+      if (this.projectType === 'scratch-clipcc') {
+        playerFile = 'player.html';
+      }
       let baseUrl = `${this.playerBasePath}/${playerFile}?id=${this.projectId}&embed=true`;
 
-      if (this.projectType === 'scratch'||this.projectType === 'scratch-clipcc' || this.projectType === 'scratch3') {
+      if (["scratch", "scratch-clipcc", "scratch3", "scratch-02engine"].includes(this.projectType)) {
         if (import.meta.env.DEV) {
-          baseUrl = `http://localhost:8601/player.html?id=${this.projectId}&embed=true`;
+          baseUrl = `http://localhost:8601/${playerFile}?id=${this.projectId}&embed=true`;
         }
-
       }
 
       if (this.commitId !== 'latest') {
@@ -122,7 +125,7 @@ export default {
   },
   methods: {
     isScratchLikeProjectType(type) {
-      return ['scratch', 'scratch3', 'scratch-clipcc'].includes(type);
+      return ['scratch', 'scratch3', 'scratch-clipcc', 'scratch-02engine'].includes(type);
     },
     async loadProjectContent() {
       if (!this.showplayer || this.isScratchLikeProjectType(this.projectType)) {

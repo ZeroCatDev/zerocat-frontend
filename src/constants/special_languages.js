@@ -8,8 +8,14 @@ scratch: {
     "scratch-clipcc": {
       name: "Scratch (ClipCC)",
       extension: "sb3",
-      description: "使用 ClipCC 编辑器与播放器",
+      description: "使用 ClipCC",
       icon: "mdi-puzzle-check",
+    },
+    "scratch-02engine": {
+      name: "Scratch (02Engine)",
+      extension: "sb3",
+      description: "使用 02Engine",
+      icon: "mdi-puzzle-star",
     },
     "scratch-extension": {
       name: "Scratch扩展",

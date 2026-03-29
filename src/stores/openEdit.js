@@ -9,6 +9,9 @@ export default function open(id, type, username, projectname) {
   if (type == "scratch-clipcc") {
     window.open("/clipcc/index.html?id=" + id);
   }
+  if (type == "scratch-02engine") {
+    window.open("/02engine/index.html?id=" + id);
+  }
   if (type == "python") {
     window.open("/python/edit.html?id=" + id);
   }
