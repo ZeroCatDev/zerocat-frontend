@@ -7,7 +7,7 @@ export default function open(id, type, username, projectname) {
     window.open(editorUrl);
   }
   if (type == "scratch-clipcc") {
-    window.open("/clipcc/editor.html?id=" + id);
+    window.open("/clipcc/index.html?id=" + id);
   }
   if (type == "python") {
     window.open("/python/edit.html?id=" + id);
