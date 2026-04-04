@@ -147,11 +147,13 @@
 
                 <div class="d-flex align-center ga-1">
                   <v-btn
-                    icon="mdi-information-outline"
-                    size="small"
+                    size="x-small"
                     variant="text"
+                    color="primary"
                     @click.stop="showDetails(notification)"
-                  ></v-btn>
+                  >
+                    详情
+                  </v-btn>
 
                   <v-btn
                     icon="mdi-delete-outline"
@@ -472,7 +474,44 @@ export default {
     };
 
     // 处理通知点击
-    const handleNotificationClick = (notification) => {
+    const resolveNotificationUrl = (notification) => {
+      if (notification?.redirect_url) return notification.redirect_url;
+
+      const rawLink = notification?.link;
+      if (rawLink && rawLink !== 'auto' && rawLink !== 'target') {
+        return rawLink;
+      }
+
+      if (notification?.actor?.username) {
+        return `/${notification.actor.username}`;
+      }
+
+      return '';
+    };
+
+    const handleNotificationClick = async (notification) => {
+      if (!notification.read) {
+        try {
+          await markNotificationAsRead(notification.id);
+          notification.read = true;
+          notification.read_at = new Date().toISOString();
+          const unreadCount = notifications.value.filter(n => !n.read).length;
+          emit('update:unread-count', unreadCount);
+        } catch (error) {
+          console.error('Error marking notification as read:', error);
+        }
+      }
+
+      const url = resolveNotificationUrl(notification);
+      if (url) {
+        if (url.startsWith('http')) {
+          window.open(url, '_blank');
+        } else {
+          router.push(url);
+        }
+        return;
+      }
+
       emit('notification-click', notification);
     };
 
@@ -494,9 +533,13 @@ export default {
 
     // 导航到链接
     const navigateToLink = (notification) => {
-      const url = notification.link || notification.redirect_url;
+      const url = resolveNotificationUrl(notification);
       if (url) {
-        router.push(url);
+        if (url.startsWith('http')) {
+          window.open(url, '_blank');
+        } else {
+          router.push(url);
+        }
       }
     };
 

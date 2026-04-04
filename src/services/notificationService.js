@@ -4,13 +4,13 @@ import axios from "@/axios/axios";
 export const getNotifications = async (params = {}) => {
   try {
     const { limit = 20, offset = 0, unread_only = false, url } = params;
-    
+
     // 如果提供了自定义URL（用于加载更多），直接使用
     if (url) {
       const response = await axios.get(url);
       return response.data;
     }
-    
+
     // 否则使用标准参数
     const response = await axios.get("/notifications", {
       params: { limit, offset, unread_only }
@@ -122,6 +122,73 @@ export const getPushSubscriptions = async () => {
     return response.data;
   } catch (error) {
     console.error("Error fetching push subscriptions:", error);
+    throw error;
+  }
+};
+
+// 获取指定对象的通知等级设置
+export const getNotificationSetting = async (targetType, targetId) => {
+  try {
+    const response = await axios.get(
+      `/notifications/settings/${String(targetType).toUpperCase()}/${targetId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching notification setting:", error);
+    throw error;
+  }
+};
+
+// 更新单个对象通知等级
+export const updateNotificationSetting = async ({ targetId, targetType, level }) => {
+  try {
+    const response = await axios.put("/notifications/settings", {
+      targetId: String(targetId),
+      targetType: String(targetType).toUpperCase(),
+      level,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating notification setting:", error);
+    throw error;
+  }
+};
+
+// 批量更新对象通知等级
+export const bulkUpdateNotificationSettings = async (settings = []) => {
+  try {
+    const response = await axios.put("/notifications/settings/bulk", {
+      settings: settings.map((item) => ({
+        targetId: String(item.targetId),
+        targetType: String(item.targetType).toUpperCase(),
+        level: item.level,
+      })),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error bulk updating notification settings:", error);
+    throw error;
+  }
+};
+
+// 查询通知设置列表
+export const listNotificationSettings = async (params = {}) => {
+  try {
+    const response = await axios.get("/notifications/settings", { params });
+    return response.data;
+  } catch (error) {
+    console.error("Error listing notification settings:", error);
+    throw error;
+  }
+};
+
+// 获取通知设置元数据
+export const getNotificationSettingsMetadata = async () => {
+  try {
+    const response = await axios.get("/notifications/settings/metadata");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching notification settings metadata:", error);
     throw error;
   }
 };

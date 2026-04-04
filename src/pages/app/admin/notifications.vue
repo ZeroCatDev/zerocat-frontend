@@ -150,6 +150,14 @@
                 ></v-switch>
               </v-col>
 
+              <v-col cols="12" md="4">
+                <NotificationLevelSelector
+                  v-model="notificationForm.notification_requirement"
+                  label="通知触达要求"
+                  :items="notificationRequirementOptions"
+                />
+              </v-col>
+
               <!-- 可点击链接 -->
               <v-col cols="12" md="6">
                 <v-text-field
@@ -375,6 +383,7 @@
 
 <script>
 import axios from "@/axios/axios";
+import NotificationLevelSelector from "@/components/notifications/NotificationLevelSelector.vue";
 import { debounce } from "lodash-es";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -385,6 +394,9 @@ dayjs.locale("zh-cn");
 
 export default {
   name: "NotificationsAdmin",
+  components: {
+    NotificationLevelSelector,
+  },
   data() {
     return {
       activeTab: "send",
@@ -418,10 +430,17 @@ export default {
         hidden: false,
         high_priority: false,
         notification_type: "admin_notification",
+        notification_requirement: "BASIC",
         target_type: "",
         target_id: "",
         metadata: {},
       },
+
+      notificationRequirementOptions: [
+        { title: "一般更新（BASIC）", value: "BASIC", color: "info" },
+        { title: "增强动态（ENHANCED）", value: "ENHANCED", color: "primary" },
+        { title: "高频动态（ALL）", value: "ALL", color: "success" },
+      ],
 
       // 接收者类型选项
       recipientTypes: [
@@ -438,9 +457,8 @@ export default {
 
       // 目标类型选项
       targetTypes: [
-        { title: "项目", value: "project" },
-        { title: "用户", value: "user" },
-        { title: "系统", value: "system" },
+        { title: "项目", value: "PROJECT" },
+        { title: "用户", value: "USER" },
       ],
 
       // 通知类型选项
@@ -564,6 +582,7 @@ export default {
         hidden: false,
         high_priority: false,
         notification_type: "admin_notification",
+        notification_requirement: "BASIC",
         target_type: "",
         target_id: "",
         metadata: {},

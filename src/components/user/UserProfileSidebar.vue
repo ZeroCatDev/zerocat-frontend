@@ -45,6 +45,13 @@
       />
     </div>
 
+    <div v-if="user.id" class="mb-4">
+      <ObjectNotificationLevelControl
+        target-type="USER"
+        :target-id="user.id"
+      />
+    </div>
+
     <!-- Follow Stats - GitHub style -->
     <div class="d-flex align-center ga-3 mb-4 text-body-2">
       <v-icon size="16" class="text-medium-emphasis">mdi-account-group-outline</v-icon>
@@ -97,6 +104,7 @@
 <script>
 import UserRelationControls from "@/components/user/UserRelationControls.vue";
 import TimeAgo from "@/components/TimeAgo.vue";
+import ObjectNotificationLevelControl from "@/components/notifications/ObjectNotificationLevelControl.vue";
 import { localuser } from "@/services/localAccount";
 import request from "@/axios/axios.js";
 
@@ -105,6 +113,7 @@ export default {
   components: {
     UserRelationControls,
     TimeAgo,
+    ObjectNotificationLevelControl,
   },
   props: {
     user: {

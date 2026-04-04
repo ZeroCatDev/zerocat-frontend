@@ -23,18 +23,20 @@
             v-for="notification in notifications"
             :key="notification.id"
             :active="!notification.read"
-            :class="{
-              'clickable-item': true,
-              'unread-notification': !notification.read,
-            }"
+            :class="[
+              'notification-item',
+              {
+                'clickable-item': true,
+                'unread-notification': !notification.read,
+                'is-page-mode': showPagination
+              }
+            ]"
             color="primary"
-            lines="three"
-            class="notification-item"
             @click="handleNotificationClick(notification)"
           >
             <template v-slot:prepend>
               <!-- 使用actor用户的头像 -->
-              <v-avatar v-if="notification.actor?.avatar" size="42">
+              <v-avatar v-if="notification.actor?.avatar" size="36">
                 <v-img
                   :src="localuser.getUserAvatar(notification.actor.avatar)"
                   alt="用户头像"
@@ -44,84 +46,59 @@
                 v-else-if="notification.template_info?.icon"
                 class="system-avatar"
                 color="primary"
-                size="42"
+                size="36"
               >
                 <v-icon>{{
                   getIconForType(notification.template_info.icon)
                 }}</v-icon>
               </v-avatar>
-              <v-avatar v-else class="system-avatar" color="primary" size="42">
+              <v-avatar v-else class="system-avatar" color="primary" size="36">
                 <v-icon>mdi-bell</v-icon>
               </v-avatar>
             </template>
 
-            <v-list-item-title class="font-weight-medium d-flex align-center">
-              <span v-if="notification.title">
-                {{ notification.title }}
-              </span>
-              <span v-else>系统消息</span>
+            <div class="notification-main">
+              <div class="notification-row-top">
+                <div class="notification-title-text" :class="showPagination ? 'font-weight-medium' : 'text-body-2'">
+                  {{ notification.title || "系统消息" }}
+                </div>
+                <div class="notification-meta d-flex align-center">
+                  <span class="text-caption text-grey">{{ formatRelativeTime(notification.created_at) }}</span>
+                  <v-icon
+                    v-if="!notification.read"
+                    color="primary"
+                    size="14"
+                    class="ml-1"
+                  >
+                    mdi-circle
+                  </v-icon>
+                </div>
+              </div>
 
-              <v-spacer></v-spacer>
-
-              <!-- 重要标记 -->
-              <v-chip
-                v-if="notification.high_priority"
-                color="error"
-                size="x-small"
-                variant="tonal"
-                class="ml-2"
-              >
-                重要
-              </v-chip>
-
-              <!-- 未读指示器 -->
-              <v-icon
-                v-if="!notification.read"
-                color="primary"
-                size="small"
-                class="ml-2"
-              >
-                mdi-circle-small
-              </v-icon>
-            </v-list-item-title>
-
-            <v-list-item-subtitle>
-              <span v-if="notification.template_info?.template">
-                <template v-if="notification.rendered_content">
-                  {{ notification.rendered_content }}
-                </template>
-                <template v-else>
-                  <v-progress-circular
-                    class="mr-2"
-                    indeterminate
-                    size="16"
-                    width="2"
-                  ></v-progress-circular>
-                  加载中...
-                </template>
-              </span>
-              <span v-else>{{ notification.content || "新的通知" }}</span>
-            </v-list-item-subtitle>
+              <div v-if="showPagination" class="notification-subtitle text-body-2">
+                <span v-if="notification.template_info?.template">
+                  <template v-if="notification.rendered_content">
+                    {{ notification.rendered_content }}
+                  </template>
+                  <template v-else>
+                    加载中...
+                  </template>
+                </span>
+                <span v-else>{{ notification.content || "新的通知" }}</span>
+              </div>
+            </div>
 
             <template v-slot:append>
-              <div class="d-flex flex-column align-end">
-                <!-- 时间显示 -->
-                <div class="text-caption text-grey mb-1">
-                  {{ formatRelativeTime(notification.created_at) }}
-                </div>
-
-                <!-- 类型标签 -->
-                <v-chip
-                  v-if="notification.template_info?.icon"
-                  :color="getTypeColor(notification.template_info.icon)"
+              <div class="d-flex align-center">
+                <v-btn
                   size="x-small"
-                  variant="tonal"
+                  variant="text"
+                  color="primary"
+                  class="notification-detail-btn"
+                  @click.stop="openNotificationDetail(notification)"
                 >
-                  <v-icon start size="x-small">
-                    {{ getIconForType(notification.template_info.icon) }}
-                  </v-icon>
-                  {{ getTypeLabel(notification.template_info.icon) }}
-                </v-chip>
+                  详情
+                </v-btn>
               </div>
             </template>
           </v-list-item>
@@ -982,15 +959,52 @@ export default {
       emit("update:unread-count", unreadCount.value);
     };
 
+    const resolveNotificationUrl = (notification) => {
+      if (notification?.redirect_url) return notification.redirect_url;
+
+      const rawLink = notification?.link;
+      if (rawLink && rawLink !== "auto" && rawLink !== "target") {
+        return rawLink;
+      }
+
+      if (notification?.actor?.username) {
+        return `/${notification.actor.username}`;
+      }
+
+      return "";
+    };
+
+    const navigateNotification = (notification) => {
+      const url = resolveNotificationUrl(notification);
+      if (!url) return false;
+
+      if (url.startsWith("http")) {
+        window.open(url, "_blank");
+      } else {
+        router.push(url);
+      }
+      return true;
+    };
+
     // 处理通知点击
     const handleNotificationClick = async (notification) => {
       // 自动标记为已读
       if (!notification.read) {
         await markAsRead(notification.id);
       }
-      console.log("handleNotificationClick", notification);
 
-      // 直接在此组件内部打开详情弹窗，不触发事件
+      // 默认点击优先跳转到对象链接；无链接时回退到详情
+      const jumped = navigateNotification(notification);
+      if (jumped) return;
+
+      selectedNotification.value = notification;
+      showDetailDialog.value = true;
+    };
+
+    const openNotificationDetail = async (notification) => {
+      if (!notification.read) {
+        await markAsRead(notification.id);
+      }
       selectedNotification.value = notification;
       showDetailDialog.value = true;
     };
@@ -1300,6 +1314,7 @@ export default {
       markAllAsRead,
       updateUnreadCount,
       handleNotificationClick,
+      openNotificationDetail,
       formatDate,
       formatRelativeTime,
       getTypeColor,
@@ -1340,11 +1355,71 @@ export default {
 <style scoped>
 .notification-item.unread-notification {
   background-color: rgba(var(--v-theme-primary), 0.04);
-  border-left: 4px solid rgb(var(--v-theme-primary));
+  border-left: 3px solid rgb(var(--v-theme-primary));
 }
 
 .clickable-item {
   cursor: pointer;
+}
+
+.notification-item {
+  padding-top: 14px;
+  padding-bottom: 14px;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid rgba(var(--v-border-color), 0.08);
+}
+
+.notification-item.is-page-mode {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  padding-inline: 20px;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item:hover {
+  background-color: rgba(var(--v-theme-on-surface), 0.03);
+}
+
+.notification-item.unread-notification:hover {
+  background-color: rgba(var(--v-theme-primary), 0.08);
+}
+
+.notification-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.notification-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.notification-title-text {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notification-subtitle {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  opacity: 0.8;
+}
+
+.notification-detail-btn {
+  min-width: 36px;
+  padding: 0 6px;
+  height: 24px;
 }
 
 .metadata-item {

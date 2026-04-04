@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card :elevation="menuMode ? undefined : 0" :class="{ 'v-card--flat bg-transparent': !menuMode }">
     <!-- 卡片标题和控制区 -->
     <template v-if="showHeader">
       <v-card-title class="d-flex align-center justify-space-between">

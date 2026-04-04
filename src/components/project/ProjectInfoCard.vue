@@ -101,6 +101,13 @@
       </v-btn>
     </div>
 
+    <div v-if="project.id" class="project-info__notification-level">
+      <ObjectNotificationLevelControl
+        target-type="PROJECT"
+        :target-id="project.id"
+      />
+    </div>
+
     <!-- Editor buttons (full only) -->
     <div v-if="variant === 'full'" class="project-info__actions">
       <v-btn
@@ -133,6 +140,7 @@ import TimeAgo from "@/components/TimeAgo.vue";
 import ProjectStar from "@/components/project/ProjectStar.vue";
 import UserRelationControls from "@/components/user/UserRelationControls.vue";
 import UserHoverCard from "@/components/UserHoverCard.vue";
+import ObjectNotificationLevelControl from "@/components/notifications/ObjectNotificationLevelControl.vue";
 import openEditor from "@/stores/openEdit";
 import { getProjectStats } from "@/services/projectService";
 import { openFloatingPostBar } from "@/composables/useFloatingPostBar";
@@ -143,6 +151,7 @@ export default {
     TimeAgo,
     ProjectStar,
     UserRelationControls,
+    ObjectNotificationLevelControl,
   },
   props: {
     project: {
@@ -367,5 +376,9 @@ export default {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+}
+
+.project-info__notification-level {
+  max-width: 280px;
 }
 </style>
